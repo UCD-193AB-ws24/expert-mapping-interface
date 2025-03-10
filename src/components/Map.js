@@ -36,6 +36,12 @@ const PointExpertsPanel = ({ experts, onClose }) => {
       
       <h2>Selected Point Experts</h2>
 
+      {/* Displaying the location between h2 and ul */}
+      <div style={{ marginBottom: '20px', fontSize: '14px', color: '#555'  }}>
+  
+        Location: {experts.length > 0 ? experts[0].location_name : 'No location available'}
+      </div>
+
       <ul>
         {experts
           .sort((a, b) => a.researcher_name.localeCompare(b.researcher_name))
@@ -298,6 +304,9 @@ const ResearchMap = () => {
                 <div style="font-weight: bold; font-size: 16px; color: #13639e;">
                   ${expert.researcher_name || "Unknown"}
                 </div>
+                 <div style="font-size: 14px; color: #333; margin-top: 5px;">
+                  <strong>Location:</strong> ${experts[0]?.location_name || "Unknown"}
+                </div>
                 <div style="font-size: 14px; color: #333; margin-top: 5px;">
                   <strong>Related Works:</strong> ${expert.work_count || "N/A"}
                 </div>
@@ -330,18 +339,60 @@ const ResearchMap = () => {
             });
           });
         } else {
-          // For multiple experts, set the click event to open the panel
-          popupContent.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
+
+
+        let isMouseOverPopup = false;
+
+        marker.on("mouseover", () => {
+
+          const popupContent = `<div id="expert-popup" style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+                      <div style="font-weight: bold; font-size: 16px; color: #13639e;">
+                        ${experts.length === 1 ? experts[0]?.researcher_name || "Unknown" : `${experts.length} Experts at this Location`}
+                      </div>
+                      <div style="font-size: 14px; color: #333; margin-top: 5px;">
+                        <strong>Location:</strong> ${experts[0]?.location_name || "Unknown"}
+                      </div>
+                      ${experts.length === 1 ? "" : `
+                        <a href='#' 
+                            class="view-experts-btn"
+                            style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                          View Experts
+                        </a>
+                      `}
+                    </div>`;
+          marker.bindPopup(popupContent).openPopup(); // Show popup on hover
+
+          document.getElementById("expert-popup")?.addEventListener("mouseenter", () => {
+            isMouseOverPopup = true;
+          });
+          document.getElementById("expert-popup")?.addEventListener("mouseleave", () => {
+            isMouseOverPopup = false;
+          });
+        });
+
+        marker.on("mouseout", () => {
+          setTimeout(() => {
+            if (!isMouseOverPopup) {
+              marker.closePopup(); // Close popup when mouse leaves unless inside the popup
+            }
+          }, 200);
+        });
+
+        // Show expert panel on button click
+        marker.on("popupopen", () => {
+          document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
             e.preventDefault();
             setSelectedPointExperts(experts); // Set experts for the point panel
             setPanelType("point"); // Set panel type to point
             setPanelOpen(true); // Open point panel
-            marker.closePopup(); // Close the popup after clicking
+            marker.closePopup(); // Close popup after clicking
           });
-        }
-      });
-    }
-  }, [geoData]);
+        });
+
+                }
+              });
+            }
+          }, [geoData]);
 
   return (
     <div style={{ display: 'flex' }}>
