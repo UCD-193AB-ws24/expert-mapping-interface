@@ -295,9 +295,12 @@ const ResearchMap = () => {
 
         marker.bindPopup(popup).addTo(markerClusterGroupRef.current);
 
+        // Disable clicking on points
+        // marker.off("click");
+
         // If there's only one expert, show the details on hover
         if (count === 1) {
-          marker.on("mouseover", () => {
+          marker.on("mouseover click", () => {
             const expert = experts[0];
             const singleExpertPopupContent = `
               <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
@@ -321,10 +324,15 @@ const ResearchMap = () => {
               .setContent(singleExpertPopupContent)
               .openOn(mapRef.current);
 
-            // Set a timeout to close the popup after 3 seconds
-            popupTimeoutRef.current = setTimeout(() => {
-              mapRef.current.closePopup(singleExpertPopup);
-            }, 1000); // Adjust the timeout duration as needed
+            marker.on("mouseover", () => {
+              clearTimeout(popupTimeoutRef.current);
+            })
+
+            marker.on("mouseout", () => {
+              popupTimeoutRef.current = setTimeout(() => {
+                mapRef.current.closePopup(singleExpertPopup);
+              }, 200); // Adjust the timeout duration as needed
+            })
 
             // Clear the timeout if the mouse enters the popup
             singleExpertPopup.on('mouseover', () => {
@@ -339,12 +347,9 @@ const ResearchMap = () => {
             });
           });
         } else {
-
-
           let isMouseOverPopup = false;
 
-          marker.on("mouseover", () => {
-
+          marker.on("mouseover click", () => {
             const popupContent = `<div id="expert-popup" style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
                       <div style="font-weight: bold; font-size: 16px; color: #13639e;">
                         ${experts.length === 1 ? experts[0]?.researcher_name || "Unknown" : `${experts.length} Experts at this Location`}
