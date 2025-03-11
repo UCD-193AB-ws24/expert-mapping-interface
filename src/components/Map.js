@@ -8,18 +8,18 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 const PointExpertsPanel = ({ experts, onClose }) => {
   return (
-    <div 
-      style={{ 
-        width: '300px', 
-        background: '#f0f0f0', 
-        padding: '20px', 
-        overflowY: 'auto', 
+    <div
+      style={{
+        width: '300px',
+        background: '#f0f0f0',
+        padding: '20px',
+        overflowY: 'auto',
         height: '80vh',
-        position: 'relative' 
+        position: 'relative'
       }}
     >
-      <button 
-        onClick={onClose} 
+      <button
+        onClick={onClose}
         style={{
           position: 'absolute',
           top: '10px',
@@ -33,12 +33,12 @@ const PointExpertsPanel = ({ experts, onClose }) => {
       >
         &times;
       </button>
-      
+
       <h2>Selected Point Experts</h2>
 
       {/* Displaying the location between h2 and ul */}
-      <div style={{ marginBottom: '20px', fontSize: '14px', color: '#555'  }}>
-  
+      <div style={{ marginBottom: '20px', fontSize: '14px', color: '#555' }}>
+
         Location: {experts.length > 0 ? experts[0].location_name : 'No location available'}
       </div>
 
@@ -46,14 +46,14 @@ const PointExpertsPanel = ({ experts, onClose }) => {
         {experts
           .sort((a, b) => a.researcher_name.localeCompare(b.researcher_name))
           .map((expert, index) => (
-            <div key={index} style={{ 
-              position: "relative", 
-              padding: "15px", 
-              fontSize: "14px", 
-              lineHeight: "1.5", 
-              width: "100%", 
-              border: "1px solid #ccc", 
-              borderRadius: "5px", 
+            <div key={index} style={{
+              position: "relative",
+              padding: "15px",
+              fontSize: "14px",
+              lineHeight: "1.5",
+              width: "100%",
+              border: "1px solid #ccc",
+              borderRadius: "5px",
               marginBottom: "15px",
               background: "#f9f9f9"
             }}>
@@ -63,28 +63,28 @@ const PointExpertsPanel = ({ experts, onClose }) => {
               <div style={{ marginTop: "10px", fontSize: "13px" }}>
                 <strong>Related Works:</strong> {expert.work_count || "N/A"}
               </div>
-              <a 
-                href={expert.researcher_url || "#"} 
-                target={expert.researcher_url ? "_blank" : "_self"} 
-                rel="noopener noreferrer" 
-                style={{ 
-                  display: "block", 
-                  marginTop: "12px", 
-                  padding: "8px 10px", 
-                  background: expert.researcher_url ? "#13639e" : "#ccc",  
-                  color: "white", 
-                  textAlign: "center", 
-                  borderRadius: "5px", 
-                  textDecoration: "none", 
-                  fontWeight: "bold", 
-                  opacity: expert.researcher_url ? "1" : "0.6", 
+              <a
+                href={expert.researcher_url || "#"}
+                target={expert.researcher_url ? "_blank" : "_self"}
+                rel="noopener noreferrer"
+                style={{
+                  display: "block",
+                  marginTop: "12px",
+                  padding: "8px 10px",
+                  background: expert.researcher_url ? "#13639e" : "#ccc",
+                  color: "white",
+                  textAlign: "center",
+                  borderRadius: "5px",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  opacity: expert.researcher_url ? "1" : "0.6",
                   cursor: expert.researcher_url ? "pointer" : "default"
                 }}
               >
                 {expert.researcher_url ? "View Profile" : "No Profile Found"}
               </a>
             </div>
-        ))}
+          ))}
       </ul>
     </div>
   );
@@ -194,7 +194,7 @@ const ResearchMap = () => {
                 </div>
               `;
 
-              const popup = L.popup({ closeButton: false, autoClose: false })
+              const popup = L.popup({ closeButton: false, autoClose: true })
                 .setLatLng(event.latlng)
                 .setContent(popupContent);
 
@@ -289,7 +289,7 @@ const ResearchMap = () => {
           </div>
         `;
 
-        const popup = L.popup({ closeButton: false, autoClose: false })
+        const popup = L.popup({ closeButton: false, autoClose: true })
           .setLatLng([lat, lng])
           .setContent(popupContent);
 
@@ -316,7 +316,7 @@ const ResearchMap = () => {
                 </a>
               </div>
             `;
-            const singleExpertPopup = L.popup({ closeButton: false, autoClose: false })
+            const singleExpertPopup = L.popup({ closeButton: false, autoClose: true })
               .setLatLng([lat, lng])
               .setContent(singleExpertPopupContent)
               .openOn(mapRef.current);
@@ -341,11 +341,11 @@ const ResearchMap = () => {
         } else {
 
 
-        let isMouseOverPopup = false;
+          let isMouseOverPopup = false;
 
-        marker.on("mouseover", () => {
+          marker.on("mouseover", () => {
 
-          const popupContent = `<div id="expert-popup" style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+            const popupContent = `<div id="expert-popup" style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
                       <div style="font-weight: bold; font-size: 16px; color: #13639e;">
                         ${experts.length === 1 ? experts[0]?.researcher_name || "Unknown" : `${experts.length} Experts at this Location`}
                       </div>
@@ -360,56 +360,56 @@ const ResearchMap = () => {
                         </a>
                       `}
                     </div>`;
-          marker.bindPopup(popupContent).openPopup(); // Show popup on hover
+            marker.bindPopup(popupContent).openPopup(); // Show popup on hover
 
-          document.getElementById("expert-popup")?.addEventListener("mouseenter", () => {
-            isMouseOverPopup = true;
+            document.getElementById("expert-popup")?.addEventListener("mouseenter", () => {
+              isMouseOverPopup = true;
+            });
+            document.getElementById("expert-popup")?.addEventListener("mouseleave", () => {
+              isMouseOverPopup = false;
+            });
           });
-          document.getElementById("expert-popup")?.addEventListener("mouseleave", () => {
-            isMouseOverPopup = false;
+
+          marker.on("mouseout", () => {
+            setTimeout(() => {
+              if (!isMouseOverPopup) {
+                marker.closePopup(); // Close popup when mouse leaves unless inside the popup
+              }
+            }, 200);
           });
-        });
 
-        marker.on("mouseout", () => {
-          setTimeout(() => {
-            if (!isMouseOverPopup) {
-              marker.closePopup(); // Close popup when mouse leaves unless inside the popup
-            }
-          }, 200);
-        });
-
-        // Show expert panel on button click
-        marker.on("popupopen", () => {
-          document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
-            e.preventDefault();
-            setSelectedPointExperts(experts); // Set experts for the point panel
-            setPanelType("point"); // Set panel type to point
-            setPanelOpen(true); // Open point panel
-            marker.closePopup(); // Close popup after clicking
+          // Show expert panel on button click
+          marker.on("popupopen", () => {
+            document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
+              e.preventDefault();
+              setSelectedPointExperts(experts); // Set experts for the point panel
+              setPanelType("point"); // Set panel type to point
+              setPanelOpen(true); // Open point panel
+              marker.closePopup(); // Close popup after clicking
+            });
           });
-        });
 
-                }
-              });
-            }
-          }, [geoData]);
+        }
+      });
+    }
+  }, [geoData]);
 
   return (
     <div style={{ display: 'flex' }}>
       <div id="map" style={{ flex: 1, height: '100vh' }}></div>
       {panelOpen && panelType === "polygon" && selectedExperts.length > 0 && (
-        <div 
-          style={{ 
-            width: '300px', 
-            background: '#f0f0f0', 
-            padding: '20px', 
-            overflowY: 'auto', 
+        <div
+          style={{
+            width: '300px',
+            background: '#f0f0f0',
+            padding: '20px',
+            overflowY: 'auto',
             height: '80vh',
-            position: 'relative' 
+            position: 'relative'
           }}
         >
-          <button 
-            onClick={() => setPanelOpen(false)} 
+          <button
+            onClick={() => setPanelOpen(false)}
             style={{
               position: 'absolute',
               top: '10px',
@@ -423,7 +423,7 @@ const ResearchMap = () => {
           >
             &times;
           </button>
-          
+
           <h2>Selected Experts</h2>
 
           {/* Display Location (taken from the first expert) */}
@@ -437,14 +437,14 @@ const ResearchMap = () => {
             {selectedExperts
               .sort((a, b) => a.properties.researcher_name.localeCompare(b.properties.researcher_name)) // Sort alphabetically by name
               .map((expert, index) => (
-                <div key={index} style={{ 
-                  position: "relative", 
-                  padding: "15px", 
-                  fontSize: "14px", 
-                  lineHeight: "1.5", 
-                  width: "100%", 
-                  border: "1px solid #ccc", 
-                  borderRadius: "5px", 
+                <div key={index} style={{
+                  position: "relative",
+                  padding: "15px",
+                  fontSize: "14px",
+                  lineHeight: "1.5",
+                  width: "100%",
+                  border: "1px solid #ccc",
+                  borderRadius: "5px",
                   marginBottom: "15px",
                   background: "#f9f9f9"
                 }}>
@@ -454,35 +454,35 @@ const ResearchMap = () => {
                   <div style={{ marginTop: "10px", fontSize: "13px" }}>
                     <strong>Related Works:</strong> {expert.properties.work_count || "N/A"}
                   </div>
-                  <a 
-                    href={expert.properties.researcher_url || "#"} 
-                    target={expert.properties.researcher_url ? "_blank" : "_self"} 
-                    rel="noopener noreferrer" 
-                    style={{ 
-                      display: "block", 
-                      marginTop: "12px", 
-                      padding: "8px 10px", 
-                      background: expert.properties.researcher_url ? "#13639e" : "#ccc",  
-                      color: "white", 
-                      textAlign: "center", 
-                      borderRadius: "5px", 
-                      textDecoration: "none", 
-                      fontWeight: "bold", 
-                      opacity: expert.properties.researcher_url ? "1" : "0.6", 
+                  <a
+                    href={expert.properties.researcher_url || "#"}
+                    target={expert.properties.researcher_url ? "_blank" : "_self"}
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "block",
+                      marginTop: "12px",
+                      padding: "8px 10px",
+                      background: expert.properties.researcher_url ? "#13639e" : "#ccc",
+                      color: "white",
+                      textAlign: "center",
+                      borderRadius: "5px",
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                      opacity: expert.properties.researcher_url ? "1" : "0.6",
                       cursor: expert.properties.researcher_url ? "pointer" : "default"
                     }}
                   >
                     {expert.properties.researcher_url ? "View Profile" : "No Profile Found"}
                   </a>
                 </div>
-            ))}
+              ))}
           </ul>
         </div>
       )}
       {panelOpen && panelType === "point" && selectedPointExperts.length > 0 && (
-        <PointExpertsPanel 
-          experts={selectedPointExperts} 
-          onClose={() => setPanelOpen(false)} 
+        <PointExpertsPanel
+          experts={selectedPointExperts}
+          onClose={() => setPanelOpen(false)}
         />
       )}
     </div>
