@@ -38,7 +38,6 @@ const PointExpertsPanel = ({ experts, onClose }) => {
 
       {/* Displaying the location between h2 and ul */}
       <div style={{ marginBottom: '20px', fontSize: '14px', color: '#555' }}>
-
         Location: {experts.length > 0 ? experts[0].location_name : 'No location available'}
       </div>
 
@@ -154,84 +153,131 @@ const ResearchMap = () => {
         }
       });
 
+      //finding farthest expert for polygon
+      const referencePoint = L.latLng(20, 0); // Example reference point
+      let farthestExpert = null;
+      let maxDistance = 0;
+
       geoData.features.forEach((feature) => {
         const geometry = feature.geometry;
 
-        // Handle Polygon
-        if (geometry.type === "Polygon") {
-          const coordinates = geometry.coordinates[0];
-          if (Array.isArray(coordinates) && Array.isArray(coordinates[0])) {
-            const flippedCoordinates = coordinates.map(([lng, lat]) => [lat, lng]);
+        // Handle Point
+        if (geometry.type === "Point") {
+          const [lng, lat] = geometry.coordinates;
+          const expertLocation = L.latLng(lat, lng);
+          const distance = referencePoint.distanceTo(expertLocation); // Calculate distance
 
+          if (distance > maxDistance) {
+            maxDistance = distance;
+            farthestExpert = feature; 
+          }
+        }
+      });
+      if (farthestExpert) {
+        const locationId = farthestExpert.properties.location_id;
+
+        geoData.features.forEach((feature) => {
+          const geometry = feature.geometry;
+
+          if (geometry.type === "Polygon" && feature.properties.location_id === locationId) {
+            const coordinates = geometry.coordinates[0];
+            const flippedCoordinates = coordinates.map(([lng, lat]) => [lat, lng]);
             const polygon = L.polygon(flippedCoordinates, {
               color: '#13639e',
               weight: 2,
               fillColor: '#d8db9a',
               fillOpacity: 0.3,
-            }).addTo(mapRef.current);
+            });
 
-            const locationId = feature.properties.location_id;
-            const expertCount = locationExpertCounts.get(locationId) || 0;
-            const locationName = feature.properties.location_name || "Unknown";
+            // Remove the polygon from the map
+            mapRef.current.removeLayer(polygon);
+          }
+        });
+      }
 
-            polygon.on("mouseover", (event) => {
-              clearTimeout(popupTimeoutRef.current);
+      const polygonsToRender = new Set(); // To track unique locations
 
-              const popupContent = document.createElement("div");
-              popupContent.innerHTML = `
-                <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
-                  <div style="font-weight: bold; font-size: 16px; color: #13639e;">
-                    ${expertCount} Experts at this location
-                  </div>
-                  <div style="font-size: 14px; color: #333; margin-top: 5px;">
-                    <strong>Location:</strong> ${locationName}
-                  </div>
-                  <a href='#' 
-                     class="view-experts-btn"
-                     style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                    View Experts
-                  </a>
-                </div>
-              `;
+      geoData.features.forEach((feature) => {
+        const geometry = feature.geometry;
 
-              const popup = L.popup({ closeButton: false, autoClose: true, autoPan: true, autoPanPadding: [-17, -17] })
-                .setLatLng(event.latlng)
-                .setContent(popupContent);
+        // Handle Polygon
+        if (geometry.type === "Polygon") {
+          const locationId = feature.properties.location_id;
 
-              polygon.bindPopup(popup).openPopup();
+          // Check if this location has already been added
+          if (!polygonsToRender.has(locationId)) {
+            polygonsToRender.add(locationId); 
 
-              let isMouseOver = false;
+            const coordinates = geometry.coordinates[0];
+            if (Array.isArray(coordinates) && Array.isArray(coordinates[0])) {
+              const flippedCoordinates = coordinates.map(([lng, lat]) => [lat, lng]);
 
-              popupContent.addEventListener("mouseenter", () => {
-                isMouseOver = true;
+              const polygon = L.polygon(flippedCoordinates, {
+                color: '#13639e',
+                weight: 2,
+                fillColor: '#d8db9a',
+                fillOpacity: 0.3,
+              }).addTo(mapRef.current);
+
+              const expertCount = locationExpertCounts.get(locationId) || 0;
+              const locationName = feature.properties.location_name || "Unknown";
+
+              polygon.on("mouseover", (event) => {
                 clearTimeout(popupTimeoutRef.current);
+
+                const popupContent = document.createElement("div");
+                popupContent.innerHTML = `
+                  <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+                    <div style="font-weight: bold; font-size: 16px; color: #13639e;">
+                      ${expertCount} Experts at this location
+                    </div>
+                    <div style="font-size: 14px; color: #333; margin-top: 5px;">
+                      <strong>Location:</strong> ${locationName}
+                    </div>
+                    <a href='#' 
+                       class="view-experts-btn"
+                       style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                      View Experts
+                    </a>
+                  </div>
+                `;
+
+                const popup = L.popup({ closeButton: false, autoClose: true, autoPan: true, autoPanPadding: [-17, -17] })
+                  .setLatLng(event.latlng)
+                  .setContent(popupContent);
+
+                polygon.bindPopup(popup).openPopup();
+
+                let isMouseOver = false;
+
+                popupContent.addEventListener("mouseenter", () => {
+                  isMouseOver = true;
+                  clearTimeout(popupTimeoutRef.current);
+                });
+
+                popupContent.addEventListener("mouseleave", () => {
+                  isMouseOver = false;
+                  popupTimeoutRef.current = setTimeout(() => {
+                    polygon.closePopup();
+                  }, 500);
+                });
+
+                popupContent.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
+                  e.preventDefault();
+                  const experts = geoData.features.filter(f => f.properties.location_id === locationId);
+                  setSelectedExperts(experts);
+                  setPanelType("polygon");
+                  setPanelOpen(true);
+                  polygon.closePopup();
+                });
               });
 
-              popupContent.addEventListener("mouseleave", () => {
-                isMouseOver = false;
+              polygon.on("mouseout", () => {
                 popupTimeoutRef.current = setTimeout(() => {
                   polygon.closePopup();
                 }, 500);
               });
-
-              popupContent.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
-                e.preventDefault();
-                const experts = geoData.features.filter(f => f.properties.location_id === locationId);
-                setSelectedExperts(experts);
-                setPanelType("polygon");
-                setPanelOpen(true);
-                polygon.closePopup();
-              });
-            });
-
-            
-            
-
-            polygon.on("mouseout", () => {
-              popupTimeoutRef.current = setTimeout(() => {
-                polygon.closePopup();
-              }, 500);
-            });
+            }
           }
         }
 
@@ -298,7 +344,6 @@ const ResearchMap = () => {
 
         marker.bindPopup(popup).addTo(markerClusterGroupRef.current);
         
-
         // Disable clicking on points
         // marker.off("click");
 
@@ -335,7 +380,7 @@ const ResearchMap = () => {
             marker.on("mouseout", () => {
               popupTimeoutRef.current = setTimeout(() => {
                 mapRef.current.closePopup(singleExpertPopup);
-              }, 200); // Adjust the timeout duration as needed
+              }, 650); // Adjust the timeout duration as needed
             })
 
             // Clear the timeout if the mouse enters the popup
@@ -397,7 +442,6 @@ const ResearchMap = () => {
               marker.closePopup(); // Close popup after clicking
             });
           });
-
         }
       });
     }
