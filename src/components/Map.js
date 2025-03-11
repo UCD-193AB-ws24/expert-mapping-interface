@@ -194,7 +194,7 @@ const ResearchMap = () => {
                 </div>
               `;
 
-              const popup = L.popup({ closeButton: false, autoClose: true })
+              const popup = L.popup({ closeButton: false, autoClose: true, autoPan: true, autoPanPadding: [-17, -17] })
                 .setLatLng(event.latlng)
                 .setContent(popupContent);
 
@@ -223,6 +223,9 @@ const ResearchMap = () => {
                 polygon.closePopup();
               });
             });
+
+            
+            
 
             polygon.on("mouseout", () => {
               popupTimeoutRef.current = setTimeout(() => {
@@ -294,6 +297,7 @@ const ResearchMap = () => {
           .setContent(popupContent);
 
         marker.bindPopup(popup).addTo(markerClusterGroupRef.current);
+        
 
         // Disable clicking on points
         // marker.off("click");
