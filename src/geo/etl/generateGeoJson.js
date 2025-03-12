@@ -14,10 +14,10 @@ const { normalizeLocationName, normalizeResearcherName } = require('./utils');
 const turf = require('@turf/turf');
 
 // Define file paths
-const profilesPath = path.join(__dirname, '../data', "json", "location_based_profiles.json");
-const urlsPath = path.join(__dirname, '../data', "csv", "expert_url_subset.csv");
-const coordsPath = path.join(__dirname, '../data', "json", "location_coordinates.json");
-const outputPath = path.join(__dirname, '../data', "json", "research_profiles.geojson");
+const profilesPath = path.join(__dirname, '../data/json/geocoding', "location_based_profiles.json");
+const urlsPath = path.join(__dirname, '../data/csv',  "expert_url_subset.csv");
+const coordsPath = path.join(__dirname, '../data/json/geocoding', "location_coordinates.json");
+const outputPath = path.join(__dirname, '../data', "research_profiles.geojson");
 
 // Step 1: Load location coordinates
 const locationCoordinates = JSON.parse(fs.readFileSync(coordsPath, "utf-8"));

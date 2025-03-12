@@ -15,8 +15,8 @@ const axios = require('axios');
 const { normalizeLocationName } = require('./utils');
 
 // Configuration constants
-const CACHE_FILE = path.join(__dirname, '../data', 'json', 'location_coordinates.json');
-const LOCATIONS_FILE = process.argv[2] || path.join(__dirname, '../data', 'json', 'location_based_profiles.json');
+const CACHE_FILE = path.join(__dirname, '../data/json/geocoding', 'location_coordinates.json');
+const LOCATIONS_FILE = process.argv[2] || path.join(__dirname, '../data/json/geocoding', 'location_based_profiles.json');
 const DELAY_MS = 1000; // Nominatim rate limit: 1 request per second
 const MAX_POINTS = 4096; // Maximum points to keep in polygon geometries
 
