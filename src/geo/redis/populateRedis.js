@@ -58,7 +58,7 @@ async function populateRedis() {
           researcher_url: researcher_url || '',
           work_count: work_count ? work_count.toString() : '0',
           work_titles: work_titles ? JSON.stringify(work_titles) : '[]',
-          confidence: confidence
+          confidence: confidence,
           location_name: location_name || '',
           location_type: location_type || '',
           location_id: location_id ? location_id.toString() : '',

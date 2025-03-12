@@ -337,26 +337,31 @@ app.get('/api/redis/query', async (req, res) => {
     });
 
     const features = [];
+    
+    console.log(`Found ${keys.length} features in Redis`);
+
     for (const key of sortedKeys) {
       const data = await redisClient.hGetAll(key);
+      
       features.push({
-      type: 'Feature',
-      geometry: {
-        type: data.geometry_type,
-        coordinates: JSON.parse(data.coordinates)
-      },
-      properties: {
-        researcher_name: data.researcher_name,
-        researcher_url: data.researcher_url,
-        work_count: data.work_count,
-        work_titles: data.work_titles,
-        confidence: data.confidence,
-        location_name: data.location_name,
-        location_type: data.location_type,
-        location_id: data.location_id
-      },
+        type: 'Feature',
+        geometry: {
+          type: data.geometry_type,
+          coordinates: JSON.parse(data.coordinates)
+        },
+        properties: {
+          researcher_name: data.researcher_name,
+          researcher_url: data.researcher_url,
+          work_count: data.work_count,
+          work_titles: data.work_titles,
+          confidence: data.confidence,
+          location_name: data.location_name,
+          location_type: data.location_type,
+          location_id: data.location_id
+        },
       });
     }
+
     const metaData = await redisClient.hGetAll('metadata');
     const geojson = {
       type: 'FeatureCollection',

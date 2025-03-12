@@ -37,24 +37,32 @@ const createSingleResearcherContent = (researcher, isPopup = true) => {
 
   // Get confidence rating and add proper styling based on confidence level
   const confidence = researcher.confidence || researcher.properties?.confidence;
-  console.log('Raw confidence value in createSingleResearcherContent:', confidence, typeof confidence);
-  let confidenceClass = '';
-  let confidenceLabel = confidence || '';
   
-  if (confidence) {
-    const confidenceValue = typeof confidence === 'string' ? confidence.toLowerCase() : '';
-    console.log('Processed confidence value:', confidenceValue);
+  // Use the same function that ExpertsPanel uses for consistency
+  const getConfidenceStyle = (confidenceValue) => {
+    if (!confidenceValue) return { label: '', style: {} };
     
-    if (confidenceValue === 'high') {
-      confidenceClass = 'background-color: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 2px 5px; border-radius: 3px;'; // Green
-      confidenceLabel = 'High';
-      console.log('Using HIGH confidence styling');
+    // Direct comparison with high/low values
+    if (confidenceValue === 'high' || confidenceValue === 'High') {
+      return { 
+        label: 'High',
+        style: 'background-color: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 2px 5px; border-radius: 3px;'
+      };
+    } else if (confidenceValue === 'low' || confidenceValue === 'Low') {
+      return { 
+        label: 'Low',
+        style: 'background-color: #ffebee; color: #c62828; font-weight: bold; padding: 2px 5px; border-radius: 3px;'
+      };
     } else {
-      confidenceClass = 'background-color: #ffebee; color: #c62828; font-weight: bold; padding: 2px 5px; border-radius: 3px;'; // Red
-      confidenceLabel = 'Low';
-      console.log('Using LOW confidence styling');
+      // For any other value, use as is with neutral styling
+      return { 
+        label: confidenceValue,
+        style: 'background-color: #f5f5f5; color: #757575; font-weight: bold; padding: 2px 5px; border-radius: 3px;'
+      };
     }
-  }
+  };
+  
+  const confidenceStyle = getConfidenceStyle(confidence);
 
   return `
     <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
@@ -64,7 +72,7 @@ const createSingleResearcherContent = (researcher, isPopup = true) => {
       <div style="font-size: 14px; color: #333; margin-top: 5px;">
         <strong>Location:</strong> ${researcher.location_name || researcher.properties?.location_name || "Unknown"}
         ${confidence ? 
-          `<div><strong>Confidence:</strong> <span style="${confidenceClass}">${confidenceLabel}</span></div>` 
+          `<div><strong>Confidence:</strong> <span style="${confidenceStyle.style}">${confidenceStyle.label}</span></div>` 
           : ''}
       </div>
       <div style="font-size: 14px; color: #333; margin-top: 5px;">
@@ -100,9 +108,6 @@ const createMultiResearcherContent = (expertCount, locationName, totalWorks) => 
     </div>
     <div style="font-size: 14px; color: #333; margin-top: 5px;">
       <strong>Related Works:</strong> ${totalWorks}
-    </div>
-    <div style="font-size: 14px; color: #333; margin-top: 5px; font-style: italic;">
-      Click "View Experts" to see confidence ratings
     </div>
     <a href='#'
        class="view-experts-btn"
@@ -155,10 +160,8 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
     
     if (!confidenceValue) return { label: '', style: {} };
     
-    const confValue = typeof confidenceValue === 'string' ? confidenceValue.toLowerCase() : '';
-    console.log('Processed confidence value in panel:', confValue);
-    
-    if (confValue === 'high') {
+    // Direct comparison with high/low values
+    if (confidenceValue === 'high' || confidenceValue === 'High') {
       console.log('Using HIGH confidence styling in panel');
       return { 
         label: 'High',
@@ -171,20 +174,7 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
           display: 'inline-block'
         } 
       };
-    } else if (confValue === 'medium') {
-      console.log('Using MEDIUM confidence styling in panel');
-      return { 
-        label: 'Medium',
-        style: { 
-          backgroundColor: '#fff3e0', 
-          color: '#f57c00', 
-          fontWeight: 'bold',
-          padding: '2px 5px',
-          borderRadius: '3px',
-          display: 'inline-block'
-        } 
-      };
-    } else if (confValue === 'low') {
+    } else if (confidenceValue === 'low' || confidenceValue === 'Low') {
       console.log('Using LOW confidence styling in panel');
       return { 
         label: 'Low',
@@ -198,7 +188,8 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
         } 
       };
     } else {
-      console.log('No matching confidence style for:', confValue);
+      // For any other value, use as is with neutral styling
+      console.log('No specific confidence styling for:', confidenceValue);
       return { 
         label: confidenceValue,
         style: { 
@@ -351,6 +342,7 @@ const ResearchMap = () => {
             data.features.slice(0, 5).forEach((feature, index) => {
               console.log(`Feature ${index + 1}:`, {
                 confidence: feature.properties.confidence,
+                rawConfidence: JSON.stringify(feature.properties.confidence),
                 type: typeof feature.properties.confidence,
                 researcher: feature.properties.researcher_name,
                 location: feature.properties.location_name
@@ -364,6 +356,7 @@ const ResearchMap = () => {
               confidenceValues[conf] = (confidenceValues[conf] || 0) + 1;
             });
             console.log('Confidence value distribution:', confidenceValues);
+            console.log('Unique confidence values:', Object.keys(confidenceValues));
           }
           
           return data;
