@@ -542,7 +542,6 @@ const ResearchMap = () => {
                 });
 
                 popupElement.addEventListener('mouseleave', () => {
-                  popupElement.style.pointerEvents = 'none';
                   closeTimeout = setTimeout(() => {
                     if (activePopup) {
                       activePopup.close();
@@ -550,11 +549,9 @@ const ResearchMap = () => {
                     }
                   }, 300);
                 });
-              }
 
-              // Add event listener for view experts button
-              setTimeout(() => {
-                const viewExpertsBtn = document.querySelector(".view-experts-btn");
+                // Add event listener for view experts button immediately
+                const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
                 if (viewExpertsBtn) {
                   viewExpertsBtn.addEventListener("click", (e) => {
                     e.preventDefault();
@@ -568,7 +565,7 @@ const ResearchMap = () => {
                     }
                   });
                 }
-              }, 0);
+              }
             });
 
             currentPolygon.on("mouseout", (event) => {
@@ -690,9 +687,19 @@ const ResearchMap = () => {
               viewExpertsBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setSelectedPointExperts(experts);
-                setPanelType("point");
-                setPanelOpen(true);
+
+                // Update the selected experts and panel type immediately
+                if (panelOpen) {
+                  // If the panel is already open, update the experts and type
+                  setSelectedExperts(experts);
+                  setPanelType("polygon");
+                } else {
+                  // If the panel is not open, open it with the new experts
+                  setSelectedExperts(experts);
+                  setPanelType("polygon");
+                  setPanelOpen(true);
+                }
+
                 if (activePopup) {
                   activePopup.close();
                   activePopup = null;
