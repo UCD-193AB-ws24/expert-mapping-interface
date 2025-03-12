@@ -325,11 +325,12 @@ const ResearchMap = () => {
   let activePopup = null;
   let closeTimeout = null;
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const calculateOpacity = (expertCount) => {
     const minOpacity = 0.3;
     const maxOpacity = 0.7;
-    const maxExperts = 50; 
+    const maxExperts = 25; 
     
     return Math.min(
       minOpacity + (maxOpacity - minOpacity) * (expertCount / maxExperts),
@@ -344,38 +345,11 @@ const ResearchMap = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const text = await response.text();
-        try {
-          const data = JSON.parse(text);
-          
-          // Debug: Log more detailed information about confidence values
-          if (data.features && data.features.length > 0) {
-            // Sample multiple features for confidence values
-            console.log('First 5 features confidence values:');
-            data.features.slice(0, 5).forEach((feature, index) => {
-              console.log(`Feature ${index + 1}:`, {
-                confidence: feature.properties.confidence,
-                rawConfidence: JSON.stringify(feature.properties.confidence),
-                type: typeof feature.properties.confidence,
-                researcher: feature.properties.researcher_name,
-                location: feature.properties.location_name
-              });
-            });
-            
-            // Count different confidence values
-            const confidenceValues = {};
-            data.features.forEach(feature => {
-              const conf = feature.properties.confidence;
-              confidenceValues[conf] = (confidenceValues[conf] || 0) + 1;
-            });
-            console.log('Confidence value distribution:', confidenceValues);
-            console.log('Unique confidence values:', Object.keys(confidenceValues));
-          }
-          
-          return data;
-        } catch (error) {
-          throw new Error(`Invalid JSON: ${text}`);
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Server did not return JSON data. Please ensure the API server is running.");
         }
+        return response.json();
       })
       .then((data) => {
         setGeoData(data);
@@ -384,6 +358,7 @@ const ResearchMap = () => {
       .catch((error) => {
         console.error("Error fetching geojson:", error);
         setIsLoading(false);
+        setError("Failed to load map data. Please ensure the API server is running on port 3001.");
       });
   }, []);
 
@@ -541,9 +516,11 @@ const ResearchMap = () => {
               activePopup = L.popup({
                 closeButton: false,
                 autoClose: false,
-                autoPan: false,
                 maxWidth: 300,
-                className: 'hoverable-popup'
+                className: 'hoverable-popup',
+                autoPan: false,
+                keepInView: false,
+                interactive: true
               })
                 .setLatLng(currentPolygon.getBounds().getCenter())
                 .setContent(popupContent)
@@ -552,6 +529,7 @@ const ResearchMap = () => {
               // Add hover handlers to the popup
               const popupElement = activePopup.getElement();
               if (popupElement) {
+                // Enable pointer events immediately
                 popupElement.style.pointerEvents = 'auto';
                 
                 popupElement.addEventListener('mouseenter', () => {
@@ -559,6 +537,8 @@ const ResearchMap = () => {
                     clearTimeout(closeTimeout);
                     closeTimeout = null;
                   }
+                  // Ensure pointer events stay enabled
+                  popupElement.style.pointerEvents = 'auto';
                 });
 
                 popupElement.addEventListener('mouseleave', () => {
@@ -650,13 +630,14 @@ const ResearchMap = () => {
           expertCount: count,
         });
 
-        // Create popup but don't bind it yet
         const popup = L.popup({
           closeButton: false,
           autoClose: false,
-          autoPan: false,
           maxWidth: 250,
-          className: 'hoverable-popup'
+          className: 'hoverable-popup',
+          autoPan: false,
+          keepInView: false,
+          interactive: true
         });
 
         marker.on("mouseover", (event) => {
@@ -665,9 +646,8 @@ const ResearchMap = () => {
             closeTimeout = null;
           }
 
-          // Choose content based on number of experts
           const popupContent = count === 1
-            ? createSingleResearcherContent(experts[0])  // Use single researcher content for single expert
+            ? createSingleResearcherContent(experts[0])
             : createMultiResearcherContent(
                 count,
                 experts[0]?.location_name || "Unknown",
@@ -684,23 +664,19 @@ const ResearchMap = () => {
           
           activePopup = popup;
 
-          // Add hover handlers to the popup
           const popupElement = popup.getElement();
           if (popupElement) {
+            popupElement.style.pointerEvents = 'auto';
+
             popupElement.addEventListener('mouseenter', () => {
               if (closeTimeout) {
                 clearTimeout(closeTimeout);
                 closeTimeout = null;
               }
-              
-              // Make popup interactive during hover
               popupElement.style.pointerEvents = 'auto';
             });
 
             popupElement.addEventListener('mouseleave', () => {
-              // Reset pointer events
-              popupElement.style.pointerEvents = 'none';
-              
               closeTimeout = setTimeout(() => {
                 if (activePopup) {
                   activePopup.close();
@@ -709,23 +685,20 @@ const ResearchMap = () => {
               }, 300);
             });
 
-            // Add event listener for view experts button
-            setTimeout(() => {
-              const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
-              if (viewExpertsBtn) {
-                viewExpertsBtn.addEventListener("click", (e) => {
-                  e.preventDefault();
-                  e.stopPropagation(); // Prevent event from bubbling
-                  setSelectedPointExperts(experts);
-                  setPanelType("point");
-                  setPanelOpen(true);
-                  if (activePopup) {
-                    activePopup.close();
-                    activePopup = null;
-                  }
-                });
-              }
-            }, 0);
+            const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
+            if (viewExpertsBtn) {
+              viewExpertsBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelectedPointExperts(experts);
+                setPanelType("point");
+                setPanelOpen(true);
+                if (activePopup) {
+                  activePopup.close();
+                  activePopup = null;
+                }
+              });
+            }
           }
         });
 
@@ -775,6 +748,26 @@ const ResearchMap = () => {
             }}
           />
           <div>Loading Map Data...</div>
+        </div>
+      )}
+      {error && (
+        <div 
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            zIndex: 1000,
+            textAlign: 'center',
+            color: '#dc3545'
+          }}
+        >
+          <h3>Error</h3>
+          <p>{error}</p>
         </div>
       )}
       {panelOpen && selectedExperts.length > 0 && (
