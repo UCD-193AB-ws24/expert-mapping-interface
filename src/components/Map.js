@@ -541,6 +541,7 @@ const ResearchMap = () => {
               activePopup = L.popup({
                 closeButton: false,
                 autoClose: false,
+                autoPan: false,
                 maxWidth: 300,
                 className: 'hoverable-popup'
               })
@@ -653,6 +654,7 @@ const ResearchMap = () => {
         const popup = L.popup({
           closeButton: false,
           autoClose: false,
+          autoPan: false,
           maxWidth: 250,
           className: 'hoverable-popup'
         });
