@@ -145,6 +145,15 @@ async function fetchAllResearchers() {
             break;
         }
 
+        // Debug log for first researcher's works
+        if (result.researchers[0]) {
+            console.log('Sample works structure:', {
+                works: result.researchers[0].works,
+                type: typeof result.researchers[0].works,
+                isArray: Array.isArray(result.researchers[0].works)
+            });
+        }
+
         allResearchers = allResearchers.concat(result.researchers);
         totalFetched += result.researchers.length;
         totalAvailable = result.total;
@@ -167,6 +176,8 @@ function convertToGeoJSON(researchers) {
     const features = researchers.flatMap(researcher => {
         return researcher.locations.map(location => {
             const geometry = location.geometry;
+            // Handle works as a list of strings
+            const workTitles = researcher.works || [];
 
             return {
                 type: 'Feature',
@@ -175,6 +186,7 @@ function convertToGeoJSON(researchers) {
                     researcher_name: researcher.researcher_name,
                     researcher_url: researcher.researcher_url,
                     work_count: researcher.work_count,
+                    work_titles: workTitles,
                     confidence: location.confidence,
                     location_name: location.name,
                     location_type: location.type,

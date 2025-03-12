@@ -47,7 +47,7 @@ async function populateRedis() {
     let j = 1;
     // Store each feature in Redis with a unique key
     for (const feature of geojson.features) {
-      const { researcher_name, researcher_url, work_count, location_name, location_type, location_id } = feature.properties;
+      const { researcher_name, researcher_url, work_count, work_titles, confidence, location_name, location_type, location_id } = feature.properties;
       const { coordinates } = feature.geometry;
       const geometryType = feature.geometry.type;
       const featureKey = `feature:${j}`;
@@ -57,10 +57,12 @@ async function populateRedis() {
           researcher_name: researcher_name || '',
           researcher_url: researcher_url || '',
           work_count: work_count ? work_count.toString() : '0',
+          work_titles: work_titles ? JSON.stringify(work_titles) : '[]',
+          confidence: confidence
           location_name: location_name || '',
           location_type: location_type || '',
           location_id: location_id ? location_id.toString() : '',
-          coordinates: JSON.stringify(coordinates)
+          coordinates: JSON.stringify(coordinates),
         });
       } catch (error) {
         console.error(`❌ Error hashing feature ${j}`, error);

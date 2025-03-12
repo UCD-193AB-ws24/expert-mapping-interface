@@ -349,6 +349,8 @@ app.get('/api/redis/query', async (req, res) => {
         researcher_name: data.researcher_name,
         researcher_url: data.researcher_url,
         work_count: data.work_count,
+        work_titles: data.work_titles,
+        confidence: data.confidence,
         location_name: data.location_name,
         location_type: data.location_type,
         location_id: data.location_id
