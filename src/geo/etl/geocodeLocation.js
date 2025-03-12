@@ -41,9 +41,9 @@ function calculatePolygonArea(ring) {
  */
 function simplifyPolygon(coordinates, maxPoints) {
     if (!coordinates[0] || coordinates[0].length <= maxPoints) return coordinates;
-    
+
     const step = Math.ceil(coordinates[0].length / maxPoints);
-    return coordinates.map(ring => 
+    return coordinates.map(ring =>
         ring.filter((_, index) => index % step === 0 || index === ring.length - 1)
     );
 }
@@ -75,8 +75,8 @@ async function geocodeLocation(location) {
         }
 
         // Find the best matching feature by type
-        const result = response.data.find(r => 
-            (r.type === 'administrative' || 
+        const result = response.data.find(r =>
+            (r.type === 'administrative' ||
              r.type === 'city' ||
              r.type === 'town' ||
              r.type === 'state' ||
@@ -89,7 +89,7 @@ async function geocodeLocation(location) {
         // Check if we have valid polygon data
         if (result.geojson && result.geojson.coordinates?.length > 0) {
             let coordinates;
-            
+
             if (result.geojson.type === 'MultiPolygon') {
                 // Get the largest polygon from the MultiPolygon
                 const areas = result.geojson.coordinates.map(poly => {
@@ -116,7 +116,7 @@ async function geocodeLocation(location) {
 
             if (coordinates[0].length > MAX_POINTS) {
                 const step = Math.ceil(coordinates[0].length / MAX_POINTS);
-                coordinates = coordinates.map(ring => 
+                coordinates = coordinates.map(ring =>
                     ring.filter((_, index) => index % step === 0 || index === ring.length - 1)
                 );
             }
@@ -133,7 +133,7 @@ async function geocodeLocation(location) {
             };
             console.log(`ℹ️ Using point geometry for ${location}`);
         }
-        
+
         return {
             type: "Feature",
             properties: {
@@ -171,8 +171,8 @@ async function createLocationCoordinates() {
     let cacheMisses = 0;
     let errorCount = 0;
 
-    let geoData = { 
-        type: "FeatureCollection", 
+    let geoData = {
+        type: "FeatureCollection",
         features: []
     };
 
@@ -188,7 +188,7 @@ async function createLocationCoordinates() {
 
         const locationsData = JSON.parse(fs.readFileSync(LOCATIONS_FILE, 'utf8'));
         const uniqueLocations = [...new Set(Object.keys(locationsData).map(normalizeLocationName))];
-        
+
         console.log(`🌍 Found ${uniqueLocations.length} unique locations to process`);
 
         const geocodingStart = Date.now();
@@ -203,7 +203,7 @@ async function createLocationCoordinates() {
             if (feature) {
                 geoData.features.push(feature);
                 geocodeCount++;
-                
+
                 // Write to both locations after each successful geocode
                 const srcOutputPath = CACHE_FILE;
 
@@ -212,7 +212,7 @@ async function createLocationCoordinates() {
 
                 // Write files
                 fs.writeFileSync(srcOutputPath, JSON.stringify(geoData, null, 2));
-                
+
                 console.log(`✅  Geocoded ${location}`);
             } else {
                 errorCount++;

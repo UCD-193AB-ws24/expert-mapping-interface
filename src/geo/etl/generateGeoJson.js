@@ -109,7 +109,7 @@ function generateGeoJSON() {
 
     let confidence = "Low";
     for (const researcher of Object.entries(researchers)) {
-      if (researcher[1].confidence === "High") {
+      if (researcher[1].confident === "High") {
         confidence = "High";
         break;
       }

@@ -1,5 +1,5 @@
 /**
- * loadGeoJson.js
+ * uploadProfiles.js
  *
  * Purpose:
  * Loads GeoJSON features into appropriate PostGIS tables based on geometry type.
