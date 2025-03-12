@@ -613,7 +613,9 @@ const ResearchMap = () => {
 
         const marker = L.marker([lat, lng], {
           icon: L.divIcon({
-            html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${count}</div>`,
+            html: count === 1 
+              ? `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>1</div>`
+              : `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${count}</div>`,
             className: "custom-marker-icon",
             iconSize: [30, 30],
           }),
@@ -635,11 +637,14 @@ const ResearchMap = () => {
             closeTimeout = null;
           }
 
-          const popupContent = createMultiResearcherContent(
-            count,
-            experts[0]?.location_name || "Unknown",
-            totalWorks
-          );
+          // Choose content based on number of experts
+          const popupContent = count === 1
+            ? createSingleResearcherContent(experts[0])  // Use single researcher content for single expert
+            : createMultiResearcherContent(
+                count,
+                experts[0]?.location_name || "Unknown",
+                totalWorks
+              );
 
           if (activePopup) {
             activePopup.close();
@@ -659,9 +664,15 @@ const ResearchMap = () => {
                 clearTimeout(closeTimeout);
                 closeTimeout = null;
               }
+              
+              // Make popup interactive during hover
+              popupElement.style.pointerEvents = 'auto';
             });
 
             popupElement.addEventListener('mouseleave', () => {
+              // Reset pointer events
+              popupElement.style.pointerEvents = 'none';
+              
               closeTimeout = setTimeout(() => {
                 if (activePopup) {
                   activePopup.close();
@@ -671,19 +682,22 @@ const ResearchMap = () => {
             });
 
             // Add event listener for view experts button
-            const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
-            if (viewExpertsBtn) {
-              viewExpertsBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                setSelectedPointExperts(experts);
-                setPanelType("point");
-                setPanelOpen(true);
-                if (activePopup) {
-                  activePopup.close();
-                  activePopup = null;
-                }
-              });
-            }
+            setTimeout(() => {
+              const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
+              if (viewExpertsBtn) {
+                viewExpertsBtn.addEventListener("click", (e) => {
+                  e.preventDefault();
+                  e.stopPropagation(); // Prevent event from bubbling
+                  setSelectedPointExperts(experts);
+                  setPanelType("point");
+                  setPanelOpen(true);
+                  if (activePopup) {
+                    activePopup.close();
+                    activePopup = null;
+                  }
+                });
+              }
+            }, 0);
           }
         });
 
