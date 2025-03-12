@@ -324,8 +324,21 @@ const ResearchMap = () => {
   const popupTimeoutRef = useRef(null);
   let activePopup = null;
   let closeTimeout = null;
+  const [isLoading, setIsLoading] = useState(true);
+
+  const calculateOpacity = (expertCount) => {
+    const minOpacity = 0.3;
+    const maxOpacity = 0.7;
+    const maxExperts = 50; 
+    
+    return Math.min(
+      minOpacity + (maxOpacity - minOpacity) * (expertCount / maxExperts),
+      maxOpacity
+    );
+  };
 
   useEffect(() => {
+    setIsLoading(true);
     fetch("http://localhost:3001/api/redis/query")
       .then(async (response) => {
         if (!response.ok) {
@@ -364,8 +377,14 @@ const ResearchMap = () => {
           throw new Error(`Invalid JSON: ${text}`);
         }
       })
-      .then((data) => setGeoData(data))
-      .catch((error) => console.error("Error fetching geojson:", error));
+      .then((data) => {
+        setGeoData(data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching geojson:", error);
+        setIsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -485,20 +504,22 @@ const ResearchMap = () => {
           const coordinates = geometry.coordinates[0];
           if (Array.isArray(coordinates) && Array.isArray(coordinates[0])) {
             const flippedCoordinates = coordinates.map(([lng, lat]) => [lat, lng]);
+            const expertCount = locationExpertCounts.get(locationId) || 0;
+            const dynamicOpacity = calculateOpacity(expertCount);
 
             const polygon = L.polygon(flippedCoordinates, {
               color: '#13639e',
               weight: 2,
               fillColor: '#d8db9a',
-              fillOpacity: 0.3,
+              fillOpacity: dynamicOpacity,
             }).addTo(mapRef.current);
-
-            const expertCount = locationExpertCounts.get(locationId) || 0;
-            const locationName = feature.properties.location_name || "Unknown";
 
             let isPolygonPopupPinned = false;
 
-            polygon.on("mouseover", (event) => {
+            // Store polygon reference for event handlers
+            const currentPolygon = polygon;
+
+            currentPolygon.on("mouseover", (event) => {
               if (closeTimeout) {
                 clearTimeout(closeTimeout);
                 closeTimeout = null;
@@ -509,7 +530,6 @@ const ResearchMap = () => {
                 return sum + (parseInt(expert.properties.work_count) || 0);
               }, 0);
               
-              // Choose content based on number of experts
               const popupContent = experts.length === 1 
                 ? createSingleResearcherContent(experts[0].properties)
                 : createMultiResearcherContent(experts.length, feature.properties.location_name, totalWorks);
@@ -524,13 +544,15 @@ const ResearchMap = () => {
                 maxWidth: 300,
                 className: 'hoverable-popup'
               })
-                .setLatLng(polygon.getBounds().getCenter())
+                .setLatLng(currentPolygon.getBounds().getCenter())
                 .setContent(popupContent)
                 .openOn(mapRef.current);
 
               // Add hover handlers to the popup
               const popupElement = activePopup.getElement();
               if (popupElement) {
+                popupElement.style.pointerEvents = 'auto';
+                
                 popupElement.addEventListener('mouseenter', () => {
                   if (closeTimeout) {
                     clearTimeout(closeTimeout);
@@ -539,6 +561,7 @@ const ResearchMap = () => {
                 });
 
                 popupElement.addEventListener('mouseleave', () => {
+                  popupElement.style.pointerEvents = 'none';
                   closeTimeout = setTimeout(() => {
                     if (activePopup) {
                       activePopup.close();
@@ -550,21 +573,24 @@ const ResearchMap = () => {
 
               // Add event listener for view experts button
               setTimeout(() => {
-                document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
-                  e.preventDefault();
-                  setSelectedExperts(experts);
-                  setPanelType("polygon");
-                  setPanelOpen(true);
-                  if (activePopup) {
-                    activePopup.close();
-                    activePopup = null;
-                  }
-                });
+                const viewExpertsBtn = document.querySelector(".view-experts-btn");
+                if (viewExpertsBtn) {
+                  viewExpertsBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedExperts(experts);
+                    setPanelType("polygon");
+                    setPanelOpen(true);
+                    if (activePopup) {
+                      activePopup.close();
+                      activePopup = null;
+                    }
+                  });
+                }
               }, 0);
             });
 
-            polygon.on("mouseout", (event) => {
-              // Add delay before closing
+            currentPolygon.on("mouseout", (event) => {
               closeTimeout = setTimeout(() => {
                 if (activePopup) {
                   activePopup.close();
@@ -716,8 +742,39 @@ const ResearchMap = () => {
   }, [geoData]);
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', position: 'relative' }}>
       <div id="map" style={{ flex: 1, height: '100vh' }}></div>
+      {isLoading && (
+        <div 
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '10px'
+          }}
+        >
+          <div className="loading-spinner" 
+            style={{
+              width: '40px',
+              height: '40px',
+              border: '4px solid #f3f3f3',
+              borderTop: '4px solid #13639e',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }}
+          />
+          <div>Loading Map Data...</div>
+        </div>
+      )}
       {panelOpen && selectedExperts.length > 0 && (
         <ExpertsPanel
           experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
