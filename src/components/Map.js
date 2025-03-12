@@ -117,7 +117,15 @@ const ResearchMap = () => {
 
   useEffect(() => {
     if (!mapRef.current) {
-      mapRef.current = L.map("map", { minZoom: 1, maxZoom: 9 }).setView([20, 0], 2);
+        mapRef.current = L.map("map", {
+          minZoom: 2,
+          maxZoom: 9,
+          maxBounds: [
+            [-85, -180], // Southwest corner
+            [85, 180]    // Northeast corner
+          ],
+          maxBoundsViscosity: 1.0, // Controls the "snap-back" effect when hitting the boundary
+        }).setView([20, 0], 3);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -168,7 +176,7 @@ const ResearchMap = () => {
 
           if (distance > maxDistance) {
             maxDistance = distance;
-            farthestExpert = feature; 
+            farthestExpert = feature;
           }
         }
       });
@@ -202,10 +210,10 @@ const ResearchMap = () => {
       .sort((a, b) => {
         const boundsA = L.polygon(a.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
         const boundsB = L.polygon(b.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
-        
+
         const areaA = (boundsA.getEast() - boundsA.getWest()) * (boundsA.getNorth() - boundsA.getSouth());
         const areaB = (boundsB.getEast() - boundsB.getWest()) * (boundsB.getNorth() - boundsB.getSouth());
-        
+
         return areaB - areaA; // Sort in descending order (largest first)
       });
 
@@ -215,7 +223,7 @@ const ResearchMap = () => {
 
         // Check if this location has already been added
         if (!polygonsToRender.has(locationId)) {
-          polygonsToRender.add(locationId); 
+          polygonsToRender.add(locationId);
 
           const coordinates = geometry.coordinates[0];
           if (Array.isArray(coordinates) && Array.isArray(coordinates[0])) {
@@ -231,19 +239,26 @@ const ResearchMap = () => {
             const expertCount = locationExpertCounts.get(locationId) || 0;
             const locationName = feature.properties.location_name || "Unknown";
 
-            polygon.on("mouseover", (event) => {
-              clearTimeout(popupTimeoutRef.current);
+            let isPopupOpen = false;
+            let currentPopup = null;
 
+            const createPopup = (latlng) => {
               const popupContent = document.createElement("div");
               popupContent.innerHTML = `
                 <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+                  <button
+                    id="popup-close-btn"
+                    style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 20px; color: #13639e; cursor: pointer;"
+                  >
+                    &times;
+                  </button>
                   <div style="font-weight: bold; font-size: 16px; color: #13639e;">
                     ${expertCount} Experts at this location
                   </div>
                   <div style="font-size: 14px; color: #333; margin-top: 5px;">
                     <strong>Location:</strong> ${locationName}
                   </div>
-                  <a href='#' 
+                  <a href='#'
                      class="view-experts-btn"
                      style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
                     View Experts
@@ -251,40 +266,94 @@ const ResearchMap = () => {
                 </div>
               `;
 
-              const popup = L.popup({ closeButton: false, autoClose: true, autoPan: true, autoPanPadding: [-17, -17] })
-                .setLatLng(event.latlng)
+              const popup = L.popup({
+                closeButton: false,
+                autoClose: false,
+                autoPan: true,
+                autoPanPadding: [-17, -17]
+              })
+                .setLatLng(latlng)
                 .setContent(popupContent);
 
-              polygon.bindPopup(popup).openPopup();
+              return popup;
+            };
 
-              let isMouseOver = false;
+            polygon.on("mouseover", (event) => {
+              clearTimeout(popupTimeoutRef.current);
+              if (!isPopupOpen) {
+                currentPopup = createPopup(event.latlng);
+                polygon.bindPopup(currentPopup).openPopup();
 
-              popupContent.addEventListener("mouseenter", () => {
-                isMouseOver = true;
-                clearTimeout(popupTimeoutRef.current);
-              });
+                // Add click event to close button after popup is opened
+                setTimeout(() => {
+                  document.getElementById("popup-close-btn")?.addEventListener("click", () => {
+                    polygon.closePopup();
+                    isPopupOpen = false;
+                  });
 
-              popupContent.addEventListener("mouseleave", () => {
-                isMouseOver = false;
-                popupTimeoutRef.current = setTimeout(() => {
-                  polygon.closePopup();
-                }, 500);
-              });
+                  // Add event listeners for hover
+                  currentPopup.getElement()?.addEventListener("mouseenter", () => {
+                    clearTimeout(popupTimeoutRef.current);
+                  });
 
-              popupContent.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
-                e.preventDefault();
-                const experts = geoData.features.filter(f => f.properties.location_id === locationId);
-                setSelectedExperts(experts);
-                setPanelType("polygon");
-                setPanelOpen(true);
+                  currentPopup.getElement()?.addEventListener("mouseleave", () => {
+                    if (!isPopupOpen) {
+                      popupTimeoutRef.current = setTimeout(() => {
+                        polygon.closePopup();
+                      }, 250);
+                    }
+                  });
+
+                  // Add event listener for view experts button
+                  document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const experts = geoData.features.filter(f => f.properties.location_id === locationId);
+                    setSelectedExperts(experts);
+                    setPanelType("polygon");
+                    setPanelOpen(true);
+                    polygon.closePopup();
+                    isPopupOpen = false;
+                  });
+                }, 0);
+              }
+            });
+
+            polygon.on("click", (event) => {
+              if (isPopupOpen) {
                 polygon.closePopup();
-              });
+                isPopupOpen = false;
+              } else {
+                currentPopup = createPopup(event.latlng);
+                polygon.bindPopup(currentPopup).openPopup();
+                isPopupOpen = true;
+
+                // Add click event to close button after popup is opened
+                setTimeout(() => {
+                  document.getElementById("popup-close-btn")?.addEventListener("click", () => {
+                    polygon.closePopup();
+                    isPopupOpen = false;
+                  });
+
+                  // Add event listener for view experts button
+                  document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const experts = geoData.features.filter(f => f.properties.location_id === locationId);
+                    setSelectedExperts(experts);
+                    setPanelType("polygon");
+                    setPanelOpen(true);
+                    polygon.closePopup();
+                    isPopupOpen = false;
+                  });
+                }, 0);
+              }
             });
 
             polygon.on("mouseout", () => {
-              popupTimeoutRef.current = setTimeout(() => {
-                polygon.closePopup();
-              }, 500);
+              if (!isPopupOpen) {
+                popupTimeoutRef.current = setTimeout(() => {
+                  polygon.closePopup();
+                }, 250);
+              }
             });
           }
         }
@@ -361,14 +430,25 @@ const ResearchMap = () => {
 
         // If there's only one expert, show the details on hover
         if (count === 1) {
-          marker.on("mouseover click", () => {
+          let isPopupOpen = false;
+
+          marker.on("mouseover click", (e) => {
+            clearTimeout(popupTimeoutRef.current);
+            if (e.type === 'click') {
+              isPopupOpen = !isPopupOpen;
+              if (!isPopupOpen) {
+                marker.closePopup();
+                return;
+              }
+            }
+
             const expert = experts[0];
             const singleExpertPopupContent = `
               <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
                 <div style="font-weight: bold; font-size: 16px; color: #13639e;">
                   ${expert.researcher_name || "Unknown"}
                 </div>
-                 <div style="font-size: 14px; color: #333; margin-top: 5px;">
+                <div style="font-size: 14px; color: #333; margin-top: 5px;">
                   <strong>Location:</strong> ${experts[0]?.location_name || "Unknown"}
                 </div>
                 <div style="font-size: 14px; color: #333; margin-top: 5px;">
@@ -380,78 +460,98 @@ const ResearchMap = () => {
                 </a>
               </div>
             `;
-            const singleExpertPopup = L.popup({ closeButton: false, autoClose: true })
-              .setLatLng([lat, lng])
+            const singleExpertPopup = L.popup({ closeButton: false, autoClose: false })
+              .setLatLng(marker.getLatLng())
               .setContent(singleExpertPopupContent)
               .openOn(mapRef.current);
 
-            marker.on("mouseover", () => {
-              clearTimeout(popupTimeoutRef.current);
-            })
-
-            marker.on("mouseout", () => {
-              popupTimeoutRef.current = setTimeout(() => {
-                mapRef.current.closePopup(singleExpertPopup);
-              }, 650); // Adjust the timeout duration as needed
-            })
-
-            // Clear the timeout if the mouse enters the popup
-            singleExpertPopup.on('mouseover', () => {
+            // Handle popup hover events
+            singleExpertPopup.getElement()?.addEventListener('mouseenter', () => {
               clearTimeout(popupTimeoutRef.current);
             });
 
-            // Reapply the timeout if the mouse leaves the popup
-            singleExpertPopup.on('mouseout', () => {
-              popupTimeoutRef.current = setTimeout(() => {
-                mapRef.current.closePopup(singleExpertPopup);
-              }, 1000); // Adjust the timeout duration as needed
-            });
-          });
-        } else {
-          let isMouseOverPopup = false;
-
-          marker.on("mouseover click", () => {
-            const popupContent = `<div id="expert-popup" style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
-                      <div style="font-weight: bold; font-size: 16px; color: #13639e;">
-                        ${experts.length === 1 ? experts[0]?.researcher_name || "Unknown" : `${experts.length} Experts at this Location`}
-                      </div>
-                      <div style="font-size: 14px; color: #333; margin-top: 5px;">
-                        <strong>Location:</strong> ${experts[0]?.location_name || "Unknown"}
-                      </div>
-                      ${experts.length === 1 ? "" : `
-                        <a href='#' 
-                            class="view-experts-btn"
-                            style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                          View Experts
-                        </a>
-                      `}
-                    </div>`;
-            marker.bindPopup(popupContent).openPopup(); // Show popup on hover
-
-            document.getElementById("expert-popup")?.addEventListener("mouseenter", () => {
-              isMouseOverPopup = true;
-            });
-            document.getElementById("expert-popup")?.addEventListener("mouseleave", () => {
-              isMouseOverPopup = false;
+            singleExpertPopup.getElement()?.addEventListener('mouseleave', () => {
+              if (!isPopupOpen) {
+                popupTimeoutRef.current = setTimeout(() => {
+                  mapRef.current.closePopup(singleExpertPopup);
+                }, 250);
+              }
             });
           });
 
           marker.on("mouseout", () => {
-            setTimeout(() => {
-              if (!isMouseOverPopup) {
-                marker.closePopup(); // Close popup when mouse leaves unless inside the popup
+            if (!isPopupOpen) {
+              popupTimeoutRef.current = setTimeout(() => {
+                marker.closePopup();
+              }, 250);
+            }
+          });
+        } else {
+          let isPopupOpen = false;
+
+          marker.on("mouseover click", (e) => {
+            clearTimeout(popupTimeoutRef.current);
+            if (e.type === 'click') {
+              isPopupOpen = !isPopupOpen;
+              if (!isPopupOpen) {
+                marker.closePopup();
+                return;
               }
-            }, 200);
+            }
+
+            const popupContent = `
+              <div id="expert-popup" style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+                <div style="font-weight: bold; font-size: 16px; color: #13639e;">
+                  ${experts.length} Experts at this Location
+                </div>
+                <div style="font-size: 14px; color: #333; margin-top: 5px;">
+                  <strong>Location:</strong> ${experts[0]?.location_name || "Unknown"}
+                </div>
+                <a href='#' 
+                  class="view-experts-btn"
+                  style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                  View Experts
+                </a>
+              </div>
+            `;
+            
+            const popup = L.popup({ closeButton: false, autoClose: false })
+              .setLatLng(marker.getLatLng())
+              .setContent(popupContent);
+            
+            marker.bindPopup(popup).openPopup();
+
+            // Handle popup hover events
+            document.getElementById("expert-popup")?.addEventListener("mouseenter", () => {
+              clearTimeout(popupTimeoutRef.current);
+            });
+
+            document.getElementById("expert-popup")?.addEventListener("mouseleave", () => {
+              if (!isPopupOpen) {
+                popupTimeoutRef.current = setTimeout(() => {
+                  marker.closePopup();
+                }, 250);
+              }
+            });
+          });
+
+          marker.on("mouseout", () => {
+            if (!isPopupOpen) {
+              popupTimeoutRef.current = setTimeout(() => {
+                marker.closePopup();
+              }, 250);
+            }
           });
 
           // Show expert panel on button click
           marker.on("popupopen", () => {
             document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
               e.preventDefault();
-              setSelectedPointExperts(experts); // Set experts for the point panel
-              setPanelType("point"); // Set panel type to point
-              setPanelOpen(true); // Open point panel
-              marker.closePopup(); // Close popup after clicking
+              setSelectedPointExperts(experts);
+              setPanelType("point");
+              setPanelOpen(true);
+              marker.closePopup();
+              isPopupOpen = false;
             });
           });
         }
