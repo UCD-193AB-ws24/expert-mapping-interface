@@ -209,17 +209,12 @@ const ResearchMap = () => {
         spiderfyOnMaxZoom: false,
         iconCreateFunction: function(cluster) {
           const markers = cluster.getAllChildMarkers();
-          const experts = markers.flatMap(marker => marker.options.experts || []);
-          const totalExperts = experts.length;
-          const totalWorks = experts.reduce((sum, expert) => {
-            return sum + (parseInt(expert.work_count) || 0);
-          }, 0);
+          const totalExperts = markers.reduce((sum, marker) => sum + marker.options.expertCount, 0);
 
           return L.divIcon({
             html: `
-              <div class="cluster-icon">
-                <div class="cluster-count">${totalExperts}</div>
-                <div class="cluster-works">Works: ${totalWorks}</div>
+              <div style="background: #13639e; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                ${totalExperts}
               </div>`,
             className: 'custom-cluster-icon',
             iconSize: L.point(40, 40)
@@ -434,6 +429,9 @@ const ResearchMap = () => {
       locationMap.forEach((experts, key) => {
         const [lat, lng] = key.split(",").map(Number);
         const count = experts.length;
+        const totalWorks = experts.reduce((sum, expert) => {
+          return sum + (parseInt(expert.work_count) || 0);
+        }, 0);
 
         const marker = L.marker([lat, lng], {
           icon: L.divIcon({
@@ -441,170 +439,86 @@ const ResearchMap = () => {
             className: "custom-marker-icon",
             iconSize: [30, 30],
           }),
+          experts: experts,
           expertCount: count,
         });
 
-        const popupContent = document.createElement("div");
-        popupContent.innerHTML = `
-          <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
-            <div style="font-weight: bold; font-size: 16px; color: #13639e;">
-              ${count === 1 ? experts[0]?.researcher_name || "Unknown" : `${count} Experts at this Location`}
-            </div>
-            <div style="font-size: 14px; color: #333; margin-top: 5px;">
-              <strong>Location:</strong> ${experts[0]?.location_name || "Unknown"}
-            </div>
-            ${count === 1 ? "" : `
-              <a href='#' 
-                 class="view-experts-btn"
-                 style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                View Experts
-              </a>
-            `}
-          </div>
-        `;
+        // Create popup but don't bind it yet
+        const popup = L.popup({
+          closeButton: false,
+          autoClose: false,
+          maxWidth: 250,
+          className: 'hoverable-popup'
+        });
 
-        const popup = L.popup({ closeButton: false, autoClose: true })
-          .setLatLng([lat, lng])
-          .setContent(popupContent);
+        marker.on("mouseover", (event) => {
+          if (closeTimeout) {
+            clearTimeout(closeTimeout);
+            closeTimeout = null;
+          }
 
-        marker.bindPopup(popup).addTo(markerClusterGroupRef.current);
-        
-        // Disable clicking on points
-        // marker.off("click");
+          const popupContent = createMultiResearcherContent(
+            count,
+            experts[0]?.location_name || "Unknown",
+            totalWorks
+          );
 
-        // If there's only one expert, show the details on hover
-        if (count === 1) {
-          let isMarkerPopupPinned = false;
+          if (activePopup) {
+            activePopup.close();
+          }
 
-          marker.on("mouseover", (event) => {
-            if (closeTimeout) {
-              clearTimeout(closeTimeout);
-              closeTimeout = null;
-            }
+          popup.setLatLng(marker.getLatLng())
+            .setContent(popupContent)
+            .openOn(mapRef.current);
+          
+          activePopup = popup;
 
-            const expert = experts[0];
-            const popupContent = createSingleResearcherContent(expert);
-
-            if (activePopup) {
-              activePopup.close();
-            }
-
-            activePopup = L.popup({ 
-              closeButton: false, 
-              autoClose: false,
-              maxWidth: 250,
-              className: 'hoverable-popup'
-            })
-              .setLatLng(marker.getLatLng())
-              .setContent(popupContent)
-              .openOn(mapRef.current);
-
-            // Add hover handlers to the popup
-            const popupElement = activePopup.getElement();
-            if (popupElement) {
-              popupElement.addEventListener('mouseenter', () => {
-                if (closeTimeout) {
-                  clearTimeout(closeTimeout);
-                  closeTimeout = null;
-                }
-              });
-
-              popupElement.addEventListener('mouseleave', () => {
-                closeTimeout = setTimeout(() => {
-                  if (activePopup) {
-                    activePopup.close();
-                    activePopup = null;
-                  }
-                }, 300);
-              });
-            }
-          });
-
-          marker.on("mouseout", (event) => {
-            closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
+          // Add hover handlers to the popup
+          const popupElement = popup.getElement();
+          if (popupElement) {
+            popupElement.addEventListener('mouseenter', () => {
+              if (closeTimeout) {
+                clearTimeout(closeTimeout);
+                closeTimeout = null;
               }
-            }, 300);
-          });
-        } else {
-          let isPopupPinned = false;
+            });
 
-          marker.on("mouseover", (event) => {
-            if (closeTimeout) {
-              clearTimeout(closeTimeout);
-              closeTimeout = null;
-            }
-
-            const totalWorks = experts.reduce((sum, expert) => {
-              return sum + (parseInt(expert.work_count) || 0);
-            }, 0);
-
-            const popupContent = createMultiResearcherContent(
-              experts.length, 
-              experts[0]?.location_name || "Unknown",
-              totalWorks
-            );
-            
-            if (activePopup) {
-              activePopup.close();
-            }
-
-            activePopup = L.popup({ 
-              closeButton: false, 
-              autoClose: false,
-              maxWidth: 250,
-              className: 'hoverable-popup'
-            })
-              .setLatLng(marker.getLatLng())
-              .setContent(popupContent)
-              .openOn(mapRef.current);
-
-            // Add hover handlers to the popup
-            const popupElement = activePopup.getElement();
-            if (popupElement) {
-              popupElement.addEventListener('mouseenter', () => {
-                if (closeTimeout) {
-                  clearTimeout(closeTimeout);
-                  closeTimeout = null;
+            popupElement.addEventListener('mouseleave', () => {
+              closeTimeout = setTimeout(() => {
+                if (activePopup) {
+                  activePopup.close();
+                  activePopup = null;
                 }
-              });
-
-              popupElement.addEventListener('mouseleave', () => {
-                closeTimeout = setTimeout(() => {
-                  if (activePopup) {
-                    activePopup.close();
-                    activePopup = null;
-                  }
-                }, 300);
-              });
-            }
+              }, 300);
+            });
 
             // Add event listener for view experts button
-            setTimeout(() => {
-            document.querySelector(".view-experts-btn")?.addEventListener("click", (e) => {
-              e.preventDefault();
-              setSelectedPointExperts(experts);
-              setPanelType("point");
-              setPanelOpen(true);
+            const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
+            if (viewExpertsBtn) {
+              viewExpertsBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                setSelectedPointExperts(experts);
+                setPanelType("point");
+                setPanelOpen(true);
                 if (activePopup) {
                   activePopup.close();
                   activePopup = null;
                 }
               });
-            }, 0);
-          });
+            }
+          }
+        });
 
-          marker.on("mouseout", (event) => {
-            closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            }, 300);
-          });
-        }
+        marker.on("mouseout", (event) => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 300);
+        });
+
+        marker.addTo(markerClusterGroupRef.current);
       });
     }
   }, [geoData]);
