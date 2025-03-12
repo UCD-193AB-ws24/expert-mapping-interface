@@ -397,7 +397,7 @@ const ResearchMap = () => {
             [85, 270]    // Northeast corner
           ],
           maxBoundsViscosity: 1.0, // Controls the "snap-back" effect when hitting the boundary
-        }).setView([20, 0], 3);
+        }).setView([20, 0], 4);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
