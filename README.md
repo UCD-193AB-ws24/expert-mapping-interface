@@ -28,6 +28,8 @@ The **Expert Mapping Interface** displays research expert information using:
 
 ## System Architecture
 
+![EMI System Architecture](src/assets/emi-system-architecture.png)
+
 
 ---
 
