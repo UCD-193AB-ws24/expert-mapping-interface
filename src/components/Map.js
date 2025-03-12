@@ -556,9 +556,12 @@ const ResearchMap = () => {
                   viewExpertsBtn.addEventListener("click", (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+
+                    // Update the selected experts and panel type immediately
                     setSelectedExperts(experts);
                     setPanelType("polygon");
                     setPanelOpen(true);
+
                     if (activePopup) {
                       activePopup.close();
                       activePopup = null;
@@ -679,7 +682,7 @@ const ResearchMap = () => {
                   activePopup.close();
                   activePopup = null;
                 }
-              }, 300);
+              }, 500);
             });
 
             const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
@@ -689,16 +692,9 @@ const ResearchMap = () => {
                 e.stopPropagation();
 
                 // Update the selected experts and panel type immediately
-                if (panelOpen) {
-                  // If the panel is already open, update the experts and type
-                  setSelectedExperts(experts);
-                  setPanelType("polygon");
-                } else {
-                  // If the panel is not open, open it with the new experts
-                  setSelectedExperts(experts);
-                  setPanelType("polygon");
-                  setPanelOpen(true);
-                }
+                setSelectedPointExperts(experts);
+                setPanelType("point");
+                setPanelOpen(true);
 
                 if (activePopup) {
                   activePopup.close();
@@ -715,7 +711,7 @@ const ResearchMap = () => {
               activePopup.close();
               activePopup = null;
             }
-          }, 300);
+          }, 500);
         });
 
         marker.addTo(markerClusterGroupRef.current);
@@ -777,7 +773,7 @@ const ResearchMap = () => {
           <p>{error}</p>
         </div>
       )}
-      {panelOpen && selectedExperts.length > 0 && (
+      {panelOpen && (
         <ExpertsPanel
           experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
           onClose={() => setPanelOpen(false)}
