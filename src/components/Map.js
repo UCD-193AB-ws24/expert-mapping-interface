@@ -390,11 +390,11 @@ const ResearchMap = () => {
   useEffect(() => {
     if (!mapRef.current) {
         mapRef.current = L.map("map", {
-          minZoom: 2,
+          minZoom: 3,
           maxZoom: 9,
           maxBounds: [
-            [-85, -180], // Southwest corner
-            [85, 180]    // Northeast corner
+            [-85, -270], // Southwest corner
+            [85, 270]    // Northeast corner
           ],
           maxBoundsViscosity: 1.0, // Controls the "snap-back" effect when hitting the boundary
         }).setView([20, 0], 3);
