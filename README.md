@@ -1,6 +1,6 @@
 # UC Davis Research Around the World
 
-## Team 17 - Expert Mapping Interface (EMI)
+## Team 16 - Expert Mapping Interface (EMI)
 **Zoey Vo, Alyssa Vallejo, Marina Mata, Loc Nguyen**
 
 ---
