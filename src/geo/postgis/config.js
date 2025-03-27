@@ -10,10 +10,8 @@ const pool = new Pool({
 
 module.exports = {
   pool,
-  // Common table names
   tables: {
-    researchers: 'researchers',
-    locations: 'locations',
-    works: 'works'
-  }
+    points: 'research_locations_point',
+    polygons: 'research_locations_poly'
+    }
 }; 

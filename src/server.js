@@ -3,7 +3,7 @@
  * 
  * This Express server provides the backend API for the Expert Mapping Interface application.
  * It handles geospatial data retrieval and researcher information management through a
- * PostgreSQL/PostGIS database connection.
+ * PostGIS database connection.
  * 
  * Key features:
  * - Serves GeoJSON data for research locations
