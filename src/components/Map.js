@@ -365,14 +365,14 @@ const ResearchMap = () => {
   useEffect(() => {
     if (!mapRef.current) {
         mapRef.current = L.map("map", {
-          minZoom: 3,
+          minZoom: 1,
           maxZoom: 9,
           maxBounds: [
             [-85, -270], // Southwest corner
             [85, 270]    // Northeast corner
           ],
           maxBoundsViscosity: 1.0, // Controls the "snap-back" effect when hitting the boundary
-        }).setView([20, 0], 4);
+        }).setView([20, 0], 2);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
