@@ -365,18 +365,22 @@ const ResearchMap = () => {
   useEffect(() => {
     if (!mapRef.current) {
         mapRef.current = L.map("map", {
-          minZoom: 1,
-          maxZoom: 9,
+          minZoom: 2,
+          maxZoom: 4,
           maxBounds: [
-            [-85, -270], // Southwest corner
-            [85, 270]    // Northeast corner
+            [-85, -180], // Southwest corner
+            [85, 180]    // Northeast corner
           ],
           maxBoundsViscosity: 1.0, // Controls the "snap-back" effect when hitting the boundary
-        }).setView([20, 0], 2);
+        }).setView([30, 0], 2);
+      
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        noWrap: true,
       }).addTo(mapRef.current);
+     
+      
 
       markerClusterGroupRef.current = L.markerClusterGroup({
         showCoverageOnHover: false,

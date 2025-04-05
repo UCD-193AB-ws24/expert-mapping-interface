@@ -61,9 +61,9 @@ function App() {
       </div>
 
       {/* Map Section */}
-      <div className="flex-grow w-full">
-        <Map />
-      </div>
+      <div className="flex-grow overflow-hidden relative h-[82vh] w-[115vh] mx-auto">
+  <Map />
+</div>
 
       {/* Footer Placeholder */}
       <div className="w-full h-10 bg-[#022851]"></div>
