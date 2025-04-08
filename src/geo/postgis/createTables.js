@@ -9,7 +9,9 @@
  * Tables:
  * - research_locations_point: For point geometries (specific locations)
  * - research_locations_poly: For polygon geometries (areas/regions)
- * Both tables include full researcher and work information in JSONB properties
+ * - includes full researcher and work information in GEO-JSON properties
+ *
+ * USAGE: node path_to_file/createTables.js
  */
 
 const { pool, tables } = require('./config');
