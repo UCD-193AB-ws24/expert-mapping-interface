@@ -4,6 +4,8 @@
  * Purpose:
  * Drops all PostGIS tables, views, and related objects created for the application.
  * Use with caution as this will delete all data.
+ *
+ * USAGE: node path_to_file/dropTables.js
  */
 
 const { pool } = require('./config');
