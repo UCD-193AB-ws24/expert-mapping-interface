@@ -4,6 +4,8 @@
  * Purpose:
  * Fetches researcher profiles from the server and outputs as GeoJSON.
  * Includes both API client functions and data conversion utilities.
+ *
+ * USAGE: node path_to_file/fetchProfiles.js [name] [limit] [output file]
  */
 
 const fs = require('fs').promises;
