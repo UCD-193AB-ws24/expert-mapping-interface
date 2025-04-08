@@ -230,18 +230,19 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
     }
   };
 
-  return (
+  return ( //side pannel fixing
     <div style={{
       position: "fixed",
       right: 0,
       top: 0,
       bottom: 0,
       width: "300px",
+      marginTop: "140px",
       backgroundColor: "white",
       boxShadow: "-2px 0 5px rgba(0,0,0,0.2)",
       padding: "20px",
       overflowY: "auto",
-      zIndex: 1000
+      zIndex:1001
     }}>
       <button
         onClick={onClose}
@@ -417,18 +418,19 @@ const ResearchMap = () => {
     if (!mapRef.current) {
       // Create the Leaflet map instance
         mapRef.current = L.map("map", {
-          minZoom: 1,
-          maxZoom: 9,
+          minZoom: 2,
+          maxZoom: 4,
           maxBounds: [
-            [-85, -270], // Southwest corner
-            [85, 270]    // Northeast corner
+            [-80, -200], // Southwest corner
+            [85, 200]    // Northeast corner
           ],
           maxBoundsViscosity: 1.0, // Controls the "snap-back" effect when hitting the boundary
-        }).setView([20, 0], 2);
+        }).setView([30, 0], 2);
 
       // Add OpenStreetMap base tiles
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        
       }).addTo(mapRef.current);
 
       // Initialize the cluster group for expert markers
