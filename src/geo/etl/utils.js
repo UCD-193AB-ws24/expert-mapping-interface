@@ -6,7 +6,7 @@
  * Provides helper functions for name normalization and data processing.
  * 
  * Usage:
- * const { normalizeLocation, processName } = require('./utils');
+ * const { storeComplexGeometry, normalizeLocation, processName } = require('./utils');
  * 
  * Functions:
  * - normalizeLocation: Standardizes location names
