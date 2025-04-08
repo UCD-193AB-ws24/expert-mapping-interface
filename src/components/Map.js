@@ -1,3 +1,21 @@
+/**
+ * ResearchMap Component
+ *
+ * This React component renders an interactive Leaflet map that visualizes researcher data 
+ * from a geospatial API. It integrates clustering, polygon styling, and popups to allow 
+ * users to explore expert profiles based on geographic regions and confidence levels.
+ *
+ * Key Features:
+ * - Initializes a Leaflet map with base tiles
+ * - Fetches and parses GeoJSON features from a Redis-backed API
+ * - Distinguishes between point and polygon features
+ * - Uses leaflet.markercluster to group researchers located in the same place
+ * - Displays popups with detailed researcher info (confidence level, top works)
+ * - Styles polygons based on confidence level (high, medium, low)
+ * - Opens a side panel for locations with multiple researchers
+ */
+
+// React and Leaflet imports
 import React, { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
@@ -64,6 +82,7 @@ const createSingleResearcherContent = (researcher, isPopup = true) => {
   
   const confidenceStyle = getConfidenceStyle(confidence);
 
+  //// Return a styled HTML string for the researcher's popup with location, researcher, url and work
   return `
     <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
       <div style="font-weight: bold; font-size: 16px; color: #13639e;">
@@ -120,6 +139,7 @@ const createMultiResearcherContent = (expertCount, locationName, totalWorks) => 
 const ExpertsPanel = ({ experts, onClose, panelType }) => {
   const isFromProperties = panelType === "polygon";
 
+  // Depending on whether the data comes from a polygon or point, access titles differently
   const getWorkTitles = (expert) => {
     try {
       const titles = isFromProperties ? expert.properties.work_titles : expert.work_titles;
@@ -154,6 +174,12 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
       return [];
     }
   };
+
+  /* The function normalizes and styles confidence levels for consistent UI rendering.
+  * - "High" confidence gets a green badge
+  * - "Low" confidence gets a red badge
+  * - All other values (including unknowns) get a neutral gray badge
+  */
 
   const getConfidenceStyle = (confidenceValue) => {
     console.log('Raw confidence in getConfidenceStyle:', confidenceValue, typeof confidenceValue);
@@ -232,9 +258,11 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
       >
         ×
       </button>
+       {/* Panel title showing expert count */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#13639e" }}>
         {experts.length} Expert{experts.length !== 1 ? 's' : ''} at this Location
       </h2>
+      {/*List of experts */}
       <ul style={{ padding: 0, listStyle: 'none' }}>
         {experts
           .sort((a, b) => {
@@ -248,6 +276,7 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
             const confidenceStyle = getConfidenceStyle(confidence);
 
             return (
+              // Individual expert card
               <div key={index} style={{
                 position: "relative",
                 padding: "15px",
@@ -259,15 +288,18 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
                 marginBottom: "15px",
                 background: "#f9f9f9"
               }}>
+                {/*Researcher name */}
                 <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
                   {isFromProperties ? expert.properties.researcher_name : expert.researcher_name}
                 </div>
+                {/* Location + confidence */}
                 <div style={{ marginTop: "5px", color: "#333" }}>
                   <strong>Location:</strong> {isFromProperties ? expert.properties.location_name : expert.location_name}
                   {confidence && (
                     <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
                   )}
                 </div>
+                {/* Work titles */}
                 <div style={{ marginTop: "10px", color: "#333" }}>
                   <strong>Related Works {isFromProperties ? expert.properties.work_count : expert.work_count}:</strong>
                   {workTitles.length > 0 ? (
@@ -285,6 +317,8 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
                     <div style={{ marginTop: "3px" }}>No works found</div>
                   )}
                 </div>
+
+                {/* Link to profile */}
                 <a
                   href={isFromProperties ? expert.properties.researcher_url : expert.researcher_url || "#"}
                   target="_blank"
@@ -313,6 +347,13 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
   );
 };
 
+/*Core Responsibilities:
+ * - Load and store GeoJSON features from the backend API
+ * - Distinguish between polygon and point features
+ * - Cluster point markers using leaflet.markercluster
+ * - Show styled polygon overlays with opacity scaled by expert count
+ * - Handle user interactions: popup hover, click-to-open panel, and close logic
+ */
 const ResearchMap = () => {
   const [geoData, setGeoData] = useState(null);
   const [selectedExperts, setSelectedExperts] = useState([]);
@@ -327,6 +368,14 @@ const ResearchMap = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /**
+   * Calculates polygon fill opacity based on expert count.
+   * Used to visually scale polygon visibility based on how populated it is.
+   * 
+   * @param {number} expertCount - The number of researchers in the region
+   * @returns {number} Opacity value between minOpacity and maxOpacity
+   */
+
   const calculateOpacity = (expertCount) => {
     const minOpacity = 0.3;
     const maxOpacity = 0.7;
@@ -338,6 +387,7 @@ const ResearchMap = () => {
     );
   };
 
+  //initial GeoJSON Data Fetch
   useEffect(() => {
     setIsLoading(true);
     fetch("http://localhost:3001/api/redis/query")
@@ -345,6 +395,7 @@ const ResearchMap = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        // Ensure the response is JSON
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error("Server did not return JSON data. Please ensure the API server is running.");
@@ -364,6 +415,7 @@ const ResearchMap = () => {
 
   useEffect(() => {
     if (!mapRef.current) {
+      // Create the Leaflet map instance
         mapRef.current = L.map("map", {
           minZoom: 1,
           maxZoom: 9,
@@ -374,14 +426,17 @@ const ResearchMap = () => {
           maxBoundsViscosity: 1.0, // Controls the "snap-back" effect when hitting the boundary
         }).setView([20, 0], 2);
 
+      // Add OpenStreetMap base tiles
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(mapRef.current);
 
+      // Initialize the cluster group for expert markers
       markerClusterGroupRef.current = L.markerClusterGroup({
         showCoverageOnHover: false,
         maxClusterRadius: 40,
         spiderfyOnMaxZoom: false,
+        // Customize cluster icons to show expert totals
         iconCreateFunction: function(cluster) {
           const markers = cluster.getAllChildMarkers();
           const totalExperts = markers.reduce((sum, marker) => sum + marker.options.expertCount, 0);
@@ -396,6 +451,7 @@ const ResearchMap = () => {
           });
         }
       });
+      // Add cluster layer to the map
       mapRef.current.addLayer(markerClusterGroupRef.current);
     }
 
@@ -411,8 +467,8 @@ const ResearchMap = () => {
         }
       });
 
-      // Finding farthest expert for polygon
-      const referencePoint = L.latLng(20, 0); // Example reference point
+      // Find the farthest expert (Point) from a fixed reference point
+      const referencePoint = L.latLng(20, 0); // Arbitrary center of map
       let farthestExpert = null;
       let maxDistance = 0;
 
@@ -432,6 +488,7 @@ const ResearchMap = () => {
         }
       });
 
+      //Remove the polygon for that farthest expert (if it exists)
       if (farthestExpert) {
         const locationId = farthestExpert.properties.location_id;
 
@@ -454,7 +511,8 @@ const ResearchMap = () => {
         });
       }
 
-      const polygonsToRender = new Set(); // To track unique locations
+      // Sort polygons by area in descending order (largest first)
+      const polygonsToRender = new Set(); 
 
       const sortedPolygons = geoData.features
       .filter(feature => feature.geometry.type === "Polygon")
@@ -468,6 +526,7 @@ const ResearchMap = () => {
         return areaB - areaA; // Sort in descending order (largest first)
       });
 
+      // Render each unique polygon
       sortedPolygons.forEach((feature) => {
         const geometry = feature.geometry;
         const locationId = feature.properties.location_id;
@@ -482,6 +541,7 @@ const ResearchMap = () => {
             const expertCount = locationExpertCounts.get(locationId) || 0;
             const dynamicOpacity = calculateOpacity(expertCount);
 
+            // Draw polygon on map
             const polygon = L.polygon(flippedCoordinates, {
               color: '#13639e',
               weight: 2,
@@ -494,6 +554,7 @@ const ResearchMap = () => {
             // Store polygon reference for event handlers
             const currentPolygon = polygon;
 
+            // Hover in → show popup
             currentPolygon.on("mouseover", (event) => {
               if (closeTimeout) {
                 clearTimeout(closeTimeout);
@@ -583,6 +644,7 @@ const ResearchMap = () => {
         }
       });
 
+      // Group researchers by location key: "lat,lng"
       // Handle Point and MultiPoint
       geoData.features.forEach((feature) => {
         const geometry = feature.geometry;
@@ -611,13 +673,17 @@ const ResearchMap = () => {
         }
       });
 
+      // Render each unique marker
       locationMap.forEach((experts, key) => {
         const [lat, lng] = key.split(",").map(Number);
         const count = experts.length;
+
+        // Total works shown in popup for clusters
         const totalWorks = experts.reduce((sum, expert) => {
           return sum + (parseInt(expert.work_count) || 0);
         }, 0);
 
+         // Create custom circle-style icon
         const marker = L.marker([lat, lng], {
           icon: L.divIcon({
             html: count === 1 
@@ -630,6 +696,7 @@ const ResearchMap = () => {
           expertCount: count,
         });
 
+        // Define shared popup for hover interaction
         const popup = L.popup({
           closeButton: false,
           autoClose: false,
@@ -640,6 +707,7 @@ const ResearchMap = () => {
           interactive: true
         });
 
+         // Hover in → show expert popup
         marker.on("mouseover", (event) => {
           if (closeTimeout) {
             clearTimeout(closeTimeout);
@@ -685,6 +753,7 @@ const ResearchMap = () => {
               }, 500);
             });
 
+             // Handle click to open side panel
             const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
             if (viewExpertsBtn) {
               viewExpertsBtn.addEventListener("click", (e) => {
@@ -705,6 +774,7 @@ const ResearchMap = () => {
           }
         });
 
+        // Hover out → close with delay
         marker.on("mouseout", (event) => {
           closeTimeout = setTimeout(() => {
             if (activePopup) {
@@ -714,10 +784,19 @@ const ResearchMap = () => {
           }, 500);
         });
 
+        // Add marker to cluster group
         marker.addTo(markerClusterGroupRef.current);
       });
     }
   }, [geoData]);
+
+  
+  /* This block renders the main visual structure of the map interface:
+  * - A full-screen Leaflet map inside a flex container
+  * - A centered loading spinner while data is being fetched
+  * - An error message overlay if the fetch fails
+  * - The dynamic ExpertsPanel, conditionally shown based on user interaction
+  */
 
   return (
     <div style={{ display: 'flex', position: 'relative' }}>

@@ -1,3 +1,19 @@
+/**
+ * App Component – Main Layout for Aggie Experts Interactive Map
+ * 
+ * This component serves as the entry point of the frontend application. It defines
+ * the full-page layout including:
+ * - A branded header with logo and title
+ * - A navigation bar linking to external expert and grant pages
+ * - The main map interface, loaded via the <Map /> component
+ * - A styled footer bar (placeholder for future use)
+ * 
+ * Styling is handled using Tailwind CSS utility classes and imported global styles.
+ * Assets (like the logo and header image) are loaded from local `/assets`.
+ *
+ * @module App
+ */
+
 import React from "react";
 import "./styles/index.css";
 import Map from "./components/Map";
@@ -8,7 +24,7 @@ import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
 function App() {
   return (
     <div className="App flex flex-col min-h-screen">
-      {/* Header */}
+      {/* 🔷 Header: UC Davis logo and map title */}
       <nav className="flex items-center py-4 px-10 bg-white shadow-md">
         <div className="flex items-center space-x-8">
           <img
@@ -22,7 +38,7 @@ function App() {
         </div>
       </nav>
 
-      {/* Navbar */}
+      {/* 🔗 Navigation Bar: Links to Experts and Grants */}
       <div className="flex justify-between items-center bg-[#022851] px-10 py-2">
         <div className="flex space-x-12">
           <a
@@ -38,6 +54,7 @@ function App() {
             Grants
           </a>
         </div>
+        {/* 👤 My Account Button (links to UC Davis homepage for now) */}
         <a
           href="https://www.ucdavis.edu/"
           className="text-lg text-white flex items-center hover:underline"
@@ -60,12 +77,12 @@ function App() {
         </a>
       </div>
 
-      {/* Map Section */}
+       {/* 🗺️ Map Section: Main interface powered by Leaflet */}
       <div className="flex-grow w-full">
         <Map />
       </div>
 
-      {/* Footer Placeholder */}
+      {/* 🔻 Footer Bar (currently a placeholder) */}
       <div className="w-full h-10 bg-[#022851]"></div>
     </div>
   );
