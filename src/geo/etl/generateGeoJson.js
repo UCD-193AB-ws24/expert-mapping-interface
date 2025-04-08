@@ -3,6 +3,8 @@
  * 
  * Generates enriched GeoJSON by combining location coordinates with researcher data.
  * Adds researcher information, work details, and location type indicators to features.
+ *
+ * USAGE: node path_to_file/generateGeoJson.js 
  * 
  * @module generateGeoJson
  */
