@@ -4,6 +4,8 @@
  * Purpose:
  * Loads GeoJSON features into appropriate PostGIS tables based on geometry type.
  * Handles both point and polygon geometries, preserving all properties.
+ *
+ * USAGE: node path_to_file/uploadProfiles.js
  */
 
 const { pool } = require('./config');
