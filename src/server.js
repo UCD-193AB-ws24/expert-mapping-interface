@@ -10,6 +10,8 @@
  * - Manages researcher profiles and their associated locations
  * - Implements connection tracking and logging
  * - Provides paginated and searchable researcher data
+ *
+ * USAGE: node path_to_file/server.js
  * 
  * @module server
  */
