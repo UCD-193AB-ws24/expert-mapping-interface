@@ -6,6 +6,7 @@
  * Includes both API client functions and data conversion utilities.
  *
  * USAGE: node path_to_file/fetchProfiles.js [name] [limit] [output file]
+ * - ensure server.js is running prior
  */
 
 const fs = require('fs').promises;
