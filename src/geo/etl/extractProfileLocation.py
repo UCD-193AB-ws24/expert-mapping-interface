@@ -17,19 +17,10 @@ manual_geo_name = {
   "CA" : "California",
   "California, U.S.A." : "California",
   "the United States" : "USA",
-  "Greenland" : "Greenland, Denmark",
-  "East Greenland" : "Greenland, Denmark",
+  "East Greenland" : "Greenland",
   "Latin America" : "South America",
-  "Tropical Forest" : "N/A",
-  # Temp fix for now
-  "Asia, United States of America" : "America",
-  "Asia, America": "America",
-  "Africa, America" : "America",
-  "America, South Asia" : "America",
-  "Vietnam Korea United States" : "America",
-  "Vietnam, America" : "America",
-  "Japan, America" : "America",
-  "China, United States of America" : "America"
+  "South America" : "South America",
+  "North America" : "North America"
 }
 
 BATCH_SIZE = 100
@@ -110,7 +101,7 @@ start_time = time.time()
 script_dir = os.path.dirname(os.path.abspath(__file__))
 csv_file_path = os.path.join(script_dir, "..", "data", "csv", "expert_profiles.csv")
 csv_file_path = os.path.abspath(csv_file_path)
-geo_file_path = os.path.join(script_dir, "..", "data", "json", "llama_geo_results.jsonl")
+geo_file_path = os.path.join(script_dir, "..", "data", "json", "extraction", "llama_geo_results.jsonl")
 geo_file_path = os.path.abspath(geo_file_path)
 
 if not os.path.exists(csv_file_path):
@@ -138,6 +129,8 @@ for ret in llama_results:
   # Some manual name changes for api
   if loc in manual_geo_name:
     loc = manual_geo_name[loc]
+  elif "America" in loc:
+    loc = "America"
   geo[id] = loc
 data["geo"] = geo
 
@@ -259,16 +252,18 @@ logging.info("Completed in %.2f seconds", time.time() - start_time)
 start_save = time.time()
 
 # Create directories if they don't exist
-json_dir = os.path.join(script_dir, "..", "data", "json")
-os.makedirs(json_dir, exist_ok=True)
+json_ext_dir = os.path.join(script_dir, "..", "data", "json", "extraction")
+os.makedirs(json_ext_dir, exist_ok=True)
+json_geo_dir = os.path.join(script_dir, "..", "data", "json", "geocoding")
+os.makedirs(json_ext_dir, exist_ok=True)
 
 # Save expert profiles
-expert_profiles_path = os.path.join(json_dir, "expert_profiles.json")
+expert_profiles_path = os.path.join(json_ext_dir, "expert_profiles.json")
 with open(expert_profiles_path, "w") as file_profiles:
   json.dump(profiles, file_profiles, default=profileToJson, indent=2)
 
 # Save location-based profiles
-location_based_profiles_path = os.path.join(json_dir, "location_based_profiles.json")
+location_based_profiles_path = os.path.join(json_geo_dir, "location_based_profiles.json")
 with open(location_based_profiles_path, "w") as file_locations:
   json.dump(location_based, file_locations, default=geoProfileMappingToJson, indent=2)
   
@@ -278,7 +273,7 @@ with open(location_based_profiles_path, "w") as file_locations:
 #   json.dump(coordinates, file_profiles, indent=2)
   
 # Stats and confidence:
-report_path = os.path.join(json_dir, "report.txt")
+report_path = os.path.join(json_ext_dir, "report.txt")
 with open(report_path, "w") as file_report:
   file_report.write("Final Statistics:\n")
   file_report.write(f"Total unique researchers: {len(unique_researchers)}\n")
@@ -296,7 +291,7 @@ with open(report_path, "w") as file_report:
   
 # Save non-geo profiles
 non_geo_profiles = {name: profile for name, profile in profiles.items() if "None" in profile.locations}
-non_geo_profiles_path = os.path.join(json_dir, "non_geo_profiles.json")
+non_geo_profiles_path = os.path.join(json_ext_dir, "non_geo_profiles.json")
 with open(non_geo_profiles_path, "w") as file_non_geo_profiles:
   json.dump(non_geo_profiles, file_non_geo_profiles, default=profileToJson, indent=2)
 
