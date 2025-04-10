@@ -1,3 +1,11 @@
+'''
+extractProfileLocation.py
+
+- Extracts locations from works provided by the csv file
+- Standardizes locations' names and filters locations
+- Organizes information into location_based_profiles.json
+'''
+
 import os
 import time
 import logging
