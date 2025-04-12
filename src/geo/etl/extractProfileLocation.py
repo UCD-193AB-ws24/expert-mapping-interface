@@ -50,7 +50,7 @@ def extract_location(title):
     :return: The extracted location or "Unknown Location" if not found.
     """
     prompt = (
-        f"Identify the location associated with the following research work or grant.\n"
+        f"Identify the location associated with the following text.\n"
         f"Title: \"{title}\"\n"
         f"Provide the location in ISO 3166-1 alpha-3 format (e.g., 'USA' for the United States) "
         f"or respond with 'None' if no location is found.\n"
