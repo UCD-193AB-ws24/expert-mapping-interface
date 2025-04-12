@@ -16,23 +16,6 @@ BASE_DIR = os.path.dirname(__file__)
 WORKS_FILE = os.path.join(BASE_DIR, "json", "expertWorks.json")
 GRANTS_FILE = os.path.join(BASE_DIR, "json", "expertGrants.json")
 
-def test_llama_connection():
-    """
-    Test if the LLaMA API is reachable.
-    :return: True if the API is reachable, False otherwise.
-    """
-    try:
-        response = requests.get(LLAMA_API_URL.replace("/generate", ""))
-        if response.status_code == 200:
-            print("✅ LLaMA API is reachable.")
-            return True
-        else:
-            print(f"⚠️ LLaMA API returned status code {response.status_code}.")
-            return False
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Unable to connect to LLaMA API: {e}")
-        return False
-
 def query_llama(prompt):
     """
     Query the LLaMA API with a prompt.
@@ -112,9 +95,6 @@ def main():
     """
     Main function to process both works and grants files.
     """
-    if not test_llama_connection():
-        print("Exiting: Unable to connect to LLaMA API.")
-        return
 
     print("Processing works...")
     process_file(WORKS_FILE, "name")
