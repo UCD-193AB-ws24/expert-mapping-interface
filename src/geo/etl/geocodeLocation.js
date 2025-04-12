@@ -21,34 +21,6 @@ const DELAY_MS = 1000; // Nominatim rate limit: 1 request per second
 const MAX_POINTS = 4096; // Maximum points to keep in polygon geometries
 
 /**
- * Calculates area of a polygon for finding largest geometry
- * @param {Array} ring - Array of coordinate pairs forming a polygon ring
- * @returns {number} Approximate area of the polygon
- */
-function calculatePolygonArea(ring) {
-    let area = 0;
-    for (let i = 0; i < ring.length - 1; i++) {
-        area += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1];
-    }
-    return Math.abs(area / 2);
-}
-
-/**
- * Simplifies polygon coordinates to reduce point count
- * @param {Array} coordinates - Polygon coordinates array
- * @param {number} maxPoints - Maximum number of points to keep
- * @returns {Array} Simplified coordinates array
- */
-function simplifyPolygon(coordinates, maxPoints) {
-    if (!coordinates[0] || coordinates[0].length <= maxPoints) return coordinates;
-
-    const step = Math.ceil(coordinates[0].length / maxPoints);
-    return coordinates.map(ring =>
-        ring.filter((_, index) => index % step === 0 || index === ring.length - 1)
-    );
-}
-
-/**
  * Geocodes a location name to GeoJSON feature
  * @param {string} location - Location name to geocode
  * @returns {Promise<Object|null>} GeoJSON feature or null if not found
@@ -74,8 +46,9 @@ async function geocodeLocation(location) {
             return null;
         }
 
-        // Find the best matching feature by type
-        const result = response.data.find(r =>
+        // Prioritize results with ISO 3166-1 alpha-2 country codes or administrative regions
+        const isoResult = response.data.find(r => r.address?.country_code);
+        const relevantResult = isoResult || response.data.find(r =>
             (r.type === 'administrative' ||
              r.type === 'city' ||
              r.type === 'town' ||
@@ -87,12 +60,12 @@ async function geocodeLocation(location) {
         let geometry;
 
         // Check if we have valid polygon data
-        if (result.geojson && result.geojson.coordinates?.length > 0) {
+        if (relevantResult.geojson && relevantResult.geojson.coordinates?.length > 0) {
             let coordinates;
 
-            if (result.geojson.type === 'MultiPolygon') {
+            if (relevantResult.geojson.type === 'MultiPolygon') {
                 // Get the largest polygon from the MultiPolygon
-                const areas = result.geojson.coordinates.map(poly => {
+                const areas = relevantResult.geojson.coordinates.map(poly => {
                     let area = 0;
                     const ring = poly[0];
                     for (let i = 0; i < ring.length - 1; i++) {
@@ -101,17 +74,17 @@ async function geocodeLocation(location) {
                     return Math.abs(area / 2);
                 });
                 const largestIndex = areas.indexOf(Math.max(...areas));
-                coordinates = result.geojson.coordinates[largestIndex];
+                coordinates = relevantResult.geojson.coordinates[largestIndex];
                 console.log(`ℹ️ Converting MultiPolygon to largest Polygon for ${location}`);
-            } else if (result.geojson.type === 'Polygon') {
-                coordinates = result.geojson.coordinates;
+            } else if (relevantResult.geojson.type === 'Polygon') {
+                coordinates = relevantResult.geojson.coordinates;
             } else {
                 geometry = {
                     type: "Point",
-                    coordinates: [parseFloat(result.lon), parseFloat(result.lat)]
+                    coordinates: [parseFloat(relevantResult.lon), parseFloat(relevantResult.lat)]
                 };
                 console.log(`ℹ️ Using point geometry for ${location}`);
-                return createFeature(geometry, location, result);
+                return createFeature(geometry, location, relevantResult);
             }
 
             if (coordinates[0].length > MAX_POINTS) {
@@ -125,11 +98,11 @@ async function geocodeLocation(location) {
                 type: "Polygon",
                 coordinates: coordinates
             };
-            console.log(`ℹ️ Using ${coordinates[0].length}-point polygon for ${location} (${result.type})`);
+            console.log(`ℹ️ Using ${coordinates[0].length}-point polygon for ${location} (${relevantResult.type})`);
         } else {
             geometry = {
                 type: "Point",
-                coordinates: [parseFloat(result.lon), parseFloat(result.lat)]
+                coordinates: [parseFloat(relevantResult.lon), parseFloat(relevantResult.lat)]
             };
             console.log(`ℹ️ Using point geometry for ${location}`);
         }
@@ -138,10 +111,11 @@ async function geocodeLocation(location) {
             type: "Feature",
             properties: {
                 name: location,
-                display_name: result.display_name,
-                type: result.type,
-                osm_type: result.osm_type,
-                class: result.class
+                display_name: relevantResult.display_name,
+                type: relevantResult.type,
+                osm_type: relevantResult.osm_type,
+                class: relevantResult.class,
+                country_code: relevantResult.address?.country_code || "Unknown"
             },
             geometry: geometry
         };
