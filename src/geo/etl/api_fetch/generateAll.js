@@ -1,25 +1,48 @@
+/**
+ * Program Purpose:
+ * This program retrieves data about experts, works, and grants from the UC Davis Experts API.
+ * It processes the data to associate works and grants with relevant experts and saves the results
+ * into JSON files (`expertWorks.json` and `expertGrants.json`) in the `etl/json` directory.
+ * The program ensures that cached data is reused when available to minimize API calls.
+ */
+
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const { API_TOKEN } = require('./auth');
+const { API_TOKEN } = require('./auth'); // API token for authentication
 
-// Utility function to check if a cache file exists and load it
+/**
+ * Utility function to check if a cache file exists and load it.
+ * @param {string} filePath - The relative path to the cache file.
+ * @returns {object|null} - The parsed JSON data from the cache file, or null if the file does not exist.
+ */
 function loadCache(filePath) {
-    if (fs.existsSync(filePath)) {
-        console.log(`Loading cached data from ${filePath}`);
-        return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const fullPath = path.join(__dirname, '../json', filePath); // Ensure path is relative to etl/json
+    if (fs.existsSync(fullPath)) {
+        console.log(`Loading cached data from ${fullPath}`);
+        return JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
     }
     return null;
 }
 
-// Utility function to save data to a cache file
+/**
+ * Utility function to save data to a file in the `etl/json` directory.
+ * @param {string} filePath - The relative path to the file.
+ * @param {object} data - The data to save.
+ */
 function saveCache(filePath, data) {
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-    console.log(`Data saved to ${filePath}`);
+    const fullPath = path.join(__dirname, '../json', filePath); // Ensure path is relative to etl/json
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true }); // Ensure the directory exists
+    fs.writeFileSync(fullPath, JSON.stringify(data, null, 2));
+    console.log(`Data saved to ${fullPath}`);
 }
 
+/**
+ * Fetches expert data from the API and caches it.
+ * @returns {Array} - An array of expert objects.
+ */
 async function fetchExperts() {
-    const cachePath = path.join(__dirname, 'experts.json');
+    const cachePath = 'experts.json'; // Cache file for experts
     const cachedData = loadCache(cachePath);
     if (cachedData) return cachedData;
 
@@ -38,14 +61,14 @@ async function fetchExperts() {
 
             experts.push(...hits.map(expert => {
                 const expertData = {
-                    firstName: expert.contactInfo?.hasName?.given || '', // Safely extract firstName
-                    middleName: expert.contactInfo?.hasName?.middle || '', // Safely extract middleName
-                    lastName: expert.contactInfo?.hasName?.family || '', // Safely extract lastName
-                    title: expert.contactInfo.hasTitle?.name || '', // Safely extract hasTitle.name
-                    organizationUnit: expert.contactInfo.hasOrganizationalUnit?.name || '', // Safely extract hasOrganizationalUnit.name
-                    url: expert['@id'] || '' // Safely extract URL
+                    firstName: expert.contactInfo?.hasName?.given || '',
+                    middleName: expert.contactInfo?.hasName?.middle || '',
+                    lastName: expert.contactInfo?.hasName?.family || '',
+                    title: expert.contactInfo.hasTitle?.name || '',
+                    organizationUnit: expert.contactInfo.hasOrganizationalUnit?.name || '',
+                    url: expert['@id'] || ''
                 };
-                console.log(`Fetched expert: ${JSON.stringify(expertData, null, 2)}`); // Print all fields of the expert object
+                // console.log(`Fetched expert: ${JSON.stringify(expertData, null, 2)}`);
                 return expertData;
             }));
 
@@ -53,7 +76,7 @@ async function fetchExperts() {
             page++;
         }
 
-        console.log(`Total experts parsed: ${experts.length}`); // Print total experts parsed
+        console.log(`Total experts parsed: ${experts.length}`);
         saveCache(cachePath, experts);
         return experts;
     } catch (error) {
@@ -62,8 +85,12 @@ async function fetchExperts() {
     }
 }
 
+/**
+ * Fetches work data from the API and caches it.
+ * @returns {Array} - An array of work objects.
+ */
 async function fetchWorks() {
-    const cachePath = path.join(__dirname, 'works.json');
+    const cachePath = 'works.json'; // Cache file for works
     const cachedData = loadCache(cachePath);
     if (cachedData) return cachedData;
 
@@ -71,7 +98,7 @@ async function fetchWorks() {
     let page = 0;
 
     try {
-        while (works.length < 2) {
+        while (works.length < 2) { // Fetch a limited number of works for testing
             const response = await axios.get(`https://experts.ucdavis.edu/api/search`, {
                 params: { '@type': 'work', page },
                 headers: { 'Authorization': API_TOKEN }
@@ -84,7 +111,7 @@ async function fetchWorks() {
                 const workData = {
                     title: work.title || 'No Title',
                     authors: (work.author || []).map(author => `${author.given || ''} ${author.family || ''}`.trim()),
-                    relatedExperts: [], // Initialize relatedExperts field
+                    relatedExperts: [],
                     issued: work.issued || 'No Issued Date',
                     abstract: work.abstract || 'No Abstract',
                     name: work.name || 'No Name',
@@ -102,8 +129,12 @@ async function fetchWorks() {
     }
 }
 
+/**
+ * Fetches grant data from the API and caches it.
+ * @returns {Array} - An array of grant objects.
+ */
 async function fetchGrants() {
-    const cachePath = path.join(__dirname, 'grants.json');
+    const cachePath = 'grants.json'; // Cache file for grants
     const cachedData = loadCache(cachePath);
     if (cachedData) return cachedData;
 
@@ -111,7 +142,7 @@ async function fetchGrants() {
     let page = 0;
 
     try {
-        while (grants.length < 2) {
+        while (grants.length < 2) { // Fetch a limited number of grants for testing
             const response = await axios.get(`https://experts.ucdavis.edu/api/search`, {
                 params: { '@type': 'grant', page },
                 headers: { 'Authorization': API_TOKEN }
@@ -119,13 +150,14 @@ async function fetchGrants() {
 
             const hits = response.data.hits;
             if (hits.length === 0) break;
+
             grants.push(...hits.map(grant => {
                 const grantData = {
-                    title: grant.name, // name
-                    funder: grant.assignedBy.name, // funder
-                    startDate: grant.dateTimeInterval.start.dateTime, // start
-                    endDate: grant.dateTimeInterval.end.dateTime, // end
-                    inheresIn: grant.relatedBy[0].inheres_in, // inheres_in
+                    title: grant.name,
+                    funder: grant.assignedBy.name,
+                    startDate: grant.dateTimeInterval.start.dateTime,
+                    endDate: grant.dateTimeInterval.end.dateTime,
+                    inheresIn: grant.relatedBy[0].inheres_in,
                 };
                 return grantData;
             }));
@@ -140,22 +172,22 @@ async function fetchGrants() {
     }
 }
 
+/**
+ * Processes works and grants to associate them with relevant experts and saves the results.
+ */
 async function aggregateResults() {
     try {
         const experts = await fetchExperts();
         const works = await fetchWorks();
         const grants = await fetchGrants();
 
-        // Save experts as full names for easier matching
         const expertsWithFullNames = experts.map(expert => ({
-            fullName: `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' '), // Include middle name
+            fullName: `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' '),
             url: expert.url
         }));
 
-        // Sort experts alphabetically by fullName for faster matching
         const sortedExperts = expertsWithFullNames.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
-        // Helper function for binary search
         function binarySearch(experts, target) {
             let left = 0, right = experts.length - 1;
             while (left <= right) {
@@ -169,22 +201,20 @@ async function aggregateResults() {
 
         const worksWithExperts = works.map(work => {
             const relatedExperts = work.authors.map(author => {
-                const [firstName, ...rest] = author.split(' '); // Split the name into parts
-                const lastName = rest.pop() || ''; // The last part is the last name
-                const middleName = rest.join(' ') || ''; // Remaining parts are the middle name
+                const [firstName, ...rest] = author.split(' ');
+                const lastName = rest.pop() || '';
+                const middleName = rest.join(' ') || '';
 
-                // Construct possible full names for matching
                 const fullNameWithoutMiddle = `${firstName} ${lastName}`.trim().replace(/\s+/g, ' ');
                 const fullNameWithMiddle = `${firstName} ${middleName} ${lastName}`.trim().replace(/\s+/g, ' ');
 
-                // Attempt to find a match using binary search
                 let match = binarySearch(sortedExperts, fullNameWithoutMiddle);
                 if (!match && middleName) {
                     match = binarySearch(sortedExperts, fullNameWithMiddle);
                 }
 
-                return match || null; // Return the match or null
-            }).filter(Boolean); // Filter out unmatched authors
+                return match || null;
+            }).filter(Boolean);
 
             return {
                 ...work,
@@ -195,13 +225,12 @@ async function aggregateResults() {
             };
         });
 
-        // Save updated works with related experts back to cache
-        saveCache(path.join(__dirname, 'works.json'), worksWithExperts);
+        saveCache('expertWorks.json', worksWithExperts);
 
         const grantsWithExperts = grants.map(grant => {
             const relatedExpert = sortedExperts.find(expert => expert.url === grant.inheresIn);
             return {
-                title: grant.title, // Keep only relevant fields
+                title: grant.title,
                 funder: grant.funder,
                 startDate: grant.startDate,
                 endDate: grant.endDate,
@@ -209,15 +238,12 @@ async function aggregateResults() {
             };
         });
 
-        // Combine results
-        const aggregateResults = { worksWithExperts, grantsWithExperts };
+        saveCache('expertGrants.json', grantsWithExperts);
 
-        // Write combined results to a JSON file
-        fs.writeFileSync('aggregateResults.json', JSON.stringify(aggregateResults, null, 2));
-        console.log('Results successfully written to aggregateResults.json');
     } catch (error) {
-        console.error('Error combining results:', error.message);
+        console.error('Error matching experts to results:', error.message);
     }
 }
 
+// Start the aggregation process
 aggregateResults();
