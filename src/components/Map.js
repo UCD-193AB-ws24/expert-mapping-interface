@@ -53,6 +53,7 @@ const createSingleResearcherContent = (researcher, isPopup = true) => {
     workTitles = [];
   }
 
+
   // Get confidence rating and add proper styling based on confidence level
   const confidence = researcher.confidence || researcher.properties?.confidence;
   
@@ -110,11 +111,14 @@ const createSingleResearcherContent = (researcher, isPopup = true) => {
          target='_blank'
          rel="noopener noreferrer"
          style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold; opacity: ${(researcher.researcher_url || researcher.properties?.researcher_url) ? '1' : '0.6'}; cursor: ${(researcher.researcher_url || researcher.properties?.researcher_url) ? 'pointer' : 'default'}">
+      
         ${(researcher.researcher_url || researcher.properties?.researcher_url) ? "View Profile" : "No Profile Found"}
       </a>
     </div>
   `;
 };
+
+
 
 // For multiple researchers display (used in markers and polygons)
 const createMultiResearcherContent = (expertCount, locationName, totalWorks) => `
@@ -355,7 +359,8 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
  * - Show styled polygon overlays with opacity scaled by expert count
  * - Handle user interactions: popup hover, click-to-open panel, and close logic
  */
-const ResearchMap = () => {
+// const ResearchMap = () => {
+  const ResearchMap = ({ showGrants, showWorks }) => {
   const [geoData, setGeoData] = useState(null);
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [selectedPointExperts, setSelectedPointExperts] = useState([]);
@@ -388,6 +393,14 @@ const ResearchMap = () => {
     );
   };
 
+  const isGrant = (feature) => { //type of data to diplay
+    return "funder" in feature.properties;
+  };
+  
+  const isExpert = (feature) => { //type of data to diplay
+    return "researcher_name" in feature.properties || "firstName" in feature.properties;
+  };
+
   //initial GeoJSON Data Fetch
   useEffect(() => {
     setIsLoading(true);
@@ -413,6 +426,7 @@ const ResearchMap = () => {
         setError("Failed to load map data. Please ensure the API server is running on port 3001.");
       });
   }, []);
+
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -463,11 +477,17 @@ const ResearchMap = () => {
       const locationExpertCounts = new Map();
 
       geoData.features.forEach((feature) => {
+        // 🔍 Filter based on toggle state
+        if (showGrants && !isGrant(feature)) return;
+        if (showWorks && !isExpert(feature)) return;
+        if (!showGrants && !showWorks) return;
+      
         const locationId = feature.properties.location_id;
         if (locationId) {
           locationExpertCounts.set(locationId, (locationExpertCounts.get(locationId) || 0) + 1);
         }
       });
+      
 
       // Find the farthest expert (Point) from a fixed reference point
       const referencePoint = L.latLng(20, 0); // Arbitrary center of map
@@ -475,43 +495,53 @@ const ResearchMap = () => {
       let maxDistance = 0;
 
       geoData.features.forEach((feature) => {
+        // 🔍 Filter based on toggle state
+        if (showGrants && !isGrant(feature)) return;
+        if (showWorks && !isExpert(feature)) return;
+        if (!showGrants && !showWorks) return;
+      
         const geometry = feature.geometry;
-
+      
         // Handle Point
         if (geometry.type === "Point") {
           const [lng, lat] = geometry.coordinates;
           const expertLocation = L.latLng(lat, lng);
           const distance = referencePoint.distanceTo(expertLocation); // Calculate distance
-
+      
           if (distance > maxDistance) {
             maxDistance = distance;
             farthestExpert = feature;
           }
         }
       });
+      
 
-      //Remove the polygon for that farthest expert (if it exists)
-      if (farthestExpert) {
-        const locationId = farthestExpert.properties.location_id;
+      // 🧭 Remove the polygon for that farthest expert (if it exists)
+if (farthestExpert && showWorks) {
+  const locationId = farthestExpert.properties.location_id;
 
-        geoData.features.forEach((feature) => {
-          const geometry = feature.geometry;
+  geoData.features.forEach((feature) => {
+    const geometry = feature.geometry;
 
-          if (geometry.type === "Polygon" && feature.properties.location_id === locationId) {
-            const coordinates = geometry.coordinates[0];
-            const flippedCoordinates = coordinates.map(([lng, lat]) => [lat, lng]);
-            const polygon = L.polygon(flippedCoordinates, {
-              color: '#13639e',
-              weight: 2,
-              fillColor: '#d8db9a',
-              fillOpacity: 0.3,
-            });
+    if (
+      geometry.type === "Polygon" &&
+      feature.properties.location_id === locationId
+    ) {
+      const coordinates = geometry.coordinates[0];
+      const flippedCoordinates = coordinates.map(([lng, lat]) => [lat, lng]);
+      const polygon = L.polygon(flippedCoordinates, {
+        color: '#13639e',
+        weight: 2,
+        fillColor: '#d8db9a',
+        fillOpacity: 0.3,
+      });
 
-            // Remove the polygon from the map
-            mapRef.current.removeLayer(polygon);
-          }
-        });
-      }
+      // 🧽 Remove the polygon from the map
+      mapRef.current.removeLayer(polygon);
+    }
+  });
+}
+
 
       // Sort polygons by area in descending order (largest first)
       const polygonsToRender = new Set(); 
@@ -558,6 +588,9 @@ const ResearchMap = () => {
 
             // Hover in → show popup
             currentPolygon.on("mouseover", (event) => {
+              //if (!showWorks && !showGrants) return; // ensure no hovering before a toggle is selected. 
+              if (!(showGrants || showWorks)) return;
+
               if (closeTimeout) {
                 clearTimeout(closeTimeout);
                 closeTimeout = null;
@@ -648,24 +681,32 @@ const ResearchMap = () => {
 
       // Group researchers by location key: "lat,lng"
       // Handle Point and MultiPoint
-      geoData.features.forEach((feature) => {
-        const geometry = feature.geometry;
 
+      geoData.features.forEach((feature) => {
+        // 🔍 Filter based on toggle state
+        if (showGrants && !isGrant(feature)) return;
+        if (showWorks && !isExpert(feature)) return;
+        if (!showGrants && !showWorks) return;
+      
+        const geometry = feature.geometry;
+      
         if (geometry.type === "Point" || geometry.type === "MultiPoint") {
           const coordinates = geometry.coordinates;
+      
           if (geometry.type === "Point" && Array.isArray(coordinates) && coordinates.length === 2) {
             const [lng, lat] = coordinates;
             const key = `${lat},${lng}`;
-
+      
             if (!locationMap.has(key)) {
               locationMap.set(key, []);
             }
             locationMap.get(key).push(feature.properties);
+      
           } else if (geometry.type === "MultiPoint" && Array.isArray(coordinates)) {
             coordinates.forEach(coord => {
               const [lng, lat] = coord;
               const key = `${lat},${lng}`;
-
+      
               if (!locationMap.has(key)) {
                 locationMap.set(key, []);
               }
@@ -674,6 +715,7 @@ const ResearchMap = () => {
           }
         }
       });
+      
 
       // Render each unique marker
       locationMap.forEach((experts, key) => {
@@ -711,6 +753,7 @@ const ResearchMap = () => {
 
          // Hover in → show expert popup
         marker.on("mouseover", (event) => {
+          if (!(showGrants || showWorks)) return; //ensure no hovering when toggles arent selected
           if (closeTimeout) {
             clearTimeout(closeTimeout);
             closeTimeout = null;
@@ -790,7 +833,7 @@ const ResearchMap = () => {
         marker.addTo(markerClusterGroupRef.current);
       });
     }
-  }, [geoData]);
+  }, [geoData, showGrants, showWorks]); 
 
   
   /* This block renders the main visual structure of the map interface:
@@ -801,8 +844,8 @@ const ResearchMap = () => {
   */
 
   return (
-    <div style={{ display: 'flex', position: 'relative' }}>
-      <div id="map" style={{ flex: 1, height: '100vh' }}></div>
+    <div style={{ display: 'flex', position: 'relative', height: '100%' }}>
+    <div id="map" style={{ flex: 1, height: '100%' }}></div>
       {isLoading && (
         <div 
           style={{
