@@ -59,7 +59,7 @@ async function processAllGrants() {
 
 async function main() {
   await processAllWorks();
-  // await processAllGrants();
+  await processAllGrants();
 }
 
 main();
