@@ -1,3 +1,13 @@
+/**
+ * Validate the locations extracted by Llama in geoExpertWorks.json and geoExpertGrants.json by
+ * using Nominatim API and using Llama to get ISO 3166-1 code.
+ * 
+ * Standardize location names with the following priority:
+ * 1) Nominatim API's "name" property
+ * 2) ISO code
+ * 3) Original name
+**/
+
 const axios = require('axios');
 const path = require('path');
 const fs = require("fs");
@@ -9,6 +19,7 @@ const grantsPath = path.join(__dirname, '/json', "geoExpertGrants.json");
 const locWorksPath = path.join(__dirname, '/json', "locExpertWorks.json");
 const locGrantsPath = path.join(__dirname, '/json', "locExpertGrants.json");
 
+// Get location's information using Nominatim API
 async function getLocationInfo(location) {
   try {
     const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
@@ -45,6 +56,7 @@ async function getLocationInfo(location) {
   }
 }
 
+// Use Llama to get location's ISO code if possible
 const groq = new Groq({ apiKey: "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" });
 async function getISOcode(location) {
   const chatCompletion = await groq.chat.completions.create({
@@ -61,6 +73,7 @@ async function getISOcode(location) {
 }
 
 async function validateLocation(location) {
+  // Ignore if there is no location
   if (location === "N/A") {
     return {
       name: "N/A",
@@ -68,6 +81,7 @@ async function validateLocation(location) {
     }
   }
 
+  // Some manual name changes
   const manual_names = {
     "Latin America": "South America",
     "South America": "South America",
@@ -98,26 +112,31 @@ async function validateLocation(location) {
   // - Continents
   // - Case: Fail geocode, pass ISO
 
+  // If codes are the same, location is good
   if (String(country_code).toUpperCase() === String(location_iso).toUpperCase()) {
     return {
       name: location_info.name,
       confidence: "High"
     }
+    // Natural or international location without ISO
   } else if (special_locations.includes(location_info.type)) {
     return {
       name: location_info.name,
       confidence: "Kinda High"
     }
+    // Unable to get ISO code, bad location
   } else if (String(location_iso).length > 2) {
     return {
       name: location,
       confidence: "Low"
     }
+    // Unable to use Nominatim, use ISO if exists
   } else if (location_info === null) {
     return {
       name: location_iso,
       confidence: "Mid"
     }
+    // Unmatch codes, priortize ISO
   } else {
     return {
       name: location_iso,

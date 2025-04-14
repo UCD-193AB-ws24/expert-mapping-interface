@@ -1,3 +1,9 @@
+/** 
+ * Use Llama to extract location from provided text
+ * Extract from "title" and "abstract" from expertWorks.json and store as "location" in geoExpertWorks.json
+ * Extract from "title" from expertGrants.json and store as "location" in geoExpertGrants.json
+**/
+
 const axios = require('axios');
 const path = require('path');
 const fs = require("fs");
