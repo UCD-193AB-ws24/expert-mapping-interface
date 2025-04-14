@@ -109,15 +109,14 @@ async function validateLocation(location) {
   }
 
   const location_info = await getLocationInfo(location);
+  let iso_nominatim;
   if (location_info === null) {
-    return {
-      name: "N/A",
-      confidence: ""
-    }
+    iso_nominatim = "Fail";
+  } else {
+    iso_nominatim = location_info.address.country_code;
   }
 
-  const country_code = location_info.address.country_code;
-  const location_iso = await getISOcode(location);
+  const iso_llama = await getISOcode(location);
 
   const special_locations = ["ocean", "sea"];
 
@@ -126,10 +125,16 @@ async function validateLocation(location) {
   // - Case: Fail geocode, pass ISO
 
   // If codes are the same, location is good
-  if (String(country_code).toUpperCase() === String(location_iso).toUpperCase()) {
+  if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
     return {
       name: location_info.name,
       confidence: "High"
+    }
+    // Unable to use Nominatim, use ISO if exists
+  } else if (location_info === null) {
+    return {
+      name: iso_llama,
+      confidence: "Mid"
     }
     // Natural or international location without ISO
   } else if (special_locations.includes(location_info.type)) {
@@ -138,21 +143,15 @@ async function validateLocation(location) {
       confidence: "Kinda High"
     }
     // Unable to get ISO code, bad location
-  } else if (String(location_iso).length > 2) {
+  } else if (String(iso_llama).length > 2) {
     return {
       name: location,
       confidence: "Low"
     }
-    // Unable to use Nominatim, use ISO if exists
-  } else if (location_info === null) {
-    return {
-      name: location_iso,
-      confidence: "Mid"
-    }
     // Unmatch codes, priortize ISO
   } else {
     return {
-      name: location_iso,
+      name: iso_llama,
       confidence: "Mid"
     }
   }
@@ -187,8 +186,11 @@ async function validateAllGrants() {
 }
 
 async function main() {
-  await validateAllWorks();
-  await validateAllGrants();
+  // await validateAllWorks();
+  // await validateAllGrants();
+
+  const ret = await validateLocation("Mainland China");
+  console.log(ret);
 }
 
 main();
