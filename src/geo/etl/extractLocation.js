@@ -8,6 +8,7 @@ const axios = require('axios');
 const path = require('path');
 const fs = require("fs");
 const Groq = require('groq-sdk');
+const { default: ollama } = require('ollama');
 
 const worksPath = path.join(__dirname, '/json', "expertWorks.json");
 const grantsPath = path.join(__dirname, '/json', "expertGrants.json");
@@ -17,6 +18,20 @@ const geoGrantsPath = path.join(__dirname, '/json', "geoExpertGrants.json");
 const groq = new Groq({ apiKey: "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" });
 
 async function extractLocation(text) {
+  // // Ollama
+  // const response = await ollama.chat({
+  //   model: 'llama3.1',
+  //   messages: [
+  //     { "role": "system", "content": `Extract geopolitical entites from provided text. Do not infer. Do not provide explaination.` },
+  //     { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
+  //     { "role": "user", "content": `Extract from this text: ${text}` }
+  //   ],
+  //   temperature: 0,
+  //   stream: false
+  // });
+  // return response.message.content;
+
+  // Groq API
   const chatCompletion = await groq.chat.completions.create({
     "messages": [
       { "role": "system", "content": `Extract geopolitical entites from provided text. Do not infer. Do not provide explaination.` },
@@ -27,7 +42,6 @@ async function extractLocation(text) {
     "temperature": 0,
     "stream": false
   });
-
   return chatCompletion.choices[0].message.content
 }
 

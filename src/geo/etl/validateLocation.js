@@ -59,6 +59,19 @@ async function getLocationInfo(location) {
 // Use Llama to get location's ISO code if possible
 const groq = new Groq({ apiKey: "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" });
 async function getISOcode(location) {
+  // // Ollama
+  // const response = await ollama.chat({
+  //   model: 'llama3.1',
+  //   messages: [
+  //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explaination.` },
+  //     { "role": "system", "content": `Location: ${location}` }
+  //   ],
+  //   temperature: 0,
+  //   stream: false
+  // });
+  // return response.message.content;
+
+  // Groq API
   const chatCompletion = await groq.chat.completions.create({
     "messages": [
       { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explaination.` },
@@ -69,7 +82,7 @@ async function getISOcode(location) {
     "stream": false
   });
 
-  return chatCompletion.choices[0].message.content
+  return chatCompletion.choices[0].message.content;
 }
 
 async function validateLocation(location) {
