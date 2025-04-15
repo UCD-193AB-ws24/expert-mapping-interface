@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import "./styles/index.css";
-import Map from "./components/Map";
+// import Map from "./components/Map";
+// import Map from "./components/ResearchMap";
+import ResearchMap from "./components/ResearchMap";
+
 
 import topImage from "./assets/topImage.png";
 import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
@@ -10,7 +13,12 @@ import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
 function App() {
 const [showGrants, setShowGrants] = useState(false); // start OFF, initialize map to no markers
 const [showWorks, setShowWorks] = useState(false);   // start OFF, initialize map to no markers
+const [searchKeyword, setSearchKeyword] = useState(""); //for keyword search
 
+//for search word input
+const handleSearchChange = (e) => {
+  setSearchKeyword(e.target.value);
+};
 
   return (
     <div className="App flex flex-col min-h-screen" style={{ backgroundColor: "#FFFFFF" }}>
@@ -68,7 +76,7 @@ const [showWorks, setShowWorks] = useState(false);   // start OFF, initialize ma
         <div className="flex w-full h-full">
           {/* Map */}
           <div className="w-[80%] min-w-0 relative" aria-label="Interactive map showing expert and grant locations">
-            <Map showGrants={showGrants} showWorks={showWorks} />
+          <ResearchMap showGrants={showGrants} showWorks={showWorks} searchKeyword={searchKeyword} />
           </div>
 
           {/* Sidebar */}
@@ -77,10 +85,12 @@ const [showWorks, setShowWorks] = useState(false);   // start OFF, initialize ma
             <div className="mb-6">
               <label htmlFor="search-input" className="sr-only">Search keyword</label>
               <div className="relative">
-                <input 
+              <input 
                   id="search-input"
                   type="text" 
                   placeholder="Search keyword" 
+                  value={searchKeyword}
+                  onChange={handleSearchChange}
                   className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#022851]"
                 />
                 <button className="absolute right-3 top-1/2 transform -translate-y-1/2" aria-label="Search">
