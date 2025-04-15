@@ -24,6 +24,45 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
+import expertGrantsRaw from "../geo/data/expertGrants.json";
+
+
+// TEMP: Convert expertGrantsRaw into mock GeoJSON format for grant testing no redis yet
+const grantGeoJSON = {
+  type: "FeatureCollection",
+  features: expertGrantsRaw.map((grant, index) => {
+    // Extract name(s) from the location field
+    const matches = [...(grant.location?.matchAll(/\* (.+)/g) || [])];
+    const primaryLocation = matches.length ? matches[0][1] : "Unknown";
+
+    // Fake coordinates based on index to spread markers out for now
+    const lng = -121 + (index % 5) * 1.5; // just to space them out
+    const lat = 38 + (index % 4) * 1.2;
+
+    return {
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [lng, lat]
+      },
+      properties: {
+        ...grant,
+        location_id: `grant-${index}`,
+        location_name: primaryLocation,
+        researcher_name: grant.relatedExpert?.name || "Unknown",
+        researcher_url: grant.relatedExpert?.url
+          ? `https://experts.ucdavis.edu/${grant.relatedExpert.url}`
+          : null,
+        work_titles: [grant.title],
+        work_count: 1,
+        confidence: "low", // or use something else to style
+        type: "grant" // ✅ mark as grant for filtering
+      }
+    };
+  })
+};
+
+
 // For single researcher display (used in markers, polygons, and side panel)
 const createSingleResearcherContent = (researcher, isPopup = true) => {
   let workTitles = [];
@@ -364,6 +403,7 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
   const [geoData, setGeoData] = useState(null);
   const [selectedExperts, setSelectedExperts] = useState([]);
   const [selectedPointExperts, setSelectedPointExperts] = useState([]);
+  const [selectedGrants, setSelectedGrants] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelType, setPanelType] = useState(null);
   const mapRef = useRef(null);
@@ -393,14 +433,16 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
     );
   };
 
-  const isGrant = (feature) => { //type of data to diplay
-    return "funder" in feature.properties;
+  const isGrant = (feature) => {
+    const props = feature?.properties || {};
+    return "funder" in props || "startDate" in props;
   };
   
-  const isExpert = (feature) => { //type of data to diplay
-    return "researcher_name" in feature.properties || "firstName" in feature.properties;
+  const isExpert = (feature) => {
+    const props = feature?.properties || {};
+    return "researcher_name" in props || "firstName" in props || "work_titles" in props;
   };
-
+  
   //initial GeoJSON Data Fetch
   useEffect(() => {
     setIsLoading(true);
@@ -417,6 +459,7 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
         return response.json();
       })
       .then((data) => {
+        //commenting this out if want to work on grants for right now, since no redis access, else this will show works
         setGeoData(data);
         setIsLoading(false);
       })
@@ -426,6 +469,159 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
         setError("Failed to load map data. Please ensure the API server is running on port 3001.");
       });
   }, []);
+
+    //To make grant layout: Use  grant data instead of Redis result, since no access ot redis updates yet. 
+//     setGeoData({
+//       type: "FeatureCollection",
+//       features: [...grantGeoJSON.features]
+//     });
+//     setIsLoading(false);
+//   })
+// }, []);
+
+//grant pop up content
+const createGrantPopupContent = (grant) => {
+  const rawTitle = grant.title || "";
+  const cleanTitle = rawTitle.split("§")[0].trim().replace(/^"+|"+$/g, ""); // remove leading/trailing quotes
+
+  return `
+  <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+ <div style="margin-top: 4px;">
+  <strong>Grant:</strong> <span style="color: #f59e0b;">${cleanTitle || "Unknown"}</span>
+</div>
+      <div style="margin-top: 4px;">
+        <strong>Researcher:</strong> ${grant.researcher_name || "Unknown"}
+      </div>
+      <div style="margin-top: 4px;">
+        <strong>Location:</strong> ${grant.location_name || "Unknown"}
+      </div>
+      <div style="margin-top: 4px;">
+        <strong>Funding:</strong> ${grant.funder || "Unknown"}
+      </div>
+      <a href='${grant.researcher_url || "#"}' 
+         target='_blank'
+         rel="noopener noreferrer"
+         style="display: block; margin-top: 12px; padding: 8px 10px; background: #f59e0b; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold; opacity: ${(grant.researcher_url) ? '1' : '0.6'}; cursor: ${(grant.researcher_url) ? 'pointer' : 'default'}">
+        ${grant.researcher_url ? "View Researcher Profile" : "No Profile Found"}
+      </a>
+    </div>
+  `;
+};
+
+
+// 🔶 GrantsPanel – Side panel for displaying multiple grants at a location
+const GrantsPanel = ({ grants, onClose }) => {
+  return (
+    <div style={{
+      position: "fixed",
+      right: 0,
+      top: 0,
+      bottom: 0,
+      width: "300px",
+      marginTop: "140px",
+      backgroundColor: "white",
+      boxShadow: "-2px 0 5px rgba(0,0,0,0.2)",
+      padding: "20px",
+      overflowY: "auto",
+      zIndex: 1001
+    }}>
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        style={{
+          position: "absolute",
+          right: "10px",
+          top: "10px",
+          border: "none",
+          background: "none",
+          fontSize: "20px",
+          cursor: "pointer",
+          color: "#666"
+        }}
+      >
+        ×
+      </button>
+
+      {/* Title */}
+      <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#f59e0b" }}>
+        {grants.length} Grant{grants.length !== 1 ? 's' : ''} at this Location
+      </h2>
+
+      {/* List of grant cards */}
+      <ul style={{ padding: 0, listStyle: 'none' }}>
+        {grants.map((grant, index) => (
+          <li key={index} style={{
+            position: "relative",
+            padding: "15px",
+            fontSize: "14px",
+            lineHeight: "1.5",
+            width: "100%",
+            border: "1px solid #ddd",
+            borderRadius: "5px",
+            marginBottom: "15px",
+            background: "#fefce8" // Light yellow background
+          }}>
+            {/* Researcher Name */}
+            <div style={{ fontWeight: "bold", fontSize: "16px", color: "#f59e0b" }}>
+              {grant.researcher_name || "Unknown"}
+            </div>
+
+            {/* Grant title */}
+            <div style={{ marginTop: "5px", color: "#333" }}>
+              {grant.title || "Untitled Grant"}
+            </div>
+
+            {/* Location + funder */}
+            <div style={{ marginTop: "5px", color: "#333" }}>
+              <strong>Location:</strong> {grant.location_name || "Unknown"}
+              <br />
+              <strong>Funder:</strong> {grant.funder || "Unknown"}
+            </div>
+
+            {/* Profile link */}
+            <a
+              href={grant.researcher_url || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                marginTop: "12px",
+                padding: "8px 10px",
+                background: "#f59e0b",
+                color: "white",
+                textAlign: "center",
+                borderRadius: "5px",
+                textDecoration: "none",
+                fontWeight: "bold",
+                opacity: grant.researcher_url ? '1' : '0.6',
+                cursor: grant.researcher_url ? 'pointer' : 'default'
+              }}
+            >
+              {grant.researcher_url ? "View Researcher Profile" : "No Profile Found"}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const createMultiGrantPopup = (grants, locationName) => `
+  <div style='padding: 15px; font-size: 14px; width: 250px;'>
+    <div style='font-weight: bold; font-size: 16px; color: #f59e0b;'>
+      ${grants.length} Grants at this Location
+    </div>
+    <div style='margin-top: 8px; color: #333;'>
+      <strong>Location:</strong> ${locationName || "Unknown"}
+    </div>
+    <a href='#'
+       class='view-grants-btn'
+       style='display: block; margin-top: 12px; padding: 8px 10px; background: #f59e0b; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+      View Grants
+    </a>
+  </div>
+`;
+
 
 
   useEffect(() => {
@@ -477,16 +673,20 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
       const locationExpertCounts = new Map();
 
       geoData.features.forEach((feature) => {
-        // 🔍 Filter based on toggle state
-        if (showGrants && !isGrant(feature)) return;
-        if (showWorks && !isExpert(feature)) return;
-        if (!showGrants && !showWorks) return;
+        // 🔍 Skip features based on toggles
+        if (!showGrants && isGrant(feature)) return;  // don't render grants if toggle is off
+        if (!showWorks && isExpert(feature)) return;  // don't render experts if toggle is off
+        if (!showGrants && !showWorks) return;        // if both off, skip all
       
-        const locationId = feature.properties.location_id;
+        const locationId = feature.properties?.location_id;
         if (locationId) {
-          locationExpertCounts.set(locationId, (locationExpertCounts.get(locationId) || 0) + 1);
+          locationExpertCounts.set(
+            locationId,
+            (locationExpertCounts.get(locationId) || 0) + 1
+          );
         }
       });
+      
       
 
       // Find the farthest expert (Point) from a fixed reference point
@@ -494,26 +694,27 @@ const ExpertsPanel = ({ experts, onClose, panelType }) => {
       let farthestExpert = null;
       let maxDistance = 0;
 
+      
       geoData.features.forEach((feature) => {
-        // 🔍 Filter based on toggle state
-        if (showGrants && !isGrant(feature)) return;
-        if (showWorks && !isExpert(feature)) return;
+        // Skip features if toggles are OFF for their type
+        if (!showGrants && isGrant(feature)) return;
+        if (!showWorks && isExpert(feature)) return;
         if (!showGrants && !showWorks) return;
       
+        // ✅ Only run this logic for experts with geometry
         const geometry = feature.geometry;
+        if (!geometry || geometry.type !== "Point") return;
       
-        // Handle Point
-        if (geometry.type === "Point") {
-          const [lng, lat] = geometry.coordinates;
-          const expertLocation = L.latLng(lat, lng);
-          const distance = referencePoint.distanceTo(expertLocation); // Calculate distance
+        const [lng, lat] = geometry.coordinates;
+        const expertLocation = L.latLng(lat, lng);
+        const distance = referencePoint.distanceTo(expertLocation); // Calculate distance
       
-          if (distance > maxDistance) {
-            maxDistance = distance;
-            farthestExpert = feature;
-          }
+        if (distance > maxDistance) {
+          maxDistance = distance;
+          farthestExpert = feature;
         }
       });
+      
       
 
       // 🧭 Remove the polygon for that farthest expert (if it exists)
@@ -662,6 +863,24 @@ if (farthestExpert && showWorks) {
                       activePopup.close();
                       activePopup = null;
                     }
+
+                    const viewGrantsBtn = popupElement.querySelector(".view-grants-btn");
+                    if (viewGrantsBtn) {
+                      viewGrantsBtn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    
+                        setSelectedExperts(grants); // ✅ or setSelectedGrants if you made a new state
+                        setPanelType("polygon");
+                        setPanelOpen(true);
+                    
+                        if (activePopup) {
+                          activePopup.close();
+                          activePopup = null;
+                        }
+                      });
+                    }
+                    
                   });
                 }
               }
@@ -679,16 +898,25 @@ if (farthestExpert && showWorks) {
         }
       });
 
-      // Group researchers by location key: "lat,lng"
-      // Handle Point and MultiPoint
-
+      
       geoData.features.forEach((feature) => {
-        // 🔍 Filter based on toggle state
-        if (showGrants && !isGrant(feature)) return;
-        if (showWorks && !isExpert(feature)) return;
+        const isExpertFeature = isExpert(feature);
+        const isGrantFeature = isGrant(feature);
+      
+        //  If neither toggle is on, skip everything
         if (!showGrants && !showWorks) return;
       
+        //  If showing only grants and this is not a grant, skip
+        if (showGrants && !showWorks && !isGrantFeature) return;
+      
+        //  If showing only works and this is not an expert, skip
+        if (showWorks && !showGrants && !isExpertFeature) return;
+      
+        // If both are on, allow both expert and grant features
+        //  If it's valid per above, proceed...
+      
         const geometry = feature.geometry;
+        if (!geometry) return;
       
         if (geometry.type === "Point" || geometry.type === "MultiPoint") {
           const coordinates = geometry.coordinates;
@@ -716,7 +944,6 @@ if (farthestExpert && showWorks) {
         }
       });
       
-
       // Render each unique marker
       locationMap.forEach((experts, key) => {
         const [lat, lng] = key.split(",").map(Number);
@@ -759,13 +986,17 @@ if (farthestExpert && showWorks) {
             closeTimeout = null;
           }
 
-          const popupContent = count === 1
-            ? createSingleResearcherContent(experts[0])
-            : createMultiResearcherContent(
-                count,
-                experts[0]?.location_name || "Unknown",
-                totalWorks
-              );
+
+            const popupContent = count === 1 
+              ? (experts[0].type === "grant"
+              ? createGrantPopupContent(experts[0])
+              : createSingleResearcherContent(experts[0]))
+              : createMultiResearcherContent(
+                  count,
+                  experts[0]?.location_name || "Unknown",
+                  totalWorks
+                );
+
 
           if (activePopup) {
             activePopup.close();
@@ -814,6 +1045,24 @@ if (farthestExpert && showWorks) {
                   activePopup.close();
                   activePopup = null;
                 }
+                const viewGrantsBtn = popupElement.querySelector(".view-grants-btn");
+if (viewGrantsBtn) {
+  viewGrantsBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setSelectedExperts(grants); // ✅ or setSelectedGrants if you made a new state
+    setPanelType("polygon");
+    setPanelOpen(true);
+
+    if (activePopup) {
+      activePopup.close();
+      activePopup = null;
+    }
+  });
+}
+
+
               });
             }
           }
@@ -897,13 +1146,28 @@ if (farthestExpert && showWorks) {
           <p>{error}</p>
         </div>
       )}
-      {panelOpen && (
+      {/* {panelOpen && (
         <ExpertsPanel
           experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
           onClose={() => setPanelOpen(false)}
           panelType={panelType}
         />
-      )}
+      )} */}
+      {panelOpen && panelType === "grants" && (
+  <GrantsPanel
+    grants={selectedGrants}
+    onClose={() => setPanelOpen(false)}
+  />
+)}
+{panelOpen && (panelType === "polygon" || panelType === "point") && (
+  <ExpertsPanel
+    experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
+    onClose={() => setPanelOpen(false)}
+    panelType={panelType}
+  />
+)}
+
+
     </div>
   );
 };
