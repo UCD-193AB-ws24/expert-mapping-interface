@@ -13,13 +13,12 @@
 const axios = require('axios');
 const path = require('path');
 const fs = require("fs");
-const Groq = require('groq-sdk');
-const { error } = require('console');
+const { default: ollama } = require('ollama');
 
-const worksPath = path.join(__dirname, '/json', "geoExpertWorks.json");
-const grantsPath = path.join(__dirname, '/json', "geoExpertGrants.json");
-const locWorksPath = path.join(__dirname, '/json', "locExpertWorks.json");
-const locGrantsPath = path.join(__dirname, '/json', "locExpertGrants.json");
+const worksPath = path.join(__dirname, '../works', "workLocations.json");
+const grantsPath = path.join(__dirname, '../grants', "grantLocations.json");
+const locWorksPath = path.join(__dirname, '../works', "/validatedWorkLocations.json");
+const locGrantsPath = path.join(__dirname, '../grants', "/validatedGrantLocations.json");
 
 /**
  * Get location's information using Nominatim API
@@ -62,38 +61,36 @@ async function getLocationInfo(location) {
   }
 }
 
-const groq = new Groq({ apiKey: "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" });
-
 /**
  * Use Llama to get location's ISO code if possible
  * @param {String} location   - location
  * @returns {String}          - Llama's response
  */
 async function getISOcode(location) {
-  // // Ollama
-  // const response = await ollama.chat({
-  //   model: 'llama3.1',
-  //   messages: [
-  //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explaination.` },
-  //     { "role": "system", "content": `Location: ${location}` }
-  //   ],
-  //   temperature: 0,
-  //   stream: false
-  // });
-  // return response.message.content;
-
-  // Groq API
-  const chatCompletion = await groq.chat.completions.create({
-    "messages": [
-      { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explaination.` },
-      { "role": "system", "content": `Location: ${location} ` }
+  const response = await ollama.chat({
+    model: 'llama3.1',
+    messages: [
+      { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+      { "role": "system", "content": `Location: ${location}` }
     ],
-    "model": "llama-3.3-70b-versatile",
-    "temperature": 0,
-    "stream": false
+    temperature: 0,
+    stream: false
   });
+  return response.message.content;
+}
 
-  return chatCompletion.choices[0].message.content;
+/**
+ * Preprocess the location string to clean and normalize it.
+ * @param {String} location - location string to preprocess
+ * @returns {String} - preprocessed location string
+ */
+function preprocessLocation(location) {
+  // Remove URLs or invalid characters from the location string
+  const urlPattern = /https?:\/\/[^\s]+|www\.[^\s]+/g;
+  location = location.replace(urlPattern, '').trim();
+
+  // Additional normalization rules can be added here
+  return location;
 }
 
 /**
@@ -102,12 +99,15 @@ async function getISOcode(location) {
  * @returns                  - {name: "Location name", confidence: "Confidence"}
  */
 async function validateLocation(location) {
+  // Preprocess the location string
+  location = preprocessLocation(location);
+
   // Ignore if there is no location
-  if (location === "N/A") {
+  if (location === "N/A" || location === "") {
     return {
       name: "N/A",
       confidence: ""
-    }
+    };
   }
 
   // Some manual name changes
@@ -116,7 +116,7 @@ async function validateLocation(location) {
     "South America": "South America",
     "North America": "North America",
     "CA": "California",
-  }
+  };
 
   if (location in manual_names) {
     location = manual_names[location];
@@ -145,111 +145,89 @@ async function validateLocation(location) {
     return {
       name: location_info.name,
       confidence: "High"
-    }
+    };
     // Unable to use Nominatim, use ISO if exists
   } else if (location_info === null) {
     return {
       name: iso_llama,
       confidence: "Mid"
-    }
+    };
     // Natural or international location without ISO
   } else if (special_locations.includes(location_info.type)) {
     return {
       name: location_info.name,
       confidence: "Kinda High"
-    }
+    };
     // Unable to get ISO code, bad location
   } else if (String(iso_llama).length > 2) {
     return {
       name: location,
       confidence: "Low"
-    }
+    };
     // Unmatch codes, priortize ISO
   } else {
     return {
       name: iso_llama,
       confidence: "Mid"
+    };
+  }
+}
+
+/**
+ * Validate and organize locations, ensuring no duplicates.
+ * Save the results to a JSON file.
+ */
+async function validateLocations(inputPath, outputPath) {
+  const data = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
+
+  console.log(`Validating locations from ${inputPath}...`);
+  for (const entry of data) {
+    const result = await validateLocation(entry.location);
+    entry.location = result.name;
+    entry.confidence = result.confidence;
+  }
+
+  console.log(`Formatting and saving validated locations to ${outputPath}...`);
+  const locationMap = new Map();
+
+  data.forEach(entry => {
+    const locationKey = entry.location.toLowerCase();
+
+    if (!locationMap.has(locationKey)) {
+      locationMap.set(locationKey, {
+        location: entry.location,
+        confidence: entry.confidence,
+        entries: []
+      });
     }
-  }
+
+    locationMap.get(locationKey).entries.push(entry);
+  });
+
+  const organizedData = Array.from(locationMap.values());
+  fs.writeFileSync(outputPath, JSON.stringify(organizedData, null, 2));
+
+  console.log(`Validated and formatted locations saved to ${outputPath}.`);
 }
 
-/**
- * Run validateLocation() on each work
- * Save to locExpertWorks.json
- */
 async function validateAllWorks() {
-  const data = JSON.parse(fs.readFileSync(worksPath, "utf-8"));
-  console.log("Validating works' locations...");
-
-  for (const entry of data) {
-    const result = await validateLocation(entry.location);
-
-    entry.location = result.name;
-    entry.confidence = result.confidence;
-  }
-
-  fs.writeFileSync(locWorksPath, JSON.stringify(data, null, 2));
+  console.log("Validating all works...");
+  const worksPath = path.join(__dirname, '../works', "workLocations.json");
+  const locWorksPath = path.join(__dirname, '../works', "/validatedWorkLocations.json");
+  await validateLocations(worksPath, locWorksPath);
+  return true;
 }
 
-/**
- * Run validateLocation() on each grant
- * Save to locExpertGrants.json
- */
 async function validateAllGrants() {
-  const data = JSON.parse(fs.readFileSync(grantsPath, "utf-8"));
-  console.log("Validating grants' locations...");
-
-  for (const entry of data) {
-    const result = await validateLocation(entry.location);
-
-    entry.location = result.name;
-    entry.confidence = result.confidence;
-  }
-
-  fs.writeFileSync(locGrantsPath, JSON.stringify(data, null, 2));
+  console.log("Validating all grants...");
+  const grantsPath = path.join(__dirname, '../grants', "grantLocations.json");
+  const locGrantsPath = path.join(__dirname, '../grants', "/validatedGrantLocations.json");
+  await validateLocations(grantsPath, locGrantsPath);
+  return true;
 }
 
-async function main() {
-  await validateAllWorks();
-  await validateAllGrants();
-}
-
-main();
-
-
-// ---------Testing------------------------------
-
-// const readline = require('readline');
-
-// async function test() {
-//   const file = path.join(__dirname, '/json', "llama_geo_results.jsonl");
-//   const out = path.join(__dirname, '/json', "test.json");
-
-//   const fileStream = fs.createReadStream(file);
-
-//   const rl = readline.createInterface({
-//     input: fileStream,
-//     crlfDelay: Infinity
-//   });
-
-//   const data = {};
-
-//   let i = 0;
-//   for await (const line of rl) {
-//     const obj = JSON.parse(line);
-//     const geo = obj.response.body.choices[0].message.content;
-//     const val = await validateLocation(geo);
-
-//     data[geo] = {
-//       name: val.name,
-//       con: val.confidence
-//     }
-
-//     console.log(i);
-//     i += 1;
-//   }
-
-//   fs.writeFileSync(out, JSON.stringify(data, null, 2));
-// }
-
-// test();
+// Export all functions for external use
+module.exports = {
+  validateAllWorks,
+  validateAllGrants
+};

@@ -1,9 +1,9 @@
 /**
- * Program Purpose:
- * This program retrieves data about experts, works, and grants from the UC Davis Experts API.
+ * Program Overview:
+ * This script retrieves data about experts, works, and grants from the UC Davis Experts API.
  * It processes the data to associate works and grants with relevant experts and saves the results
- * into JSON files (`expertWorks.json` and `expertGrants.json`) in the `etl/json` directory.
- * The program ensures that cached data is reused when available to minimize API calls.
+ * as JSON files.
+ * Cached data is reused when available to reduce API calls.
  */
 
 const axios = require('axios');
@@ -12,12 +12,12 @@ const path = require('path');
 const { API_TOKEN } = require('./auth'); // API token for authentication
 
 /**
- * Utility function to check if a cache file exists and load it.
+ * Utility function to load cached data from a file if it exists.
  * @param {string} filePath - The relative path to the cache file.
- * @returns {object|null} - The parsed JSON data from the cache file, or null if the file does not exist.
+ * @returns {object|null} - Parsed JSON data from the cache file, or null if the file does not exist.
  */
 function loadCache(filePath) {
-    const fullPath = path.join(__dirname, '../json', filePath); // Ensure path is relative to etl/json
+    const fullPath = path.join(__dirname, filePath); // Ensure path is relative to etl/json
     if (fs.existsSync(fullPath)) {
         console.log(`Loading cached data from ${fullPath}`);
         return JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
@@ -26,20 +26,21 @@ function loadCache(filePath) {
 }
 
 /**
- * Utility function to save data to a file in the `etl/json` directory.
- * @param {string} filePath - The relative path to the file.
- * @param {object} data - The data to save.
+ * Utility function to save data to a specified subdirectory and file.
+ * @param {string} subDir - The subdirectory where the file will be saved (e.g., 'experts', 'works', 'grants').
+ * @param {string} fileName - The name of the file to save.
+ * @param {object} data - The data to save in JSON format.
  */
-function saveCache(filePath, data) {
-    const fullPath = path.join(__dirname, '../json', filePath); // Ensure path is relative to etl/json
+function saveCache(subDir, fileName, data) {
+    const fullPath = path.join(__dirname, subDir, fileName); // Save in the specified subdirectory
     fs.mkdirSync(path.dirname(fullPath), { recursive: true }); // Ensure the directory exists
     fs.writeFileSync(fullPath, JSON.stringify(data, null, 2));
     console.log(`Data saved to ${fullPath}`);
 }
 
 /**
- * Fetches expert data from the API and caches it.
- * @returns {Array} - An array of expert objects.
+ * Fetches expert data from the API, caches it, and returns the data.
+ * @returns {Array} - An array of expert objects containing details like name, title, and organization.
  */
 async function fetchExperts() {
     const cachePath = 'experts.json'; // Cache file for experts
@@ -77,7 +78,7 @@ async function fetchExperts() {
         }
 
         console.log(`Total experts parsed: ${experts.length}`);
-        saveCache(cachePath, experts);
+        saveCache('experts', cachePath, experts);
         return experts;
     } catch (error) {
         console.error('Error fetching experts:', error.message);
@@ -86,8 +87,8 @@ async function fetchExperts() {
 }
 
 /**
- * Fetches work data from the API and caches it.
- * @returns {Array} - An array of work objects.
+ * Fetches work data from the API, caches it, and returns the data.
+ * @returns {Array} - An array of work objects containing details like title, authors, and abstract.
  */
 async function fetchWorks() {
     const cachePath = 'works.json'; // Cache file for works
@@ -121,7 +122,7 @@ async function fetchWorks() {
             page++;
         }
 
-        saveCache(cachePath, works);
+        saveCache('works', cachePath, works);
         return works;
     } catch (error) {
         console.error('Error fetching works:', error.message);
@@ -130,8 +131,8 @@ async function fetchWorks() {
 }
 
 /**
- * Fetches grant data from the API and caches it.
- * @returns {Array} - An array of grant objects.
+ * Fetches grant data from the API, caches it, and returns the data.
+ * @returns {Array} - An array of grant objects containing details like title, funder, and duration.
  */
 async function fetchGrants() {
     const cachePath = 'grants.json'; // Cache file for grants
@@ -164,7 +165,7 @@ async function fetchGrants() {
             page++;
         }
 
-        saveCache(cachePath, grants);
+        saveCache('grants', cachePath, grants);
         return grants;
     } catch (error) {
         console.error('Error fetching grants:', error.message);
@@ -173,7 +174,8 @@ async function fetchGrants() {
 }
 
 /**
- * Processes works and grants to associate them with relevant experts and saves the results.
+ * Processes works and grants to associate them with relevant experts.
+ * Saves the processed data into JSON files (`expertWorks.json` and `expertGrants.json`).
  */
 async function aggregateResults() {
     try {
@@ -225,7 +227,7 @@ async function aggregateResults() {
             };
         });
 
-        saveCache('expertWorks.json', worksWithExperts);
+        saveCache('works', 'expertWorks.json', worksWithExperts);
 
         const grantsWithExperts = grants.map(grant => {
             const relatedExpert = sortedExperts.find(expert => expert.url === grant.inheresIn);
@@ -238,7 +240,7 @@ async function aggregateResults() {
             };
         });
 
-        saveCache('expertGrants.json', grantsWithExperts);
+        saveCache('grants', 'expertGrants.json', grantsWithExperts);
 
     } catch (error) {
         console.error('Error matching experts to results:', error.message);
