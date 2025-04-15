@@ -11,8 +11,6 @@ import { ExpertsPanel, GrantsPanel } from "./Panels";
 
 // import expertGrantsRaw from "../geo/data/expertGrants.json";
 
-
-
 const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [geoData, setGeoData] = useState(null);
   const [grantGeoJSON, setGrantGeoJSON] = useState(null);
@@ -29,7 +27,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
     setIsLoading(true);
   
     // change BETWEEN EXPERT DATA (Redis) AND GRANT DATA (mocks)
-    const useExpertsFromRedis = false;
+    const useExpertsFromRedis = true;
   
     if (useExpertsFromRedis) {
       // 🔷 Expert data from Redis
@@ -81,10 +79,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
           };
         });
   
-        setGeoData({
-          type: "FeatureCollection",
-          features: grantFeatures
-        });
+        setGrantGeoJSON({
+            type: "FeatureCollection",
+            features: grantFeatures
+          });
         setIsLoading(false);
       });
     }
@@ -99,6 +97,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
         <ExpertLayer
             geoData={geoData}
             showWorks={showWorks}
+            showGrants={showGrants}
             setSelectedExperts={setSelectedExperts}
             setSelectedPointExperts={setSelectedPointExperts}
             setPanelOpen={setPanelOpen}
