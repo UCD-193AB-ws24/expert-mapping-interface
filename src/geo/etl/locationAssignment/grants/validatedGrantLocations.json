@@ -28,13 +28,13 @@
         "confidence": ""
       },
       {
-        "title": "\"The International Symposium on Computer Architecture (ISCA) 2019 Travel Grant,\" § Completed • 2019 - 2019 • Lowe-Power, Jason § National Science Foundation • 1928783",
-        "funder": "National Science Foundation",
-        "startDate": "2019-06-15",
-        "endDate": "2019-11-30",
+        "title": "\"Do You Know\" Video Series § Completed • 2015 - 2020 • Osburn, Bennie I § West Agro, Inc. • 201600800",
+        "funder": "West Agro, Inc.",
+        "startDate": "2015-08-01",
+        "endDate": "2020-01-31",
         "relatedExpert": {
-          "name": "Jason Lowe-Power",
-          "url": "expert/hLqBLS2T"
+          "name": "John A Angelos",
+          "url": "expert/OtgjK1vJ"
         },
         "location": "N/A",
         "confidence": ""
@@ -70,18 +70,6 @@
         "confidence": "Mid"
       },
       {
-        "title": "\"Do You Know\" Video Series § Completed • 2015 - 2020 • Osburn, Bennie I § West Agro, Inc. • 201600800",
-        "funder": "West Agro, Inc.",
-        "startDate": "2015-08-01",
-        "endDate": "2020-01-31",
-        "relatedExpert": {
-          "name": "John A Angelos",
-          "url": "expert/OtgjK1vJ"
-        },
-        "location": "",
-        "confidence": "Mid"
-      },
-      {
         "title": "\"EVALUATION SERVICES FOR PLUMAS COUNTY YOUTH VIOLENCE PREVENTION PLANING PROCESS § Completed • 2006 - 2007 • London, Jonathan K § Plumas Rural Services, Inc. • C06-00526-V",
         "funder": "Plumas Rural Services, Inc.",
         "startDate": "2006-06-01",
@@ -101,6 +89,18 @@
         "relatedExpert": {
           "name": "Sergio A Aguilar-Gaxiola",
           "url": "expert/llsQZobR"
+        },
+        "location": "",
+        "confidence": "Mid"
+      },
+      {
+        "title": "\"The International Symposium on Computer Architecture (ISCA) 2019 Travel Grant,\" § Completed • 2019 - 2019 • Lowe-Power, Jason § National Science Foundation • 1928783",
+        "funder": "National Science Foundation",
+        "startDate": "2019-06-15",
+        "endDate": "2019-11-30",
+        "relatedExpert": {
+          "name": "Jason Lowe-Power",
+          "url": "expert/hLqBLS2T"
         },
         "location": "",
         "confidence": "Mid"

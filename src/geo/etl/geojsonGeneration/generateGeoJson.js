@@ -14,13 +14,13 @@ const path = require("path");
 const turf = require('@turf/turf');
 
 // Define file paths for validated locations and coordinates
-const validatedWorksPath = path.join(__dirname, '/locationAssignment/works/validatedWorkLocations.json');
-const validatedGrantsPath = path.join(__dirname, '/locationAssignment/grants/validatedGrantLocations.json');
-const coordsPath = path.join(__dirname, '/locationAssignment/locations', "location_coordinates.json");
+const validatedWorksPath = path.join(__dirname, '../locationAssignment/works/validatedWorkLocations.json');
+const validatedGrantsPath = path.join(__dirname, '../locationAssignment/grants/validatedGrantLocations.json');
+const coordsPath = path.join(__dirname, '../locationAssignment/locations', "locations.geojson");
 
 // Define output paths for GeoJSON files
-const grantsOutputPath = path.join(__dirname, '../data', 'grants.geojson');
-const worksOutputPath = path.join(__dirname, '../data', 'works.geojson');
+const grantsOutputPath = path.join(__dirname, '/grants', 'grants.geojson');
+const worksOutputPath = path.join(__dirname, '/works', 'works.geojson');
 
 // Load location coordinates
 const locationCoordinates = JSON.parse(fs.readFileSync(coordsPath, "utf-8"));
