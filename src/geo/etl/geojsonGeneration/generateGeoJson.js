@@ -41,7 +41,13 @@ function generateGeoJSON() {
 
   // Helper function to create GeoJSON features
   function createFeature(location, entry, type) {
-    const coordinates = locationCoordinates[location.toLowerCase()];
+    let coordinates;
+    for (const feature of locationCoordinates.features) {
+      if (location === feature.properties.name) {
+        coordinates = feature.geometry.coordinates;
+      }
+    }
+
     if (!coordinates) {
       console.warn(`Coordinates not found for location: ${location}`);
       return null;
