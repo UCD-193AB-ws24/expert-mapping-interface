@@ -28,13 +28,25 @@
         "confidence": ""
       },
       {
-        "title": "\"Do You Know\" Video Series § Completed • 2015 - 2020 • Osburn, Bennie I § West Agro, Inc. • 201600800",
-        "funder": "West Agro, Inc.",
-        "startDate": "2015-08-01",
-        "endDate": "2020-01-31",
+        "title": "\"CA Quits\" Tobacco Cessation Learning Collaborative § Completed • 2017 - 2018 • Tong, Elisa K § California Department Of Public Health • 16-10274",
+        "funder": "California Department Of Public Health",
+        "startDate": "2017-03-24",
+        "endDate": "2018-03-30",
         "relatedExpert": {
-          "name": "John A Angelos",
-          "url": "expert/OtgjK1vJ"
+          "name": "Elisa Tong",
+          "url": "expert/Xho5YrTe"
+        },
+        "location": "N/A",
+        "confidence": ""
+      },
+      {
+        "title": "\"The International Symposium on Computer Architecture (ISCA) 2019 Travel Grant,\" § Completed • 2019 - 2019 • Lowe-Power, Jason § National Science Foundation • 1928783",
+        "funder": "National Science Foundation",
+        "startDate": "2019-06-15",
+        "endDate": "2019-11-30",
+        "relatedExpert": {
+          "name": "Jason Lowe-Power",
+          "url": "expert/hLqBLS2T"
         },
         "location": "N/A",
         "confidence": ""
@@ -54,21 +66,27 @@
     ]
   },
   {
-    "location": "",
+    "location": "US",
     "confidence": "Mid",
     "entries": [
       {
-        "title": "\"CA Quits\" Tobacco Cessation Learning Collaborative § Completed • 2017 - 2018 • Tong, Elisa K § California Department Of Public Health • 16-10274",
-        "funder": "California Department Of Public Health",
-        "startDate": "2017-03-24",
-        "endDate": "2018-03-30",
+        "title": "\"Do You Know\" Video Series § Completed • 2015 - 2020 • Osburn, Bennie I § West Agro, Inc. • 201600800",
+        "funder": "West Agro, Inc.",
+        "startDate": "2015-08-01",
+        "endDate": "2020-01-31",
         "relatedExpert": {
-          "name": "Elisa Tong",
-          "url": "expert/Xho5YrTe"
+          "name": "John A Angelos",
+          "url": "expert/OtgjK1vJ"
         },
-        "location": "",
+        "location": "US",
         "confidence": "Mid"
-      },
+      }
+    ]
+  },
+  {
+    "location": "Plumas County",
+    "confidence": "High",
+    "entries": [
       {
         "title": "\"EVALUATION SERVICES FOR PLUMAS COUNTY YOUTH VIOLENCE PREVENTION PLANING PROCESS § Completed • 2006 - 2007 • London, Jonathan K § Plumas Rural Services, Inc. • C06-00526-V",
         "funder": "Plumas Rural Services, Inc.",
@@ -78,9 +96,15 @@
           "name": "Jonathan K London",
           "url": "expert/tXsEWMqF"
         },
-        "location": "",
-        "confidence": "Mid"
-      },
+        "location": "Plumas County",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "California",
+    "confidence": "High",
+    "entries": [
       {
         "title": "\"NUESTRA SALUD ES PRIMERO\" OUR HEALTH COMES FIRST § Completed • 2013 - 2015 • Aguilar-Gaxiola, Sergio § California Health Benefit Exchange • 12-E9133",
         "funder": "California Health Benefit Exchange",
@@ -90,20 +114,8 @@
           "name": "Sergio A Aguilar-Gaxiola",
           "url": "expert/llsQZobR"
         },
-        "location": "",
-        "confidence": "Mid"
-      },
-      {
-        "title": "\"The International Symposium on Computer Architecture (ISCA) 2019 Travel Grant,\" § Completed • 2019 - 2019 • Lowe-Power, Jason § National Science Foundation • 1928783",
-        "funder": "National Science Foundation",
-        "startDate": "2019-06-15",
-        "endDate": "2019-11-30",
-        "relatedExpert": {
-          "name": "Jason Lowe-Power",
-          "url": "expert/hLqBLS2T"
-        },
-        "location": "",
-        "confidence": "Mid"
+        "location": "California",
+        "confidence": "High"
       },
       {
         "title": "\"WE ARE CALIFORNIA\" WORKSHOP SERIES § Completed • 2009 - 2012 • Mctygue, Nancy J § California Humanities • 09-001101",
@@ -114,9 +126,15 @@
           "name": "Nancy J Mctygue",
           "url": "expert/JYXyl8Nd"
         },
-        "location": "",
-        "confidence": "Mid"
-      },
+        "location": "California",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "CA",
+    "confidence": "Mid",
+    "entries": [
       {
         "title": "''FIRE-INDUCED CHANGES IN ALBEDO AND THE ASSOCIATE RADIATIVE FORCING: A COMPARISON OF BOREAL CANADA AND AUSTRALIA TROPICAL SAVANNAS'' I PROPOSE A 3-YEAR STUDY USING MODIS OBSERVATIONS AND AVAILABLE FIRE HISTORY DATA TO EXAMINE THE TEMPORAL EVOLUTION OF POST § Completed • 2008 - 2012 •  § National Aeronautics and Space Administration • NNX08AR69G",
         "funder": "National Aeronautics and Space Administration",
@@ -126,7 +144,7 @@
           "name": "Yufang Jin",
           "url": "expert/Y6g2KpDY"
         },
-        "location": "",
+        "location": "CA",
         "confidence": "Mid"
       }
     ]

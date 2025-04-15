@@ -1,6 +1,6 @@
 [
   {
-    "location": "",
+    "location": "US",
     "confidence": "Mid",
     "entries": [
       {
@@ -20,19 +20,7 @@
         "issued": "2013-03",
         "abstract": "Twitter.com is a \"micro-blogging\" website. Although Twitter use is growing rapidly, little is known about health behavior discussions on this site, even though a majority of messages are publicly available. We retrieved publicly available Twitter messages during a 5-week period in early 2012, searching separately for the terms \"Pap smear\" and \"mammogram.\" We used content analysis to code each 140-character message, generating a separate coding framework for each cancer screening term and calculating the frequencies of comments. Using the brief account description, we also coded the author as individual, organization, or news media outlet. There were 203 Pap smear and 271 mammogram messages coded, over three fourths of which were from individual accounts. Overall, 22 % of Pap smear messages and 25 % of mammogram messages discussed personal experiences, including attending appointments, negative sentiment about the procedure, and results. Other messages from both individuals and organizations (8 % Pap smear, 18 % mammogram) promoted screening. About one quarter of the messages expressed personal experiences with cancer screening. This demonstrates that Twitter can be a rich source of information and could be used to design new health-related interventions.",
         "name": "“5 Mins of Uncomfyness Is Better than Dealing with Cancer 4 a Lifetime”: an Exploratory Qualitative Analysis of Cervical and Breast Cancer Screening Dialogue on Twitter § Published • article-journal • 2013-03 • R. Lyles, C.& Sarkar, U. et al. § Journal of Cancer Education • 1543-0154 § 10.1007/s13187-012-0432-2",
-        "location": "",
-        "confidence": "Mid"
-      },
-      {
-        "title": "“A Chinaman’s Chance” in Court: Asian Pacific Americans and Racial Rules of Evidence",
-        "authors": [
-          "Gabriel Chin"
-        ],
-        "relatedExperts": [],
-        "issued": "2013-12-01",
-        "abstract": "No Abstract",
-        "name": "“A Chinaman’s Chance” in Court: Asian Pacific Americans and Racial Rules of Evidence §  • article-journal • 2013-12-01 • Chin, G. § UC Irvine Law Review • 2327-4514 § ",
-        "location": "",
+        "location": "US",
         "confidence": "Mid"
       },
       {
@@ -46,15 +34,9 @@
         "issued": "2022-11",
         "abstract": "In 2016, California passed Senate Bill (SB) 1383 to reduce short-lived climate pollutants, including methane gas. Towards this end, the law specifically mandates a 75% reduction of organic waste, including food waste (FW), from landfills by 2025. However, current infrastructural capacity to treat this diverted organic waste is limited throughout the state, so new facilities will need to be built to treat these valuable waste flows. The purpose of this study is to investigate ideal size and scale of new facilities that maximize FW treatment and minimize GHG emissions. To do so, this study uses a case study of Los Angeles County to model a decentralized network of small-scale, containerized anerobic digestors (ADs) for treatment of FW in the region. A spatial FW dataset developed for this study is used with a novel iterative-descent clustering model to simulate potential “FW-sheds” of ADs using Geographic Information Systems (GIS). Monte Carlo simulation was used to generate a range of model results and a GHG analysis of FW collection is used to compare systems of two different AD capacities. The results of this analysis show that food waste is ideal for recycling at relatively small spatial scales as hauling burden of FW is reduced in these systems. The proposed infrastructure modeling approach is a first step of developing a zero net energy infrastructural solution that promotes a circular economy of food in direct response to SB 1383 and, more broadly, global climate change.",
         "name": "“A cluster-based spatial analysis of recycling boundaries aligning anaerobic digestion infrastructure with food waste generation in California” § Published • article-journal • 2022-11 • Mabe, L.& Spang, E. et al. § Resources Conservation & Recycling Advances • 2590-289X § 10.1016/j.rcradv.2022.200113",
-        "location": "",
+        "location": "US",
         "confidence": "Mid"
-      }
-    ]
-  },
-  {
-    "location": "N/A",
-    "confidence": "",
-    "entries": [
+      },
       {
         "title": "\"A definition at last, but what does it all mean?\" Newspaper coverage of organic food production and its effects on milk purchases",
         "authors": [
@@ -64,6 +46,24 @@
         "issued": "2012-04-01",
         "abstract": "This paper estimates the effects of media coverage of organic food production on food purchases. Information from several data sources links national and local newspaper coverage to fluid milk purchases. An analysis of weekly store-level scanner data in a differences-in-differences approach results in a 5% increase in organic milk sales relative to conventional milk sales. Increases in intensity of news coverage increase this relative difference in sales. Differentiating effects by media context further suggests that product category specific coverage increases sales more than general coverage. Critical coverage does not result in significant effects on organic milk sales. Copyright 2012 Western Agricultural Economics Association.",
         "name": "\"A definition at last, but what does it all mean?\" Newspaper coverage of organic food production and its effects on milk purchases § Published • article-journal • 2012-04-01 • Kiesel, K. § Journal of Agricultural and Resource Economics • 2327-8285 § ",
+        "location": "US",
+        "confidence": "Mid"
+      }
+    ]
+  },
+  {
+    "location": "N/A",
+    "confidence": "",
+    "entries": [
+      {
+        "title": "“A Chinaman’s Chance” in Court: Asian Pacific Americans and Racial Rules of Evidence",
+        "authors": [
+          "Gabriel Chin"
+        ],
+        "relatedExperts": [],
+        "issued": "2013-12-01",
+        "abstract": "No Abstract",
+        "name": "“A Chinaman’s Chance” in Court: Asian Pacific Americans and Racial Rules of Evidence §  • article-journal • 2013-12-01 • Chin, G. § UC Irvine Law Review • 2327-4514 § ",
         "location": "N/A",
         "confidence": ""
       },

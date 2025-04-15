@@ -71,7 +71,7 @@ async function getISOcode(location) {
     model: 'llama3.1',
     messages: [
       { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
-      { "role": "system", "content": `Location: ${location}` }
+      { "role": "user", "content": `Location: ${location}` }
     ],
     temperature: 0,
     stream: false
