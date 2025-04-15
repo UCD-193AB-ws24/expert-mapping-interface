@@ -33,27 +33,18 @@ async function organizeWorks(inPath, outPath) {
     if (entry.location != "N/A") {
       // Add new location if need
       if (!(entry.location in location_base)) {
-        location_base[entry.location] = {};
+        location_base[entry.location] = [];
       }
 
-      for (const author of entry.authors) {
-        // Add new expert if need
-        if (!(author in location_base[entry.location])) {
-          location_base[entry.location][author] = {
-            "confidence": entry.confidence,
-            "works": []
-          };
-        }
-
-        // Append work to expert
-        location_base[entry.location][author]["works"].push(entry.title);
-
-        // Update to higher confidence if exist
-        const current_confidence = confidence_lvl[location_base[entry.location][author]["confidence"]];
-        if (confidence_lvl[entry.confidence] > current_confidence) {
-          location_base[entry.location][author]["confidence"] = entry.confidence;
-        }
-      }
+      location_base[entry.location].push({
+        "title": entry.title,
+        "authors": entry.authors,
+        "relatedExperts": entry.relatedExperts,
+        "issued": entry.issued,
+        "abstract": entry.abstract,
+        "name": entry.name,
+        "confidence": entry.confidence
+      })
     }
   }
 
@@ -75,25 +66,17 @@ async function organizeGrants(inPath, outPath) {
     if (entry.location != "N/A") {
       // Add new location if need
       if (!(entry.location in location_base)) {
-        location_base[entry.location] = {};
+        location_base[entry.location] = [];
       }
 
-      // Add new expert if need
-      if (!(entry.relatedExpert.name in location_base[entry.location])) {
-        location_base[entry.location][entry.relatedExpert.name] = {
-          "confidence": entry.confidence,
-          "grants": []
-        };
-      }
-
-      // Append work to expert
-      location_base[entry.location][entry.relatedExpert.name]["grants"].push(entry.title);
-
-      // Update to higher confidence if exist
-      const current_confidence = confidence_lvl[location_base[entry.location][entry.relatedExpert.name]["confidence"]];
-      if (confidence_lvl[entry.confidence] > current_confidence) {
-        location_base[entry.location][entry.relatedExpert.name]["confidence"] = entry.confidence;
-      }
+      location_base[entry.location].push({
+        "title": entry.title,
+        "funder": entry.funder,
+        "startDate": entry.startDate,
+        "endDate": entry.endDate,
+        "relatedExpert": entry.relatedExpert,
+        "confidence": entry.confidence
+      })
     }
   }
 
