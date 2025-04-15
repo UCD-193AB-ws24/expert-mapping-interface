@@ -1,8 +1,10 @@
 /** 
- * Use Llama to extract location from provided text
- * Extract from "title" and "abstract" from expertWorks.json and store as "location" in geoExpertWorks.json
- * Extract from "title" from expertGrants.json and store as "location" in geoExpertGrants.json
-**/
+ * Use Llama to extract locations from
+ * - Works: "title" and "abstract" from expertWorks.json
+ * - Grants: "title" from expertGrants.json
+ * 
+ * Store each result into "location" field and save to geoExpertWorks.json and geoExpertGrants.json
+ */
 
 const axios = require('axios');
 const path = require('path');
@@ -17,6 +19,11 @@ const geoGrantsPath = path.join(__dirname, '/json', "geoExpertGrants.json");
 
 const groq = new Groq({ apiKey: "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" });
 
+/**
+ * Get location from text using Llama
+ * @param {String} text  - text to be extracted 
+ * @returns {String}     - location
+ */
 async function extractLocation(text) {
   // // Ollama
   // const response = await ollama.chat({
@@ -45,6 +52,10 @@ async function extractLocation(text) {
   return chatCompletion.choices[0].message.content
 }
 
+/**
+ * Call extractLocation() on each work
+ * Save to geoExpertWorks.json
+ */
 async function processAllWorks() {
   const data = JSON.parse(fs.readFileSync(worksPath, "utf-8"));
   console.log("Extracting works...");
@@ -63,6 +74,10 @@ async function processAllWorks() {
   fs.writeFileSync(geoWorksPath, JSON.stringify(data, null, 2));
 }
 
+/**
+ * Call extractLocation() on each grant
+ * Save to geoExpertGrants.json
+ */
 async function processAllGrants() {
   const data = JSON.parse(fs.readFileSync(grantsPath, "utf-8"));
   console.log("Extracting grants...");
@@ -76,6 +91,7 @@ async function processAllGrants() {
 
   fs.writeFileSync(geoGrantsPath, JSON.stringify(data, null, 2));
 }
+
 
 async function main() {
   await processAllWorks();

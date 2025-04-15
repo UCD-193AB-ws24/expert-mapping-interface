@@ -1,11 +1,13 @@
 /**
  * Validate the locations extracted by Llama in geoExpertWorks.json and geoExpertGrants.json by
- * using Nominatim API and using Llama to get ISO 3166-1 code.
+ * comparing Nominatim API and Llama's ISO 3166-1 code.
  * 
  * Standardize location names with the following priority:
  * 1) Nominatim API's "name" property
  * 2) ISO code
  * 3) Original name
+ * 
+ * Save to locExpertWorks.json and locExpertGrants.json
 **/
 
 const axios = require('axios');
@@ -19,7 +21,11 @@ const grantsPath = path.join(__dirname, '/json', "geoExpertGrants.json");
 const locWorksPath = path.join(__dirname, '/json', "locExpertWorks.json");
 const locGrantsPath = path.join(__dirname, '/json', "locExpertGrants.json");
 
-// Get location's information using Nominatim API
+/**
+ * Get location's information using Nominatim API
+ * @param {String} location  - location 
+ * @returns                  - Nominatim object or null 
+ */
 async function getLocationInfo(location) {
   try {
     const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
@@ -56,8 +62,13 @@ async function getLocationInfo(location) {
   }
 }
 
-// Use Llama to get location's ISO code if possible
 const groq = new Groq({ apiKey: "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" });
+
+/**
+ * Use Llama to get location's ISO code if possible
+ * @param {String} location   - location
+ * @returns {String}          - Llama's response
+ */
 async function getISOcode(location) {
   // // Ollama
   // const response = await ollama.chat({
@@ -85,6 +96,11 @@ async function getISOcode(location) {
   return chatCompletion.choices[0].message.content;
 }
 
+/**
+ * Using Nominatim API and Llama's ISO code to make decision on the location
+ * @param {String} location  - location
+ * @returns                  - {name: "Location name", confidence: "Confidence"}
+ */
 async function validateLocation(location) {
   // Ignore if there is no location
   if (location === "N/A") {
@@ -157,6 +173,10 @@ async function validateLocation(location) {
   }
 }
 
+/**
+ * Run validateLocation() on each work
+ * Save to locExpertWorks.json
+ */
 async function validateAllWorks() {
   const data = JSON.parse(fs.readFileSync(worksPath, "utf-8"));
   console.log("Validating works' locations...");
@@ -171,6 +191,10 @@ async function validateAllWorks() {
   fs.writeFileSync(locWorksPath, JSON.stringify(data, null, 2));
 }
 
+/**
+ * Run validateLocation() on each grant
+ * Save to locExpertGrants.json
+ */
 async function validateAllGrants() {
   const data = JSON.parse(fs.readFileSync(grantsPath, "utf-8"));
   console.log("Validating grants' locations...");
@@ -186,11 +210,8 @@ async function validateAllGrants() {
 }
 
 async function main() {
-  // await validateAllWorks();
-  // await validateAllGrants();
-
-  const ret = await validateLocation("Mainland China");
-  console.log(ret);
+  await validateAllWorks();
+  await validateAllGrants();
 }
 
 main();
