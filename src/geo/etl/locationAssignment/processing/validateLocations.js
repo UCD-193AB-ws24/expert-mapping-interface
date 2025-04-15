@@ -196,10 +196,11 @@ async function validateLocations(inputPath, outputPath) {
     if (!locationMap.has(locationKey)) {
       locationMap.set(locationKey, {
         location: entry.location,
-        confidence: entry.confidence,
         entries: []
       });
     }
+
+    delete entry.location;
 
     locationMap.get(locationKey).entries.push(entry);
   });
