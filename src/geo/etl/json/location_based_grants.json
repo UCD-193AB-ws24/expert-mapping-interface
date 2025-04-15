@@ -1,0 +1,62 @@
+{
+  "California": {
+    "Elisa Tong": {
+      "confidence": "High",
+      "grants": [
+        "\"CA Quits\" Tobacco Cessation Learning Collaborative § Completed • 2017 - 2018 • Tong, Elisa K § California Department Of Public Health • 16-10274"
+      ]
+    },
+    "Sergio A Aguilar-Gaxiola": {
+      "confidence": "High",
+      "grants": [
+        "\"NUESTRA SALUD ES PRIMERO\" OUR HEALTH COMES FIRST § Completed • 2013 - 2015 • Aguilar-Gaxiola, Sergio § California Health Benefit Exchange • 12-E9133"
+      ]
+    },
+    "Nancy J Mctygue": {
+      "confidence": "High",
+      "grants": [
+        "\"WE ARE CALIFORNIA\" WORKSHOP SERIES § Completed • 2009 - 2012 • Mctygue, Nancy J § California Humanities • 09-001101"
+      ]
+    }
+  },
+  "United States": {
+    "John A Angelos": {
+      "confidence": "High",
+      "grants": [
+        "\"Do You Know\" Video Series § Completed • 2015 - 2020 • Osburn, Bennie I § West Agro, Inc. • 201600800"
+      ]
+    }
+  },
+  "Orange County": {
+    "Jonathan K London": {
+      "confidence": "High",
+      "grants": [
+        "\"EVALUATION SERVICES FOR PLUMAS COUNTY YOUTH VIOLENCE PREVENTION PLANING PROCESS § Completed • 2006 - 2007 • London, Jonathan K § Plumas Rural Services, Inc. • C06-00526-V"
+      ]
+    }
+  },
+  "University of California, Davis": {
+    "Jason Lowe-Power": {
+      "confidence": "High",
+      "grants": [
+        "\"The International Symposium on Computer Architecture (ISCA) 2019 Travel Grant,\" § Completed • 2019 - 2019 • Lowe-Power, Jason § National Science Foundation • 1928783"
+      ]
+    }
+  },
+  "MS": {
+    "Piri Ackerman": {
+      "confidence": "Mid",
+      "grants": [
+        "#SacYouthWorks Service Agreement: Summer Health Institute for Nursing Exploration and Success (SHINES) § Completed • 2022 - 2022 • Ackerman, Piri § Pro Youth And Families, Inc. • A23-1800"
+      ]
+    }
+  },
+  "Canada, Australia": {
+    "Yufang Jin": {
+      "confidence": "Low",
+      "grants": [
+        "''FIRE-INDUCED CHANGES IN ALBEDO AND THE ASSOCIATE RADIATIVE FORCING: A COMPARISON OF BOREAL CANADA AND AUSTRALIA TROPICAL SAVANNAS'' I PROPOSE A 3-YEAR STUDY USING MODIS OBSERVATIONS AND AVAILABLE FIRE HISTORY DATA TO EXAMINE THE TEMPORAL EVOLUTION OF POST § Completed • 2008 - 2012 •  § National Aeronautics and Space Administration • NNX08AR69G"
+      ]
+    }
+  }
+}
