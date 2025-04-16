@@ -1,6 +1,6 @@
 const { processAllWorks, processAllGrants } = require('./processing/extractLocations');
 const { validateAllWorks, validateAllGrants } = require('./processing/validateLocations');
-const { geocodeLocations } = require('./processing/geocodeLocations');
+const { createLocationCoordinates } = require('./processing/geocodeLocations');
 
 /**
  * Run the full pipeline: extract, validate, and geocode locations for works and grants.
@@ -22,7 +22,7 @@ async function processLocations() {
     console.log("Finished validating grants.");
 
     // Step 3: Geocode locations
-    await geocodeLocations();
+    await createLocationCoordinates();
     console.log("Finished geocoding locations.");
 
     console.log("Location processing pipeline completed successfully.");

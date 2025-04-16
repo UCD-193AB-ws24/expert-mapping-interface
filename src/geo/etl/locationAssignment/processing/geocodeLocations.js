@@ -15,10 +15,9 @@ const axios = require('axios');
 
 // Configuration constants
 const CACHE_FILE = path.join(__dirname, '../locations', 'locations.geojson');
-const WORK_LOCATIONS_FILE = process.argv[2] || path.join(__dirname, '../works', 'validatedWorkLocations.json');
-const GRANT_LOCATIONS_FILE = process.argv[2] || path.join(__dirname, '../grants', 'validatedGrantLocations.json');
+const WORK_LOCATIONS_FILE = path.join(__dirname, '../works', 'validatedWorkLocations.json');
+const GRANT_LOCATIONS_FILE = path.join(__dirname, '../grants', 'validatedGrantLocations.json');
 const DELAY_MS = 1000; // Nominatim rate limit: 1 request per second
-const MAX_POINTS = 4096; // Maximum points to keep in polygon geometries
 
 /**
  * Geocodes a location name to GeoJSON feature
@@ -183,8 +182,5 @@ if (require.main === module) {
 
 // Export all functions for external use
 module.exports = {
-  geocodeLocations,
-  createFeatures,
-  createLocationCoordinates,
-  sleep
+  createLocationCoordinates
 };

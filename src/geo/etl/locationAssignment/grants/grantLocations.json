@@ -41,7 +41,7 @@
       "name": "John A Angelos",
       "url": "expert/OtgjK1vJ"
     },
-    "location": "Osborne, US (no country specified) is not found in the text but \nOsburn, US \n\nHowever since there are multiple locations with similar names and no information about the state, it is difficult to provide an accurate answer.\nSo I'll consider that as a partial match and return \"Osburn, US\""
+    "location": "N/A"
   },
   {
     "title": "\"EVALUATION SERVICES FOR PLUMAS COUNTY YOUTH VIOLENCE PREVENTION PLANING PROCESS § Completed • 2006 - 2007 • London, Jonathan K § Plumas Rural Services, Inc. • C06-00526-V",
@@ -52,7 +52,7 @@
       "name": "Jonathan K London",
       "url": "expert/tXsEWMqF"
     },
-    "location": "London, United Kingdom"
+    "location": "Plumas County, USA"
   },
   {
     "title": "\"NUESTRA SALUD ES PRIMERO\" OUR HEALTH COMES FIRST § Completed • 2013 - 2015 • Aguilar-Gaxiola, Sergio § California Health Benefit Exchange • 12-E9133",
@@ -74,7 +74,7 @@
       "name": "Jason Lowe-Power",
       "url": "expert/hLqBLS2T"
     },
-    "location": "National Science Foundation, USA"
+    "location": "National Science Foundation, United States"
   },
   {
     "title": "\"WE ARE CALIFORNIA\" WORKSHOP SERIES § Completed • 2009 - 2012 • Mctygue, Nancy J § California Humanities • 09-001101",
@@ -107,6 +107,6 @@
       "name": "Yufang Jin",
       "url": "expert/Y6g2KpDY"
     },
-    "location": "Canada"
+    "location": "Canada \nAustralia"
   }
 ]
