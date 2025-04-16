@@ -9,10 +9,10 @@
  * - Table sizes and statistics
  *
  * Usage:
- * node src/geo/postgis/viewTables.js [limit] [offset] [researcher_name]
+ * node src/geo/postgis/viewTables.js [limit] [offset]
  */
 
-const { pool } = require('./config');
+const { pool, tables } = require('./config');
 
 async function viewTables(limit = 50, offset = 0) {
     const client = await pool.connect();
@@ -22,13 +22,13 @@ async function viewTables(limit = 50, offset = 0) {
         console.log('\n📊 Table Counts:');
         const counts = await client.query(`
             SELECT 
-                (SELECT COUNT(*) FROM research_locations_point) as points,
-                (SELECT COUNT(*) FROM research_locations_poly) as polygons,
-                (SELECT COUNT(*) FROM research_locations_all) as total
+                (SELECT COUNT(*) FROM ${tables.works}) as works,
+                (SELECT COUNT(*) FROM ${tables.grants}) as grants,
+                (SELECT COUNT(*) FROM locations_all) as total
         `);
         console.log('------------------------');
-        console.log(`Points: ${counts.rows[0].points}`);
-        console.log(`Polygons: ${counts.rows[0].polygons}`);
+        console.log(`Works: ${counts.rows[0].works}`);
+        console.log(`Grants: ${counts.rows[0].grants}`);
         console.log(`Total: ${counts.rows[0].total}`);
 
         // Show table sizes
@@ -40,67 +40,62 @@ async function viewTables(limit = 50, offset = 0) {
                 pg_size_pretty(pg_table_size(quote_ident(table_name))) as table_size,
                 pg_size_pretty(pg_indexes_size(quote_ident(table_name))) as index_size
             FROM (
-                VALUES ('research_locations_point'), ('research_locations_poly')
+                VALUES ('${tables.works}'), ('${tables.grants}')
             ) AS t(table_name)
         `);
         console.table(tableSizes.rows);
 
-        // Sample of point locations
-        console.log(`\n📍 Point Locations (showing ${limit} rows, offset ${offset}):`);
-        const points = await client.query(`
+        // Sample of works data
+        console.log(`\n📚 Works Locations (showing ${limit} rows, offset ${offset}):`);
+        const works = await client.query(`
             SELECT 
                 id,
                 name,
-                ST_X(geom::geometry) as longitude,
-                ST_Y(geom::geometry) as latitude,
-                properties->>'type' as location_type,
-                jsonb_array_length(properties->'researchers') as researcher_count,
+                REPLACE(ST_GeometryType(geom), 'ST_', '') as geometry_type,
                 created_at
-            FROM research_locations_point
-            ORDER BY researcher_count DESC NULLS LAST
+            FROM ${tables.works}
+            ORDER BY id ASC
             LIMIT $1 OFFSET $2
         `, [limit, offset]);
-        console.table(points.rows);
+        console.table(works.rows);
 
-        // Sample of polygon locations
-        console.log(`\n🗺️  Polygon Locations (showing ${limit} rows, offset ${offset}):`);
-        const polygons = await client.query(`
+        // Sample of grants data
+        console.log(`\n💰 Grant Locations (showing ${limit} rows, offset ${offset}):`);
+        const grants = await client.query(`
             SELECT 
                 id,
                 name,
-                properties->>'type' as location_type,
-                ST_Area(geom::geography)/1000000 as area_km2,
-                jsonb_array_length(properties->'researchers') as researcher_count,
+                REPLACE(ST_GeometryType(geom), 'ST_', '') as geometry_type,
                 created_at
-            FROM research_locations_poly
-            ORDER BY researcher_count DESC NULLS LAST
+            FROM ${tables.grants}
+            ORDER BY id ASC
             LIMIT $1 OFFSET $2
         `, [limit, offset]);
-        console.table(polygons.rows);
+        console.table(grants.rows);
 
-        // Show researcher distribution
-        console.log('\n👥 Researcher Distribution by Location Type:');
-        const researcherDist = await client.query(`
-            WITH location_researchers AS (
+        // Show distribution by type
+        console.log('\n📊 Feature Distribution by Geometry Type:');
+        const geomDist = await client.query(`
+            WITH combined_data AS (
                 SELECT 
-                    properties->>'type' as location_type,
-                    jsonb_array_length(properties->'researchers') as researcher_count
-                FROM research_locations_all
-                WHERE properties->'researchers' IS NOT NULL
+                    'works' as source,
+                    REPLACE(ST_GeometryType(geom), 'ST_', '') as geom_type
+                FROM ${tables.works}
+                UNION ALL
+                SELECT 
+                    'grants' as source,
+                    REPLACE(ST_GeometryType(geom), 'ST_', '') as geom_type
+                FROM ${tables.grants}
             )
             SELECT 
-                location_type,
-                COUNT(*) as location_count,
-                SUM(researcher_count) as total_researchers,
-                ROUND(AVG(researcher_count)::numeric, 2) as avg_researchers_per_location,
-                MAX(researcher_count) as max_researchers
-            FROM location_researchers
-            GROUP BY location_type
-            ORDER BY total_researchers DESC NULLS LAST
-            LIMIT 10
+                source,
+                geom_type,
+                COUNT(*) as count
+            FROM combined_data
+            GROUP BY source, geom_type
+            ORDER BY source, count DESC
         `);
-        console.table(researcherDist.rows);
-
+        console.table(geomDist.rows);
     } catch (error) {
         console.error('❌ Error viewing tables:', error);
     } finally {
@@ -108,81 +103,92 @@ async function viewTables(limit = 50, offset = 0) {
     }
 }
 
-async function viewResearcherDetails(researcherName) {
-    const client = await pool.connect();
-    console.log('\n📥 Researcher lookup request:');
-    console.log('----------------------------------------');
-    console.log(`Searching for: ${researcherName}`);
-    
+async function viewAllUploaded() {
     try {
-        console.log('🔍 Looking up researcher details...');
-        const result = await client.query(`
-            WITH researcher_data AS (
-                SELECT 
-                    l.id as location_id,
-                    l.name as location_name,
-                    l.properties->>'type' as location_type,
-                    ST_AsGeoJSON(l.geom)::json as location_geometry,
-                    r->>'name' as researcher_name,
-                    r->>'url' as researcher_url,
-                    r->'works' as works
-                FROM research_locations_all l,
-                jsonb_array_elements(l.properties->'researchers') r
-                WHERE r->>'name' ILIKE $1
-            )
+        const client = await pool.connect();
+        
+        console.log('\n🌍 All Uploaded Works and Grants:');
+        
+        // Get works
+        const works = await client.query(`
             SELECT 
-                researcher_name,
-                researcher_url,
-                works,
-                json_agg(
-                    json_build_object(
-                        'location_id', location_id,
-                        'name', location_name,
-                        'type', location_type,
-                        'geometry', location_geometry
-                    )
-                ) as locations
-            FROM researcher_data
-            GROUP BY researcher_name, researcher_url, works
-        `, [`%${researcherName}%`]);
-
-        if (result.rows.length === 0) {
-            console.log('❌ No researchers found');
-        } else {
-            console.log('✅ Found researchers:');
-            console.log('----------------------------------------');
-            result.rows.forEach(row => {
-                console.log(`\nResearcher: ${row.researcher_name}`);
-                console.log(`URL: ${row.researcher_url}`);
-                console.log(`Number of works: ${row.works.length}`);
-                console.log(`Number of locations: ${row.locations.length}`);
-                console.log('Locations:');
-                row.locations.forEach(loc => {
-                    console.log(`  - ${loc.name} (${loc.type})`);
-                });
-            });
-        }
-    } catch (error) {
-        console.error('❌ Error viewing researcher details:', error);
-    } finally {
+                id, name, ST_AsGeoJSON(geom)::json AS geometry, properties
+            FROM ${tables.works}
+            ORDER BY id ASC
+        `);
+        
+        // Get grants
+        const grants = await client.query(`
+            SELECT 
+                id, name, ST_AsGeoJSON(geom)::json AS geometry, properties
+            FROM ${tables.grants}
+            ORDER BY id ASC
+        `);
+        
         client.release();
+        
+        // Format as GeoJSON
+        const worksFeatures = works.rows.map(row => ({
+            type: 'Feature',
+            id: row.id,
+            geometry: row.geometry,
+            properties: { 
+                ...row.properties,
+                name: row.name,
+                id: row.id,
+                type: 'works'
+            }
+        }));
+        
+        const grantsFeatures = grants.rows.map(row => ({
+            type: 'Feature',
+            id: row.id,
+            geometry: row.geometry,
+            properties: { 
+                ...row.properties,
+                name: row.name,
+                id: row.id, 
+                type: 'grants'
+            }
+        }));
+        
+        const geojson = {
+            type: 'FeatureCollection',
+            features: [...worksFeatures, ...grantsFeatures],
+            metadata: {
+                works_count: worksFeatures.length,
+                grants_count: grantsFeatures.length,
+                total_count: worksFeatures.length + grantsFeatures.length,
+                timestamp: new Date().toISOString()
+            }
+        };
+        
+        console.log(JSON.stringify(geojson, null, 2));
+        console.log(`\nWorks features: ${worksFeatures.length}`);
+        console.log(`Grants features: ${grantsFeatures.length}`);
+        console.log(`Total features: ${geojson.features.length}`);
+        
+        return geojson;
+    } catch (error) {
+        console.error('❌ Error viewing all uploaded data:', error);
     }
 }
 
 if (require.main === module) {
-    const limit = process.argv[2] ? parseInt(process.argv[2]) : 50;
-    const offset = process.argv[3] ? parseInt(process.argv[3]) : 0;
-    const researcherName = process.argv[4];
-    
-    Promise.all([
-        viewTables(limit, offset),
-        researcherName ? viewResearcherDetails(researcherName) : Promise.resolve()
-    ])
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1));
+    const mode = process.argv[2];
+    if (mode === 'all-data') {
+        viewAllUploaded();
+    } else {
+        const limit = process.argv[2] ? parseInt(process.argv[2]) : 50;
+        const offset = process.argv[3] ? parseInt(process.argv[3]) : 0;
+        
+        viewTables(limit, offset)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1));
+    }
 }
 
 module.exports = {
     viewTables,
-    viewResearcherDetails
-}; 
+    viewAllUploaded
+};

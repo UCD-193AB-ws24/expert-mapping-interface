@@ -66,7 +66,7 @@ async function createTables() {
 
     // Create a view that combines both tables
     await client.query(`
-      CREATE OR REPLACE VIEW research_locations_all AS
+      CREATE OR REPLACE VIEW locations_all AS
         SELECT id, name, geom, properties, 'works' as source_type, created_at, updated_at FROM locations_works
       UNION ALL
         SELECT id, name, geom, properties, 'grants' as source_type, created_at, updated_at FROM locations_grants;
@@ -106,7 +106,7 @@ async function createTables() {
     console.log('✅ Tables created successfully');
     console.log('📊 Works locations table: locations_works');
     console.log('💰 Grants locations table: locations_grants');
-    console.log('👁️  Combined view: research_locations_all');
+    console.log('👁️  Combined view: locations_all');
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('❌ Error creating tables:', error);

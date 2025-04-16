@@ -39,45 +39,50 @@ function generateGeoJSON() {
   const worksGeoData = { type: "FeatureCollection", features: [] };
   const grantsGeoData = { type: "FeatureCollection", features: [] };
 
-  // Helper function to create GeoJSON features
-  function createFeature(location, entry, type) {
-    let coordinates;
-    for (const feature of locationCoordinates.features) {
-      if (location === feature.properties.name) {
-        coordinates = feature.geometry.coordinates;
-      }
-    }
+  // Helper: find location feature by name
+  function findLocationFeature(locationName) {
+    return locationCoordinates.features.find(
+      (feature) => feature.properties.name === locationName
+    );
+  }
 
-    if (!coordinates) {
-      console.warn(`Coordinates not found for location: ${location}`);
-      return null;
-    }
-
+  // Helper: merge properties from location and entry
+  function mergeProperties(locationProps, entryProps, type) {
     return {
-      type: "Feature",
-      properties: {
-        type,
-        ...entry
-      },
-      geometry: {
-        type: "Point",
-        coordinates
-      }
+      ...locationProps,
+      ...entryProps,
+      type
     };
   }
 
   // Process works
   console.log('📖 Processing works...');
   validatedWorks.forEach(work => {
-    const feature = createFeature(work.location, work, "work");
-    if (feature) worksGeoData.features.push(feature);
+    const locationFeature = findLocationFeature(work.location);
+    if (!locationFeature) {
+      console.warn(`Location feature not found for: ${work.location}`);
+      return;
+    }
+    worksGeoData.features.push({
+      type: "Feature",
+      properties: mergeProperties(locationFeature.properties, work, "work"),
+      geometry: locationFeature.geometry
+    });
   });
 
   // Process grants
   console.log('📖 Processing grants...');
   validatedGrants.forEach(grant => {
-    const feature = createFeature(grant.location, grant, "grant");
-    if (feature) grantsGeoData.features.push(feature);
+    const locationFeature = findLocationFeature(grant.location);
+    if (!locationFeature) {
+      console.warn(`Location feature not found for: ${grant.location}`);
+      return;
+    }
+    grantsGeoData.features.push({
+      type: "Feature",
+      properties: mergeProperties(locationFeature.properties, grant, "grant"),
+      geometry: locationFeature.geometry
+    });
   });
 
   // Write GeoJSON files
