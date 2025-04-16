@@ -12,16 +12,17 @@ import {
 const GrantLayer = ({
   grantGeoJSON,
   showGrants,
+  searchKeyword,
   setSelectedGrants,
   setPanelOpen,
   setPanelType
 }) => {
     const map = useMap();
-//   useEffect(() => {
-//     if (!map || !showGrants || !grantGeoJSON) return;
 useEffect(() => {
     console.log("🔄 GrantLayer triggered. showGrants:", showGrants);
     console.log("grantGeoJSON:", grantGeoJSON);
+
+    const keyword = searchKeyword?.toLowerCase() || "";
   
     if (!map || !showGrants || !grantGeoJSON) return;
   
@@ -30,17 +31,12 @@ useEffect(() => {
     let activePopup = null;
     let closeTimeout = null;
 
+    
     grantGeoJSON.features.forEach((feature) => {
-      // Only handle Points
       if (!feature.geometry || feature.geometry.type !== "Point") return;
     
       const coords = feature.geometry.coordinates;
-      if (
-        !Array.isArray(coords) ||
-        coords.length !== 2 ||
-        isNaN(coords[0]) ||
-        isNaN(coords[1])
-      ) {
+      if (!Array.isArray(coords) || coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
         console.warn("🚫 Skipping invalid grant feature:", feature);
         return;
       }
@@ -48,24 +44,30 @@ useEffect(() => {
       const [lng, lat] = coords;
       const key = `${lat},${lng}`;
       if (!locationMap.has(key)) locationMap.set(key, []);
-      // locationMap.get(key).push(feature.properties);
+    
       const entries = feature.properties.entries || [];
+    
       entries.forEach(entry => {
-        // Add extra metadata needed for popups
+        // Build full searchable string from all properties
+        const entryStr = JSON.stringify(entry).toLowerCase();
+        if (keyword && !entryStr.includes(keyword)) return; // ⬅️ skip if keyword doesn't match
+    
+        // Add extra metadata for popups
         entry.location_name = feature.properties.location;
         entry.researcher_name = entry.relatedExpert?.name || "Unknown";
         entry.researcher_url = entry.relatedExpert?.url
           ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}`
           : null;
-
+    
         locationMap.get(key).push(entry);
       });
     });
     
-
     const markers = [];
 
     locationMap.forEach((grants, key) => {
+      if (grants.length === 0) return; 
+      
       const [lat, lng] = key.split(",").map(Number);
       const marker = L.marker([lat, lng], {
         icon: L.divIcon({
@@ -153,7 +155,7 @@ useEffect(() => {
         map.removeLayer(marker);
       });
     };
-  }, [map, grantGeoJSON, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
+  }, [map, grantGeoJSON, showGrants, searchKeyword, setSelectedGrants, setPanelOpen, setPanelType]);
 
   return null;
 };

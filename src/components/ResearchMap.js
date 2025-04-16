@@ -47,6 +47,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
             geoData={geoData}
             showWorks={showWorks}
             showGrants={showGrants}
+            searchKeyword={searchKeyword}
             setSelectedExperts={setSelectedExperts}
             setSelectedPointExperts={setSelectedPointExperts}
             setPanelOpen={setPanelOpen}
@@ -55,6 +56,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
             <GrantLayer
             grantGeoJSON={grantGeoJSON}
             showGrants={showGrants}
+            searchKeyword={searchKeyword}
             setSelectedGrants={setSelectedGrants}
             setPanelOpen={setPanelOpen}
             setPanelType={setPanelType}
