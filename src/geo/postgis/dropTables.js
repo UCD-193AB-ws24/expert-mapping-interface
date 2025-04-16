@@ -8,7 +8,7 @@
  * USAGE: node path_to_file/dropTables.js
  */
 
-const { pool } = require('./config');
+const { pool, tables } = require('./config');
 
 async function dropTables() {
   const client = await pool.connect();
@@ -28,8 +28,8 @@ async function dropTables() {
     // Drop triggers
     console.log('Dropping triggers...');
     await client.query(`
-      DROP TRIGGER IF EXISTS update_research_locations_point_timestamp ON research_locations_point;
-      DROP TRIGGER IF EXISTS update_research_locations_poly_timestamp ON research_locations_poly;
+      DROP TRIGGER IF EXISTS update_locations_works_timestamp ON locations_works;
+      DROP TRIGGER IF EXISTS update_locations_grants_timestamp ON locations_grants;
     `);
 
     // Drop trigger functions
@@ -41,12 +41,15 @@ async function dropTables() {
     // Drop tables
     console.log('Dropping tables...');
     await client.query(`
-      DROP TABLE IF EXISTS research_locations_point CASCADE;
-      DROP TABLE IF EXISTS research_locations_poly CASCADE;
+      DROP TABLE IF EXISTS locations_works CASCADE;
+      DROP TABLE IF EXISTS locations_grants CASCADE;
     `);
 
     await client.query('COMMIT');
     console.log('✅ All tables and related objects dropped successfully');
+    console.log('   Dropped tables:');
+    console.log(`   - ${tables.works} (works locations table)`);
+    console.log(`   - ${tables.grants} (grants locations table)`);
 
   } catch (error) {
     await client.query('ROLLBACK');
@@ -76,4 +79,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = dropTables; 
+module.exports = dropTables;
