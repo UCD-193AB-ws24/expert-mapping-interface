@@ -43,24 +43,28 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
-        <ExpertLayer
-            geoData={geoData}
-            showWorks={showWorks}
-            showGrants={showGrants}
-            searchKeyword={searchKeyword}
-            setSelectedExperts={setSelectedExperts}
-            setSelectedPointExperts={setSelectedPointExperts}
-            setPanelOpen={setPanelOpen}
-            setPanelType={setPanelType}
+            {(showWorks || searchKeyword) && (
+            <ExpertLayer
+              geoData={geoData}
+              showWorks={showWorks || !showGrants} // works-only OR fallback to keyword-only
+              showGrants={showGrants}
+              searchKeyword={searchKeyword}
+              setSelectedExperts={setSelectedExperts}
+              setSelectedPointExperts={setSelectedPointExperts}
+              setPanelOpen={setPanelOpen}
+              setPanelType={setPanelType}
             />
+          )}
+          {(showGrants || searchKeyword) && (
             <GrantLayer
-            grantGeoJSON={grantGeoJSON}
-            showGrants={showGrants}
-            searchKeyword={searchKeyword}
-            setSelectedGrants={setSelectedGrants}
-            setPanelOpen={setPanelOpen}
-            setPanelType={setPanelType}
+              grantGeoJSON={grantGeoJSON}
+              showGrants={showGrants || !showWorks} // grants-only OR fallback to keyword-only
+              searchKeyword={searchKeyword}
+              setSelectedGrants={setSelectedGrants}
+              setPanelOpen={setPanelOpen}
+              setPanelType={setPanelType}
             />
+          )}
         </MapWrapper>
       </div>
 
