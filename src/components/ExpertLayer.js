@@ -295,7 +295,75 @@ const ExpertLayer = ({
         }, 300);
       });
 
+
+    // Add expert count to middle of polygon
+    const polygonCenter = polygon.getBounds().getCenter();
+    const numberMarker = L.divIcon({
+      html: `<div style="background:rgb(19, 38, 158); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;">${expertCount}</div>`,
+      className: 'polygon-number-icon',
+      iconSize: [30, 30],
     });
+
+    // Renders expert count on polyon
+    const polygonMarker = L.marker(polygonCenter, { icon: numberMarker }).addTo(mapRef.current);
+
+    // [MAY DELETE/REDUCE LATER] Allows hovering over polygonMarker to display popup card 
+    polygonMarker.on("mouseover", () => {
+      if (!showWorks) return;
+      if (closeTimeout) clearTimeout(closeTimeout);
+
+      const expertsAtLocation = geoData.features.filter(f => f.properties?.location_id === locationId);
+      const totalWorks = expertsAtLocation.reduce((sum, expert) => sum + (parseInt(expert.properties?.work_count) || 0), 0);
+
+      const content = expertsAtLocation.length === 1
+        ? createSingleResearcherContent(expertsAtLocation[0].properties)
+        : createMultiResearcherContent(expertsAtLocation.length, feature.properties.location_name, totalWorks);
+
+      if (activePopup) activePopup.close();
+      activePopup = L.popup({ closeButton: false, autoClose: false, maxWidth: 300, className: 'hoverable-popup', autoPan: false, keepInView: false, interactive: true })
+        .setLatLng(polygon.getBounds().getCenter())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = 'auto';
+        popupElement.addEventListener("mouseenter", () => { if (closeTimeout) clearTimeout(closeTimeout); });
+        popupElement.addEventListener("mouseleave", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 300);
+        });
+
+        const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
+        if (viewExpertsBtn) {
+          viewExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setSelectedExperts(expertsAtLocation);
+            setPanelType("polygon");
+            setPanelOpen(true);
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+        }
+      }
+    });
+
+    polygonMarker.on("mouseout", () => {
+      closeTimeout = setTimeout(() => {
+        if (activePopup) {
+          activePopup.close();
+          activePopup = null;
+        }
+      }, 300);
+    });
+  });
 
     console.log("Polygons drawn on map:", polygonLayers.length);
 
