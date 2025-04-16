@@ -11,7 +11,7 @@ const pool = new Pool({
 module.exports = {
   pool,
   tables: {
-    points: 'research_locations_point',
-    polygons: 'research_locations_poly'
+    grants: 'locations_grants',
+    works: 'locations_works'
     }
 }; 

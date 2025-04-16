@@ -19,8 +19,8 @@ const validatedGrantsPath = path.join(__dirname, '../locationAssignment/grants/v
 const coordsPath = path.join(__dirname, '../locationAssignment/locations', "locations.geojson");
 
 // Define output paths for GeoJSON files
-const grantsOutputPath = path.join(__dirname, '/grants', 'grants.geojson');
-const worksOutputPath = path.join(__dirname, '/works', 'works.geojson');
+const grantsOutputPath = path.join(__dirname, '/grants', 'locations_grants.geojson');
+const worksOutputPath = path.join(__dirname, '/works', 'locations_works.geojson');
 
 // Load location coordinates
 const locationCoordinates = JSON.parse(fs.readFileSync(coordsPath, "utf-8"));
