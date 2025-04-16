@@ -196,7 +196,6 @@ async function createLocationCoordinates() {
         }
 
         const totalTime = (Date.now() - startTime) / 1000;
-        const geocodingTime = (Date.now() - geocodingStart) / 1000;
 
         console.log('\n📊 Geocoding Statistics:');
         console.log(`⏱️ Total time: ${Math.floor(totalTime / 60)}m ${(totalTime % 60).toFixed(2)}s`);
@@ -205,7 +204,7 @@ async function createLocationCoordinates() {
         console.log(`🌐 New geocodes: ${geocodeCount}`);
         console.log(`❌  Failed geocodes: ${errorCount}`);
         console.log(`\n💾 GeoJSON files written to:`);
-        console.log(`   ${CACHE_FILE}\n`);
+        console.log(`   ${LOCATIONS_FILE}\n`);
 
         return geoData;
     } catch (error) {
