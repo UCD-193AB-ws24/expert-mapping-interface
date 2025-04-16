@@ -10,7 +10,7 @@
 
 const fs = require('fs').promises;
 
-const API_BASE_URL = 'http://localhost:3001/api/redis/query';
+const API_BASE_URL = 'http://localhost:3001/api/redis/worksQuery';
 
 async function testQuery() {
   try {
@@ -19,9 +19,9 @@ async function testQuery() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    const filename = 'src/geo/redis/testing/testGeoJson.geojson';
+    const filename = 'src/geo/redis/testing/testWorkGeoJson.geojson';
     await fs.writeFile(filename, JSON.stringify(data, null, 2));
-    console.log('✅ Successfully fetched researcher profiles');
+    console.log('✅ Successfully fetched works!');
   } catch (error) {
     console.error('Error fetching researcher profiles:', error);
     throw error;

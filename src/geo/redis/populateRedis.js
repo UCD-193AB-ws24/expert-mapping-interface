@@ -76,6 +76,7 @@ async function populateRedis() {
       try {
         // Ensure all values are strings or serialized
         await redisClient.hSet(featureKey, {
+        id: id || '',
         geometry_type: geometryType || '',
         coordinates: JSON.stringify(coordinates) || '[]',
         name: name || '',

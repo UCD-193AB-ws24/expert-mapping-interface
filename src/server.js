@@ -69,61 +69,159 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/redis/query', async (req, res) => {
+app.get('/api/redis/worksQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
   await redisClient.connect();
-  
   try {
-    const keys = await redisClient.keys('feature:*');
-    const sortedKeys = keys.sort((a, b) => {
-      const numA = parseInt(a.split(':')[1], 10);
-      const numB = parseInt(b.split(':')[1], 10);
-      return numA - numB;
-    });
-
-    const features = [];
+      const keys = await redisClient.keys('works:*');
+      const features = [];
     
-    console.log(`Found ${keys.length} features in Redis`);
+      console.log(`Found ${keys.length} features in Redis`);
+    // Iterate over each work key
+    for (const workKey of workKeys) {
+      // Skip entry keys (e.g., works:<id>:entry:<index> or metadata keys)
+      if (workKey.includes(':entry')) continue;
+      if(workKey.includes(':metadata')) continue;
 
-    for (const key of sortedKeys) {
-      const data = await redisClient.hGetAll(key);
-      
+      // Fetch the main work data
+      const workData = await redisClient.hGetAll(workKey);
+      console.log(`Processing work: ${workKey}`);
+      const feature_id = workData.id || workKey.split(':')[1]; // Extract ID from the key if not present in data
+      // Fetch associated entries for the work
+      const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
+      const entries = [];
+
+      for (const entryKey of entryKeys) {
+        const entryData = await redisClient.hGetAll(entryKey);
+        entries.push({
+          name: entryData.name || '',
+          title: entryData.title || '',
+          issued: entryData.issued || '',
+          authors: entryData.authors ? JSON.parse(entryData.authors) : [],
+          abstract: entryData.abstract || '',
+          confidence: entryData.confidence || '',
+          relatedExperts: entryData.related_experts
+            ? JSON.parse(entryData.related_experts)
+            : [],
+        });
+      }
+
+      // Construct the GeoJSON feature
       features.push({
         type: 'Feature',
+        id: feature_id,
         geometry: {
-          type: data.geometry_type,
-          coordinates: JSON.parse(data.coordinates)
+          type: workData.geometry_type,
+          coordinates: JSON.parse(workData.coordinates),
         },
         properties: {
-          researcher_name: data.researcher_name,
-          researcher_url: data.researcher_url,
-          work_count: data.work_count,
-          work_titles: data.work_titles,
-          confidence: data.confidence,
-          location_name: data.location_name,
-          location_type: data.location_type,
-          location_id: data.location_id
+          name: workData.name || '',
+          type: workData.type || '',
+          class: workData.class || '',
+          entries: entries,
+          location: workData.location || '',
+          osm_type: workData.osm_type || '',
+          display_name: workData.display_name || '',
+          source: workData.source || '',
         },
       });
     }
+    
+    const metadata = await redisClient.hGetAll('works:metadata');
+    if (!metadata) {
+      console.error('❌ Metadata not found in Redis');
+      return res.status(500).json({ error: 'Metadata not found' });
+    }
 
-    const metaData = await redisClient.hGetAll('metadata');
+    // Construct the GeoJSON object
     const geojson = {
       type: 'FeatureCollection',
       features: features,
-      metadata: {
-        total_locations: metaData.total_locations,
-        total_researchers: metaData.total_researchers,
-        generated_at: metaData.generated_at
-      }
+      metadata: metadata,
     };
 
     res.json(geojson);
   } catch (error) {
     console.error('❌ Error querying Redis:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
-  } finally {
-    await redisClient.quit();
+  }
+});
+
+app.get('/api/redis/grantsQuery', async (req, res) => {
+  console.log('📍 Received request for Redis data');
+  await redisClient.connect();
+  try {
+      const keys = await redisClient.keys('grants:*');
+      const features = [];
+    
+      console.log(`Found ${keys.length} features in Redis`);
+    // Iterate over each work key
+    for (const grantKey of grantKeys) {
+      // Skip entry keys (e.g., grants:<id>:entry:<index>)
+      if (grantKey.includes(':entry')) continue;
+      if(grantKey.includes(':metadata')) continue;
+
+      // Fetch the main work data
+      const grantData = await redisClient.hGetAll(grantKey);
+      console.log(`Processing work: ${grantKey}`);
+      const feature_id = grantData.id || grantKey.split(':')[1]; // Extract ID from the key if not present in data
+      // Fetch associated entries for the work
+      const entryKeys = await redisClient.keys(`${grantKey}:entry:*`);
+      const entries = [];
+
+      for (const entryKey of entryKeys) {
+        const entryData = await redisClient.hGetAll(entryKey);
+        entries.push({
+          name: entryData.name || '',
+          title: entryData.title || '',
+          issued: entryData.issued || '',
+          authors: entryData.authors ? JSON.parse(entryData.authors) : [],
+          abstract: entryData.abstract || '',
+          confidence: entryData.confidence || '',
+          relatedExperts: entryData.related_experts
+            ? JSON.parse(entryData.related_experts)
+            : [],
+        });
+      }
+
+      // Construct the GeoJSON feature
+      features.push({
+        type: 'Feature',
+        id: feature_id,
+        geometry: {
+          type: grantData.geometry_type,
+          coordinates: JSON.parse(grantData.coordinates),
+        },
+        properties: {
+          name: grantData.name || '',
+          type: grantData.type || '',
+          class: grantData.class || '',
+          entries: entries,
+          location: grantData.location || '',
+          osm_type: grantData.osm_type || '',
+          display_name: grantData.display_name || '',
+          source: grantData.source || '',
+        },
+      });
+    }
+    
+    const metadata = await redisClient.hGetAll('grants:metadata');
+    if (!metadata) {
+      console.error('❌ Metadata not found in Redis');
+      return res.status(500).json({ error: 'Metadata not found' });
+    }
+
+    // Construct the GeoJSON object
+    const geojson = {
+      type: 'FeatureCollection',
+      features: features,
+      metadata: metadata,
+    };
+
+    res.json(geojson);
+  } catch (error) {
+    console.error('❌ Error querying Redis:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
