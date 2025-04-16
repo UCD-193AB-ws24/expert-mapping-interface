@@ -419,7 +419,7 @@ const ResearchMap = () => {
       // Create the Leaflet map instance
         mapRef.current = L.map("map", {
           minZoom: 2,
-          maxZoom: 4,
+          maxZoom: 7,
           maxBounds: [
             [-80, -200], // Southwest corner
             [85, 200]    // Northeast corner
@@ -550,6 +550,16 @@ const ResearchMap = () => {
               fillColor: '#d8db9a',
               fillOpacity: dynamicOpacity,
             }).addTo(mapRef.current);
+            
+      // Add a number to the center of the polygon
+      const polygonCenter = polygon.getBounds().getCenter();
+      const numberMarker = L.divIcon({
+        html: `<div style="background:rgb(19, 38, 158); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;">${expertCount}</div>`,
+        className: 'polygon-number-icon',
+        iconSize: [30, 30],
+      });
+
+      const marker = L.marker(polygonCenter, { icon: numberMarker }).addTo(mapRef.current);
 
             let isPolygonPopupPinned = false;
 
@@ -557,7 +567,7 @@ const ResearchMap = () => {
             const currentPolygon = polygon;
 
             // Hover in → show popup
-            currentPolygon.on("mouseover", (event) => {
+            marker.on("mouseover", (event) => {
               if (closeTimeout) {
                 clearTimeout(closeTimeout);
                 closeTimeout = null;
@@ -634,7 +644,7 @@ const ResearchMap = () => {
               }
             });
 
-            currentPolygon.on("mouseout", (event) => {
+            marker.on("mouseout", (event) => {
               closeTimeout = setTimeout(() => {
                 if (activePopup) {
                   activePopup.close();
