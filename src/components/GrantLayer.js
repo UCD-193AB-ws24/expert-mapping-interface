@@ -31,14 +31,37 @@ useEffect(() => {
     let closeTimeout = null;
 
     grantGeoJSON.features.forEach((feature) => {
-      const coords = feature.geometry?.coordinates;
-      if (!coords || coords.length !== 2) return;
-
+      // Only handle Points
+      if (!feature.geometry || feature.geometry.type !== "Point") return;
+    
+      const coords = feature.geometry.coordinates;
+      if (
+        !Array.isArray(coords) ||
+        coords.length !== 2 ||
+        isNaN(coords[0]) ||
+        isNaN(coords[1])
+      ) {
+        console.warn("🚫 Skipping invalid grant feature:", feature);
+        return;
+      }
+    
       const [lng, lat] = coords;
       const key = `${lat},${lng}`;
       if (!locationMap.has(key)) locationMap.set(key, []);
-      locationMap.get(key).push(feature.properties);
+      // locationMap.get(key).push(feature.properties);
+      const entries = feature.properties.entries || [];
+      entries.forEach(entry => {
+        // Add extra metadata needed for popups
+        entry.location_name = feature.properties.location;
+        entry.researcher_name = entry.relatedExpert?.name || "Unknown";
+        entry.researcher_url = entry.relatedExpert?.url
+          ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}`
+          : null;
+
+        locationMap.get(key).push(entry);
+      });
     });
+    
 
     const markers = [];
 

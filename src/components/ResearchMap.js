@@ -9,7 +9,8 @@ import ExpertLayer from "./ExpertLayer";
 import GrantLayer from "./GrantLayer";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 
-// import expertGrantsRaw from "../geo/data/expertGrants.json";
+import worksData from "../geo/data/works.json";
+import grantsData from "../geo/data/grants.json";
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [geoData, setGeoData] = useState(null);
@@ -22,70 +23,18 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const mapRef = useRef(null);
-
+  
   useEffect(() => {
-    setIsLoading(true);
+    const combinedFeatures = [...worksData.features, ...grantsData.features];
   
-    // change BETWEEN EXPERT DATA (Redis) AND GRANT DATA (mocks)
-    const useExpertsFromRedis = true;
+    setGeoData(worksData);
   
-    if (useExpertsFromRedis) {
-      // 🔷 Expert data from Redis
-      fetch("http://localhost:3001/api/redis/query")
-        .then(async (response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          const contentType = response.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Server did not return JSON data. Please ensure the API server is running.");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setGeoData(data); // experts
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching geojson:", error);
-          setIsLoading(false);
-          setError("Failed to load expert data. Please ensure the Redis API is running.");
-        });
-    } else {
-      // 🟡 Temporary fallback: use mocked grant data as `geoData`
-      import("../geo/data/expertGrants.json").then((module) => {
-        const grantFeatures = module.default.map((grant, index) => {
-          const matches = [...(grant.location?.matchAll(/\* (.+)/g) || [])];
-          const primaryLocation = matches.length ? matches[0][1] : "Unknown";
-          const lng = -121 + (index % 5) * 1.5;
-          const lat = 38 + (index % 4) * 1.2;
+    setGrantGeoJSON({
+      type: "FeatureCollection",
+      features: grantsData.features
+    });
   
-          return {
-            type: "Feature",
-            geometry: { type: "Point", coordinates: [lng, lat] },
-            properties: {
-              ...grant,
-              location_id: `grant-${index}`,
-              location_name: primaryLocation,
-              researcher_name: grant.relatedExpert?.name || "Unknown",
-              researcher_url: grant.relatedExpert?.url
-                ? `https://experts.ucdavis.edu/${grant.relatedExpert.url}`
-                : null,
-              work_titles: [grant.title],
-              work_count: 1,
-              confidence: "low",
-              type: "grant"
-            }
-          };
-        });
-  
-        setGrantGeoJSON({
-            type: "FeatureCollection",
-            features: grantFeatures
-          });
-        setIsLoading(false);
-      });
-    }
+    setIsLoading(false);
   }, []);
   
 

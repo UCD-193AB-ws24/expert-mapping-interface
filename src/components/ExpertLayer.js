@@ -24,12 +24,11 @@ const ExpertLayer = ({
 
   useEffect(() => {
     if (!map || !geoData) return;
-
+    
     const filteredFeatures = geoData.features.filter((f) => {
-      const isExpert = !f.properties?.type || f.properties?.type === "expert";
-      const isGrant = f.properties?.type === "grant";
-      return (showWorks && isExpert) || (showGrants && isGrant);
+      return showWorks && f.properties?.type === "work";
     });
+    
 
     if (filteredFeatures.length === 0) return;
 
@@ -62,16 +61,33 @@ const ExpertLayer = ({
         locationExpertCounts.set(location_id, (locationExpertCounts.get(location_id) || 0) + 1);
       }
 
-      const geometry = feature.geometry;
-      if (geometry.type === "Point" || geometry.type === "MultiPoint") {
-        const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
-        coordsList.forEach(([lng, lat]) => {
-          const key = `${lat},${lng}`;
-          if (!locationMap.has(key)) locationMap.set(key, []);
-          locationMap.get(key).push(feature.properties);
+
+        const geometry = feature.geometry;
+        const entries = feature.properties.entries || [];
+
+        if (geometry.type === "Point" || geometry.type === "MultiPoint") {
+          const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
+
+          coordsList.forEach(([lng, lat]) => {
+            const key = `${lat},${lng}`;
+            if (!locationMap.has(key)) locationMap.set(key, []);
+
+            entries.forEach((entry) => {
+              const researcher = entry.relatedExperts?.[0] || {}; // handle empty array
+
+              locationMap.get(key).push({
+                researcher_name: researcher.name || "Unknown",
+                researcher_url: researcher.url ? `https://experts.ucdavis.edu/${researcher.url}` : null,
+                location_name: feature.properties.location || "Unknown",
+                work_titles: [entry.title],
+                work_count: 1,
+                confidence: entry.confidence || "Unknown",
+                type: "expert"
+              });
+            });
+          });
+        }
         });
-      }
-    });
 
     // 🧭 Draw Polygons
     const sortedPolygons = geoData.features
