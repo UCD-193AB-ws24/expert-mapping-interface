@@ -3,7 +3,7 @@
 * populateRedis.js
 *
 * Purpose:
-* Runs fetchProfiles.js to fetch data from PostgreSQL, parses it, and stores it in Redis as the primary database.
+* Runs fetchPostgis.js to fetch data from PostgreSQL, parses it, and stores it in Redis as the primary database.
 *
 * Usage: First run: 
 * `node src/server.js` to start the server, 
@@ -12,10 +12,20 @@
 *
 */
 
+
+
 const { createClient } = require('redis');
-const { exec } = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
+
+// Helper function to sanitize strings
+function sanitizeString(input) {
+  if (!input) return '';
+  return input
+    .replace(/[^\w\s.-]/g, '') // Remove special characters except word characters, spaces, hyphens, and periods
+    .replace(/\s+/g, ' ')      // Replace multiple spaces with a single space
+    .trim();                   // Trim leading and trailing spaces
+}
 
 const redisClient = createClient();
 
@@ -23,75 +33,113 @@ async function populateRedis() {
   try {
     await redisClient.connect();
 
-    // Run fetchProfiles.js
-    await new Promise((resolve, reject) => {
-      exec('node ../postgis/fetchProfiles.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`❌ Error running fetchProfiles.js: ${error.message}`);
-          return reject(error);
-        }
-        if (stderr) {
-          console.error(`❌ Error output from fetchProfiles.js: ${stderr}`);
-          return reject(new Error(stderr));
-        }
-        console.log(`✅ fetchProfiles.js output: ${stdout}`);
-        resolve();
-      });
-    });
+    // Run fetchPostgis.js
+    // await new Promise((resolve, reject) => {
+    //   exec('node ../postgis/fetchPostgis.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
+    //     if (error) {
+    //       console.error(`❌ Error running fetchPostgis.js: ${error.message}`);
+    //       return reject(error);
+    //     }
+    //     if (stderr) {
+    //       console.error(`❌ Error output from fetchPostgis.js: ${stderr}`);
+    //       return reject(new Error(stderr));
+    //     }
+    //     console.log(`✅ fetchPostgis.js output: ${stdout}`);
+    //     resolve();
+    //   });
+    // });
 
-    // Read GeoJSON data from researcher_locations.geojson
-    const geojsonFilePath = path.join(__dirname, '../redis/researcher_locations.geojson');
-    const geojsonData = await fs.readFile(geojsonFilePath, 'utf8');
-    const geojson = JSON.parse(geojsonData);
+    // Helper function to process GeoJSON data
+    async function processGeoJSON(filePath, prefix) {
+      const geojsonData = await fs.readFile(filePath, 'utf8');
+      const geojson = JSON.parse(geojsonData);
 
-    let j = 1;
-    // Store each feature in Redis with a unique key
-    for (const feature of geojson.features) {
-      const { researcher_name, researcher_url, work_count, work_titles, confidence, location_name, location_type, location_id } = feature.properties;
-      const { coordinates } = feature.geometry;
-      const geometryType = feature.geometry.type;
-      const featureKey = `feature:${j}`;
+      // Iterate over each feature in the GeoJSON
+      for (const feature of geojson.features) {
+      const { geometry, properties } = feature;
+      const { coordinates, type: geometryType } = geometry;
+      const {
+        name,
+        type,
+        class: featureClass,
+        entries,
+        location,
+        osm_type,
+        display_name,
+        id,
+        source,
+      } = properties;
+
+      // Generate a unique key for each feature
+      const featureKey = `${prefix}:${id}`;
+
       try {
+        // Ensure all values are strings or serialized
         await redisClient.hSet(featureKey, {
-          geometry_type: geometryType,
-          researcher_name: researcher_name || '',
-          researcher_url: researcher_url || '',
-          work_count: work_count ? work_count.toString() : '0',
-          work_titles: work_titles ? JSON.stringify(work_titles) : '[]',
-          confidence: confidence,
-          location_name: location_name || '',
-          location_type: location_type || '',
-          location_id: location_id ? location_id.toString() : '',
-          coordinates: JSON.stringify(coordinates),
+        geometry_type: geometryType || '',
+        coordinates: JSON.stringify(coordinates) || '[]',
+        name: name || '',
+        type: type || '',
+        class: featureClass || '',
+        location: location || '',
+        osm_type: osm_type || '',
+        display_name: display_name || '',
+        source: source || '',
         });
+
+        console.log(`✅ Successfully stored feature: ${id}`);
+
+        // Store each entry in the `entries` array as a separate hash
+        if (Array.isArray(entries)) {
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const entryKey = `${prefix}:${id}:entry:${i + 1}`;
+
+          await redisClient.hSet(entryKey, {
+          name: sanitizeString(entry.name) || '',
+          title: sanitizeString(entry.title) || '',
+          issued: entry.issued || '',
+          authors: entry.authors ? JSON.stringify(entry.authors) : '[]',
+          abstract: sanitizeString(entry.abstract) || '',
+          confidence: entry.confidence || '',
+          related_experts: entry.relatedExperts
+            ? JSON.stringify(entry.relatedExperts)
+            : '[]',
+          });
+
+          console.log(`✅ Successfully stored entry: ${entryKey}`);
+        }
+        }
       } catch (error) {
-        console.error(`❌ Error hashing feature ${j}`, error);
+        console.error(`❌ Error storing feature: ${id}`, error);
       }
-      j++;
+      }
+
+      // Store metadata in Redis
+      const { count, timestamp } = geojson.metadata;
+      await redisClient.hSet(`${prefix}:metadata`, {
+      count: count.toString(),
+      timestamp,
+      });
+
+      console.log(`✅ Metadata stored in Redis for ${prefix}`);
     }
-    const totalLocations = geojson.metadata.total_locations;
-    // console.log(`✅ Stored ${totalLocations} locations in Redis`);
-    const totalResearchers = geojson.metadata.total_researchers;
-    // console.log(`✅ Stored ${totalResearchers} researchers in Redis`);
-    const generatedAt = geojson.metadata.generated_at;
-    // console.log(`✅ GeoJSON generated at: ${generatedAt}`);
 
-    await redisClient.hSet('metadata', {
-      total_locations: totalLocations.toString(),
-      total_researchers: totalResearchers.toString(),
-      generated_at: generatedAt
-    });
+    // Process works.geojson
+    const worksFilePath = path.join(__dirname, 'testing', 'works.geojson');
+    await processGeoJSON(worksFilePath, 'works');
 
+    // Process grants.geojson
+    const grantsFilePath = path.join(__dirname, 'testing', 'grants.geojson');
+    await processGeoJSON(grantsFilePath, 'grants');
 
-    console.log('✅ Profiles cached in Redis');
-    // Remove researcher_locations.geojson from postgis directory
-    await fs.unlink(geojsonFilePath);
-    // console.log('✅ researcher_locations.geojson removed');
   } catch (error) {
-    console.error('❌ Error fetching profiles:', error);
+    console.error('❌ Error populating Redis:', error);
   } finally {
-    await redisClient.quit();
+    await redisClient.disconnect();
   }
 }
 
-populateRedis();
+populateRedis().catch((error) => {
+  console.error('❌ Unhandled error:', error);
+});
