@@ -9,8 +9,8 @@ import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 
-import worksData from "../geo/data/works.json";
-import grantsData from "../geo/data/grants.json";
+import worksData from "./features/works.json";
+import grantsData from "./features/grants.json";
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [geoData, setGeoData] = useState(null);

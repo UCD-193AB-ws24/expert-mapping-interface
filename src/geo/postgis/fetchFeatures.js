@@ -10,8 +10,8 @@ try {
 }
 
 const endpoints = [
-  { url: 'http://localhost:3001/api/works', filename: 'works.geojson' },
-  { url: 'http://localhost:3001/api/grants', filename: 'grants.geojson' }
+  { url: 'http://localhost:3001/api/works', filename: 'workFeatures.geojson' },
+  { url: 'http://localhost:3001/api/grants', filename: 'grantFeatures.geojson' }
 ];
 
 async function fetchAndSave() {
@@ -42,7 +42,7 @@ async function fetchAndSave() {
       });
       
       // Save to the project root directory
-      const projectRoot = path.resolve(__dirname, '../../..');
+      const projectRoot = path.resolve(__dirname, '../../components/features');
       const outPath = path.join(projectRoot, filename);
       
       fs.writeFileSync(outPath, JSON.stringify(data, null, 2));

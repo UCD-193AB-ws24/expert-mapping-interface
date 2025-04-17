@@ -77,29 +77,60 @@ const ExpertLayer = ({
       if (geometry.type === "Point" || geometry.type === "MultiPoint") {
         const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
       
-        coordsList.forEach(([lng, lat]) => {
-          const key = `${lat},${lng}`;
-          if (!locationMap.has(key)) locationMap.set(key, []);
+    //     coordsList.forEach(([lng, lat]) => {
+    //       const key = `${lat},${lng}`;
+    //       if (!locationMap.has(key)) locationMap.set(key, []);
       
-          entries.forEach((entry) => {
-            const entryStr = JSON.stringify(entry).toLowerCase();
-            if (keyword && !entryStr.includes(keyword)) return;
+    //       entries.forEach((entry) => {
+    //         const entryStr = JSON.stringify(entry).toLowerCase();
+    //         if (keyword && !entryStr.includes(keyword)) return;
       
-            const researcher = entry.relatedExperts?.[0] || {};
+    //         const researcher = entry.relatedExperts?.[0] || {};
       
-            locationMap.get(key).push({
-              researcher_name: researcher.name || "Unknown",
-              researcher_url: researcher.url ? `https://experts.ucdavis.edu/${researcher.url}` : null,
-              location_name: feature.properties.location || "Unknown",
-              work_titles: [entry.title],
-              work_count: 1,
-              confidence: entry.confidence || "Unknown",
-              type: "expert"
-            });
-          });
+    //         locationMap.get(key).push({
+    //           researcher_name: researcher.name || "Unknown",
+    //           researcher_url: researcher.url ? `https://experts.ucdavis.edu/${researcher.url}` : null,
+    //           location_name: feature.properties.location || "Unknown",
+    //           work_titles: [entry.title],
+    //           work_count: 1,
+    //           confidence: entry.confidence || "Unknown",
+    //           type: "expert"
+    //         });
+    //       });
+    //     });
+    //   }
+    // });
+    coordsList.forEach(([lng, lat]) => {
+      const key = `${lat},${lng}`;
+      if (!locationMap.has(key)) locationMap.set(key, []);
+    
+      entries.forEach((entry) => {
+        const entryStr = JSON.stringify(entry).toLowerCase();
+        if (keyword && !entryStr.includes(keyword)) return;
+    
+        let researcherName = "Unknown";
+        let researcherURL = null;
+    
+        if (entry.relatedExperts?.length > 0) {
+          const expert = entry.relatedExperts[0];
+          researcherName = expert.name || "Unknown";
+          researcherURL = expert.url ? `https://experts.ucdavis.edu/${expert.url}` : null;
+        } else if (entry.authors?.length > 0) {
+          researcherName = entry.authors.join(", ");
+        }
+    
+        locationMap.get(key).push({
+          researcher_name: researcherName,
+          researcher_url: researcherURL,
+          location_name: feature.properties.location || "Unknown",
+          work_titles: [entry.title],
+          work_count: 1,
+          confidence: entry.confidence || "Unknown",
+          type: "expert"
         });
-      }
+      });
     });
+  }});    
       
     // 🧭 Draw Polygons
     const sortedPolygons = geoData.features

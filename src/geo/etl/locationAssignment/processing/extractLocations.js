@@ -7,10 +7,10 @@ const path = require('path');
 const fs = require("fs");
 const { default: ollama } = require('ollama');
 
-const worksPath = path.join(__dirname, '../../AggieExpertsAPI/works', "expertWorks.json");
-const grantsPath = path.join(__dirname, '../../AggieExpertsAPI/grants', "expertGrants.json");
-const geoWorksPath = path.join(__dirname, '../works', "workLocations.json");
-const geoGrantsPath = path.join(__dirname, '../grants', "grantLocations.json");
+const worksPath = path.join(__dirname, '../../aggieExpertsAPI/works', "expertMatchedWorks.json");
+const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/grants', "expertMatchedGrants.json");
+const geoWorksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
+const geoGrantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
 
 const ensureFileExists = (filePath) => {
   if (!fs.existsSync(filePath)) {
@@ -31,7 +31,7 @@ async function extractLocation(text) {
   const response = await ollama.chat({
     model: 'llama3.1',
     messages: [
-      { "role": "system", "content": `Extract geopolitical entites from provided text. Do not infer. Do not provide explaination.` },
+      { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
       { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
       { "role": "user", "content": `Extract from this text: ${text}` }
     ],
@@ -79,6 +79,11 @@ async function processAllGrants() {
   }
 
   fs.writeFileSync(geoGrantsPath, JSON.stringify(data, null, 2));
+}
+
+if (module === require.main) {
+  processAllGrants();
+  processAllWorks();
 }
 
 // Removed the main function to prevent duplicate execution of processAllWorks and processAllGrants.

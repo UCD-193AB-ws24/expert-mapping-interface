@@ -15,10 +15,10 @@ const path = require('path');
 const fs = require("fs");
 const { default: ollama } = require('ollama');
 
-const worksPath = path.join(__dirname, '../works', "workLocations.json");
-const grantsPath = path.join(__dirname, '../grants', "grantLocations.json");
-const locWorksPath = path.join(__dirname, '../works', "/validatedWorkLocations.json");
-const locGrantsPath = path.join(__dirname, '../grants', "/validatedGrantLocations.json");
+const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
+const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
+const validWorksPath = path.join(__dirname, '../works', "/validatedWorks.json");
+const validGrantsPath = path.join(__dirname, '../grants', "/validatedGrants.json");
 
 /**
  * Get location's information using Nominatim API
@@ -213,17 +213,13 @@ async function validateLocations(inputPath, outputPath) {
 
 async function validateAllWorks() {
   console.log("Validating all works...");
-  const worksPath = path.join(__dirname, '../works', "workLocations.json");
-  const locWorksPath = path.join(__dirname, '../works', "/validatedWorkLocations.json");
-  await validateLocations(worksPath, locWorksPath);
+  await validateLocations(worksPath, validWorksPath);
   return true;
 }
 
 async function validateAllGrants() {
   console.log("Validating all grants...");
-  const grantsPath = path.join(__dirname, '../grants', "grantLocations.json");
-  const locGrantsPath = path.join(__dirname, '../grants', "/validatedGrantLocations.json");
-  await validateLocations(grantsPath, locGrantsPath);
+  await validateLocations(grantsPath, validGrantsPath);
   return true;
 }
 
