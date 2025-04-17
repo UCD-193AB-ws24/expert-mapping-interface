@@ -116,7 +116,8 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
       </button>
 
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#13639e" }}>
-        {experts.length} Expert{experts.length !== 1 ? 's' : ''} at this Location
+        {experts.length} Expert{experts.length !== 1 ? 's' : ''} at this Location 
+        
       </h2>
 
       <ul style={{ padding: 0, listStyle: 'none' }}>
@@ -232,7 +233,8 @@ export const GrantsPanel = ({ grants, onClose }) => {
       </button>
 
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#f59e0b" }}>
-        {grants.length} Grant{grants.length !== 1 ? 's' : ''} at this Location
+        {grants.length} Grant{grants.length !== 1 ? 's' : ''} at this Location 
+        
       </h2>
 
       <ul style={{ padding: 0, listStyle: 'none' }}>
@@ -248,15 +250,10 @@ export const GrantsPanel = ({ grants, onClose }) => {
             marginBottom: "15px",
             background: "#f9f9f9"
           }}>
-            <div style={{ fontWeight: "bold", fontSize: "16px", color: "#f59e0b" }}>
-              {grant.researcher_name || "Unknown"}
-            </div>
 
             <div style={{ marginTop: "5px", color: "#333" }}>
-              {grant.title || "Untitled Grant"}
-            </div>
-
-            <div style={{ marginTop: "5px", color: "#333" }}>
+              <strong>Grant:</strong> {grant.title || "Untitled Grant"}<br />
+              <strong>Researcher:</strong> {grant.researcher_name  || "Unknown"}<br />
               <strong>Location:</strong> {grant.location_name || "Unknown"}<br />
               <strong>Funder:</strong> {grant.funder || "Unknown"}
             </div>

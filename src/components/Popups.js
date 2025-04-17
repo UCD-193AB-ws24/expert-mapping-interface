@@ -107,9 +107,9 @@ export const createSingleResearcherContent = (researcher, isPopup = true) => {
   
     return `
     <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
-   <div style="margin-top: 4px;">
-    <strong>Grant:</strong> <span style="color: #f59e0b;">${cleanTitle || "Unknown"}</span>
-  </div>
+  <div style="margin-top: 4px;">
+          <strong>Grant:</strong> ${cleanTitle  || "Unknown"}
+        </div>
         <div style="margin-top: 4px;">
           <strong>Researcher:</strong> ${grant.researcher_name || "Unknown"}
         </div>
@@ -117,7 +117,7 @@ export const createSingleResearcherContent = (researcher, isPopup = true) => {
           <strong>Location:</strong> ${grant.location_name || "Unknown"}
         </div>
         <div style="margin-top: 4px;">
-          <strong>Funding:</strong> ${grant.funder || "Unknown"}
+          <strong>Funder:</strong> ${grant.funder || "Unknown"}
         </div>
         <a href='${grant.researcher_url || "#"}' 
            target='_blank'

@@ -239,12 +239,12 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
                   marginBottom: "15px",
                   background: "#f9f9f9"
                 }}>
-                  <div style={{ fontWeight: "bold", fontSize: "16px", color: "#f59e0b" }}>
-                    {grant.researcher_name || "Unknown"}
+                   <div style={{ marginTop: "5px", color: "#333" }}>
+                    <strong>Researcher: </strong>{grant.researcher_name || "Unknown"}
                   </div>
 
                   <div style={{ marginTop: "5px", color: "#333" }}>
-                    {cleanTitle || "Untitled Grant"}
+                    <strong>Grant: </strong>{cleanTitle || "Untitled Grant"}
                   </div>
 
                   <div style={{ marginTop: "5px", color: "#333" }}>
