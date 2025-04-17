@@ -1,4 +1,4 @@
-const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
+const { logBatch, fetchFromApi, API_TOKEN, saveCache } = require('../apiUtils');
 
 /**
  * Fetches grants from the Aggie Experts API
@@ -29,6 +29,7 @@ async function fetchGrants(batchSize = 10, maxPages = 10) {
             page++;
         }
         logBatch('grants', page, true, totalFetched);
+        saveCache('grants', 'grants.json', grants);
         return grants;
     } catch (error) {
         console.error('Error fetching grants:', error.message);

@@ -1,4 +1,4 @@
-const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
+const { logBatch, fetchFromApi, API_TOKEN, saveCache } = require('../apiUtils');
 
 /**
  * Fetches works from the Aggie Experts API
@@ -30,6 +30,7 @@ async function fetchWorks(batchSize = 10, maxPages = 10) {
             page++;
         }
         logBatch('works', page, true, totalFetched);
+        saveCache('works', 'works.json', works);
         return works;
     } catch (error) {
         console.error('Error fetching works:', error.message);

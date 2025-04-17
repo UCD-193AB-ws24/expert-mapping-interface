@@ -1,3 +1,7 @@
+/*
+USAGE: node .\src\geo\etl\aggieExpertsAPI\experts\fetchExperts.js
+*/
+
 const { logBatch, fetchFromApi, saveCache, API_TOKEN } = require('../apiUtils');
 
 /**
@@ -35,7 +39,7 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity) {
         }
         
         logBatch('experts', page, true, totalFetched);
-        saveCache('', 'experts.json', experts);
+        saveCache('experts', 'experts.json', experts);
         return experts;
     } catch (error) {
         console.error('Error fetching experts:', error.message);
