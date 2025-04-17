@@ -6,7 +6,7 @@ const { logBatch, fetchFromApi, API_TOKEN, saveCache } = require('../apiUtils');
  * @param {number} maxPages - Maximum number of pages to fetch
  * @returns {Promise<Array>} Array of grant objects
  */
-async function fetchGrants(batchSize = 10, maxPages = 10) {
+async function fetchGrants(batchSize = 10, maxPages = 1) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;

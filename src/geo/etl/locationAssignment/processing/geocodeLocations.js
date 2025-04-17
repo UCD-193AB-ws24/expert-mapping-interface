@@ -14,10 +14,10 @@ const path = require('path');
 const axios = require('axios');
 
 // Configuration constants
-const WORKS = path.join(__dirname, '../works', 'validatedWorkLocations.json');
-const GRANTS = path.join(__dirname, '../grants', 'validatedGrantLocations.json'); // fixed typo
+const WORKS = path.join(__dirname, '../works', 'validatedWorks.json');
+const GRANTS = path.join(__dirname, '../grants', 'validatedGrants.json'); // fixed typo
 
-const LOCATIONS_FILE = path.join(__dirname, '../locations', 'locations.geojson');
+const LOCATIONS_FILE = path.join(__dirname, '../locations', 'locationCoordinates.geojson');
 const DELAY_MS = 1000; // Nominatim rate limit: 1 request per second
 const MAX_POINTS = 4096; // Maximum points to keep in polygon geometries
 
