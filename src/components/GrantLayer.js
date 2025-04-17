@@ -1,5 +1,3 @@
-//Handles rendering grant markers or polygons from GeoJSON.
-
 // components/map/GrantLayer.js
 import { useMap } from "react-leaflet";
 import { useEffect } from "react";
@@ -19,60 +17,72 @@ const GrantLayer = ({
   combinedKeys,
   showWorks 
 }) => {
+  const map = useMap();
 
-
-    const map = useMap();
-useEffect(() => {
-    console.log("🔄 GrantLayer triggered. showGrants:", showGrants);
-    console.log("grantGeoJSON:", grantGeoJSON);
+  useEffect(() => {
+    if (!map || !showGrants || !grantGeoJSON) return;
 
     const keyword = searchKeyword?.toLowerCase() || "";
-  
-    if (!map || !showGrants || !grantGeoJSON) return;
-  
-
     const locationMap = new Map();
     let activePopup = null;
     let closeTimeout = null;
 
-    
     grantGeoJSON.features.forEach((feature) => {
       if (!feature.geometry || feature.geometry.type !== "Point") return;
-    
+
       const coords = feature.geometry.coordinates;
       if (!Array.isArray(coords) || coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
         console.warn("🚫 Skipping invalid grant feature:", feature);
         return;
       }
-    
+
       const [lng, lat] = coords;
       const key = `${lat},${lng}`;
       if (!locationMap.has(key)) locationMap.set(key, []);
-    
+
       const entries = feature.properties.entries || [];
-    
+      const matchedEntries = [];
+
+      
+      //case sensitive, lower and uper case
+          //quote check, if user types in "Marina", it will match to Marina
+          //partial word matching
+          //multi-word input, if entry contains both words it will show up
       entries.forEach(entry => {
-        // Build full searchable string from all properties
-        const entryStr = JSON.stringify(entry).toLowerCase();
-        if (keyword && !entryStr.includes(keyword)) return; // ⬅️ skip if keyword doesn't match
-    
-        // Add extra metadata for popups
+        if (keyword) {
+          const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+          const quoteMatch = keyword.match(/^"(.*)"$/);
+          if (quoteMatch) {
+            const phrase = quoteMatch[1].toLowerCase();
+            if (!entryText.includes(phrase)) return;
+          } else {
+            const terms = keyword.toLowerCase().split(/\s+/);
+            const matchesAll = terms.every(term => entryText.includes(term));
+            if (!matchesAll) return;
+          }
+        }
+
+
         entry.location_name = feature.properties.location;
         entry.researcher_name = entry.relatedExpert?.name || "Unknown";
         entry.researcher_url = entry.relatedExpert?.url
           ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}`
           : null;
-    
-        locationMap.get(key).push(entry);
+
+        matchedEntries.push(entry);
       });
+
+      if (matchedEntries.length > 0) {
+        locationMap.get(key).push(...matchedEntries);
+      }
     });
-    
+
     const markers = [];
 
     locationMap.forEach((grants, key) => {
+      if (!grants || grants.length === 0) return;
       if (showGrants && showWorks && combinedKeys?.has(key)) return;
-      if (grants.length === 0) return; 
-      
+
       const [lat, lng] = key.split(",").map(Number);
       const marker = L.marker([lat, lng], {
         icon: L.divIcon({
@@ -95,6 +105,7 @@ useEffect(() => {
       });
 
       marker.on("mouseover", () => {
+        if (!grants || grants.length === 0 || !grants[0]) return;
         if (closeTimeout) clearTimeout(closeTimeout);
 
         const content = grants.length === 1
@@ -113,7 +124,6 @@ useEffect(() => {
 
           popupElement.addEventListener("mouseenter", () => {
             if (closeTimeout) clearTimeout(closeTimeout);
-            popupElement.style.pointerEvents = 'auto';
           });
 
           popupElement.addEventListener("mouseleave", () => {

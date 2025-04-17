@@ -26,20 +26,15 @@ const ExpertLayer = ({
 
   useEffect(() => {
     if (!map || !geoData) return;
-    
+
     const keyword = searchKeyword?.toLowerCase() || "";
 
     const filteredFeatures = geoData.features.filter((f) => {
       const isExpert = !f.properties?.type || f.properties?.type === "work";
-      if (!showWorks || !isExpert) return false;
-    
-      const props = JSON.stringify(f.properties || {}).toLowerCase();
-      return keyword === "" || props.includes(keyword);
+      return showWorks && isExpert;
     });
-    
 
     if (filteredFeatures.length === 0) return;
-
 
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
@@ -60,7 +55,7 @@ const ExpertLayer = ({
     const locationExpertCounts = new Map();
     let activePopup = null;
     let closeTimeout = null;
-    const polygonLayers = [];  // ⬅️ Track polygon layers
+    const polygonLayers = [];
 
     filteredFeatures.forEach((feature) => {
       if (!feature.properties || !feature.geometry) return;
@@ -70,69 +65,65 @@ const ExpertLayer = ({
         locationExpertCounts.set(location_id, (locationExpertCounts.get(location_id) || 0) + 1);
       }
 
-
       const geometry = feature.geometry;
       const entries = feature.properties.entries || [];
-      
+
       if (geometry.type === "Point" || geometry.type === "MultiPoint") {
         const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
-      
-    //     coordsList.forEach(([lng, lat]) => {
-    //       const key = `${lat},${lng}`;
-    //       if (!locationMap.has(key)) locationMap.set(key, []);
-      
-    //       entries.forEach((entry) => {
-    //         const entryStr = JSON.stringify(entry).toLowerCase();
-    //         if (keyword && !entryStr.includes(keyword)) return;
-      
-    //         const researcher = entry.relatedExperts?.[0] || {};
-      
-    //         locationMap.get(key).push({
-    //           researcher_name: researcher.name || "Unknown",
-    //           researcher_url: researcher.url ? `https://experts.ucdavis.edu/${researcher.url}` : null,
-    //           location_name: feature.properties.location || "Unknown",
-    //           work_titles: [entry.title],
-    //           work_count: 1,
-    //           confidence: entry.confidence || "Unknown",
-    //           type: "expert"
-    //         });
-    //       });
-    //     });
-    //   }
-    // });
-    coordsList.forEach(([lng, lat]) => {
-      const key = `${lat},${lng}`;
-      if (!locationMap.has(key)) locationMap.set(key, []);
-    
-      entries.forEach((entry) => {
-        const entryStr = JSON.stringify(entry).toLowerCase();
-        if (keyword && !entryStr.includes(keyword)) return;
-    
-        let researcherName = "Unknown";
-        let researcherURL = null;
-    
-        if (entry.relatedExperts?.length > 0) {
-          const expert = entry.relatedExperts[0];
-          researcherName = expert.name || "Unknown";
-          researcherURL = expert.url ? `https://experts.ucdavis.edu/${expert.url}` : null;
-        } else if (entry.authors?.length > 0) {
-          researcherName = entry.authors.join(", ");
-        }
-    
-        locationMap.get(key).push({
-          researcher_name: researcherName,
-          researcher_url: researcherURL,
-          location_name: feature.properties.location || "Unknown",
-          work_titles: [entry.title],
-          work_count: 1,
-          confidence: entry.confidence || "Unknown",
-          type: "expert"
+
+        coordsList.forEach(([lng, lat]) => {
+          const key = `${lat},${lng}`;
+          if (!locationMap.has(key)) locationMap.set(key, []);
+
+          const matchedEntries = [];
+
+          //case sensitive, lower and uper case
+          //quote check, if user types in "Marina", it will match to Marina
+          //partial word matching
+          //multi-word input, if entry contains both words it will show up
+          entries.forEach(entry => {
+            if (keyword) {
+              const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase(); //Lowercases both the entry and keyword for fair matching
+              const quoteMatch = keyword.match(/^"(.*)"$/); // Detect exact phrase if user puts something in quotes
+              if (quoteMatch) {
+                const phrase = quoteMatch[1].toLowerCase();
+                if (!entryText.includes(phrase)) return; //Exact Phrase Match
+              } else {
+                const terms = keyword.toLowerCase().split(/\s+/); //Multi-word split, all individual words must be present
+                const matchesAll = terms.every(term => entryText.includes(term)); //Case-insensitive AND Partial
+                if (!matchesAll) return;
+              }
+            }
+
+            let researcherName = "Unknown";
+            let researcherURL = null;
+
+            if (entry.relatedExperts?.length > 0) {
+              const expert = entry.relatedExperts[0];
+              researcherName = expert.name || "Unknown";
+              researcherURL = expert.url ? `https://experts.ucdavis.edu/${expert.url}` : null;
+            } else if (entry.authors?.length > 0) {
+              researcherName = entry.authors.join(", ");
+            }
+
+            matchedEntries.push({
+              researcher_name: researcherName,
+              researcher_url: researcherURL,
+              location_name: feature.properties.location || "Unknown",
+              work_titles: [entry.title],
+              work_count: 1,
+              confidence: entry.confidence || "Unknown",
+              type: "expert"
+            });
+          });
+
+          if (matchedEntries.length > 0) {
+            locationMap.get(key).push(...matchedEntries);
+          }
         });
-      });
+      }
     });
-  }});    
-      
-    // 🧭 Draw Polygons
+
     const sortedPolygons = geoData.features
       .filter(feature => feature.geometry.type === "Polygon")
       .sort((a, b) => {
@@ -167,7 +158,7 @@ const ExpertLayer = ({
         fillOpacity: dynamicOpacity
       }).addTo(map);
 
-      polygonLayers.push(polygon); // ⬅️ Save to array
+      polygonLayers.push(polygon);
 
       polygon.on("mouseover", () => {
         if (!showWorks) return;
@@ -226,14 +217,11 @@ const ExpertLayer = ({
       });
     });
 
-    // 📍 Draw Markers
     locationMap.forEach((experts, key) => {
+      if (!experts || experts.length === 0) return;
       if (showGrants && showWorks && combinedKeys?.has(key)) return;
 
-    
       const [lat, lng] = key.split(",").map(Number);
-    
-      
       const count = experts.length;
       const totalWorks = experts.reduce((sum, expert) => sum + (parseInt(expert.work_count) || 0), 0);
 
@@ -250,6 +238,8 @@ const ExpertLayer = ({
       const popup = L.popup({ closeButton: false, autoClose: false, maxWidth: 250, className: 'hoverable-popup', autoPan: false, keepInView: false, interactive: true });
 
       marker.on("mouseover", () => {
+        if (!experts || experts.length === 0 || !experts[0]) return;
+
         if (closeTimeout) clearTimeout(closeTimeout);
         const content = count === 1
           ? (experts[0].type === "grant" ? createGrantPopupContent(experts[0]) : createSingleResearcherContent(experts[0]))
@@ -302,12 +292,11 @@ const ExpertLayer = ({
 
     map.addLayer(markerClusterGroup);
 
-    // 🧼 Cleanup markers + polygons
     return () => {
       map.removeLayer(markerClusterGroup);
-      polygonLayers.forEach(p => map.removeLayer(p));  // ✅ Clear polygons
+      polygonLayers.forEach(p => map.removeLayer(p));
     };
-  }, [map, geoData, showWorks, showGrants,searchKeyword, setSelectedExperts, setSelectedPointExperts, setPanelOpen, setPanelType]);
+  }, [map, geoData, showWorks, showGrants, searchKeyword, setSelectedExperts, setSelectedPointExperts, setPanelOpen, setPanelType]);
 
   return null;
 };
