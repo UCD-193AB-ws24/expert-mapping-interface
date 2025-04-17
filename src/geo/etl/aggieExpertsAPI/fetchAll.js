@@ -4,12 +4,18 @@
  * It processes the data to associate works and grants with relevant experts and saves the results
  * as JSON files.
  * Cached data is reused when available to reduce API calls.
+ * 
+ * USAGE: node src/geo/etl/aggieExpertsAPI/fetchAll.js
+ *  - Ensure fin-jwt token is set in .env file
  */
 
+require('dotenv').config();
+const API_TOKEN = 'Bearer ' + process.env.API_TOKEN;
+console.log('CWD:', process.cwd());
+console.log('API_TOKEN:', API_TOKEN); // Debugging line to check if the token is loaded correctly
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const { API_TOKEN } = require('./auth'); // API token for authentication
 
 /**
  * Utility function to load cached data from a file if it exists.
@@ -43,6 +49,7 @@ function saveCache(subDir, fileName, data) {
  * @returns {Array} - An array of expert objects containing details like name, title, and organization.
  */
 async function fetchExperts() {
+
     const cachePath = 'experts.json'; // Cache file for experts
     const cachedData = loadCache(cachePath);
     if (cachedData) return cachedData;
@@ -69,7 +76,7 @@ async function fetchExperts() {
                     organizationUnit: expert.contactInfo.hasOrganizationalUnit?.name || '',
                     url: expert['@id'] || ''
                 };
-                // console.log(`Fetched expert: ${JSON.stringify(expertData, null, 2)}`);
+                // console.log(`Fetched expert: ${expert}`);
                 return expertData;
             }));
 
