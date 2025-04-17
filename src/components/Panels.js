@@ -142,6 +142,7 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
                 borderRadius: "5px",
                 marginBottom: "15px",
                 background: "#f9f9f9"
+                
               }}>
                 <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
                   {isFromProperties ? expert.properties.researcher_name : expert.researcher_name}
@@ -245,7 +246,7 @@ export const GrantsPanel = ({ grants, onClose }) => {
             border: "1px solid #ddd",
             borderRadius: "5px",
             marginBottom: "15px",
-            background: "#fefce8"
+            background: "#f9f9f9"
           }}>
             <div style={{ fontWeight: "bold", fontSize: "16px", color: "#f59e0b" }}>
               {grant.researcher_name || "Unknown"}

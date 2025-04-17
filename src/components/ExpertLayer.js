@@ -19,7 +19,8 @@ const ExpertLayer = ({
   setSelectedExperts,
   setSelectedPointExperts,
   setPanelOpen,
-  setPanelType
+  setPanelType,
+  combinedKeys 
 }) => {
   const map = useMap();
 
@@ -196,7 +197,12 @@ const ExpertLayer = ({
 
     // 📍 Draw Markers
     locationMap.forEach((experts, key) => {
+      if (showGrants && showWorks && combinedKeys?.has(key)) return;
+
+    
       const [lat, lng] = key.split(",").map(Number);
+    
+      
       const count = experts.length;
       const totalWorks = experts.reduce((sum, expert) => sum + (parseInt(expert.work_count) || 0), 0);
 

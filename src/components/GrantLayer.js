@@ -15,8 +15,12 @@ const GrantLayer = ({
   searchKeyword,
   setSelectedGrants,
   setPanelOpen,
-  setPanelType
+  setPanelType,
+  combinedKeys,
+  showWorks 
 }) => {
+
+
     const map = useMap();
 useEffect(() => {
     console.log("🔄 GrantLayer triggered. showGrants:", showGrants);
@@ -66,6 +70,7 @@ useEffect(() => {
     const markers = [];
 
     locationMap.forEach((grants, key) => {
+      if (showGrants && showWorks && combinedKeys?.has(key)) return;
       if (grants.length === 0) return; 
       
       const [lat, lng] = key.split(",").map(Number);

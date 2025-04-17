@@ -1,5 +1,3 @@
-// components/map/ResearchMap.js
-
 import React, { useRef, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -7,7 +5,9 @@ import "leaflet/dist/leaflet.css";
 import MapWrapper from "./MapContainer";
 import ExpertLayer from "./ExpertLayer";
 import GrantLayer from "./GrantLayer";
+import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
+import { CombinedPanel } from "./CombinedPanel";
 
 import worksData from "../geo/data/works.json";
 import grantsData from "../geo/data/grants.json";
@@ -22,48 +22,65 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [panelType, setPanelType] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [combinedKeys, setCombinedKeys] = useState(new Set()); // ✅ New state
   const mapRef = useRef(null);
-  
+
   useEffect(() => {
-    const combinedFeatures = [...worksData.features, ...grantsData.features];
-  
     setGeoData(worksData);
-  
     setGrantGeoJSON({
       type: "FeatureCollection",
       features: grantsData.features
     });
-  
     setIsLoading(false);
   }, []);
-  
-
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
-            {(showWorks || searchKeyword) && (
+          {/* Combined location layer must come first to handle overlaps */}
+          {showWorks && showGrants && (
+            <CombinedLocationLayer
+              geoData={geoData}
+              grantGeoJSON={grantGeoJSON}
+              showWorks={showWorks}
+              showGrants={showGrants}
+              searchKeyword={searchKeyword}
+              setSelectedPointExperts={setSelectedPointExperts}
+              setSelectedGrants={setSelectedGrants}
+              setPanelOpen={setPanelOpen}
+              setPanelType={setPanelType}
+              setCombinedKeys={setCombinedKeys}
+            />
+          )}
+
+          {/* Regular works layer */}
+          {(showWorks || searchKeyword) && (
             <ExpertLayer
               geoData={geoData}
-              showWorks={showWorks || !showGrants} // works-only OR fallback to keyword-only
+              showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               searchKeyword={searchKeyword}
               setSelectedExperts={setSelectedExperts}
               setSelectedPointExperts={setSelectedPointExperts}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
+              combinedKeys={combinedKeys} 
             />
           )}
+
+          {/* Regular grants layer */}
           {(showGrants || searchKeyword) && (
             <GrantLayer
-              grantGeoJSON={grantGeoJSON}
-              showGrants={showGrants || !showWorks} // grants-only OR fallback to keyword-only
-              searchKeyword={searchKeyword}
-              setSelectedGrants={setSelectedGrants}
-              setPanelOpen={setPanelOpen}
-              setPanelType={setPanelType}
-            />
+            grantGeoJSON={grantGeoJSON}
+            showGrants={showGrants || !showWorks}
+            searchKeyword={searchKeyword}
+            setSelectedGrants={setSelectedGrants}
+            setPanelOpen={setPanelOpen}
+            setPanelType={setPanelType}
+            combinedKeys={combinedKeys}
+            showWorks={showWorks} 
+          />
           )}
         </MapWrapper>
       </div>
@@ -122,6 +139,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
         </div>
       )}
 
+      {/* Panels */}
       {panelOpen && panelType === "grants" && (
         <GrantsPanel
           grants={selectedGrants}
@@ -134,6 +152,14 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
           experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
           onClose={() => setPanelOpen(false)}
           panelType={panelType}
+        />
+      )}
+
+      {panelOpen && panelType === "combined" && (
+        <CombinedPanel
+          works={selectedPointExperts}
+          grants={selectedGrants}
+          onClose={() => setPanelOpen(false)}
         />
       )}
     </div>
