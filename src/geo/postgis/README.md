@@ -10,26 +10,26 @@ PostGIS extends PostgreSQL with geospatial capabilities, allowing efficient stor
 
 ## 📁 Component Files
 
-### 1. ⚙️ config.js
+### 1.  config.js
 - Sets database configuration parameters
 - Manages PostGIS connection pool setup
 
-### 2. 🏗️ createTables.js
+### 2.  createTables.js
 - Initializes tables and indexes for grants and works
 - Sets up proper table structure with geometric data types
 
-### 3. 🗑️ dropTables.js
+### 3.  dropTables.js
 - Deletes tables and their contents (CASCADE)
 - Used during development or for clean reinstallation
 
-### 4. ⬆️ uploadAll.js
+### 4.  uploadAll.js
 - Uploads generated GeoJSONs for grants and works
 - Converts GeoJSON features to PostGIS geometry format
 
-### 5. 👁️ viewTables.js
+### 5.  viewTables.js
 - Utility function for viewing database contents
 - Helps debug and inspect database records
 
-### 6. 🔍 fetchFeatures.js
+### 6.  fetchFeatures.js
 - Utilizes endpoints in server.js to retrieve grant and work features
 - Returns formatted GeoJSON for map rendering
