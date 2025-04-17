@@ -11,8 +11,6 @@
 
 require('dotenv').config();
 const API_TOKEN = 'Bearer ' + process.env.API_TOKEN;
-console.log('CWD:', process.cwd());
-console.log('API_TOKEN:', API_TOKEN); // Debugging line to check if the token is loaded correctly
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
@@ -76,7 +74,6 @@ async function fetchExperts() {
                     organizationUnit: expert.contactInfo.hasOrganizationalUnit?.name || '',
                     url: expert['@id'] || ''
                 };
-                // console.log(`Fetched expert: ${expert}`);
                 return expertData;
             }));
 
@@ -161,7 +158,7 @@ async function fetchGrants() {
 
             grants.push(...hits.map(grant => {
                 const grantData = {
-                    title: grant.name,
+                    title: grant.name.includes('§') ? grant.name.substr(0, grant.name.indexOf('§')) : grant.name,
                     funder: grant.assignedBy.name,
                     startDate: grant.dateTimeInterval.start.dateTime,
                     endDate: grant.dateTimeInterval.end.dateTime,
