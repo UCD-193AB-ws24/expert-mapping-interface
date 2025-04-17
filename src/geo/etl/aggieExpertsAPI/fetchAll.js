@@ -56,7 +56,9 @@ async function fetchExperts() {
     let page = 0;
 
     try {
-        while (true) {
+        const batchSize = 10;
+        let totalFetched = 0;
+        while (experts.length < 2) { // Fetch a limited number of experts for testing
             const response = await axios.get(`https://experts.ucdavis.edu/api/search`, {
                 params: { '@type': 'expert', page },
                 headers: { 'Authorization': API_TOKEN }
@@ -76,12 +78,13 @@ async function fetchExperts() {
                 };
                 return expertData;
             }));
-
-            console.log(`Fetched page ${page} with ${hits.length} experts.`);
+            totalFetched += hits.length;
+            if (page % batchSize === 0) {
+                console.log(`[EXPERTS] Batch fetched: Page ${page}`);
+            }
             page++;
         }
-
-        console.log(`Total experts parsed: ${experts.length}`);
+        console.log(`[EXPERTS] Fetching complete. Total experts fetched: ${totalFetched}`);
         saveCache('experts', cachePath, experts);
         return experts;
     } catch (error) {
@@ -103,6 +106,8 @@ async function fetchWorks() {
     let page = 0;
 
     try {
+        const batchSize = 10;
+        let totalFetched = 0;
         while (works.length < 2) { // Fetch a limited number of works for testing
             const response = await axios.get(`https://experts.ucdavis.edu/api/search`, {
                 params: { '@type': 'work', page },
@@ -123,9 +128,13 @@ async function fetchWorks() {
                 };
                 return workData;
             }));
+            totalFetched += hits.length;
+            if (page % batchSize === 0) {
+                console.log(`[WORKS] Batch fetched: Page ${page}`);
+            }
             page++;
         }
-
+        console.log(`[WORKS] Fetching complete. Total works fetched: ${totalFetched}`);
         saveCache('works', cachePath, works);
         return works;
     } catch (error) {
@@ -147,6 +156,8 @@ async function fetchGrants() {
     let page = 0;
 
     try {
+        const batchSize = 10;
+        let totalFetched = 0;
         while (grants.length < 2) { // Fetch a limited number of grants for testing
             const response = await axios.get(`https://experts.ucdavis.edu/api/search`, {
                 params: { '@type': 'grant', page },
@@ -166,9 +177,13 @@ async function fetchGrants() {
                 };
                 return grantData;
             }));
+            totalFetched += hits.length;
+            if (page % batchSize === 0) {
+                console.log(`[GRANTS] Batch fetched: Page ${page}`);
+            }
             page++;
         }
-
+        console.log(`[GRANTS] Fetching complete. Total grants fetched: ${totalFetched}`);
         saveCache('grants', cachePath, grants);
         return grants;
     } catch (error) {
