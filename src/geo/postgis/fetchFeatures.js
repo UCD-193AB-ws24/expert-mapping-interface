@@ -42,7 +42,7 @@ async function fetchAndSave() {
       });
       
       // Save to the project root directory
-      const projectRoot = path.resolve(__dirname, '../../..');
+      const projectRoot = path.resolve(__dirname, '../../components/features');
       const outPath = path.join(projectRoot, filename);
       
       fs.writeFileSync(outPath, JSON.stringify(data, null, 2));

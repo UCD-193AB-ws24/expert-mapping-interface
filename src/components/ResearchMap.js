@@ -9,8 +9,8 @@ import ExpertLayer from "./ExpertLayer";
 import GrantLayer from "./GrantLayer";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 
-import worksData from "../geo/data/works.json";
-import grantsData from "../geo/data/grants.json";
+import worksData from "./features/works.json";
+import grantsData from "./features/grants.json";
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [geoData, setGeoData] = useState(null);
