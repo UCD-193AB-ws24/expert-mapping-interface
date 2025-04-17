@@ -61,7 +61,7 @@ Generation of final GeoJSON files for map visualization.
 5. Convert locations to geographic coordinates
 6. Generate GeoJSON files for map visualization
 
-![ETL Diagram](./src/assets/etl.pdf)
+![ETL Diagram](../../assets/etl.png)
 
 ## Usage
 
