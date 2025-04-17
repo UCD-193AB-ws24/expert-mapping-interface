@@ -10,8 +10,8 @@ try {
 }
 
 const endpoints = [
-  { url: 'http://localhost:3001/api/works', filename: 'works.geojson' },
-  { url: 'http://localhost:3001/api/grants', filename: 'grants.geojson' }
+  { url: 'http://localhost:3001/api/works', filename: 'workFeatures.geojson' },
+  { url: 'http://localhost:3001/api/grants', filename: 'grantFeatures.geojson' }
 ];
 
 async function fetchAndSave() {
