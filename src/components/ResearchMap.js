@@ -9,9 +9,8 @@ import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 
-
-import grantFeatures from "./features/grantFeatures.geojson";
-import workFeatures from "./features/workFeatures.geojson";
+// import worksData from "./features/works.json";
+// import grantsData from "./features/grants.json";
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [geoData, setGeoData] = useState(null);
@@ -29,33 +28,43 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [workGeoJSON, setWorkGeoJSON] = useState(null); 
 
   useEffect(() => {
-    const loadGeoData = async () => {
-      try {
-        const [grantsRes, worksRes] = await Promise.all([
-          fetch("/grantFeatures.geojson"),
-          fetch("/workFeatures.geojson")
-        ]);
+    setIsLoading(true);
   
-        const grantData = await grantsRes.json();
-        const workData = await worksRes.json();
-  
-        setGrantGeoJSON(grantData);
-        setWorkGeoJSON(workData);
+    // Fetch data from two different APIs concurrently
+    Promise.all([
+      fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      }),
+      fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      }),
+    ])
+      .then(([worksData, grantsData]) => {
+        setGeoData(worksData); // Set works data
+        setGrantGeoJSON(grantsData); // Set grants data
         setIsLoading(false);
-  
-        console.log(" Loaded grant features:", grantData.features.length);
-        console.log(" Loaded work features:", workData.features.length);
-      } catch (err) {
-        console.error(" Error loading geojson:", err);
-        setError("Failed to load map data.");
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
         setIsLoading(false);
-      }
-    };
-  
-    loadGeoData();
+        setError("Failed to load map data. Please ensure the API server is running on port 3001.");
+      });
   }, []);
   
-  
+  // useEffect(() => {
+  //   setGeoData(worksData);
+  //   setGrantGeoJSON({
+  //     type: "FeatureCollection",
+  //     features: grantsData.features
+  //   });
+  //   setIsLoading(false);
+  // }, []);
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
