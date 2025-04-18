@@ -15,6 +15,10 @@ const path = require('path');
 const fs = require("fs");
 const { default: ollama } = require('ollama');
 
+const Groq = require('groq-sdk');
+
+const groq = new Groq({ apiKey: "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" });
+
 const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
 const validWorksPath = path.join(__dirname, '../works', "/validatedWorks.json");
@@ -67,16 +71,29 @@ async function getLocationInfo(location) {
  * @returns {String}          - Llama's response
  */
 async function getISOcode(location) {
-  const response = await ollama.chat({
-    model: 'llama3.1',
-    messages: [
-      { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
-      { "role": "user", "content": `Location: ${location}` }
+  // const response = await ollama.chat({
+  //   model: 'llama3.1',
+  //   messages: [
+  //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+  //     { "role": "user", "content": `Location: ${location}` }
+  //   ],
+  //   temperature: 0,
+  //   stream: false
+  // });
+  // return response.message.content;
+
+  const chatCompletion = await groq.chat.completions.create({
+    "messages": [
+      { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explaination.` },
+      { "role": "system", "content": `Location: ${location} ` }
     ],
-    temperature: 0,
-    stream: false
+    "model": "llama-3.3-70b-versatile",
+    "temperature": 0,
+    "stream": false
   });
-  return response.message.content;
+
+
+  return chatCompletion.choices[0].message.content;
 }
 
 /**

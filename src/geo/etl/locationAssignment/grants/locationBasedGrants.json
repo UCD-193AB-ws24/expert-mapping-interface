@@ -30,7 +30,7 @@
       "name": "Elisa Tong",
       "url": "expert/Xho5YrTe"
     },
-    "location": "\"N/A\""
+    "location": "CA"
   },
   {
     "title": "\"Do You Know\" Video Series ",
@@ -52,7 +52,7 @@
       "name": "Jonathan K London",
       "url": "expert/tXsEWMqF"
     },
-    "location": "Plumas County, USA"
+    "location": "Plumas County"
   },
   {
     "title": "\"NUESTRA SALUD ES PRIMERO\" OUR HEALTH COMES FIRST ",
@@ -85,7 +85,7 @@
       "name": "Nancy J Mctygue",
       "url": "expert/JYXyl8Nd"
     },
-    "location": "N/A"
+    "location": "California"
   },
   {
     "title": "#SacYouthWorks Service Agreement: Summer Health Institute for Nursing Exploration and Success (SHINES) ",
@@ -96,7 +96,7 @@
       "name": "Piri Ackerman",
       "url": "expert/2OUvD6E9"
     },
-    "location": "N/A"
+    "location": "Sacramento is implied by \"Sac\", therefore: \nSacramento"
   },
   {
     "title": "''FIRE-INDUCED CHANGES IN ALBEDO AND THE ASSOCIATE RADIATIVE FORCING: A COMPARISON OF BOREAL CANADA AND AUSTRALIA TROPICAL SAVANNAS'' I PROPOSE A 3-YEAR STUDY USING MODIS OBSERVATIONS AND AVAILABLE FIRE HISTORY DATA TO EXAMINE THE TEMPORAL EVOLUTION OF POST ",
@@ -107,6 +107,171 @@
       "name": "Yufang Jin",
       "url": "expert/Y6g2KpDY"
     },
-    "location": "Boreal Canada, Australia"
+    "location": "Canada"
+  },
+  {
+    "title": "Did you know there's a tunnel under Ocean blvd",
+    "funder": "Unknown",
+    "startDate": "2013-05-01",
+    "endDate": "2015-02-28",
+    "relatedExpert": {
+      "name": "Lana Del Rey",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Ocean Blvd"
+  },
+  {
+    "title": "Stockton, CA is boring",
+    "funder": "Unknown",
+    "startDate": "2014-05-01",
+    "endDate": "2016-02-28",
+    "relatedExpert": {
+      "name": "Kenny",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Stockton, CA"
+  },
+  {
+    "title": "Study about the cuisine of Vietnam",
+    "funder": "Unknown",
+    "startDate": "2013-07-01",
+    "endDate": "2015-03-28",
+    "relatedExpert": {
+      "name": "Loc",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Vietnam"
+  },
+  {
+    "title": "Kangaroo in Australia",
+    "funder": "Unknown",
+    "startDate": "2013-05-08",
+    "endDate": "2015-10-28",
+    "relatedExpert": {
+      "name": "An Australian",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Australia"
+  },
+  {
+    "title": "Summer at Newport Beach",
+    "funder": "Unknown",
+    "startDate": "2020-05-01",
+    "endDate": "2021-02-28",
+    "relatedExpert": {
+      "name": "Cinnamon Girl",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Newport Beach, California"
+  },
+  {
+    "title": "A cold rainy night in Stoke",
+    "funder": "Unknown",
+    "startDate": "2010-05-01",
+    "endDate": "2014-02-28",
+    "relatedExpert": {
+      "name": "Messi",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Stoke"
+  },
+  {
+    "title": "Midnight in Barcelona",
+    "funder": "Unknown",
+    "startDate": "2010-06-01",
+    "endDate": "2014-08-28",
+    "relatedExpert": {
+      "name": "Messi",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Barcelona, Spain"
+  },
+  {
+    "title": "Echoes from the Paris Underground",
+    "funder": "Unknown",
+    "startDate": "2013-06-01",
+    "endDate": "2017-08-28",
+    "relatedExpert": {
+      "name": "Vi Truong",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Paris, France"
+  },
+  {
+    "title": "Beneath the Lights of Tokyo",
+    "funder": "Unknown",
+    "startDate": "2015-06-01",
+    "endDate": "2018-08-28",
+    "relatedExpert": {
+      "name": "Caitlyn",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Tokyo, Japan"
+  },
+  {
+    "title": "Snowfall in Vermont",
+    "funder": "Unknown",
+    "startDate": "2015-01-01",
+    "endDate": "2018-04-28",
+    "relatedExpert": {
+      "name": "Dua Lipa",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Vermont"
+  },
+  {
+    "title": "The Girl from Reykjavik",
+    "funder": "Unknown",
+    "startDate": "2015-01-01",
+    "endDate": "2018-04-28",
+    "relatedExpert": {
+      "name": "Jett",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Reykjavik, Iceland"
+  },
+  {
+    "title": "Lost in the Streets of Bangkok",
+    "funder": "Unknown",
+    "startDate": "2023-01-01",
+    "endDate": "2024-04-28",
+    "relatedExpert": {
+      "name": "Curry",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Bangkok, Thailand"
+  },
+  {
+    "title": "Last Train to Chicago",
+    "funder": "Unknown",
+    "startDate": "2017-01-01",
+    "endDate": "2019-04-15",
+    "relatedExpert": {
+      "name": "Hayley Williams",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Chicago"
+  },
+  {
+    "title": "Love Letters from Puerto Rico",
+    "funder": "Unknown",
+    "startDate": "2017-07-01",
+    "endDate": "2019-12-15",
+    "relatedExpert": {
+      "name": "Marias",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Puerto Rico"
+  },
+  {
+    "title": "The Children of Chernobyl",
+    "funder": "Unknown",
+    "startDate": "2017-12-01",
+    "endDate": "2019-5-15",
+    "relatedExpert": {
+      "name": "Bo",
+      "url": "expert/llsQZobR"
+    },
+    "location": "Chernobyl"
   }
 ]
