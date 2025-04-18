@@ -210,6 +210,19 @@ async function populateRedis() {
     await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
     console.log('✅ Deleted grantFeatures.geojson');
 
+    console.log('✅ Successfully populated Redis with GeoJSON data!');
+    
+    // Remove generated files in src/components/features
+    const generatedFiles = ['workFeatures.geojson', 'grantFeatures.geojson'];
+    for (const file of generatedFiles) {
+      const filePath = path.join(__dirname, '..', '..', 'components', 'features', file);
+      try {
+      await fs.unlink(filePath);
+      console.log(`✅ Successfully removed file: ${file}`);
+      } catch (error) {
+      console.error(`❌ Error removing file: ${file}`, error);
+      }
+    }
   } catch (error) {
     console.error('❌ Error in populateRedis:', error);
 
