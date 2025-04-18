@@ -37,6 +37,15 @@ redisClient.on('end', () => {
   console.log('🔌 Redis connection closed')
 });
 
+(async () => {
+  try {
+    await redisClient.connect();
+  } catch (error) {
+    console.error('❌ Error connecting to Redis:', error);
+    process.exit(1); // Exit the process if Redis connection fails
+  }
+})();
+
 let activeConnections = 0;
 
 // Test database connection on startup
@@ -71,12 +80,15 @@ app.use((req, res, next) => {
 
 app.get('/api/redis/worksQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
-  await redisClient.connect();
   try {
-      const keys = await redisClient.keys('works:*');
+    if (!redisClient.isOpen) {
+      console.error('❌ Redis client is not connected');
+      return res.status(500).json({ error: 'Redis client is not connected' });
+    }
+      const workKeys = await redisClient.keys('works:*');
       const features = [];
     
-      console.log(`Found ${keys.length} features in Redis`);
+      console.log(`Found ${workKeys.length} features in Redis`);
     // Iterate over each work key
     for (const workKey of workKeys) {
       // Skip entry keys (e.g., works:<id>:entry:<index> or metadata keys)
@@ -149,17 +161,20 @@ app.get('/api/redis/worksQuery', async (req, res) => {
 
 app.get('/api/redis/grantsQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
-  await redisClient.connect();
   try {
-      const keys = await redisClient.keys('grants:*');
+    if (!redisClient.isOpen) {
+      console.error('❌ Redis client is not connected');
+      return res.status(500).json({ error: 'Redis client is not connected' });
+    }
+      const grantKeys = await redisClient.keys('grants:*');
       const features = [];
     
-      console.log(`Found ${keys.length} features in Redis`);
+      console.log(`Found ${grantKeys.length} features in Redis`);
     // Iterate over each work key
     for (const grantKey of grantKeys) {
       // Skip entry keys (e.g., grants:<id>:entry:<index>)
       if (grantKey.includes(':entry')) continue;
-      if(grantKey.includes(':metadata')) continue;
+      if (grantKey.includes(':metadata')) continue;
 
       // Fetch the main work data
       const grantData = await redisClient.hGetAll(grantKey);
@@ -301,6 +316,8 @@ function gracefulShutdown() {
     try {
       await pool.end();
       console.log('✅ Database pool has ended');
+      await redisClient.disconnect();
+      console.log('✅ Redis client disconnected');
       console.log('✅ Closed out remaining connections');
       process.exit(0);
     } catch (err) {

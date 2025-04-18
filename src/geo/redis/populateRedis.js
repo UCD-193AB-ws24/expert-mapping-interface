@@ -3,7 +3,7 @@
 * populateRedis.js
 *
 * Purpose:
-* Runs fetchPostgis.js to fetch data from PostgreSQL, parses it, and stores it in Redis as the primary database.
+* Runs fetchFeatures.js to fetch data from PostgreSQL, parses it, and stores it in Redis as the primary database.
 *
 * Usage: First run: 
 * `node src/server.js` to start the server, 
@@ -12,11 +12,10 @@
 *
 */
 
-
-
 const { createClient } = require('redis');
 const fs = require('fs').promises;
 const path = require('path');
+const { exec } = require('child_process'); // Import exec from child_process
 
 // Helper function to sanitize strings
 function sanitizeString(input) {
@@ -33,21 +32,21 @@ async function populateRedis() {
   try {
     await redisClient.connect();
 
-    // Run fetchPostgis.js
-    // await new Promise((resolve, reject) => {
-    //   exec('node ../postgis/fetchPostgis.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-    //     if (error) {
-    //       console.error(`❌ Error running fetchPostgis.js: ${error.message}`);
-    //       return reject(error);
-    //     }
-    //     if (stderr) {
-    //       console.error(`❌ Error output from fetchPostgis.js: ${stderr}`);
-    //       return reject(new Error(stderr));
-    //     }
-    //     console.log(`✅ fetchPostgis.js output: ${stdout}`);
-    //     resolve();
-    //   });
-    // });
+    // Run fetchFeatures.js
+    await new Promise((resolve, reject) => {
+      exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
+          return reject(error);
+        }
+        if (stderr) {
+          console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
+          return reject(new Error(stderr));
+        }
+        console.log(`✅ fetchFeatures.js output: ${stdout}`);
+        resolve();
+      });
+    });
 
     // Helper function to process GeoJSON data
     async function processGeoJSON(filePath, prefix) {
@@ -127,13 +126,26 @@ async function populateRedis() {
     }
 
     // Process works.geojson
-    const worksFilePath = path.join(__dirname, 'testing', 'works.geojson');
+    const worksFilePath = path.join(__dirname, '..', '..', 'components', 'features', 'workFeatures.geojson');
     await processGeoJSON(worksFilePath, 'works');
 
     // Process grants.geojson
-    const grantsFilePath = path.join(__dirname, 'testing', 'grants.geojson');
+    const grantsFilePath = path.join(__dirname, '..', '..', 'components', 'features', 'grantFeatures.geojson');
     await processGeoJSON(grantsFilePath, 'grants');
 
+    console.log('✅ Successfully populated Redis with GeoJSON data!');
+    
+    // Remove generated files in src/components/features
+    const generatedFiles = ['workFeatures.geojson', 'grantFeatures.geojson'];
+    for (const file of generatedFiles) {
+      const filePath = path.join(__dirname, '..', '..', 'components', 'features', file);
+      try {
+      await fs.unlink(filePath);
+      console.log(`✅ Successfully removed file: ${file}`);
+      } catch (error) {
+      console.error(`❌ Error removing file: ${file}`, error);
+      }
+    }
   } catch (error) {
     console.error('❌ Error populating Redis:', error);
   } finally {
