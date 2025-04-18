@@ -41,6 +41,15 @@ redisClient.on('end', () => {
   }
 })();
 
+(async () => {
+  try {
+    await redisClient.connect();
+  } catch (error) {
+    console.error('❌ Error connecting to Redis:', error);
+    process.exit(1); // Exit the process if Redis connection fails
+  }
+})();
+
 let activeConnections = 0;
 
 // Test database connection on startup
