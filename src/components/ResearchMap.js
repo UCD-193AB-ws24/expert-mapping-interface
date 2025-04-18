@@ -9,8 +9,8 @@ import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 
-import grantFeatures from "./features/grantFeatures.geojson";
-import workFeatures from "./features/workFeatures.geojson";
+// import worksData from "./features/works.json";
+// import grantsData from "./features/grants.json";
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => {
   const [geoData, setGeoData] = useState(null);
@@ -27,25 +27,33 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
   const mapRef = useRef(null);
 
   useEffect(() => {
-    const loadGeoData = async () => {
-      try {
-        const [grantsRes, worksRes] = await Promise.all([
-          fetch("/grantFeatures.geojson"),
-          fetch("/workFeatures.geojson")
-        ]);
-
-        const grantData = await grantsRes.json();
-        const workData = await worksRes.json();
-
-        setGrantGeoJSON(grantData);
-        setWorkGeoJSON(workData);
+    setIsLoading(true);
+  
+    // Fetch data from two different APIs concurrently
+    Promise.all([
+      fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      }),
+      fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      }),
+    ])
+      .then(([worksData, grantsData]) => {
+        setGeoData(worksData); // Set works data
+        setGrantGeoJSON(grantsData); // Set grants data
         setIsLoading(false);
-      } catch (err) {
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
         setIsLoading(false);
-      }
-    };
-
-    loadGeoData();
+        setError("Failed to load map data. Please ensure the API server is running on port 3001.");
+    });
   }, []);
 
   // Helper functionto filter works by issued year
