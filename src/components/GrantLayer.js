@@ -27,22 +27,28 @@ const GrantLayer = ({
     let activePopup = null;
     let closeTimeout = null;
 
-    grantGeoJSON.features.forEach((feature) => {
-      if (!feature.geometry || feature.geometry.type !== "Point") return;
+    (grantGeoJSON?.features || []).forEach((feature) => {
+      if (!feature.geometry || (feature.geometry.type !== "Point" && feature.geometry.type !== "Polygon")) return;
 
-      const coords = feature.geometry.coordinates;
-      if (!Array.isArray(coords) || coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
-        console.warn("🚫 Skipping invalid grant feature:", feature);
-        return;
-      }
 
-      const [lng, lat] = coords;
+let lat, lng;
+
+if (feature.geometry.type === "Point") {
+  [lng, lat] = feature.geometry.coordinates;
+} else if (feature.geometry.type === "Polygon") {
+  const latlngs = feature.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+  const center = L.polygon(latlngs).getBounds().getCenter();
+  lat = center.lat;
+  lng = center.lng;
+} else {
+  return; // skip unsupported geometry
+}
+
       const key = `${lat},${lng}`;
       if (!locationMap.has(key)) locationMap.set(key, []);
 
       const entries = feature.properties.entries || [];
       const matchedEntries = [];
-
       
       //case sensitive, lower and uper case
           //quote check, if user types in "Marina", it will match to Marina

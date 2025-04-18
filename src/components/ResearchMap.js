@@ -9,8 +9,9 @@ import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 
-import worksData from "./features/works.json";
-import grantsData from "./features/grants.json";
+
+import grantFeatures from "./features/grantFeatures.geojson";
+import workFeatures from "./features/workFeatures.geojson";
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [geoData, setGeoData] = useState(null);
@@ -22,17 +23,39 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [panelType, setPanelType] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [combinedKeys, setCombinedKeys] = useState(new Set()); // ✅ New state
+  const [combinedKeys, setCombinedKeys] = useState(new Set()); 
   const mapRef = useRef(null);
 
+  const [workGeoJSON, setWorkGeoJSON] = useState(null); 
+
   useEffect(() => {
-    setGeoData(worksData);
-    setGrantGeoJSON({
-      type: "FeatureCollection",
-      features: grantsData.features
-    });
-    setIsLoading(false);
+    const loadGeoData = async () => {
+      try {
+        const [grantsRes, worksRes] = await Promise.all([
+          fetch("/grantFeatures.geojson"),
+          fetch("/workFeatures.geojson")
+        ]);
+  
+        const grantData = await grantsRes.json();
+        const workData = await worksRes.json();
+  
+        setGrantGeoJSON(grantData);
+        setWorkGeoJSON(workData);
+        setIsLoading(false);
+  
+        console.log(" Loaded grant features:", grantData.features.length);
+        console.log(" Loaded work features:", workData.features.length);
+      } catch (err) {
+        console.error(" Error loading geojson:", err);
+        setError("Failed to load map data.");
+        setIsLoading(false);
+      }
+    };
+  
+    loadGeoData();
   }, []);
+  
+  
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
@@ -57,7 +80,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
           {/* Regular works layer */}
           {(showWorks || searchKeyword) && (
             <ExpertLayer
-              geoData={geoData}
+              geoData={workGeoJSON}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               searchKeyword={searchKeyword}

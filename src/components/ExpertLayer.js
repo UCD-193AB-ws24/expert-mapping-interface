@@ -29,10 +29,11 @@ const ExpertLayer = ({
 
     const keyword = searchKeyword?.toLowerCase() || "";
 
-    const filteredFeatures = geoData.features.filter((f) => {
+    const filteredFeatures = (geoData?.features || []).filter((f) => {
       const isExpert = !f.properties?.type || f.properties?.type === "work";
       return showWorks && isExpert;
     });
+    
 
     if (filteredFeatures.length === 0) return;
 

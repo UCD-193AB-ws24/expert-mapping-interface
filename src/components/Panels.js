@@ -122,11 +122,11 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
 
       <ul style={{ padding: 0, listStyle: 'none' }}>
         {experts
-          .sort((a, b) => {
-            const nameA = isFromProperties ? a.properties.researcher_name : a.researcher_name;
-            const nameB = isFromProperties ? b.properties.researcher_name : b.researcher_name;
-            return nameA.localeCompare(nameB);
-          })
+         .sort((a, b) => {
+          const nameA = (isFromProperties ? a.properties?.researcher_name : a.researcher_name) || "";
+          const nameB = (isFromProperties ? b.properties?.researcher_name : b.researcher_name) || "";
+          return nameA.localeCompare(nameB);
+        })        
           .map((expert, index) => {
             const workTitles = getWorkTitles(expert);
             const confidence = isFromProperties ? expert.properties.confidence : expert.confidence;
