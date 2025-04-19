@@ -33,23 +33,23 @@ async function populateRedis() {
     await redisClient.connect();
 
     // Run fetchFeatures.js
-    await new Promise((resolve, reject) => {
-      exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
-          return reject(error);
-        }
-        if (stderr) {
-          console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
-          return reject(new Error(stderr));
-        }
-        console.log(`✅ fetchFeatures.js output: ${stdout}`);
-        resolve();
-      });
-    });
+    // await new Promise((resolve, reject) => {
+    //   exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
+    //     if (error) {
+    //       console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
+    //       return reject(error);
+    //     }
+    //     if (stderr) {
+    //       console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
+    //       return reject(new Error(stderr));
+    //     }
+    //     console.log(`✅ fetchFeatures.js output: ${stdout}`);
+    //     resolve();
+    //   });
+    // });
 
     // Helper function to process GeoJSON data
-    async function processGeoJSON(filePath, prefix) {
+    async function processWorkGeoJSON(filePath, prefix) {
       const geojsonData = await fs.readFile(filePath, 'utf8');
       const geojson = JSON.parse(geojsonData);
 
@@ -124,30 +124,91 @@ async function populateRedis() {
 
       console.log(`✅ Metadata stored in Redis for ${prefix}`);
     }
-
-    // Process works.geojson
-    const worksFilePath = path.join(__dirname, '..', '..', 'components', 'features', 'workFeatures.geojson');
-    await processGeoJSON(worksFilePath, 'works');
-
-    // Process grants.geojson
-    const grantsFilePath = path.join(__dirname, '..', '..', 'components', 'features', 'grantFeatures.geojson');
-    await processGeoJSON(grantsFilePath, 'grants');
-
-    console.log('✅ Successfully populated Redis with GeoJSON data!');
-    
-    // Remove generated files in src/components/features
-    const generatedFiles = ['workFeatures.geojson', 'grantFeatures.geojson'];
-    for (const file of generatedFiles) {
-      const filePath = path.join(__dirname, '..', '..', 'components', 'features', file);
+    async function processGrantGeoJSON(filePath, prefix) {
       try {
-      await fs.unlink(filePath);
-      console.log(`✅ Successfully removed file: ${file}`);
+        const geojsonData = await fs.readFile(filePath, 'utf8');
+        const geojson = JSON.parse(geojsonData);
+    
+        // Iterate over each feature in the GeoJSON
+        for (const feature of geojson.features) {
+          const { geometry, properties } = feature;
+          const { coordinates, type: geometryType } = geometry;
+          const {
+            name,
+            type,
+            class: featureClass,
+            entries,
+            location,
+            osm_type,
+            display_name,
+            id,
+            source,
+          } = properties;
+    
+          // Generate a unique key for each feature
+          const featureKey = `${prefix}:${id}`;
+    
+          try {
+            // Ensure all values are strings or serialized
+            await redisClient.hSet(featureKey, {
+              id: id || '',
+              geometry_type: geometryType || '',
+              coordinates: JSON.stringify(coordinates) || '[]',
+              name: name || '',
+              type: type || '',
+              class: featureClass || '',
+              location: location || '',
+              osm_type: osm_type || '',
+              display_name: display_name || '',
+              source: source || '',
+            });
+    
+            console.log(`✅ Successfully stored feature: ${id}`);
+    
+            // Store each entry in the `entries` array as a separate hash
+            if (Array.isArray(entries)) {
+              for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+                const entryKey = `${prefix}:${id}:entry:${i + 1}`;
+    
+                await redisClient.hSet(entryKey, {
+                  title: sanitizeString(entry.title) || '',
+                  funder: entry.funder || '',
+                  end_date: entry.endDate || '',
+                  start_date: entry.startDate || '',
+                  confidence: entry.confidence || '',
+                  related_expert: entry.relatedExpert
+                    ? JSON.stringify(entry.relatedExpert)
+                    : '[]',
+                });
+    
+                console.log(`✅ Successfully stored entry: ${entryKey}`);
+              }
+            }
+          } catch (error) {
+            console.error(`❌ Error storing feature: ${id}`, error);
+          }
+        }
+    
+        // Store metadata in Redis
+        const { count, timestamp } = geojson.metadata;
+        await redisClient.hSet(`${prefix}:metadata`, {
+          count: count.toString(),
+          timestamp,
+        });
+    
+        console.log(`✅ Metadata stored in Redis for ${prefix}`);
       } catch (error) {
-      console.error(`❌ Error removing file: ${file}`, error);
+        console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
       }
     }
+
+    // Example usage of the helper functions
+    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'), 'work');
+    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'), 'grant');
+    console.log('✅ All data processed and stored in Redis successfully.');
   } catch (error) {
-    console.error('❌ Error populating Redis:', error);
+    console.error('❌ Error in populateRedis:', error);
   } finally {
     await redisClient.disconnect();
   }
