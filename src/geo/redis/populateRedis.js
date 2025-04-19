@@ -223,9 +223,14 @@ async function populateRedis() {
       await fs.unlink(filePath);
       console.log(`✅ Successfully removed file: ${file}`);
       } catch (error) {
-      console.error(`❌ Error removing file: ${file}`, error);
+        console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
       }
     }
+
+    // Example usage of the helper functions
+    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'), 'work');
+    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'), 'grant');
+    console.log('✅ All data processed and stored in Redis successfully.');
   } catch (error) {
     console.error('❌ Error in populateRedis:', error);
 
