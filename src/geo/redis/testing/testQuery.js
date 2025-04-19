@@ -29,16 +29,16 @@ async function testQuery() {
       }),
     ]);
 
-    console.log("Works Data and Grants Data fetched successfully.");
-    console.log("Works Data:", worksData);
-    console.log("Grants Data:", grantsData);
+    console.log("Grant Data fetched successfully.");
+    // console.log("Works Data:", worksData);
+    // console.log("Grants Data:", grantsData);
     // Write works data to a file
-    const worksFilename = 'src/components/features/worksFeature.json';
-    await fs.writeFile(worksFilename, JSON.stringify(worksData, null, 2));
-    console.log(`✅ Successfully wrote works data to ${worksFilename}`);
+    // const worksFilename = 'src/components/features/worksFeature.json';
+    // await fs.writeFile(worksFilename, JSON.stringify(worksData, null, 2));
+    // console.log(`✅ Successfully wrote works data to ${worksFilename}`);
 
     // Write grants data to a file
-    const grantsFilename = 'src/components/features/grantsFeature.json';
+    const grantsFilename = 'src/geo/redis/testing/grantsFeature.json';
     await fs.writeFile(grantsFilename, JSON.stringify(grantsData, null, 2));
     console.log(`✅ Successfully wrote grants data to ${grantsFilename}`);
 
