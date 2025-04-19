@@ -28,34 +28,94 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
 
   const [workGeoJSON, setWorkGeoJSON] = useState(null); 
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   const loadGeoData = async () => {
+  //     try {
+  //       const [grantsRes, worksRes] = await Promise.all([
+  //         fetch("/grantFeatures.geojson"),
+  //         fetch("/workFeatures.geojson")
+  //       ]);
+  
+  //       const grantData = await grantsRes.json();
+  //       const workData = await worksRes.json();
+  
+  //       setGrantGeoJSON(grantData);
+  //       setWorkGeoJSON(workData);
+  //       setIsLoading(false);
+  
+  //       console.log(" Loaded grant features:", grantData.features.length);
+  //       console.log(" Loaded work features:", workData.features.length);
+  //     } catch (err) {
+  //       console.error(" Error loading geojson:", err);
+  //       setError("Failed to load map data.");
+  //       setIsLoading(false);
+  //     }
+  //   };
+  
+  //   loadGeoData();
+  // }, []);
+
+useEffect(() => {
+    setIsLoading(true);
     const loadGeoData = async () => {
-      try {
-        const [grantsRes, worksRes] = await Promise.all([
-          fetch("/grantFeatures.geojson"),
-          fetch("/workFeatures.geojson")
-        ]);
-  
-        const grantData = await grantsRes.json();
-        const workData = await worksRes.json();
-  
-        setGrantGeoJSON(grantData);
-        setWorkGeoJSON(workData);
-        setIsLoading(false);
-  
-        console.log(" Loaded grant features:", grantData.features.length);
-        console.log(" Loaded work features:", workData.features.length);
-      } catch (err) {
-        console.error(" Error loading geojson:", err);
-        setError("Failed to load map data.");
-        setIsLoading(false);
-      }
+    try {
+      // Fetch data from two different APIs concurrently
+      Promise.all([
+        fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        }),
+        fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+            return response.json();
+          }),
+          ])
+          .then(([worksData, grantsData]) => {
+            console.log("Converting data to GeoJSON format...");
+            // Extract and process the features array
+            const processedWorksData = {
+              type: "FeatureCollection",
+              features: worksData.features.map((feature) => ({
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: feature.properties.entries || [],
+                },
+              })),
+            };
+          
+            const processedGrantsData = {
+              type: "FeatureCollection",
+              features: grantsData.features.map((feature) => ({
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: feature.properties.entries || [],
+                },
+              })),
+            };
+          
+            setWorkGeoJSON(processedWorksData);
+            setGrantGeoJSON(processedGrantsData);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+            setIsLoading(false);
+            setError("Failed to load map data. Please ensure the API server is running on port 3001.");
+          });
+    } catch (err) {
+            console.error(" Error loading geojson:", err);
+            setError("Failed to load map data.");
+            setIsLoading(false);
+          }
     };
-  
-    loadGeoData();
+        loadGeoData();
   }, []);
-  
-  
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
