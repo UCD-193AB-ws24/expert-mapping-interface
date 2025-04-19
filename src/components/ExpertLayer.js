@@ -147,17 +147,28 @@ const ExpertLayer = ({
       const locationId = feature.properties.location_id;
       if (polygonsToRender.has(locationId)) return;
       polygonsToRender.add(locationId);
-
+    
       const flippedCoordinates = geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+
+      const entriesCount = feature.properties?.entries?.length || 0;
+      const name = feature.properties?.display_name || feature.properties?.location || "Unknown";
+
+      console.log("🔍 Polygon location:", name, "— first coord:", flippedCoordinates[0]);
+
+      if (entriesCount > 50) {
+        console.warn("⚠️ Large polygon detected:", name, "with", entriesCount, "entries");
+      }
+    
       const expertCount = locationExpertCounts.get(locationId) || 0;
       const dynamicOpacity = calculateOpacity(expertCount);
-
+    
       const polygon = L.polygon(flippedCoordinates, {
         color: '#13639e',
         weight: 2,
         fillColor: '#d8db9a',
         fillOpacity: dynamicOpacity
       }).addTo(map);
+    
 
       polygonLayers.push(polygon);
 
@@ -166,6 +177,8 @@ const ExpertLayer = ({
         if (closeTimeout) clearTimeout(closeTimeout);
 
         const expertsAtLocation = geoData.features.filter(f => f.properties?.location_id === locationId);
+        console.log("📍 Clicked polygon:", feature.properties.display_name, "with", feature.properties.entries?.length, "entries");
+
         const totalWorks = expertsAtLocation.reduce((sum, expert) => sum + (parseInt(expert.properties?.work_count) || 0), 0);
 
         const content = expertsAtLocation.length === 1

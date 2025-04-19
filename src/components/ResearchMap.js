@@ -28,8 +28,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
 
   const [workGeoJSON, setWorkGeoJSON] = useState(null); 
 
+
   useEffect(() => {
     const loadGeoData = async () => {
+      
       try {
         const [grantsRes, worksRes] = await Promise.all([
           fetch("/grantFeatures.geojson"),
