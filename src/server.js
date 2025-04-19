@@ -80,7 +80,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
-      const workKeys = await redisClient.keys('works:*');
+      const workKeys = await redisClient.keys('work:*');
       const features = [];
     
       console.log(`Found ${workKeys.length} features in Redis`);
@@ -92,12 +92,12 @@ app.get('/api/redis/worksQuery', async (req, res) => {
 
       // Fetch the main work data
       const workData = await redisClient.hGetAll(workKey);
-      console.log(`Processing work: ${workKey}`);
+      // console.log(`Processing work: ${workKey}`);
       const feature_id = workData.id || workKey.split(':')[1]; // Extract ID from the key if not present in data
       // Fetch associated entries for the work
       const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
       const entries = [];
-
+      
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
         entries.push({
@@ -111,6 +111,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
             ? JSON.parse(entryData.related_experts)
             : [],
         });
+        
       }
 
       // Construct the GeoJSON feature
@@ -134,7 +135,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       });
     }
     
-    const metadata = await redisClient.hGetAll('works:metadata');
+    const metadata = await redisClient.hGetAll('work:metadata');
     if (!metadata) {
       console.error('❌ Metadata not found in Redis');
       return res.status(500).json({ error: 'Metadata not found' });
@@ -161,7 +162,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
-      const grantKeys = await redisClient.keys('grants:*');
+      const grantKeys = await redisClient.keys('grant:*');
       const features = [];
     
       console.log(`Found ${grantKeys.length} features in Redis`);
@@ -173,24 +174,38 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
 
       // Fetch the main work data
       const grantData = await redisClient.hGetAll(grantKey);
-      console.log(`Processing work: ${grantKey}`);
       const feature_id = grantData.id || grantKey.split(':')[1]; // Extract ID from the key if not present in data
       // Fetch associated entries for the work
       const entryKeys = await redisClient.keys(`${grantKey}:entry:*`);
       const entries = [];
-
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
+        console.log(`Processing entry: ${entryKey}`);
         entries.push({
-          name: entryData.name || '',
           title: entryData.title || '',
-          issued: entryData.issued || '',
-          authors: entryData.authors ? JSON.parse(entryData.authors) : [],
-          abstract: entryData.abstract || '',
+          funder: entryData.funder || '',
+          end_date: entryData.end_date || '',
+          start_date: entryData.start_date || '',
           confidence: entryData.confidence || '',
-          relatedExperts: entryData.related_experts
-            ? JSON.parse(entryData.related_experts)
+          relatedExpert: entryData.related_expert
+            ? JSON.parse(entryData.related_expert)
             : [],
+        });
+        let relatedExpert = [];
+        if (entryData.related_expert) {
+          try {
+            relatedExpert = JSON.parse(entryData.related_expert);
+          } catch (error) {
+            console.error('❌ Error parsing related_expert JSON:', error);
+          }
+        }
+        console.log('📋 Entry added:', {
+          title: entryData.title || '',
+          funder: entryData.funder || '',
+          end_date: entryData.end_date || '',
+          start_date: entryData.start_date || '',
+          confidence: entryData.confidence || '',
+          relatedExpert: relatedExpert,
         });
       }
 
@@ -215,7 +230,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       });
     }
     
-    const metadata = await redisClient.hGetAll('grants:metadata');
+    const metadata = await redisClient.hGetAll('grant:metadata');
     if (!metadata) {
       console.error('❌ Metadata not found in Redis');
       return res.status(500).json({ error: 'Metadata not found' });
