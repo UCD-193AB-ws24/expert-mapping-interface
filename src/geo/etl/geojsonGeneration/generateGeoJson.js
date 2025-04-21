@@ -1,8 +1,6 @@
 /**
- * generateGeoJson.js
- * 
- * Generates enriched GeoJSON by combining location coordinates with researcher data.
- * Adds researcher information, work details, and location type indicators to features.
+ * Generates two geojson files by merging validated works and grants 
+ * with their respective location coordinates.
  *
  * USAGE: node path_to_file/generateGeoJson.js 
  * 
