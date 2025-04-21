@@ -194,7 +194,7 @@ async function populateRedis() {
           timestamp,
         });
     
-        console.log(`✅ Metadata stored in Redis for ${prefix}`);
+        // console.log(`✅ Grant metadata stored in Redis.`);
       } catch (error) {
         console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
       }
@@ -219,7 +219,11 @@ async function populateRedis() {
 
   }
 }
-
-populateRedis().catch((error) => {
-  console.error('❌ Unhandled error:', error);
-});
+populateRedis()
+  .catch((error) => {
+    console.error('❌ Unhandled error:', error);
+  })
+  .finally(() => {
+    console.log('✅ Redis is fully populated.');
+    process.exit(0); // End the program without quitting Redis
+  });
