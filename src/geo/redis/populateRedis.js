@@ -228,9 +228,15 @@ async function populateRedis() {
     }
 
     // Example usage of the helper functions
-    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'), 'work');
-    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'), 'grant');
-    console.log('✅ All data processed and stored in Redis successfully.');
+    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'));
+    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
+    console.log('✅ Processing data completed!');
+    // Delete the GeoJSON files after processing
+    await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
+    console.log('✅ Deleted workFeatures.geojson');
+    await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
+    console.log('✅ Deleted grantFeatures.geojson');
+
   } catch (error) {
     console.error('❌ Error in populateRedis:', error);
 
