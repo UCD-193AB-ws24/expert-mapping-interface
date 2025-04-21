@@ -194,34 +194,7 @@ async function populateRedis() {
           timestamp,
         });
     
-        // console.log(`✅ Grant metadata stored in Redis.`);
-      } catch (error) {
-        console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
-      }
-    }
-
-    // After fetchFeatures.js has run, the produced files will be located in `src/components/features/`.
-    // This function will process the GeoJSON files and store the data in Redis.
-
-    console.log('⏳ Processing data...');
-    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'));
-    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
-    console.log('⌛ Processing data completed!');
-    // Delete the GeoJSON files after processing (security measure)
-    await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
-    console.log('✅ Deleted workFeatures.geojson');
-    await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
-    console.log('✅ Deleted grantFeatures.geojson');
-
-    console.log('✅ Successfully populated Redis with GeoJSON data!');
-    
-    // Remove generated files in src/components/features
-    const generatedFiles = ['workFeatures.geojson', 'grantFeatures.geojson'];
-    for (const file of generatedFiles) {
-      const filePath = path.join(__dirname, '..', '..', 'components', 'features', file);
-      try {
-      await fs.unlink(filePath);
-      console.log(`✅ Successfully removed file: ${file}`);
+        console.log(`✅ Metadata stored in Redis for ${prefix}`);
       } catch (error) {
         console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
       }
@@ -237,24 +210,6 @@ async function populateRedis() {
     await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
     console.log('✅ Deleted grantFeatures.geojson');
 
-    console.log('✅ Successfully populated Redis with GeoJSON data!');
-    
-    // Remove generated files in src/components/features
-    const generatedFiles = ['workFeatures.geojson', 'grantFeatures.geojson'];
-    for (const file of generatedFiles) {
-      const filePath = path.join(__dirname, '..', '..', 'components', 'features', file);
-      try {
-      await fs.unlink(filePath);
-      console.log(`✅ Successfully removed file: ${file}`);
-      } catch (error) {
-        console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
-      }
-    }
-
-    // Example usage of the helper functions
-    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'), 'work');
-    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'), 'grant');
-    console.log('✅ All data processed and stored in Redis successfully.');
   } catch (error) {
     console.error('❌ Error in populateRedis:', error);
 
