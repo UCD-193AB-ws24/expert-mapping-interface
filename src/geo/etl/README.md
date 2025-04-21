@@ -21,7 +21,8 @@ Data extraction and expert matching process.
 
 - **matchAll.js**
   - Associates grants and works with their respective experts
-  - Matches works by expert name and grants by expert URL
+    - a. matchWorks.js - Matches works by expert name
+    - b. matchGrants.js - Matches grants by expert URL
 
 - **apiUtils.js**
   - Contains helper functions used across the API interaction modules
