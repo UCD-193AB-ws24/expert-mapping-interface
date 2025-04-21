@@ -1,4 +1,5 @@
 const axios = require('axios');
+// requires .env files with API_TOKEN=<token> in the root directory
 require('dotenv').config();
 
 // API token setup
@@ -31,17 +32,6 @@ function getSortedExperts(experts) {
     })).sort((a, b) => a.fullName.localeCompare(b.fullName));
 }
 
-function binarySearch(experts, target) {
-    let left = 0, right = experts.length - 1;
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        if (experts[mid].fullName === target) return experts[mid];
-        if (experts[mid].fullName < target) left = mid + 1;
-        else right = mid - 1;
-    }
-    return null;
-}
-
 function saveCache(subDir, fileName, data, baseDir = __dirname) {
     const path = require('path');
     const fs = require('fs');
@@ -55,7 +45,6 @@ module.exports = {
     logBatch, 
     fetchFromApi, 
     getSortedExperts, 
-    binarySearch, 
     saveCache, 
     API_TOKEN 
 };

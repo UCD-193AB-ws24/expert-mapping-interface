@@ -1,3 +1,7 @@
+/*
+USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
+*/
+
 const { logBatch, fetchFromApi, API_TOKEN, saveCache } = require('../apiUtils');
 
 /**

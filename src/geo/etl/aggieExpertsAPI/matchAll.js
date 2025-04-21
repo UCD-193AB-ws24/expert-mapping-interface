@@ -1,3 +1,8 @@
+/* 
+Matches works and grants with their associated expert(s) if possible. 
+Employs flexible matching via name variation
+*/
+
 const fs = require('fs');
 const path = require('path');
 const { saveCache } = require('./apiUtils');
@@ -16,6 +21,7 @@ const grants = JSON.parse(fs.readFileSync(grantsPath, 'utf8'));
 
 try {
     // Create a more flexible expert name matching map
+    // Allow for multiple variations of names (e.g., with/without middle names, initials, etc.)
     const expertsMap = {};
     const expertsByUrl = {};
     

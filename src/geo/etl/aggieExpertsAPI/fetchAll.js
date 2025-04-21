@@ -1,3 +1,7 @@
+/*
+Sequentially executes all fetch functions for experts, grants, and works.
+*/
+
 const { fetchExperts } = require('./experts/fetchExperts');
 const { fetchGrants } = require('./grants/fetchGrants');
 const { fetchWorks } = require('./works/fetchWorks');
