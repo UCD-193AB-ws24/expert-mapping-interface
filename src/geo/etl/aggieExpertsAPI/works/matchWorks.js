@@ -1,6 +1,8 @@
 /* 
-Matches works with their associated expert(s) if possible. 
-Employs flexible matching via name variation.
+* USAGE: node .\src\geo\etl\aggieExpertsAPI\works\matchWorks.js
+*
+* Matches works with their associated expert(s) if possible. 
+* Employs flexible matching via name variation.
 */
 
 const fs = require('fs');

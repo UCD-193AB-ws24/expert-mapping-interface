@@ -1,18 +1,8 @@
-/**
- * createTables.js
- *
- * Purpose:
- * Creates and initializes the PostgreSQL/PostGIS tables needed for the application.
- * Sets up research locations tables with support for both points and polygons,
- * along with JSON properties support.
- *
- * Tables:
- * - research_locations_point: For point geometries (specific locations)
- * - research_locations_poly: For polygon geometries (areas/regions)
- * - includes full researcher and work information in GEO-JSON properties
- *
- * USAGE: node path_to_file/createTables.js
- */
+/*
+* USAGE: node src/geo/postgis/createTables.js
+* 
+* Creates and initializes the PostgreSQL/PostGIS tables needed for the application.
+*/
 
 const { pool, tables } = require('./config');
 

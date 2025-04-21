@@ -1,6 +1,8 @@
 /* 
-Matches grants with their associated expert if possible.
-Matches grants to experts by URL reference.
+* USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\fetchGrants.js
+*
+* Matches grants with their associated expert if possible.
+* Matches grants to experts by URL reference.
 */
 
 const fs = require('fs');

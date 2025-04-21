@@ -1,5 +1,7 @@
 /*
-Sequentially executes all fetch functions for experts, grants, and works.
+* USAGE: node .\src\geo\etl\aggieExpertsAPI\fetchAll.js 
+*
+* Sequentially executes all fetch functions for experts, grants, and works.
 */
 
 const { fetchExperts } = require('./experts/fetchExperts');

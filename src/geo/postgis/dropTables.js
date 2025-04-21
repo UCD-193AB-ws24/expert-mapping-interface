@@ -1,12 +1,9 @@
-/**
- * dropTables.js
- *
- * Purpose:
- * Drops all PostGIS tables, views, and related objects created for the application.
- * Use with caution as this will delete all data.
- *
- * USAGE: node path_to_file/dropTables.js
- */
+/*
+* USAGE: node .\src\geo\postgis\dropTables.js
+*
+* Drops all PostGIS tables, views, and related objects created for the application.
+* Use with caution as this will delete all data.
+*/
 
 const { pool, tables } = require('./config');
 

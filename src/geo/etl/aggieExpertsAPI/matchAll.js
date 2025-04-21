@@ -1,6 +1,8 @@
 /* 
-Matches works and grants with their associated expert(s) if possible. 
-Orchestrates both matching processes in sequence.
+* USAGE: node .\src\geo\etl\aggieExpertsAPI\matchAll.js
+*
+* Matches works and grants with their associated expert(s) if possible. 
+* Orchestrates both matching processes in sequence.
 */
 
 
