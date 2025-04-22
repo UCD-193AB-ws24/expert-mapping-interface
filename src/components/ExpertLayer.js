@@ -1,14 +1,13 @@
-// export default ExpertLayer;
 import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 
-import { 
-  createSingleResearcherContent, 
-  createMultiResearcherContent, 
-  createGrantPopupContent, 
-  createMultiGrantPopup 
+import {
+  createSingleResearcherContent,
+  createMultiResearcherContent,
+  createGrantPopupContent,
+  createMultiGrantPopup,
 } from "./Popups";
 
 const ExpertLayer = ({
@@ -20,7 +19,7 @@ const ExpertLayer = ({
   setSelectedPointExperts,
   setPanelOpen,
   setPanelType,
-  combinedKeys 
+  combinedKeys,
 }) => {
   const map = useMap();
 
@@ -29,50 +28,43 @@ const ExpertLayer = ({
 
     const keyword = searchKeyword?.toLowerCase() || "";
 
-    const filteredFeatures = (geoData?.features || []).filter((f) => {
-      const isExpert = !f.properties?.type || f.properties?.type === "work";
-      return showWorks && isExpert;
-    });
-    
-
-    if (filteredFeatures.length === 0) return;
+    const filteredFeatures = geoData?.features?.filter(
+      (f) => (!f.properties?.type || f.properties?.type === "work") && showWorks
+    );
 
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 40,
       spiderfyOnMaxZoom: false,
       iconCreateFunction: (cluster) => {
-        const markers = cluster.getAllChildMarkers();
-        const totalExperts = markers.reduce((sum, marker) => sum + marker.options.expertCount, 0);
+        const totalExperts = cluster
+          .getAllChildMarkers()
+          .reduce((sum, marker) => sum + marker.options.expertCount, 0);
         return L.divIcon({
           html: `<div style="background: #13639e; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
-          className: 'custom-cluster-icon',
-          iconSize: L.point(40, 40)
+          className: "custom-cluster-icon",
+          iconSize: L.point(40, 40),
         });
-      }
+      },
     });
 
     const locationMap = new Map();
     const locationExpertCounts = new Map();
+    const polygonLayers = [];
     let activePopup = null;
     let closeTimeout = null;
-    const polygonLayers = [];
 
-    filteredFeatures.forEach((feature) => {
-      if (!feature.properties || !feature.geometry) return;
-
-      const { location_id } = feature.properties;
-      if (location_id) {
-        locationExpertCounts.set(location_id, (locationExpertCounts.get(location_id) || 0) + 1);
-      }
-
+    filteredFeatures?.forEach((feature) => {
       const geometry = feature.geometry;
       const entries = feature.properties.entries || [];
+      const locationId = feature.properties.location_id;
+      if (locationId)
+        locationExpertCounts.set(locationId, (locationExpertCounts.get(locationId) || 0) + (feature.properties.entries?.length || 0));
 
-      if (geometry.type === "Point" || geometry.type === "MultiPoint") {
-        const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
+      if (["Point", "MultiPoint"].includes(geometry.type)) {
+        const coords = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
 
-        coordsList.forEach(([lng, lat]) => {
+        coords.forEach(([lng, lat]) => {
           const key = `${lat},${lng}`;
           if (!locationMap.has(key)) locationMap.set(key, []);
 
@@ -96,25 +88,17 @@ const ExpertLayer = ({
               }
             }
 
-            let researcherName = "Unknown";
-            let researcherURL = null;
-
-            if (entry.relatedExperts?.length > 0) {
-              const expert = entry.relatedExperts[0];
-              researcherName = expert.name || "Unknown";
-              researcherURL = expert.url ? `https://experts.ucdavis.edu/${expert.url}` : null;
-            } else if (entry.authors?.length > 0) {
-              researcherName = entry.authors.join(", ");
-            }
-
+            const expert = entry.relatedExperts?.[0];
             matchedEntries.push({
-              researcher_name: researcherName,
-              researcher_url: researcherURL,
+              researcher_name: expert?.name || entry.authors?.join(", ") || "Unknown",
+              researcher_url: expert?.url
+                ? `https://experts.ucdavis.edu/${expert.url}`
+                : null,
               location_name: feature.properties.location || "Unknown",
               work_titles: [entry.title],
               work_count: 1,
               confidence: entry.confidence || "Unknown",
-              type: "expert"
+              type: "expert",
             });
           });
 
@@ -125,68 +109,74 @@ const ExpertLayer = ({
       }
     });
 
+
     const sortedPolygons = geoData.features
-      .filter(feature => feature.geometry.type === "Polygon")
+      .filter((feature) => {
+        const geom = feature.geometry;
+        const rings = geom?.coordinates;
+        const outer = rings?.[0];
+        return (
+          geom?.type === "Polygon" &&
+          Array.isArray(outer) &&
+          outer.length >= 4 &&
+          outer.length <= 200000
+        );
+      })
       .sort((a, b) => {
-        const boundsA = L.polygon(a.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
-        const boundsB = L.polygon(b.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
-        const areaA = (boundsA.getEast() - boundsA.getWest()) * (boundsA.getNorth() - boundsA.getSouth());
-        const areaB = (boundsB.getEast() - boundsB.getWest()) * (boundsB.getNorth() - boundsB.getSouth());
-        return areaB - areaA;
+        const area = (f) => {
+          const bounds = L.polygon(f.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
+          return (bounds.getEast() - bounds.getWest()) * (bounds.getNorth() - bounds.getSouth());
+        };
+        return area(b) - area(a);
       });
 
+    console.log("Polygons to draw:", sortedPolygons.length);
     const polygonsToRender = new Set();
 
-    const calculateOpacity = (count) => {
-      const min = 0.3, max = 0.7, maxExperts = 25;
-      return Math.min(min + (max - min) * (count / maxExperts), max);
-    };
-
-    sortedPolygons.forEach(feature => {
+    sortedPolygons.forEach((feature, i) => {
       const geometry = feature.geometry;
       const locationId = feature.properties.location_id;
       if (polygonsToRender.has(locationId)) return;
-      polygonsToRender.add(locationId);
-    
-      const flippedCoordinates = geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+      if (locationId) polygonsToRender.add(locationId);
 
-      const entriesCount = feature.properties?.entries?.length || 0;
+      const flippedCoordinates = geometry.coordinates.map((ring) =>
+        ring.map(([lng, lat]) => [lat, lng])
+      );
+
       const name = feature.properties?.display_name || feature.properties?.location || "Unknown";
+      console.log(" Drawing polygon:", name, flippedCoordinates[0]);
 
-      console.log("🔍 Polygon location:", name, "— first coord:", flippedCoordinates[0]);
-
-      if (entriesCount > 50) {
-        console.warn("⚠️ Large polygon detected:", name, "with", entriesCount, "entries");
-      }
-    
-      const expertCount = locationExpertCounts.get(locationId) || 0;
-      const dynamicOpacity = calculateOpacity(expertCount);
-    
       const polygon = L.polygon(flippedCoordinates, {
-        color: '#13639e',
+        color: "blue",
+        fillColor: "yellow",
+        fillOpacity: 0.6,
         weight: 2,
-        fillColor: '#d8db9a',
-        fillOpacity: dynamicOpacity
       }).addTo(map);
-    
 
       polygonLayers.push(polygon);
+
 
       polygon.on("mouseover", () => {
         if (!showWorks) return;
         if (closeTimeout) clearTimeout(closeTimeout);
 
-        const expertsAtLocation = geoData.features.filter(f => f.properties?.location_id === locationId);
-        console.log("📍 Clicked polygon:", feature.properties.display_name, "with", feature.properties.entries?.length, "entries");
+        const expertCount = locationExpertCounts.get(locationId) || 0;
 
-        const totalWorks = expertsAtLocation.reduce((sum, expert) => sum + (parseInt(expert.properties?.work_count) || 0), 0);
-
-        const content = expertsAtLocation.length === 1
-          ? createSingleResearcherContent(expertsAtLocation[0].properties)
-          : createMultiResearcherContent(expertsAtLocation.length, feature.properties.location_name, totalWorks);
+        const content = expertCount === 1
+          ? createSingleResearcherContent(feature.properties.entries[0])
+          : createMultiResearcherContent(expertCount, feature.properties.display_name || feature.properties.location || "Unknown", expertCount);
 
         if (activePopup) activePopup.close();
-        activePopup = L.popup({ closeButton: false, autoClose: false, maxWidth: 300, className: 'hoverable-popup', autoPan: false, keepInView: false, interactive: true })
+
+        activePopup = L.popup({
+          closeButton: false,
+          autoClose: false,
+          maxWidth: 300,
+          className: 'hoverable-popup',
+          autoPan: false,
+          keepInView: false,
+          interactive: true
+        })
           .setLatLng(polygon.getBounds().getCenter())
           .setContent(content)
           .openOn(map);
@@ -194,8 +184,12 @@ const ExpertLayer = ({
         const popupElement = activePopup.getElement();
         if (popupElement) {
           popupElement.style.pointerEvents = 'auto';
-          popupElement.addEventListener("mouseenter", () => { if (closeTimeout) clearTimeout(closeTimeout); });
-          popupElement.addEventListener("mouseleave", () => {
+
+          popupElement.addEventListener('mouseenter', () => {
+            if (closeTimeout) clearTimeout(closeTimeout);
+          });
+
+          popupElement.addEventListener('mouseleave', () => {
             closeTimeout = setTimeout(() => {
               if (activePopup) {
                 activePopup.close();
@@ -204,14 +198,18 @@ const ExpertLayer = ({
             }, 300);
           });
 
+          const expertsAtLocation = geoData.features.filter(f => f.properties.location_id === locationId);
+
           const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
           if (viewExpertsBtn) {
             viewExpertsBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
+
               setSelectedExperts(expertsAtLocation);
               setPanelType("polygon");
               setPanelOpen(true);
+
               if (activePopup) {
                 activePopup.close();
                 activePopup = null;
@@ -220,6 +218,7 @@ const ExpertLayer = ({
           }
         }
       });
+
 
       polygon.on("mouseout", () => {
         closeTimeout = setTimeout(() => {
@@ -229,67 +228,34 @@ const ExpertLayer = ({
           }
         }, 300);
       });
+
     });
 
-    locationMap.forEach((experts, key) => {
-      if (!experts || experts.length === 0) return;
-      if (showGrants && showWorks && combinedKeys?.has(key)) return;
+    console.log("Polygons drawn on map:", polygonLayers.length);
 
+    locationMap.forEach((experts, key) => {
+      if (!experts.length || (showGrants && showWorks && combinedKeys?.has(key))) return;
       const [lat, lng] = key.split(",").map(Number);
-      const count = experts.length;
-      const totalWorks = experts.reduce((sum, expert) => sum + (parseInt(expert.work_count) || 0), 0);
 
       const marker = L.marker([lat, lng], {
         icon: L.divIcon({
-          html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${count}</div>`,
+          html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${experts.length}</div>`,
           className: "custom-marker-icon",
-          iconSize: [30, 30]
+          iconSize: [30, 30],
         }),
         experts,
-        expertCount: count
+        expertCount: experts.length,
       });
 
-      const popup = L.popup({ closeButton: false, autoClose: false, maxWidth: 250, className: 'hoverable-popup', autoPan: false, keepInView: false, interactive: true });
-
       marker.on("mouseover", () => {
-        if (!experts || experts.length === 0 || !experts[0]) return;
+        const content = experts.length === 1
+          ? createSingleResearcherContent(experts[0])
+          : createMultiResearcherContent(experts.length, experts[0]?.location_name, experts.reduce((s, e) => s + (parseInt(e.work_count) || 0), 0));
 
-        if (closeTimeout) clearTimeout(closeTimeout);
-        const content = count === 1
-          ? (experts[0].type === "grant" ? createGrantPopupContent(experts[0]) : createSingleResearcherContent(experts[0]))
-          : (experts[0].type === "grant" ? createMultiGrantPopup(experts, experts[0]?.location_name || "Unknown") : createMultiResearcherContent(count, experts[0]?.location_name || "Unknown", totalWorks));
-
-        popup.setLatLng(marker.getLatLng()).setContent(content).openOn(map);
-        activePopup = popup;
-
-        const popupElement = popup.getElement();
-        if (popupElement) {
-          popupElement.style.pointerEvents = 'auto';
-          popupElement.addEventListener("mouseenter", () => { if (closeTimeout) clearTimeout(closeTimeout); });
-          popupElement.addEventListener("mouseleave", () => {
-            closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            }, 500);
-          });
-
-          const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
-          if (viewExpertsBtn) {
-            viewExpertsBtn.addEventListener("click", (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSelectedPointExperts(experts);
-              setPanelType("point");
-              setPanelOpen(true);
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            });
-          }
-        }
+        activePopup = L.popup({ closeButton: false, autoClose: false, maxWidth: 250 })
+          .setLatLng(marker.getLatLng())
+          .setContent(content)
+          .openOn(map);
       });
 
       marker.on("mouseout", () => {
@@ -308,7 +274,7 @@ const ExpertLayer = ({
 
     return () => {
       map.removeLayer(markerClusterGroup);
-      polygonLayers.forEach(p => map.removeLayer(p));
+      polygonLayers.forEach((p) => map.removeLayer(p));
     };
   }, [map, geoData, showWorks, showGrants, searchKeyword, setSelectedExperts, setSelectedPointExperts, setPanelOpen, setPanelType]);
 
