@@ -28,6 +28,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
 
 
 
+
 useEffect(() => {
     setIsLoading(true);
     const loadGeoData = async () => {
