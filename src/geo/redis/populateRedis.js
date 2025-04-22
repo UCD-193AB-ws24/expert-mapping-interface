@@ -37,20 +37,20 @@ async function populateRedis() {
     await redisClient.connect();
 
     // Run fetchFeatures.js
-    // await new Promise((resolve, reject) => {
-    //   exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-    //     if (error) {
-    //       console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
-    //       return reject(error);
-    //     }
-    //     if (stderr) {
-    //       console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
-    //       return reject(new Error(stderr));
-    //     }
-    //     // console.log(`✅ fetchFeatures.js output: ${stdout}`);
-    //     resolve();
-    //   });
-    // });
+    await new Promise((resolve, reject) => {
+      exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
+          return reject(error);
+        }
+        if (stderr) {
+          console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
+          return reject(new Error(stderr));
+        }
+        // console.log(`✅ fetchFeatures.js output: ${stdout}`);
+        resolve();
+      });
+    });
 
     // Purpose of different functions: workFeatures.json and grantFeatures.json have different entry structures.
     async function processWorkGeoJSON(filePath) {
