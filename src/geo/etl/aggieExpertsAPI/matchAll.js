@@ -5,7 +5,6 @@
 * Orchestrates both matching processes in sequence.
 */
 
-
 const matchWorks = require('./works/matchWorks');
 const matchGrants = require('./grants/matchGrants');
 

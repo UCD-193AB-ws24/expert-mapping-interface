@@ -4,7 +4,7 @@
 * Creates and initializes the PostgreSQL/PostGIS tables needed for the application.
 */
 
-const { pool, tables } = require('./config');
+const { pool } = require('./config');
 
 async function createTables() {
   const client = await pool.connect();
