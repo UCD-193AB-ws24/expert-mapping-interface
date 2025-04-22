@@ -172,7 +172,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       const entries = [];
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
-        console.log(`Processing entry: ${entryKey}`);
+        // console.log(`Processing entry: ${entryKey}`);
         entries.push({
           title: entryData.title || '',
           funder: entryData.funder || '',
@@ -191,14 +191,14 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
             console.error('❌ Error parsing related_expert JSON:', error);
           }
         }
-        console.log('📋 Entry added:', {
-          title: entryData.title || '',
-          funder: entryData.funder || '',
-          end_date: entryData.end_date || '',
-          start_date: entryData.start_date || '',
-          confidence: entryData.confidence || '',
-          relatedExpert: relatedExpert,
-        });
+        // console.log('📋 Entry added:', {
+        //   title: entryData.title || '',
+        //   funder: entryData.funder || '',
+        //   end_date: entryData.end_date || '',
+        //   start_date: entryData.start_date || '',
+        //   confidence: entryData.confidence || '',
+        //   relatedExpert: relatedExpert,
+        // });
       }
 
       features.push({
