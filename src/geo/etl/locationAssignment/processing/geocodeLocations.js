@@ -1,10 +1,8 @@
-/**
- * geocodeLocation.js
+/*
+ * Usage: node .\src\geo\etl\geocodeLocation.js
  * 
  * Geocodes location names to GeoJSON features using OpenStreetMap Nominatim.
  * Handles polygon simplification and caches results to respect rate limits.
- *
- * Usage: node .\src\geo\etl\geocodeLocation.js
  *
  * @module geocodeLocation
  */
