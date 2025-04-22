@@ -57,9 +57,19 @@ const ExpertLayer = ({
     filteredFeatures?.forEach((feature) => {
       const geometry = feature.geometry;
       const entries = feature.properties.entries || [];
-      const locationId = feature.properties.location_id;
-      if (locationId)
-        locationExpertCounts.set(locationId, (locationExpertCounts.get(locationId) || 0) + (feature.properties.entries?.length || 0));
+      const location = feature.properties.location || "Unknown";
+      //const locationId = feature.properties.location_id;
+      let totalLocationExperts = 0;
+      entries.forEach(entry => {
+        const relatedExperts = entry.relatedExperts || [];
+        totalLocationExperts += relatedExperts.length;
+      });
+      if (totalLocationExperts > 0) {
+        console.log("Location:", location, "Total Experts:", totalLocationExperts);
+      }
+      if (location) {
+        locationExpertCounts.set(location, (locationExpertCounts.get(location) || 0) + (totalLocationExperts || 0));
+      }
 
       if (["Point", "MultiPoint"].includes(geometry.type)) {
         const coords = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
@@ -135,9 +145,9 @@ const ExpertLayer = ({
 
     sortedPolygons.forEach((feature, i) => {
       const geometry = feature.geometry;
-      const locationId = feature.properties.location_id;
-      if (polygonsToRender.has(locationId)) return;
-      if (locationId) polygonsToRender.add(locationId);
+      const location = feature.properties.location;
+      if (polygonsToRender.has(location)) return;
+      if (location) polygonsToRender.add(location);
 
       const flippedCoordinates = geometry.coordinates.map((ring) =>
         ring.map(([lng, lat]) => [lat, lng])
@@ -160,7 +170,7 @@ const ExpertLayer = ({
         if (!showWorks) return;
         if (closeTimeout) clearTimeout(closeTimeout);
 
-        const expertCount = locationExpertCounts.get(locationId) || 0;
+        const expertCount = locationExpertCounts.get(location) || 0;
 
         const content = expertCount === 1
           ? createSingleResearcherContent(feature.properties.entries[0])
@@ -198,7 +208,7 @@ const ExpertLayer = ({
             }, 300);
           });
 
-          const expertsAtLocation = geoData.features.filter(f => f.properties.location_id === locationId);
+          const expertsAtLocation = geoData.features.filter(f => f.properties.location === location);
 
           const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
           if (viewExpertsBtn) {
