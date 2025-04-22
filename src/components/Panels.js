@@ -2,7 +2,7 @@
 
 import React from "react";
 
-// 🔷 Expert side panel (for points and polygons)
+// Expert side panel (for points and polygons)
 export const ExpertsPanel = ({ experts, onClose, panelType }) => {
   const isFromProperties = panelType === "polygon";
 
@@ -84,67 +84,68 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
       </button>
 
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#13639e" }}>
-      {totalExperts} Expert{totalExperts !== 1 ? 's' : ''} at this Location
+        {totalExperts} Expert{totalExperts !== 1 ? 's' : ''} at this Location
       </h2>
 
       <ul style={{ padding: 0, listStyle: 'none' }}>
-        {experts.flatMap((expert, expertIndex) => {
-          const entries = isFromProperties ? expert.properties.entries || [] : [expert];
-          return entries.map((entry, entryIndex) => {
-            const researcherName = entry.relatedExperts?.[0]?.name || entry.authors?.join(", ") || "Unknown";
-            const researcherURL = entry.relatedExperts?.[0]?.url 
-              ? `https://experts.ucdavis.edu/${entry.relatedExperts[0].url}`
-              : null;
-            const confidenceStyle = getConfidenceStyle(entry.confidence);
+        {experts.flatMap((feature, featureIndex) => {
+          const entries = isFromProperties ? feature.properties.entries || [] : [feature];
+          return entries.flatMap((entry, entryIndex) => {
+            const relatedExperts = entry.relatedExperts || [];
+            return relatedExperts.map((relExpert, relIndex) => {
+              const researcherName = relExpert.name || entry.authors?.join(", ") || "Unknown";
+              const researcherURL = relExpert.url ? `https://experts.ucdavis.edu/${relExpert.url}` : null;
+              const confidenceStyle = getConfidenceStyle(entry.confidence);
 
-            return (
-              <div key={`entry-${expertIndex}-${entryIndex}`} style={{
-                position: "relative",
-                padding: "15px",
-                fontSize: "14px",
-                lineHeight: "1.5",
-                width: "100%",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                marginBottom: "15px",
-                background: "#f9f9f9"
-              }}>
-                <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
-                  {researcherName}
+              return (
+                <div key={`feature-${featureIndex}-entry-${entryIndex}-rel-${relIndex}`} style={{
+                  position: "relative",
+                  padding: "15px",
+                  fontSize: "14px",
+                  lineHeight: "1.5",
+                  width: "100%",
+                  border: "1px solid #ccc",
+                  borderRadius: "5px",
+                  marginBottom: "15px",
+                  background: "#f9f9f9"
+                }}>
+                  <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
+                    {researcherName}
+                  </div>
+                  <div style={{ marginTop: "5px", color: "#333" }}>
+                    <strong>Location:</strong> {feature.properties?.display_name || feature.location_name || "Unknown"}<br />
+                    <strong>Issued:</strong> {entry.issued || "Unknown"}
+                    {entry.confidence && (
+                      <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
+                    )}
+                  </div>
+                  <div style={{ marginTop: "10px", color: "#333" }}>
+                    <strong>Title:</strong>
+                    <div style={{ marginTop: "3px" }}>{entry.title || "Untitled"}</div>
+                  </div>
+                  <a
+                    href={researcherURL || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "block",
+                      marginTop: "12px",
+                      padding: "8px 10px",
+                      background: "#13639e",
+                      color: "white",
+                      textAlign: "center",
+                      borderRadius: "5px",
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                      opacity: researcherURL ? '1' : '0.6',
+                      cursor: researcherURL ? 'pointer' : 'default'
+                    }}
+                  >
+                    {researcherURL ? "View Profile" : "No Profile Found"}
+                  </a>
                 </div>
-                <div style={{ marginTop: "5px", color: "#333" }}>
-                  <strong>Location:</strong> {expert.properties?.display_name || expert.location_name || "Unknown"}<br />
-                  <strong>Issued:</strong> {entry.issued || "Unknown"}
-                  {entry.confidence && (
-                    <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
-                  )}
-                </div>
-                <div style={{ marginTop: "10px", color: "#333" }}>
-                  <strong>Title:</strong>
-                  <div style={{ marginTop: "3px" }}>{entry.title || "Untitled"}</div>
-                </div>
-                <a
-                  href={researcherURL || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "block",
-                    marginTop: "12px",
-                    padding: "8px 10px",
-                    background: "#13639e",
-                    color: "white",
-                    textAlign: "center",
-                    borderRadius: "5px",
-                    textDecoration: "none",
-                    fontWeight: "bold",
-                    opacity: researcherURL ? '1' : '0.6',
-                    cursor: researcherURL ? 'pointer' : 'default'
-                  }}
-                >
-                  {researcherURL ? "View Profile" : "No Profile Found"}
-                </a>
-              </div>
-            );
+              );
+            });
           });
         })}
       </ul>
