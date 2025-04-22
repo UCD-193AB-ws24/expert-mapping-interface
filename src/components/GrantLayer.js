@@ -49,6 +49,7 @@ if (feature.geometry.type === "Point") {
 
       const entries = feature.properties.entries || [];
       const matchedEntries = [];
+      console.log("Entries:", entries);
       
       //case sensitive, lower and uper case
           //quote check, if user types in "Marina", it will match to Marina
@@ -68,7 +69,9 @@ if (feature.geometry.type === "Point") {
           }
         }
 
-
+        console.log("Location: ", feature.properties.location);
+        console.log("Related Expert Name: ", entry.relatedExpert?.name);
+        console.log("Related Expert URL: ", entry.relatedExpert?.url);
         entry.location_name = feature.properties.location;
         entry.researcher_name = entry.relatedExpert?.name || "Unknown";
         entry.researcher_url = entry.relatedExpert?.url
