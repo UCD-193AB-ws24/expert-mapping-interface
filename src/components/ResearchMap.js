@@ -9,8 +9,8 @@ import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 
-import worksData from "./features/works.json";
-import grantsData from "./features/grants.json";
+// import worksData from "./features/works.json";
+// import grantsData from "./features/grants.json";
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
   const [geoData, setGeoData] = useState(null);
@@ -27,32 +27,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword }) => {
 
   const [workGeoJSON, setWorkGeoJSON] = useState(null); 
 
-  // useEffect(() => {
-  //   const loadGeoData = async () => {
-  //     try {
-  //       const [grantsRes, worksRes] = await Promise.all([
-  //         fetch("/grantFeatures.geojson"),
-  //         fetch("/workFeatures.geojson")
-  //       ]);
-  
-  //       const grantData = await grantsRes.json();
-  //       const workData = await worksRes.json();
-  
-  //       setGrantGeoJSON(grantData);
-  //       setWorkGeoJSON(workData);
-  //       setIsLoading(false);
-  
-  //       console.log(" Loaded grant features:", grantData.features.length);
-  //       console.log(" Loaded work features:", workData.features.length);
-  //     } catch (err) {
-  //       console.error(" Error loading geojson:", err);
-  //       setError("Failed to load map data.");
-  //       setIsLoading(false);
-  //     }
-  //   };
-  
-  //   loadGeoData();
-  // }, []);
 
 useEffect(() => {
     setIsLoading(true);
