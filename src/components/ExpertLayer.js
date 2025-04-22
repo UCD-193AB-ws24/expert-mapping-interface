@@ -1,4 +1,3 @@
-// export default ExpertLayer;
 import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
@@ -27,17 +26,16 @@ const ExpertLayer = ({
   useEffect(() => {
     if (!map || !geoData) return;
 
-    const keyword = searchKeyword?.toLowerCase() || "";
+    const zoomThresholds = {
+      continental: 2, // Show continental polygons at zoom level 2 or lower
+      country: 3,     // Show country polygons at zoom level 3-5
+      state: 4,       // Show state polygons at zoom level 6-8
+      city: 6,       // Show city polygons at zoom level 9-12
+      points: 8      // Show individual points at zoom level 13 or higher
+    };
 
-    const filteredFeatures = (geoData?.features || []).filter((f) => {
-      const isExpert = !f.properties?.type || f.properties?.type === "work";
-      return showWorks && isExpert;
-    });
-    
-
-    if (filteredFeatures.length === 0) return;
-
-    const markerClusterGroup = L.markerClusterGroup({
+    const polygonLayers = [];
+    let markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 40,
       spiderfyOnMaxZoom: false,
@@ -52,263 +50,162 @@ const ExpertLayer = ({
       }
     });
 
-    const locationMap = new Map();
-    const locationExpertCounts = new Map();
     let activePopup = null;
     let closeTimeout = null;
-    const polygonLayers = [];
 
-    filteredFeatures.forEach((feature) => {
-      if (!feature.properties || !feature.geometry) return;
+    const renderFeatures = () => {
+      const currentZoom = map.getZoom();
 
-      const { location_id } = feature.properties;
-      if (location_id) {
-        locationExpertCounts.set(location_id, (locationExpertCounts.get(location_id) || 0) + 1);
-      }
-
-      const geometry = feature.geometry;
-      const entries = feature.properties.entries || [];
-
-      if (geometry.type === "Point" || geometry.type === "MultiPoint") {
-        const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
-
-        coordsList.forEach(([lng, lat]) => {
-          const key = `${lat},${lng}`;
-          if (!locationMap.has(key)) locationMap.set(key, []);
-
-          const matchedEntries = [];
-
-          //case sensitive, lower and uper case
-          //quote check, if user types in "Marina", it will match to Marina
-          //partial word matching
-          //multi-word input, if entry contains both words it will show up
-          entries.forEach(entry => {
-            if (keyword) {
-              const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase(); //Lowercases both the entry and keyword for fair matching
-              const quoteMatch = keyword.match(/^"(.*)"$/); // Detect exact phrase if user puts something in quotes
-              if (quoteMatch) {
-                const phrase = quoteMatch[1].toLowerCase();
-                if (!entryText.includes(phrase)) return; //Exact Phrase Match
-              } else {
-                const terms = keyword.toLowerCase().split(/\s+/); //Multi-word split, all individual words must be present
-                const matchesAll = terms.every(term => entryText.includes(term)); //Case-insensitive AND Partial
-                if (!matchesAll) return;
-              }
-            }
-
-            let researcherName = "Unknown";
-            let researcherURL = null;
-
-            if (entry.relatedExperts?.length > 0) {
-              const expert = entry.relatedExperts[0];
-              researcherName = expert.name || "Unknown";
-              researcherURL = expert.url ? `https://experts.ucdavis.edu/${expert.url}` : null;
-            } else if (entry.authors?.length > 0) {
-              researcherName = entry.authors.join(", ");
-            }
-
-            matchedEntries.push({
-              researcher_name: researcherName,
-              researcher_url: researcherURL,
-              location_name: feature.properties.location || "Unknown",
-              work_titles: [entry.title],
-              work_count: 1,
-              confidence: entry.confidence || "Unknown",
-              type: "expert"
-            });
+      // Clear existing layers
+      polygonLayers.forEach(layer => map.removeLayer(layer));
+      map.removeLayer(markerClusterGroup);
+      markerClusterGroup = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        maxClusterRadius: 40,
+        spiderfyOnMaxZoom: false,
+        iconCreateFunction: (cluster) => {
+          const markers = cluster.getAllChildMarkers();
+          const totalExperts = markers.reduce((sum, marker) => sum + marker.options.expertCount, 0);
+          return L.divIcon({
+            html: `<div style="background: #13639e; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
+            className: 'custom-cluster-icon',
+            iconSize: L.point(40, 40)
           });
+        }
+      });
 
-          if (matchedEntries.length > 0) {
-            locationMap.get(key).push(...matchedEntries);
+      const getPolygonArea = (coordinates) => {
+        const bounds = L.polygon(coordinates.map(([lng, lat]) => [lat, lng])).getBounds();
+        return (bounds.getEast() - bounds.getWest()) * (bounds.getNorth() - bounds.getSouth());
+      };
+
+      const sortedPolygons = geoData.features
+        .filter(feature => feature.geometry.type === "Polygon")
+        .map(feature => ({
+          ...feature,
+          area: getPolygonArea(feature.geometry.coordinates[0])
+        }))
+        .sort((a, b) => b.area - a.area); // Sort by area descending
+
+      const polygonsToRender = sortedPolygons.filter(feature => {
+        const area = feature.area;
+
+        if (currentZoom <= zoomThresholds.continental) {
+          return area > 100000; // Example threshold for continental polygons
+        } else if (currentZoom <= zoomThresholds.country) {
+          return area > 10000 && area <= 100000; // Example threshold for country polygons
+        } else if (currentZoom <= zoomThresholds.state) {
+          return area > 1000 && area <= 10000; // Example threshold for state polygons
+        } else if (currentZoom <= zoomThresholds.city) {
+          return area > 100 && area <= 1000; // Example threshold for city polygons
+        }
+        return false;
+      });
+
+      const pointsToRender = geoData.features.filter(feature => {
+        return feature.geometry.type === "Point" && currentZoom >= zoomThresholds.points;
+      });
+
+      // Render polygons
+      polygonsToRender.forEach(feature => {
+        const flippedCoordinates = feature.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+        const polygon = L.polygon(flippedCoordinates, {
+          color: '#13489e',
+          weight: 2,
+          fillColor: '#1e5bbd',
+          fillOpacity: 0.5
+        }).addTo(map);
+
+        polygonLayers.push(polygon);
+
+        polygon.on("mouseover", () => {
+          if (closeTimeout) clearTimeout(closeTimeout);
+
+          const name = feature.properties?.display_name || feature.properties?.location || "Unknown";
+          const content = `<strong>${name}</strong>`;
+          activePopup = L.popup({ closeButton: false, autoClose: false })
+            .setLatLng(polygon.getBounds().getCenter())
+            .setContent(content)
+            .openOn(map);
+        });
+
+        polygon.on("mouseout", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 300);
+        });
+
+        polygon.on("click", () => {
+          const expertsAtLocation = geoData.features.filter(f => f.properties?.location_id === feature.properties.location_id);
+          setSelectedExperts(expertsAtLocation);
+          setPanelType("polygon");
+          setPanelOpen(true);
+          if (activePopup) {
+            activePopup.close();
+            activePopup = null;
           }
         });
-      }
-    });
-
-    const sortedPolygons = geoData.features
-      .filter(feature => feature.geometry.type === "Polygon")
-      .sort((a, b) => {
-        const boundsA = L.polygon(a.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
-        const boundsB = L.polygon(b.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
-        const areaA = (boundsA.getEast() - boundsA.getWest()) * (boundsA.getNorth() - boundsA.getSouth());
-        const areaB = (boundsB.getEast() - boundsB.getWest()) * (boundsB.getNorth() - boundsB.getSouth());
-        return areaB - areaA;
       });
 
-    const polygonsToRender = new Set();
+      // Render points
+      pointsToRender.forEach(feature => {
+        const [lng, lat] = feature.geometry.coordinates;
+        const marker = L.marker([lat, lng], {
+          icon: L.divIcon({
+            html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>1</div>`,
+            className: "custom-marker-icon",
+            iconSize: [30, 30]
+          })
+        });
 
-    const calculateOpacity = (count) => {
-      const min = 0.3, max = 0.7, maxExperts = 25;
-      return Math.min(min + (max - min) * (count / maxExperts), max);
+        marker.on("mouseover", () => {
+          if (closeTimeout) clearTimeout(closeTimeout);
+
+          const content = createSingleResearcherContent(feature.properties);
+          activePopup = L.popup({ closeButton: false, autoClose: false })
+            .setLatLng(marker.getLatLng())
+            .setContent(content)
+            .openOn(map);
+        });
+
+        marker.on("mouseout", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 300);
+        });
+
+        marker.on("click", () => {
+          setSelectedPointExperts([feature.properties]);
+          setPanelType("point");
+          setPanelOpen(true);
+          if (activePopup) {
+            activePopup.close();
+            activePopup = null;
+          }
+        });
+
+        markerClusterGroup.addLayer(marker);
+      });
+
+      map.addLayer(markerClusterGroup);
     };
 
-    sortedPolygons.forEach(feature => {
-      const geometry = feature.geometry;
-      const locationId = feature.properties.location_id;
-      if (polygonsToRender.has(locationId)) return;
-      polygonsToRender.add(locationId);
-    
-      const flippedCoordinates = geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+    // Initial render
+    renderFeatures();
 
-      const entriesCount = feature.properties?.entries?.length || 0;
-      const name = feature.properties?.display_name || feature.properties?.location || "Unknown";
-
-      console.log("🔍 Polygon location:", name, "— first coord:", flippedCoordinates[0]);
-
-      if (entriesCount > 50) {
-        console.warn("⚠️ Large polygon detected:", name, "with", entriesCount, "entries");
-      }
-    
-      const expertCount = locationExpertCounts.get(locationId) || 0;
-      const dynamicOpacity = calculateOpacity(expertCount);
-    
-      const polygon = L.polygon(flippedCoordinates, {
-        color: '#13639e',
-        weight: 2,
-        fillColor: '#d8db9a',
-        fillOpacity: dynamicOpacity
-      }).addTo(map);
-    
-
-      polygonLayers.push(polygon);
-
-      polygon.on("mouseover", () => {
-        if (!showWorks) return;
-        if (closeTimeout) clearTimeout(closeTimeout);
-
-        const expertsAtLocation = geoData.features.filter(f => f.properties?.location_id === locationId);
-        console.log("📍 Clicked polygon:", feature.properties.display_name, "with", feature.properties.entries?.length, "entries");
-
-        const totalWorks = expertsAtLocation.reduce((sum, expert) => sum + (parseInt(expert.properties?.work_count) || 0), 0);
-
-        const content = expertsAtLocation.length === 1
-          ? createSingleResearcherContent(expertsAtLocation[0].properties)
-          : createMultiResearcherContent(expertsAtLocation.length, feature.properties.location_name, totalWorks);
-
-        if (activePopup) activePopup.close();
-        activePopup = L.popup({ closeButton: false, autoClose: false, maxWidth: 300, className: 'hoverable-popup', autoPan: false, keepInView: false, interactive: true })
-          .setLatLng(polygon.getBounds().getCenter())
-          .setContent(content)
-          .openOn(map);
-
-        const popupElement = activePopup.getElement();
-        if (popupElement) {
-          popupElement.style.pointerEvents = 'auto';
-          popupElement.addEventListener("mouseenter", () => { if (closeTimeout) clearTimeout(closeTimeout); });
-          popupElement.addEventListener("mouseleave", () => {
-            closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            }, 300);
-          });
-
-          const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
-          if (viewExpertsBtn) {
-            viewExpertsBtn.addEventListener("click", (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSelectedExperts(expertsAtLocation);
-              setPanelType("polygon");
-              setPanelOpen(true);
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            });
-          }
-        }
-      });
-
-      polygon.on("mouseout", () => {
-        closeTimeout = setTimeout(() => {
-          if (activePopup) {
-            activePopup.close();
-            activePopup = null;
-          }
-        }, 300);
-      });
-    });
-
-    locationMap.forEach((experts, key) => {
-      if (!experts || experts.length === 0) return;
-      if (showGrants && showWorks && combinedKeys?.has(key)) return;
-
-      const [lat, lng] = key.split(",").map(Number);
-      const count = experts.length;
-      const totalWorks = experts.reduce((sum, expert) => sum + (parseInt(expert.work_count) || 0), 0);
-
-      const marker = L.marker([lat, lng], {
-        icon: L.divIcon({
-          html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${count}</div>`,
-          className: "custom-marker-icon",
-          iconSize: [30, 30]
-        }),
-        experts,
-        expertCount: count
-      });
-
-      const popup = L.popup({ closeButton: false, autoClose: false, maxWidth: 250, className: 'hoverable-popup', autoPan: false, keepInView: false, interactive: true });
-
-      marker.on("mouseover", () => {
-        if (!experts || experts.length === 0 || !experts[0]) return;
-
-        if (closeTimeout) clearTimeout(closeTimeout);
-        const content = count === 1
-          ? (experts[0].type === "grant" ? createGrantPopupContent(experts[0]) : createSingleResearcherContent(experts[0]))
-          : (experts[0].type === "grant" ? createMultiGrantPopup(experts, experts[0]?.location_name || "Unknown") : createMultiResearcherContent(count, experts[0]?.location_name || "Unknown", totalWorks));
-
-        popup.setLatLng(marker.getLatLng()).setContent(content).openOn(map);
-        activePopup = popup;
-
-        const popupElement = popup.getElement();
-        if (popupElement) {
-          popupElement.style.pointerEvents = 'auto';
-          popupElement.addEventListener("mouseenter", () => { if (closeTimeout) clearTimeout(closeTimeout); });
-          popupElement.addEventListener("mouseleave", () => {
-            closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            }, 500);
-          });
-
-          const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
-          if (viewExpertsBtn) {
-            viewExpertsBtn.addEventListener("click", (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSelectedPointExperts(experts);
-              setPanelType("point");
-              setPanelOpen(true);
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            });
-          }
-        }
-      });
-
-      marker.on("mouseout", () => {
-        closeTimeout = setTimeout(() => {
-          if (activePopup) {
-            activePopup.close();
-            activePopup = null;
-          }
-        }, 500);
-      });
-
-      markerClusterGroup.addLayer(marker);
-    });
-
-    map.addLayer(markerClusterGroup);
+    // Add zoom listener
+    map.on('zoomend', renderFeatures);
 
     return () => {
+      map.off('zoomend', renderFeatures);
+      polygonLayers.forEach(layer => map.removeLayer(layer));
       map.removeLayer(markerClusterGroup);
-      polygonLayers.forEach(p => map.removeLayer(p));
     };
   }, [map, geoData, showWorks, showGrants, searchKeyword, setSelectedExperts, setSelectedPointExperts, setPanelOpen, setPanelType]);
 

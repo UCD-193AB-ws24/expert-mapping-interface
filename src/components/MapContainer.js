@@ -11,7 +11,7 @@ const MapWrapper = ({ children }) => {
       center={[30, 0]} // initial view
       zoom={2}
       minZoom={2}
-      maxZoom={4}
+      maxZoom={10}
       style={{ height: "100%", width: "100%" }}
       maxBounds={[
         [-80, -200], // Southwest corner
