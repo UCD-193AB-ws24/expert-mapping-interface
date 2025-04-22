@@ -73,6 +73,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Fetch all works from Redis as geojson file
 app.get('/api/redis/worksQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
   try {
@@ -84,17 +85,12 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       const features = [];
     
       console.log(`Found ${workKeys.length} features in Redis`);
-    // Iterate over each work key
     for (const workKey of workKeys) {
-      // Skip entry keys (e.g., works:<id>:entry:<index> or metadata keys)
       if (workKey.includes(':entry')) continue;
       if(workKey.includes(':metadata')) continue;
 
-      // Fetch the main work data
       const workData = await redisClient.hGetAll(workKey);
-      // console.log(`Processing work: ${workKey}`);
-      const feature_id = workData.id || workKey.split(':')[1]; // Extract ID from the key if not present in data
-      // Fetch associated entries for the work
+      const feature_id = workData.id || workKey.split(':')[1]; 
       const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
       const entries = [];
       
@@ -114,7 +110,6 @@ app.get('/api/redis/worksQuery', async (req, res) => {
         
       }
 
-      // Construct the GeoJSON feature
       features.push({
         type: 'Feature',
         id: feature_id,
@@ -141,7 +136,6 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       return res.status(500).json({ error: 'Metadata not found' });
     }
 
-    // Construct the GeoJSON object
     const geojson = {
       type: 'FeatureCollection',
       features: features,
@@ -155,6 +149,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
   }
 });
 
+// Fetch all grants from Redis as geojson file
 app.get('/api/redis/grantsQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
   try {
@@ -166,16 +161,13 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       const features = [];
     
       console.log(`Found ${grantKeys.length} features in Redis`);
-    // Iterate over each work key
+    
     for (const grantKey of grantKeys) {
-      // Skip entry keys (e.g., grants:<id>:entry:<index>)
       if (grantKey.includes(':entry')) continue;
       if (grantKey.includes(':metadata')) continue;
 
-      // Fetch the main work data
       const grantData = await redisClient.hGetAll(grantKey);
-      const feature_id = grantData.id || grantKey.split(':')[1]; // Extract ID from the key if not present in data
-      // Fetch associated entries for the work
+      const feature_id = grantData.id || grantKey.split(':')[1];
       const entryKeys = await redisClient.keys(`${grantKey}:entry:*`);
       const entries = [];
       for (const entryKey of entryKeys) {
@@ -209,7 +201,6 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
         });
       }
 
-      // Construct the GeoJSON feature
       features.push({
         type: 'Feature',
         id: feature_id,
@@ -236,7 +227,6 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       return res.status(500).json({ error: 'Metadata not found' });
     }
 
-    // Construct the GeoJSON object
     const geojson = {
       type: 'FeatureCollection',
       features: features,
