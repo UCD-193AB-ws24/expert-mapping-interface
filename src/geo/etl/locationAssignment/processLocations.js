@@ -1,3 +1,11 @@
+/*
+* USAGE: node .\src\geo\etl\locationAssignment\processLocations.js
+*
+* This script runs the full pipeline for processing locations in works and grants.
+* It extracts locations of the fetched entries, validates them, and geocodes them 
+* to GeoJSON features.
+*/
+
 const { processAllWorks, processAllGrants } = require('./processing/extractLocations');
 const { validateAllWorks, validateAllGrants } = require('./processing/validateLocations');
 const { createLocationCoordinates } = require('./processing/geocodeLocations');
