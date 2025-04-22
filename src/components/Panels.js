@@ -6,6 +6,11 @@ import React from "react";
 export const ExpertsPanel = ({ experts, onClose, panelType }) => {
   const isFromProperties = panelType === "polygon";
 
+  const totalExperts = experts.flatMap(exp => {
+    const entries = isFromProperties ? exp.properties.entries || [] : [exp];
+    return entries.flatMap(entry => entry.relatedExperts || []);
+  }).length;
+
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
 
@@ -79,7 +84,7 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
       </button>
 
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#13639e" }}>
-        {experts.length} Expert{experts.length !== 1 ? 's' : ''} at this Location
+      {totalExperts} Expert{totalExperts !== 1 ? 's' : ''} at this Location
       </h2>
 
       <ul style={{ padding: 0, listStyle: 'none' }}>
