@@ -37,20 +37,20 @@ async function populateRedis() {
     await redisClient.connect();
 
     // Run fetchFeatures.js
-    await new Promise((resolve, reject) => {
-      exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
-          return reject(error);
-        }
-        if (stderr) {
-          console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
-          return reject(new Error(stderr));
-        }
-        // console.log(`✅ fetchFeatures.js output: ${stdout}`);
-        resolve();
-      });
-    });
+    // await new Promise((resolve, reject) => {
+    //   exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
+    //     if (error) {
+    //       console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
+    //       return reject(error);
+    //     }
+    //     if (stderr) {
+    //       console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
+    //       return reject(new Error(stderr));
+    //     }
+    //     // console.log(`✅ fetchFeatures.js output: ${stdout}`);
+    //     resolve();
+    //   });
+    // });
 
     // Purpose of different functions: workFeatures.json and grantFeatures.json have different entry structures.
     async function processWorkGeoJSON(filePath) {
@@ -224,11 +224,14 @@ async function populateRedis() {
       }
     }
 
-    // Example usage of the helper functions
+    // After fetchFeatures.js has run, the produced files will be located in `src/components/features/`.
+    // This function will process the GeoJSON files and store the data in Redis.
+    
+    console.log('⏳ Processing data...');
     await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'));
     await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
-    console.log('✅ Processing data completed!');
-    // Delete the GeoJSON files after processing
+    console.log('⌛ Processing data completed!');
+    // Delete the GeoJSON files after processing (security measure)
     await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
     console.log('✅ Deleted workFeatures.geojson');
     await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
