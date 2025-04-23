@@ -32,6 +32,7 @@ const GrantLayer = ({
   setPanelType,
   combinedKeys,
   showWorks
+  showWorks
 }) => {
   const map = useMap(); // Access the Leaflet map instance from react-leaflet.
 
@@ -155,6 +156,7 @@ const GrantLayer = ({
              .openOn(map);
 
             activePopup = popup;
+            activePopup = popup;
 
         // Enable interaction with the popup.
         const popupElement = popup.getElement();
@@ -206,6 +208,14 @@ const GrantLayer = ({
               }
             }, 500);
           });
+          marker.on("mouseout", () => {
+            closeTimeout = setTimeout(() => {
+              if (activePopup) {
+                activePopup.close();
+                activePopup = null;
+              }
+            }, 500);
+          });
 
        // Add the marker to the map and store it in the markers array.
       marker.addTo(map);
@@ -213,6 +223,9 @@ const GrantLayer = ({
     });
 
     return () => {
+      map.off('zoomend', renderFeatures);
+      polygonLayers.forEach(layer => map.removeLayer(layer));
+      markers.forEach(marker => map.removeLayer(marker));
       map.off('zoomend', renderFeatures);
       polygonLayers.forEach(layer => map.removeLayer(layer));
       markers.forEach(marker => map.removeLayer(marker));

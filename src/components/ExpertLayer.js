@@ -404,12 +404,16 @@ const ExpertLayer = ({
 
         markerClusterGroup.addLayer(marker);
       });
+        markerClusterGroup.addLayer(marker);
+      });
 
     // Add the marker cluster group to the map.
     map.addLayer(markerClusterGroup);
 
     // Cleanup function to remove layers when the component unmounts or dependencies change.
     return () => {
+      map.off('zoomend', renderFeatures);
+      polygonLayers.forEach(layer => map.removeLayer(layer));
       map.off('zoomend', renderFeatures);
       polygonLayers.forEach(layer => map.removeLayer(layer));
       map.removeLayer(markerClusterGroup);
