@@ -9,8 +9,26 @@ import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 
-// import worksData from "./features/works.json";
-// import grantsData from "./features/grants.json";
+/**
+ * ResearchMap Component
+ * 
+ * This component serves as the main map interface for visualizing research-related data.
+ * It integrates multiple layers (e.g., experts, grants, combined locations) and provides
+ * interactive panels for detailed information about the data.
+ * 
+ * Props:
+ * - showGrants: Boolean to toggle the display of grant-related data.
+ * - showWorks: Boolean to toggle the display of works-related data.
+ * - searchKeyword: String used to filter data based on a search term.
+ * - selectedDate: String representing the selected year for filtering data by date.
+ * 
+ * Features:
+ * - Fetches and processes GeoJSON data for works and grants from APIs.
+ * - Filters data based on the selected date and search keyword.
+ * - Displays interactive map layers for works, grants, and combined locations.
+ * - Provides side panels for detailed information about experts, grants, or combined data.
+ * - Handles loading and error states during data fetching.
+ */
 
 const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => {
   const [geoData, setGeoData] = useState(null);
@@ -27,7 +45,12 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
   const mapRef = useRef(null);
 
 
-
+/**
+   * useEffect: Fetch GeoJSON data for works and grants.
+   * - Fetches data from two APIs concurrently.
+   * - Processes the data into GeoJSON format and updates state variables.
+   * - Handles errors and updates the loading state.
+   */
 
 useEffect(() => {
     setIsLoading(true);
@@ -50,7 +73,7 @@ useEffect(() => {
           ])
           .then(([worksData, grantsData]) => {
             console.log("Converting data to GeoJSON format...");
-            // Extract and process the features array
+            // Process works data into GeoJSON format.
             const processedWorksData = {
               type: "FeatureCollection",
               features: worksData.features.map((feature) => ({
@@ -61,7 +84,7 @@ useEffect(() => {
                 },
               })),
             };
-          
+            // Process grants data into GeoJSON format.
             const processedGrantsData = {
               type: "FeatureCollection",
               features: grantsData.features.map((feature) => ({
@@ -93,13 +116,23 @@ useEffect(() => {
   
  
 
-  // Helper functionto filter works by issued year
+  /**
+   * Helper function to filter works by issued year.
+   * 
+   * @param {object} entry - A work entry object.
+   * @returns {boolean} True if the work matches the selected date, otherwise false.
+   */
   const isWorkInDate = (entry) => {
     if (!selectedDate) return true;
     return String(entry.issued || "").startsWith(selectedDate);
   };  
 
-  // Helper function to filter grants by start/end date
+  /**
+   * Helper function to filter grants by start or end date.
+   * 
+   * @param {object} entry - A grant entry object.
+   * @returns {boolean} True if the grant matches the selected date, otherwise false.
+   */
   const isGrantInDate = (entry) => {
     if (!selectedDate) return true;
     return (
@@ -196,6 +229,7 @@ useEffect(() => {
         </MapWrapper>
       </div>
 
+      {/* Loading spinner */}
       {isLoading && (
         <div
           style={{
@@ -228,7 +262,7 @@ useEffect(() => {
           <div>Loading Map Data...</div>
         </div>
       )}
-
+      {/* Error message */}
       {error && (
         <div
           style={{
