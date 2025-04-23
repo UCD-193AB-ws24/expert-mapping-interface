@@ -1,11 +1,28 @@
-// componentsCombinedPanel.js
+/**
+ * CombinedPanel Component
+ * 
+ * This component displays a side panel with detailed information about works and grants
+ * at a specific location. It allows users to toggle between "Works" and "Grants" tabs
+ * and view detailed information about each item.
+ * 
+ * @file CombinedPanel.js
+ * @module CombinedPanel
+ */
+
 import React, { useState } from "react";
 
 export const CombinedPanel = ({ works, grants, onClose }) => {
   const [activeTab, setActiveTab] = useState("works");
   const locationName = works[0]?.location_name || grants[0]?.location_name || "Unknown";
 
-  // Helper function to get work titles with error handling
+  /**
+   * Helper function to extract work titles from an expert object.
+   * Handles cases where titles are stored as arrays or JSON strings.
+   * 
+   * @param {Object} expert - The expert object containing work titles.
+   * @returns {Array} An array of work titles.
+   */
+
   const getWorkTitles = (expert) => {
     try {
       const titles = expert.work_titles;
@@ -31,7 +48,13 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
     }
   };
 
-  // Helper function for confidence styling
+  /**
+   * Helper function to determine the style for confidence levels.
+   * 
+   * @param {string} confidenceValue - The confidence level (e.g., "high", "low").
+   * @returns {Object} An object containing a label and style for the confidence level.
+   */
+
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
 
@@ -88,6 +111,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
       overflowY: "auto",
       zIndex: 1001
     }}>
+       {/* Close button */}
       <button
         onClick={onClose}
         style={{
@@ -104,12 +128,14 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
         ×
       </button>
 
+      {/* Location name */}
       <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#10b981" }}>
         Location: {locationName}
       </h2>
 
       {/* Tab navigation */}
       <div style={{ display: "flex", marginBottom: "15px", borderBottom: "1px solid #eaeaea" }}>
+        {/* Works tab button */}
         <button 
           onClick={() => setActiveTab("works")}
           style={{
@@ -126,6 +152,8 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
         >
           Works ({works.length})
         </button>
+
+        {/* Grants tab button */}
         <button 
           onClick={() => setActiveTab("grants")}
           style={{
@@ -149,11 +177,11 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
         <div>
           <ul style={{ padding: 0, listStyle: 'none' }}>
             {works
-              .sort((a, b) => a.researcher_name.localeCompare(b.researcher_name))
+              .sort((a, b) => a.researcher_name.localeCompare(b.researcher_name)) // Sort works alphabetically by researcher name
               .map((expert, index) => {
-                const workTitles = getWorkTitles(expert);
-                const confidence = expert.confidence;
-                const confidenceStyle = getConfidenceStyle(confidence);
+                const workTitles = getWorkTitles(expert); // Extract work titles
+                const confidence = expert.confidence; // Get confidence level
+                const confidenceStyle = getConfidenceStyle(confidence); // Get confidence style
 
                 return (
                   <div key={index} style={{
@@ -167,14 +195,17 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
                     marginBottom: "15px",
                     background: "#f9f9f9"
                   }}>
+                    {/* Researcher name */}
                     <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
                       {expert.researcher_name}
                     </div>
+                    {/* Confidence level */}
                     <div style={{ marginTop: "5px", color: "#333" }}>
                       {confidence && (
                         <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
                       )}
                     </div>
+                    {/* Related works */}
                     <div style={{ marginTop: "10px", color: "#333" }}>
                       <strong>Related Works {expert.work_count}:</strong>
                       {workTitles.length > 0 ? (
@@ -192,6 +223,8 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
                         <div style={{ marginTop: "3px" }}>No works found</div>
                       )}
                     </div>
+
+                     {/* Researcher profile link */}
                     <a
                       href={expert.researcher_url || "#"}
                       target="_blank"
@@ -239,18 +272,20 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
                   marginBottom: "15px",
                   background: "#f9f9f9"
                 }}>
+                  {/* Researcher name */}
                    <div style={{ marginTop: "5px", color: "#333" }}>
                     <strong>Researcher: </strong>{grant.researcher_name || "Unknown"}
                   </div>
-
+                  {/* Grant title */}
                   <div style={{ marginTop: "5px", color: "#333" }}>
                     <strong>Grant: </strong>{cleanTitle || "Untitled Grant"}
                   </div>
-
+                  {/* Funder */}
                   <div style={{ marginTop: "5px", color: "#333" }}>
                     <strong>Funder:</strong> {grant.funder || "Unknown"}
                   </div>
 
+                  {/* Researcher profile link */}
                   <a
                     href={grant.researcher_url || "#"}
                     target="_blank"
