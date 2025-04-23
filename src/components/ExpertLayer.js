@@ -172,9 +172,11 @@ const ExpertLayer = ({
 
         const expertCount = locationExpertCounts.get(location) || 0;
 
-        const content = expertCount === 1
-          ? createSingleResearcherContent(feature.properties.entries[0])
-          : createMultiResearcherContent(expertCount, feature.properties.display_name || feature.properties.location || "Unknown", expertCount);
+        const content = createMultiResearcherContent(
+          expertCount,
+          feature.properties.display_name || feature.properties.location || "Unknown",
+          expertCount
+        );
 
         if (activePopup) activePopup.close();
 
