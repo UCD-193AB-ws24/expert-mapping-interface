@@ -1,6 +1,23 @@
+/**
+ * CombinedLocationLayer Component
+ * 
+ * This component is a React Leaflet layer that processes and displays combined locations
+ * (works and grants) on a map. It handles filtering, rendering markers, and creating popups
+ * for locations where works and grants overlap.
+ * 
+ * @file CombinedLocationLayer.js
+ * @module CombinedLocationLayer
+ */
+
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
+
+/* This component renders markers for combined locations (works and grants) on a Leaflet map.
+ * It processes geoJSON data for works and grants, identifies overlapping locations, and displays
+ * a combined marker with a popup for each overlapping location. The popup provides details about
+ * the number of works and grants at the location and allows users to open a panel with more details.
+ */
 
 const CombinedLocationLayer = ({
   geoData,
@@ -17,9 +34,11 @@ const CombinedLocationLayer = ({
   const map = useMap();
 
   useEffect(() => {
+    // Exit early if required data or map is not available
     if (!map || !geoData || !grantGeoJSON) return;
     if (!showWorks && !showGrants) return;
 
+    // Initialize variables
     const keyword = searchKeyword?.toLowerCase() || "";
     const markers = [];
     let activePopup = null;
@@ -28,15 +47,17 @@ const CombinedLocationLayer = ({
     const worksLocationMap = new Map();
     const grantsLocationMap = new Map();
 
-    // Process works
+    // Process works data 
     if (showWorks) {
+      // Filter works based on the search keyword
       const filteredFeatures = geoData.features.filter((f) => {
-        const isExpert = !f.properties?.type || f.properties?.type === "work";
+        const isExpert = !f.properties?.type || f.properties?.type === "work"; // Ensure it's a work type
         if (!isExpert) return false;
-        const props = JSON.stringify(f.properties || {}).toLowerCase();
-        return keyword === "" || props.includes(keyword);
+        const props = JSON.stringify(f.properties || {}).toLowerCase();  // Convert properties to lowercase for comparison
+        return keyword === "" || props.includes(keyword); // Match keyword
       });
 
+      // Iterate over filtered works and map them to their locations
       filteredFeatures.forEach((feature) => {
         if (!feature.properties || !feature.geometry) return;
         const geometry = feature.geometry;
@@ -46,14 +67,15 @@ const CombinedLocationLayer = ({
           const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
 
           coordsList.forEach(([lng, lat]) => {
-            const key = `${lat},${lng}`;
-            if (!worksLocationMap.has(key)) worksLocationMap.set(key, []);
+            const key = `${lat},${lng}`; // Create a unique key for the location
+            if (!worksLocationMap.has(key)) worksLocationMap.set(key, []); // Initialize location if not present
 
+            // Add each entry to the location
             entries.forEach((entry) => {
               const entryStr = JSON.stringify(entry).toLowerCase();
               if (keyword && !entryStr.includes(keyword)) return;
 
-              const researcher = entry.relatedExperts?.[0] || {};
+              const researcher = entry.relatedExperts?.[0] || {};  // Get the first related expert
 
               worksLocationMap.get(key).push({
                 researcher_name: researcher.name || "Unknown",
@@ -70,19 +92,20 @@ const CombinedLocationLayer = ({
       });
     }
 
-    // Process grants
+    // Process grants data
     if (showGrants && grantGeoJSON) {
       grantGeoJSON.features.forEach((feature) => {
-        if (!feature.geometry || feature.geometry.type !== "Point") return;
+        if (!feature.geometry || feature.geometry.type !== "Point") return; // Skip invalid features
         const coords = feature.geometry.coordinates;
         if (!Array.isArray(coords) || coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) return;
 
         const [lng, lat] = coords;
-        const key = `${lat},${lng}`;
+        const key = `${lat},${lng}`; // Create a unique key for the location
         if (!grantsLocationMap.has(key)) grantsLocationMap.set(key, []);
 
-        const entries = feature.properties.entries || [];
+        const entries = feature.properties.entries || [];  // Get entries for the feature
 
+        // Add each entry to the location
         entries.forEach((entry) => {
           const entryStr = JSON.stringify(entry).toLowerCase();
           if (keyword && !entryStr.includes(keyword)) return;
@@ -99,32 +122,34 @@ const CombinedLocationLayer = ({
       });
     }
 
-    // Find overlaps
+    // Combine Works and Grants
     const combinedLocations = new Map();
 
+     // Find overlapping locations and combine works and grants
     worksLocationMap.forEach((works, locationKey) => {
       if (grantsLocationMap.has(locationKey) && grantsLocationMap.get(locationKey).length > 0) {
         combinedLocations.set(locationKey, {
           works: works,
           grants: grantsLocationMap.get(locationKey)
         });
-        grantsLocationMap.delete(locationKey);
+        grantsLocationMap.delete(locationKey); // Remove from grants map to avoid duplication
       }
     });
 
-    // ✅ Send combined keys up so other layers can skip them
+    // Send combined keys to parent component
     if (setCombinedKeys) {
       setCombinedKeys(new Set(combinedLocations.keys()));
     }
 
     // Render combined markers
     combinedLocations.forEach((data, key) => {
-      const [lat, lng] = key.split(",").map(Number);
+      const [lat, lng] = key.split(",").map(Number); // Parse latitude and longitude
       const worksCount = data.works.length;
       const grantsCount = data.grants.length;
       const totalCount = worksCount + grantsCount;
       const locationName = data.works[0]?.location_name || data.grants[0]?.location_name || "Unknown";
 
+      // Create a marker for the combined location
       const marker = L.marker([lat, lng], {
         icon: L.divIcon({
           html: `<div style='
@@ -152,6 +177,7 @@ const CombinedLocationLayer = ({
         }
       });
 
+      // Create popup content for the marker
       const createCombinedPopupContent = (worksCount, grantsCount, locationName) => `
         <div style='padding: 15px; font-size: 14px; width: 250px;'>
           <div style='font-weight: bold; font-size: 16px; color: #10b981;'>Combined Location</div>
@@ -182,6 +208,7 @@ const CombinedLocationLayer = ({
         interactive: true
       });
 
+      // Add event listeners for the marker
       marker.on("mouseover", () => {
         if (closeTimeout) clearTimeout(closeTimeout);
         popup.setLatLng(marker.getLatLng())
@@ -229,8 +256,8 @@ const CombinedLocationLayer = ({
         }, 500);
       });
 
-      marker.addTo(map);
-      markers.push(marker);
+      marker.addTo(map); // Add marker to the map
+      markers.push(marker);  // Store marker for cleanup
     });
 
     return () => {
