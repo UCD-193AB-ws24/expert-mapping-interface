@@ -58,7 +58,6 @@ const ExpertLayer = ({
       const geometry = feature.geometry;
       const entries = feature.properties.entries || [];
       const location = feature.properties.location || "Unknown";
-      //const locationId = feature.properties.location_id;
       let totalLocationExperts = 0;
       entries.forEach(entry => {
         const relatedExperts = entry.relatedExperts || [];
@@ -171,6 +170,7 @@ const ExpertLayer = ({
         if (closeTimeout) clearTimeout(closeTimeout);
 
         const expertCount = locationExpertCounts.get(location) || 0;
+        if (expertCount === 0) return; //if polygon has so related experts, skip hover
 
         const content = createMultiResearcherContent(
           expertCount,
