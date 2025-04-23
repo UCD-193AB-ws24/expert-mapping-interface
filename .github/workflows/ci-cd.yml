@@ -25,7 +25,7 @@ jobs:
 
       # Installs all necessary Node.js packages defined in package-lock.json.
       - name: Install dependencies
-        run: npm install 
+        run: npm install
 
       # Generates a .env file containing connection details and API keys needed by the application.
       - name: Create .env file
@@ -40,7 +40,6 @@ jobs:
           # External Redis Database connection details
           echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env # Hostname of the external Redis server
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env # Port number for the Redis server
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env # Password for the Redis server (if required)
 
           # API Authentication Token
           echo "API_TOKEN=${{ secrets.API_TOKEN }}" >> .env # Token needed to authenticate with the Aggie Experts API
