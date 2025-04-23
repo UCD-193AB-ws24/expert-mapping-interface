@@ -15,10 +15,22 @@ const path = require('path');
 const fs = require("fs");
 const { default: ollama } = require('ollama');
 
+const Groq = require('groq-sdk');
+const groq = new Groq({ apiKey: "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" });
+
 const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
 const validWorksPath = path.join(__dirname, '../works', "/validatedWorks.json");
 const validGrantsPath = path.join(__dirname, '../grants', "/validatedGrants.json");
+const countries_csv = path.join(__dirname, '../locations', "countries.csv");
+
+// Load standardized countries
+const countries = {};
+const csv = fs.readFileSync(countries_csv, 'utf8');
+const rows = csv.split('\n').map(row => row.split(','));
+for (const row of rows) {
+  countries[row[1]] = row[0];
+}
 
 /**
  * Get location's information using Nominatim API
@@ -67,16 +79,28 @@ async function getLocationInfo(location) {
  * @returns {String}          - Llama's response
  */
 async function getISOcode(location) {
-  const response = await ollama.chat({
-    model: 'llama3.1',
-    messages: [
+  // const response = await ollama.chat({
+  //   model: 'llama3.1',
+  //   messages: [
+  //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+  //     { "role": "user", "content": `Location: ${location}` }
+  //   ],
+  //   temperature: 0,
+  //   stream: false
+  // });
+  // return response.message.content;
+
+  const chatCompletion = await groq.chat.completions.create({
+    "messages": [
       { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
       { "role": "user", "content": `Location: ${location}` }
     ],
-    temperature: 0,
-    stream: false
+    "model": "llama-3.3-70b-versatile",
+    "temperature": 0,
+    "stream": false
   });
-  return response.message.content;
+
+  return chatCompletion.choices[0].message.content;
 }
 
 /**
@@ -124,7 +148,7 @@ async function validateLocation(location) {
     location = "America";
   }
 
-  const location_info = await getLocationInfo(location);
+  let location_info = await getLocationInfo(location);
   let iso_nominatim;
   if (location_info === null) {
     iso_nominatim = "Fail";
@@ -134,11 +158,18 @@ async function validateLocation(location) {
 
   const iso_llama = await getISOcode(location);
 
-  const special_locations = ["ocean", "sea"];
+  // Handle API giving too specific location
+  if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
+    if (location_info.place_rank >= 30) {
+      const simplify_loc = location.replace(/,.*/, '');
+      location_info = await getLocationInfo(simplify_loc);
+    }
+  }
 
-  // TODO:
-  // - Continents
-  // - Case: Fail geocode, pass ISO
+  const special_locations = ["ocean", "sea", "continent"];
+
+  // Considerations:
+  // - Run ISO through geocode instead of searching in dict?
 
   // If codes are the same, location is good
   if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
@@ -148,10 +179,17 @@ async function validateLocation(location) {
     };
     // Unable to use Nominatim, use ISO if exists
   } else if (location_info === null) {
-    return {
-      name: iso_llama,
-      confidence: "Mid"
-    };
+    if (countries[iso_llama] === undefined) {
+      return {
+        name: "N/A",
+        confidence: ""
+      };
+    } else {
+      return {
+        name: countries[iso_llama],
+        confidence: "Mid"
+      };
+    }
     // Natural or international location without ISO
   } else if (special_locations.includes(location_info.type)) {
     return {
@@ -166,10 +204,17 @@ async function validateLocation(location) {
     };
     // Unmatch codes, priortize ISO
   } else {
-    return {
-      name: iso_llama,
-      confidence: "Mid"
-    };
+    if (countries[iso_llama] === undefined) {
+      return {
+        name: "N/A",
+        confidence: ""
+      };
+    } else {
+      return {
+        name: countries[iso_llama],
+        confidence: "Mid"
+      };
+    }
   }
 }
 
