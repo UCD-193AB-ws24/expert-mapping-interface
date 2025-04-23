@@ -1,20 +1,31 @@
-// components/map/Popups.js
+/**
+ * Utility functions for creating HTML content for Leaflet popups.
+ * These functions generate dynamic content for popups associated with researchers and grants.
+ */
+
+/**
+ * createSingleResearcherContent
+ * 
+ * Generates HTML content for a popup displaying details about a single researcher.
+ * 
+ * @param {object} researcher - The researcher object containing details such as name, location, confidence, and works.
+ * @param {boolean} isPopup - Indicates whether the content is for a popup (default: true).
+ * @returns {string} HTML string for the popup content.
+ */
 
 export const createSingleResearcherContent = (researcher, isPopup = true) => {
   let workTitles = [];
   try {
+     // Extract work titles from the researcher object.
     const titles = researcher.work_titles || researcher.properties?.work_titles;
-    console.log('Raw work titles in createSingleResearcherContent:', titles);
-    console.log('Type of work titles in createSingleResearcherContent:', typeof titles);
     
     if (Array.isArray(titles)) {
-      console.log('Titles is already an array:', titles);
+       // If titles are already an array, use them directly.
       workTitles = titles;
     } else if (typeof titles === 'string') {
-      console.log('Titles is a string:', titles);
+     // If titles are a string, attempt to parse them as JSON.
       try {
         workTitles = JSON.parse(titles);
-        console.log('Successfully parsed work titles:', workTitles);
       } catch (e) {
         console.error('Error parsing work titles string:', e);
         workTitles = [];
@@ -25,8 +36,10 @@ export const createSingleResearcherContent = (researcher, isPopup = true) => {
     workTitles = [];
   }
 
+  // Extract confidence level from the researcher object.
   const confidence = researcher.confidence || researcher.properties?.confidence;
 
+   // Helper function to style the confidence level.
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
     if (confidenceValue === 'high' || confidenceValue === 'High') {
@@ -49,6 +62,7 @@ export const createSingleResearcherContent = (researcher, isPopup = true) => {
 
   const confidenceStyle = getConfidenceStyle(confidence);
 
+  // Generate the HTML content for the popup.
   return `
     <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
       <div style="font-weight: bold; font-size: 16px; color: #13639e;">
@@ -82,6 +96,16 @@ ${researcher.researcher_url  ? "View Profile" : "No Profile Found"}
   `;
 };
 
+/**
+ * createMultiResearcherContent
+ * 
+ * Generates HTML content for a popup displaying details about multiple researchers at a location.
+ * 
+ * @param {number} expertCount - The number of researchers at the location.
+ * @param {string} locationName - The name of the location.
+ * @param {number} totalWorks - The total number of works associated with the researchers.
+ * @returns {string} HTML string for the popup content.
+ */
 export const createMultiResearcherContent = (expertCount, locationName, totalWorks) => `
   <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
     <div style="font-weight: bold; font-size: 16px; color: #13639e;">
@@ -101,6 +125,14 @@ export const createMultiResearcherContent = (expertCount, locationName, totalWor
   </div>
 `;
 
+/**
+ * createGrantPopupContent
+ * 
+ * Generates HTML content for a popup displaying details about a single grant.
+ * 
+ * @param {object} grant - The grant object containing details such as title, researcher, location, and funder.
+ * @returns {string} HTML string for the popup content.
+ */
 export const createGrantPopupContent = (grant) => {
   const rawTitle = grant.title || "";
   const cleanTitle = rawTitle.split("ยง")[0].trim().replace(/^"+|"+$/g, ""); // remove leading/trailing quotes
@@ -129,7 +161,15 @@ export const createGrantPopupContent = (grant) => {
   `;
 };
 
-
+/**
+ * createMultiGrantPopup
+ * 
+ * Generates HTML content for a popup displaying details about multiple grants at a location.
+ * 
+ * @param {array} grants - Array of grant objects.
+ * @param {string} locationName - The name of the location.
+ * @returns {string} HTML string for the popup content.
+ */
 export const createMultiGrantPopup = (grants, locationName) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
     <div style='font-weight: bold; font-size: 16px; color: #f59e0b;'>

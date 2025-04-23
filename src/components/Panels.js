@@ -1,16 +1,37 @@
-// components/map/Panels.js
+/**
+ * ExpertsPanel Component
+ * 
+ * This component renders a side panel displaying a list of experts associated with a specific location.
+ * It supports both point and polygon data and provides detailed information about each expert, including
+ * their name, location, confidence level, and related works.
+ * 
+ * Props:
+ * - experts: Array of expert-related data to display in the panel.
+ * - onClose: Function to handle closing the panel.
+ * - panelType: String indicating the type of data ("polygon" or "point").
+ */
 
 import React from "react";
-
-// Expert side panel (for points and polygons)
 export const ExpertsPanel = ({ experts, onClose, panelType }) => {
+    // Determine if the data is from polygon properties.
   const isFromProperties = panelType === "polygon";
 
+  // Calculate the total number of experts by flattening the data structure.
   const totalExperts = experts.flatMap(exp => {
     const entries = isFromProperties ? exp.properties.entries || [] : [exp];
     return entries.flatMap(entry => entry.relatedExperts || []);
   }).length;
 
+
+  /**
+   * Helper function to style the confidence level.
+   * - High confidence: Green background with bold text.
+   * - Low confidence: Red background with bold text.
+   * - Default: Gray background with bold text.
+   * 
+   * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
+   * @returns {object} An object containing the label and style for the confidence level.
+   */
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
 
@@ -67,6 +88,7 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
       overflowY: "auto",
       zIndex: 1001
     }}>
+      {/* Close button for the panel */}
       <button
         onClick={onClose}
         style={{
@@ -83,10 +105,12 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
         ×
       </button>
 
+      {/* Header displaying the total number of experts */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#13639e" }}>
         {totalExperts} Expert{totalExperts !== 1 ? 's' : ''} at this Location
       </h2>
 
+      {/* List of experts */}
       <ul style={{ padding: 0, listStyle: 'none' }}>
         {experts.flatMap((feature, featureIndex) => {
           const entries = isFromProperties ? feature.properties.entries || [] : [feature];
@@ -153,7 +177,16 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
   );
 };
 
-// 🟡 Grant side panel
+/**
+ * GrantsPanel Component
+ * 
+ * This component renders a side panel displaying a list of grants associated with a specific location.
+ * It provides detailed information about each grant, including the title, researcher, location, and funder.
+ * 
+ * Props:
+ * - grants: Array of grant-related data to display in the panel.
+ * - onClose: Function to handle closing the panel.
+ */
 export const GrantsPanel = ({ grants, onClose }) => {
   return (
     <div style={{
@@ -169,6 +202,7 @@ export const GrantsPanel = ({ grants, onClose }) => {
       overflowY: "auto",
       zIndex: 1001
     }}>
+       {/* Close button for the panel */}
       <button
         onClick={onClose}
         style={{
@@ -185,10 +219,12 @@ export const GrantsPanel = ({ grants, onClose }) => {
         ×
       </button>
 
+      {/* Header displaying the total number of grants */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#f59e0b" }}>
         {grants.length} Grant{grants.length !== 1 ? 's' : ''} at this Location
       </h2>
 
+      {/* List of grants */}      
       <ul style={{ padding: 0, listStyle: 'none' }}>
         {grants.map((grant, index) => (
           <li key={index} style={{
