@@ -49,41 +49,16 @@ jobs:
         run: npm run build 
         continue-on-error: false
 
-      # Verify build folder exists
-      - name: Check build folder
-        run: |
-          ls -la
-          ls -la build || echo "Build folder not found"
-
-      # Runs the script to retrieve raw data (experts, works, grants).
-      - name: Run ETL Pipeline - Fetch Data
-        id: fetch
-        run: node ./src/geo/etl/aggieExpertsAPI/fetchAll.js
-
-      # Runs the script to associate fetched works and grants with the relevant experts.
-      - name: Run ETL Pipeline - Match Data
-        id: match 
-        if: steps.fetch.outcome == 'success' 
-        run: node ./src/geo/etl/aggieExpertsAPI/matchAll.js
-
-      # Runs scripts to extract, validate, and geocode location information from the data.
-      - name: Run ETL Pipeline - Process Locations
-        id: process 
-        if: steps.match.outcome == 'success'
-        run: node ./src/geo/etl/locationAssignment/processLocations.js
-
-      # Runs the script to create GeoJSON files suitable for map visualization.
-      - name: Run ETL Pipeline - Generate GeoJSON
-        id: geojson
-        if: steps.process.outcome == 'success'
-        run: node ./src/geo/etl/geojsonGeneration/generateGeoJson.js
-
-      # Runs the script to upload the generated spatial data (GeoJSON) into the PostGIS database.
       - name: Upload to PostGIS
         id: upload
         if: steps.geojson.outcome == 'success'
         run: node ./src/geo/postgis/uploadFeatures.js # Assumes this script connects using .env variables
-
+        # Starts the server.js script to perform additional tasks or validations
+      - name: Start server
+        id: start-server
+        if: steps.upload.outcome == 'success'
+        run: node ./src/server.js # Assumes this script connects using .env variables
+        
       # Runs the script to populate the Redis cache.
       - name: Cache into Redis
         id: redis
