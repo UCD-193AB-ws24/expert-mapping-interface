@@ -14,11 +14,11 @@ jobs:
     steps:
       # Fetches the latest code from the repository branch that triggered the workflow.
       - name: Checkout code
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v4
 
       # Installs the specified version of Node.js and configures caching for npm dependencies.
       - name: Set up Node.js
-        uses: actions/setup-node@v3 
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
@@ -94,7 +94,7 @@ jobs:
 
       # Saves the built React application (from the './build' directory) as an artifact.
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-output
           path: ./build
@@ -115,11 +115,11 @@ jobs:
     steps:
       # Checkout code again in this job
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Retrieves the 'build-output' artifact saved by the 'build-and-test' job.
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-output
           path: ./build
@@ -132,15 +132,15 @@ jobs:
 
       # Sets up the runner environment for deploying to GitHub Pages.
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
 
       # Uploads the downloaded build directory specifically for the Pages deployment action.
       - name: Upload artifact for Pages
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: './build' # Path to the directory containing the static site
 
       # Executes the actual deployment to GitHub Pages using the uploaded artifact.
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
