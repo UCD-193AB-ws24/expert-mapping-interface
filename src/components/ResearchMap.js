@@ -72,7 +72,7 @@ useEffect(() => {
           }),
           ])
           .then(([worksData, grantsData]) => {
-            console.log("Converting data to GeoJSON format...");
+            // console.log("Converting data to GeoJSON format...");
             // Process works data into GeoJSON format.
             const processedWorksData = {
               type: "FeatureCollection",
