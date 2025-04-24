@@ -11,6 +11,7 @@
 * @module server
 */
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { pool } = require('./geo/postgis/config');
@@ -21,7 +22,7 @@ const PORT = 3001;
 const { createClient } = require('redis');
 
 // Redis event handlers
-const redisClient = createClient();
+const redisClient = createClient(process.env.REDIS_HOST, process.env.REDIS_PORT);
 redisClient.on('error', (err) => {
   console.error('❌ Redis error:', err);
 });
