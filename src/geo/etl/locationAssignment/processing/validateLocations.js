@@ -17,8 +17,23 @@ const { default: ollama } = require('ollama');
 
 const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
-const validWorksPath = path.join(__dirname, '../works', "/validatedWorks.json");
-const validGrantsPath = path.join(__dirname, '../grants', "/validatedGrants.json");
+const validWorksPath = path.join(__dirname, '../works', "validatedWorks.json");
+const validGrantsPath = path.join(__dirname, '../grants', "validatedGrants.json");
+
+// Ensure directory exists before creating file
+const ensureDirectoryExists = (filePath) => {
+  const dirname = path.dirname(filePath);
+  if (!fs.existsSync(dirname)) {
+    fs.mkdirSync(dirname, { recursive: true });
+    console.log(`Created directory: ${dirname}`);
+  }
+};
+
+// Ensure directories exist
+ensureDirectoryExists(worksPath);
+ensureDirectoryExists(grantsPath);
+ensureDirectoryExists(validWorksPath);
+ensureDirectoryExists(validGrantsPath);
 
 /**
  * Get location's information using Nominatim API
@@ -178,49 +193,73 @@ async function validateLocation(location) {
  * Save the results to a JSON file.
  */
 async function validateLocations(inputPath, outputPath) {
-  const data = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
-
-  console.log(`Validating locations from ${inputPath}...`);
-  for (const entry of data) {
-    const result = await validateLocation(entry.location);
-    entry.location = result.name;
-    entry.confidence = result.confidence;
-  }
-
-  console.log(`Formatting and saving validated locations to ${outputPath}...`);
-  const locationMap = new Map();
-
-  data.forEach(entry => {
-    const locationKey = entry.location.toLowerCase();
-
-    if (!locationMap.has(locationKey)) {
-      locationMap.set(locationKey, {
-        location: entry.location,
-        entries: []
-      });
+  try {
+    // Check if input file exists
+    if (!fs.existsSync(inputPath)) {
+      console.error(`Input file not found: ${inputPath}`);
+      throw new Error(`Input file not found: ${inputPath}`);
     }
 
-    delete entry.location;
+    const data = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
 
-    locationMap.get(locationKey).entries.push(entry);
-  });
+    console.log(`Validating locations from ${inputPath}...`);
+    for (const entry of data) {
+      const result = await validateLocation(entry.location);
+      entry.location = result.name;
+      entry.confidence = result.confidence;
+    }
 
-  const organizedData = Array.from(locationMap.values());
-  fs.writeFileSync(outputPath, JSON.stringify(organizedData, null, 2));
+    console.log(`Formatting and saving validated locations to ${outputPath}...`);
+    const locationMap = new Map();
 
-  console.log(`Validated and formatted locations saved to ${outputPath}.`);
+    data.forEach(entry => {
+      const locationKey = entry.location.toLowerCase();
+
+      if (!locationMap.has(locationKey)) {
+        locationMap.set(locationKey, {
+          location: entry.location,
+          entries: []
+        });
+      }
+
+      delete entry.location;
+
+      locationMap.get(locationKey).entries.push(entry);
+    });
+
+    const organizedData = Array.from(locationMap.values());
+    
+    // Ensure output directory exists before writing file
+    ensureDirectoryExists(outputPath);
+    fs.writeFileSync(outputPath, JSON.stringify(organizedData, null, 2));
+
+    console.log(`Validated and formatted locations saved to ${outputPath}.`);
+  } catch (error) {
+    console.error(`Error in validateLocations: ${error.message}`);
+    throw error;
+  }
 }
 
 async function validateAllWorks() {
-  console.log("Validating all works...");
-  await validateLocations(worksPath, validWorksPath);
-  return true;
+  try {
+    console.log("Validating all works...");
+    await validateLocations(worksPath, validWorksPath);
+    return true;
+  } catch (error) {
+    console.error(`Error validating works: ${error.message}`);
+    throw error;
+  }
 }
 
 async function validateAllGrants() {
-  console.log("Validating all grants...");
-  await validateLocations(grantsPath, validGrantsPath);
-  return true;
+  try {
+    console.log("Validating all grants...");
+    await validateLocations(grantsPath, validGrantsPath);
+    return true;
+  } catch (error) {
+    console.error(`Error validating grants: ${error.message}`);
+    throw error;
+  }
 }
 
 // Export all functions for external use

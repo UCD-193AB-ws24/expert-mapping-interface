@@ -53,19 +53,6 @@ async function fetchAndSave() {
       
       fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
       console.log(`Saved to ${outPath}`);
-      
-      // Additional validation of polygon features
-      if (geometryTypes['Polygon'] > 0 || geometryTypes['MultiPolygon'] > 0) {
-        console.log('Polygon features found! Validating structure...');
-        
-        const polygonFeatures = data.features.filter(f => 
-          f.geometry?.type === 'Polygon' || f.geometry?.type === 'MultiPolygon');
-          
-        // Check first polygon feature structure
-        const sampleFeature = polygonFeatures[0];
-        console.log(`Sample polygon feature id: ${sampleFeature.id}`);
-        console.log(`Sample polygon coordinates structure: ${getCoordinatesStructureDescription(sampleFeature.geometry)}`);
-      }
     } catch (err) {
       console.error(`Failed to fetch ${url}:`, err);
     }

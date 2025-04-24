@@ -15,7 +15,7 @@
 * `node src/geo/redis/populateRedis.js`
 *
 */
-
+require('dotenv').config();
 const { createClient } = require('redis');
 const fs = require('fs').promises;
 const path = require('path');
@@ -30,7 +30,7 @@ function sanitizeString(input) {
     .trim();                   
 }
 
-const redisClient = createClient();
+const redisClient = createClient(process.env.REDIS_HOST, process.env.REDIS_PORT);
 
 async function populateRedis() {
   try {
