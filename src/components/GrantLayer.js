@@ -118,6 +118,7 @@ const GrantLayer = ({
       const [lat, lng] = key.split(",").map(Number);
 
       // Create a custom marker for the location.
+      // const aggieGold = "#F6E8B1";
       const marker = L.marker([lat, lng], {
         icon: L.divIcon({
           html: `<div style='background: #f59e0b; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${grants.length}</div>`,
