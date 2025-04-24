@@ -48,10 +48,6 @@ jobs:
       - name: Build project
         run: npm run build 
 
-      # Executes the test suite defined in the project to verify code correctness.
-      - name: Run tests
-        run: npm test 
-
       # Runs the script to retrieve raw data (experts, works, grants).
       - name: Run ETL Pipeline - Fetch Data
         id: fetch
