@@ -57,7 +57,6 @@ jobs:
       # Runs the script to populate the Redis cache.
       - name: Cache into Redis
         id: redis
-        if: steps.upload.outcome == 'success' 
         run: |
           node ./src/geo/redis/populateRedis.js # Assumes this script connects using .env variables
           echo "Redis populated successfully" # Confirmation message
