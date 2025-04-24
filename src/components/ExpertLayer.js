@@ -60,6 +60,7 @@ const ExpertLayer = ({
     let activePopup = null;
     let closeTimeout = null;
     const polygonLayers = [];
+    const polygonMarkerLayers = [];
 
      // Convert the search keyword to lowercase for case-insensitive matching.
     const keyword = searchKeyword?.toLowerCase() || "";
@@ -89,6 +90,7 @@ const ExpertLayer = ({
       const currentZoom = map.getZoom();
 
       // Clear existing layers
+      polygonMarkerLayers.forEach(layer => map.removeLayer(layer));
       polygonLayers.forEach(layer => map.removeLayer(layer));
       map.removeLayer(markerClusterGroup);
       markerClusterGroup = L.markerClusterGroup({
@@ -172,11 +174,23 @@ const ExpertLayer = ({
 
         polygonLayers.push(polygon);
 
-        polygon.on("mouseover", () => {
+        const center = polygon.getBounds().getCenter();
+        const expertCount = locationExpertCounts.get(location) || 0;
+        const polygonMarker = L.marker(center, {
+          icon: L.divIcon({
+            html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${expertCount}</div>`,
+            className: "center-marker-icon",
+            iconSize: [30, 30]
+          })
+        }).addTo(map);
+        
+        polygonMarkerLayers.push(polygonMarker);
+
+        polygonMarker.on("mouseover", () => {
           if (!showWorks) return;
           if (closeTimeout) clearTimeout(closeTimeout);
 
-          const expertCount = locationExpertCounts.get(location) || 0;
+          
           if (expertCount === 0) return; //if polygon has so related experts, skip hover
 
           const content = createMultiResearcherContent(
@@ -247,7 +261,7 @@ const ExpertLayer = ({
         }
         });
 
-        polygon.on("mouseout", () => {
+        polygonMarker.on("mouseout", () => {
           closeTimeout = setTimeout(() => {
             if (activePopup) {
               activePopup.close();
@@ -361,6 +375,7 @@ const ExpertLayer = ({
       map.off('zoomend', renderLevels);
       map.removeLayer(markerClusterGroup);
       polygonLayers.forEach((p) => map.removeLayer(p));
+      polygonMarkerLayers.forEach((p) => map.removeLayer(p));
     };
   }, [map, geoData, showWorks, showGrants, searchKeyword, setSelectedExperts, setSelectedPointExperts, setPanelOpen, setPanelType]);
 
