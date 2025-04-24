@@ -43,15 +43,6 @@ redisClient.on('end', () => {
 
 let activeConnections = 0;
 
-// Test database connection on startup
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('❌ Database connection error:', err);
-  } else {
-    console.log('✅ Database connected successfully');
-  }
-});
-
 app.use(cors());
 app.use(express.json());
 
@@ -240,7 +231,20 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
   }
 });
 
-// Fetch all works as GeoJSON
+
+
+// ================ POSTGIS ENDPOINTS ================ //
+
+// Test database connection on startup
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('❌ Database connection error:', err);
+  } else {
+    console.log('✅ Database connected successfully');
+  }
+});
+
+// WORKS ENDPOINT
 app.get('/api/works', async (req, res) => {
   const client = await pool.connect();
   try {
@@ -270,7 +274,7 @@ app.get('/api/works', async (req, res) => {
   }
 });
 
-// Fetch all grants as GeoJSON
+// GRANTS ENDPOINT
 app.get('/api/grants', async (req, res) => {
   const client = await pool.connect();
   try {
@@ -300,6 +304,8 @@ app.get('/api/grants', async (req, res) => {
   }
 });
 
+
+// SERVER CONFIG
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
