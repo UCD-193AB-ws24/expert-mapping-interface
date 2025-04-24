@@ -49,18 +49,6 @@ jobs:
         run: npm run build 
         continue-on-error: false
 
-        # Starts the server.js script to perform additional tasks or validations
-      - name: Start server
-        id: start-server
-        run: node ./src/server.js # Assumes this script connects using .env variables
-        
-      # Runs the script to populate the Redis cache.
-      - name: Cache into Redis
-        id: redis
-        run: |
-          node ./src/geo/redis/populateRedis.js # Assumes this script connects using .env variables
-          echo "Redis populated successfully" # Confirmation message
-
       # Saves the built React application (from the './build' directory) as an artifact.
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
