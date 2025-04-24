@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Generates a .env file containing connection details and API keys needed by the application.
+      # Generates a .env file containing connection details and API keys needed by the application using github repo secrets.
       - name: Create .env file
         run: |
           # External PostgreSQL Database connection details
