@@ -49,13 +49,9 @@ jobs:
         run: npm run build 
         continue-on-error: false
 
-      - name: Upload to PostGIS
-        id: upload
-        run: node ./src/geo/postgis/uploadFeatures.js # Assumes this script connects using .env variables
         # Starts the server.js script to perform additional tasks or validations
       - name: Start server
         id: start-server
-        if: steps.upload.outcome == 'success'
         run: node ./src/server.js # Assumes this script connects using .env variables
         
       # Runs the script to populate the Redis cache.
