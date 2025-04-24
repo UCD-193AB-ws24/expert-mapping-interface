@@ -1,12 +1,19 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });
 const { Pool } = require('pg');
 
+// Ensure all connection parameters are explicitly cast to their expected types
 const pool = new Pool({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
+  user: String(process.env.PG_USER),
+  host: String(process.env.PG_HOST),
+  database: String(process.env.PG_DATABASE),
+  password: String(process.env.PG_PASSWORD), // Ensure password is a string
+  port: Number(process.env.PG_PORT),
+});
+
+// Add connection error handling
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle PostgreSQL client', err);
 });
 
 module.exports = {
@@ -14,5 +21,5 @@ module.exports = {
   tables: {
     grants: 'locations_grants',
     works: 'locations_works'
-    }
-}; 
+  }
+};
