@@ -47,6 +47,13 @@ jobs:
       # Compiles the React frontend code into static assets for deployment.
       - name: Build project
         run: npm run build 
+        continue-on-error: false
+
+      # Verify build folder exists
+      - name: Check build folder
+        run: |
+          ls -la
+          ls -la build || echo "Build folder not found"
 
       # Runs the script to retrieve raw data (experts, works, grants).
       - name: Run ETL Pipeline - Fetch Data
@@ -106,12 +113,22 @@ jobs:
       id-token: write # Permission for OIDC token authentication (secure deployment)
 
     steps:
+      # Checkout code again in this job
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       # Retrieves the 'build-output' artifact saved by the 'build-and-test' job.
       - name: Download build artifact
         uses: actions/download-artifact@v3
         with:
           name: build-output
           path: ./build
+
+      # Verify the build folder contents
+      - name: Check build folder
+        run: |
+          ls -la
+          ls -la build || echo "Build folder not found"
 
       # Sets up the runner environment for deploying to GitHub Pages.
       - name: Setup Pages
