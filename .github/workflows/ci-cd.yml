@@ -51,7 +51,6 @@ jobs:
 
       - name: Upload to PostGIS
         id: upload
-        if: steps.geojson.outcome == 'success'
         run: node ./src/geo/postgis/uploadFeatures.js # Assumes this script connects using .env variables
         # Starts the server.js script to perform additional tasks or validations
       - name: Start server
@@ -79,7 +78,7 @@ jobs:
   deploy-to-github-pages:
     environment:
       name: github-pages
-      
+
     needs: build-and-test
 
     runs-on: ubuntu-latest
