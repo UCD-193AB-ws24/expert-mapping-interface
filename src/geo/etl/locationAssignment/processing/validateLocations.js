@@ -41,7 +41,7 @@ const countries = {};
 const csv = fs.readFileSync(countries_csv, 'utf8');
 const rows = csv.split('\n').map(row => row.split(','));
 for (const row of rows) {
-  countries[row[1]] = row[0];
+  countries[row[1].trim()] = row[0];
 }
 
 /**
@@ -76,11 +76,9 @@ async function getLocationInfo(location) {
       }
       return result;
     } else {
-      console.log(`Unable to get location: ${location}`);
       return null;
     }
   } catch (error) {
-    console.log(`Error getting location: ${location}`);
     return null;
   }
 }
@@ -130,7 +128,8 @@ async function validateLocation(location) {
   if (location === "N/A" || location === "") {
     return {
       name: "N/A",
-      confidence: ""
+      confidence: "",
+      country: "None"
     };
   }
 
@@ -170,49 +169,57 @@ async function validateLocation(location) {
 
   // Considerations:
   // - Run ISO through geocode instead of searching in dict?
+  // - Else branch: iso_llama undefined - use Nominatim instead of N/A
 
   // If codes are the same, location is good
   if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
     return {
       name: location_info.name,
-      confidence: "High"
+      confidence: "High",
+      country: countries[iso_llama]
     };
     // Unable to use Nominatim, use ISO if exists
   } else if (location_info === null) {
     if (countries[iso_llama] === undefined) {
       return {
         name: "N/A",
-        confidence: ""
+        confidence: "",
+        country: "None"
       };
     } else {
       return {
         name: countries[iso_llama],
-        confidence: "Mid"
+        confidence: "Mid",
+        country: countries[iso_llama]
       };
     }
     // Natural or international location without ISO
   } else if (special_locations.includes(location_info.type)) {
     return {
       name: location_info.name,
-      confidence: "Kinda High"
+      confidence: "Kinda High",
+      country: "None"
     };
     // Unable to get ISO code, bad location
   } else if (String(iso_llama).length > 2) {
     return {
       name: location,
-      confidence: "Low"
+      confidence: "Low",
+      country: countries[String(iso_nominatim).toUpperCase()]
     };
     // Unmatch codes, priortize ISO
   } else {
     if (countries[iso_llama] === undefined) {
       return {
         name: "N/A",
-        confidence: ""
+        confidence: "",
+        country: "None"
       };
     } else {
       return {
         name: countries[iso_llama],
-        confidence: "Mid"
+        confidence: "Mid",
+        country: countries[iso_llama]
       };
     }
   }
@@ -237,6 +244,7 @@ async function validateLocations(inputPath, outputPath) {
       const result = await validateLocation(entry.location);
       entry.location = result.name;
       entry.confidence = result.confidence;
+      entry.country = result.country;
     }
 
     console.log(`Formatting and saving validated locations to ${outputPath}...`);
@@ -248,11 +256,13 @@ async function validateLocations(inputPath, outputPath) {
       if (!locationMap.has(locationKey)) {
         locationMap.set(locationKey, {
           location: entry.location,
+          country: entry.country,
           entries: []
         });
       }
 
       delete entry.location;
+      delete entry.country;
 
       locationMap.get(locationKey).entries.push(entry);
     });
