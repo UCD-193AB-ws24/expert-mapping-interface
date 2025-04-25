@@ -1,6 +1,7 @@
 [
   {
     "location": "N/A",
+    "country": "None",
     "entries": [
       {
         "title": "\" RANDONIZED STUDY OF LAROTAXEL +CISPLATIN (LC) VS. GEMCITABINE + CISPLATIN (GC) IN THE FIRST LINE TREATMENT OF LOCALLY ADVANCED/METASTATIC UROTHELIAL TRACT OR BLADDER CANCER.\" ",
@@ -61,6 +62,7 @@
   },
   {
     "location": "California",
+    "country": "United States",
     "entries": [
       {
         "title": "\"CA Quits\" Tobacco Cessation Learning Collaborative ",
@@ -88,6 +90,7 @@
   },
   {
     "location": "Plumas County",
+    "country": "United States",
     "entries": [
       {
         "title": "\"EVALUATION SERVICES FOR PLUMAS COUNTY YOUTH VIOLENCE PREVENTION PLANING PROCESS ",
@@ -104,6 +107,7 @@
   },
   {
     "location": "United States",
+    "country": "United States",
     "entries": [
       {
         "title": "#SacYouthWorks Service Agreement: Summer Health Institute for Nursing Exploration and Success (SHINES) ",
@@ -131,6 +135,7 @@
   },
   {
     "location": "Canada",
+    "country": "Canada",
     "entries": [
       {
         "title": "''FIRE-INDUCED CHANGES IN ALBEDO AND THE ASSOCIATE RADIATIVE FORCING: A COMPARISON OF BOREAL CANADA AND AUSTRALIA TROPICAL SAVANNAS'' I PROPOSE A 3-YEAR STUDY USING MODIS OBSERVATIONS AND AVAILABLE FIRE HISTORY DATA TO EXAMINE THE TEMPORAL EVOLUTION OF POST ",
@@ -147,6 +152,7 @@
   },
   {
     "location": "Stockton",
+    "country": "United States",
     "entries": [
       {
         "title": "Stockton, CA is boring",
@@ -163,6 +169,7 @@
   },
   {
     "location": "Vietnam",
+    "country": "Vietnam",
     "entries": [
       {
         "title": "Study about the cuisine of Vietnam",
@@ -179,6 +186,7 @@
   },
   {
     "location": "Australia",
+    "country": "Australia",
     "entries": [
       {
         "title": "Kangaroo in Australia",
@@ -195,6 +203,7 @@
   },
   {
     "location": "Newport Beach",
+    "country": "United States",
     "entries": [
       {
         "title": "Summer at Newport Beach",
@@ -211,6 +220,7 @@
   },
   {
     "location": "Stoke-on-Trent",
+    "country": "United Kingdom",
     "entries": [
       {
         "title": "A cold rainy night in Stoke",
@@ -227,6 +237,7 @@
   },
   {
     "location": "Barcelona",
+    "country": "Spain",
     "entries": [
       {
         "title": "Midnight in Barcelona",
@@ -243,6 +254,7 @@
   },
   {
     "location": "Paris",
+    "country": "France",
     "entries": [
       {
         "title": "Echoes from the Paris Underground",
@@ -259,6 +271,7 @@
   },
   {
     "location": "Tokyo",
+    "country": "Japan",
     "entries": [
       {
         "title": "Beneath the Lights of Tokyo",
@@ -275,6 +288,7 @@
   },
   {
     "location": "Vermont",
+    "country": "United States",
     "entries": [
       {
         "title": "Snowfall in Vermont",
@@ -291,6 +305,7 @@
   },
   {
     "location": "Reykjavik",
+    "country": "Iceland",
     "entries": [
       {
         "title": "The Girl from Reykjavik",
@@ -307,6 +322,7 @@
   },
   {
     "location": "Bangkok",
+    "country": "Thailand",
     "entries": [
       {
         "title": "Lost in the Streets of Bangkok",
@@ -323,6 +339,7 @@
   },
   {
     "location": "Chicago",
+    "country": "United States",
     "entries": [
       {
         "title": "Last Train to Chicago",
@@ -339,6 +356,7 @@
   },
   {
     "location": "Puerto Rico",
+    "country": "Puerto Rico",
     "entries": [
       {
         "title": "Love Letters from Puerto Rico",
@@ -355,6 +373,7 @@
   },
   {
     "location": "Chornobyl",
+    "country": "Ukraine",
     "entries": [
       {
         "title": "The Children of Chernobyl",
