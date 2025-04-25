@@ -95,7 +95,7 @@ async function populateRedis() {
         locationID = processedLocations.get(locationName); 
       }
       else{
-        const locationID = generateID('location'); // Generate a unique ID for the location
+        locationID = generateID('location'); // Generate a unique ID for the location
         const locationFeatureKey = `locationMap:${locationID}`; // Use the generated ID for the key
         console.log(`📍 Processing location ${locationName}...`);
         try {
@@ -116,7 +116,7 @@ async function populateRedis() {
       
       for (const entry of entries) {
         const workID = generateID('work'); // Generate a unique ID for the work
-        const workFeatureKey = `worksMap:${workID}`; // Use the generated ID for the key
+        const workFeatureKey = `worksMap:${location}`; // Use the generated ID for the key
         console.log(`📜 Processing work ${workID}...`);
         try {
             await redisClient.hSet(workFeatureKey, {
@@ -305,6 +305,16 @@ async function populateRedis() {
                         });
                         console.log(`📍 Successfully added location ${locationID} to expert ${expertFeatureKey}!`);
                     }
+                    const currGrant = await redisClient.hGet(grantFeatureKey, 'relatedExpert');
+                    const relatedExpertsInCurrGrant = currGrant ? JSON.parse(currGrant) : [];
+                    if (!relatedExpertsInCurrGrant.includes(expertID)) {
+                        relatedExpertsInCurrGrant.push(expertID);
+                        await redisClient.hSet(grantFeatureKey, {
+                            relatedExpert: JSON.stringify(relatedExpertsInCurrGrant),
+                        });
+                        console.log(`🧑‍🎓 Successfully added expert ${expertID} to ${grantFeatureKey}!`);
+                    }
+
                 }
                 else {
                     console.log(`👩‍🏫 Expert ${entry.relatedExpert.name} not processed yet. Storing new expert...`);
@@ -345,7 +355,7 @@ async function populateRedis() {
                                 if (!relatedExpertsInCurrWork.includes(expertID)) {
                                     relatedExpertsInCurrWork.push(expertID);
                                     await redisClient.hSet(grantFeatureKey, {
-                                        relatedExperts: JSON.stringify(relatedExpertsInCurrWork),
+                                        relatedExpert: JSON.stringify(relatedExpertsInCurrWork),
                                     });
                                     console.log(`🧑‍🎓 Successfully added expert${expertID} to ${grantFeatureKey}!`);
                                 }   
