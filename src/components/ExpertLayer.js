@@ -10,6 +10,8 @@ import {
   createMultiGrantPopup,
 } from "./Popups";
 
+import { processWorkData } from "./geoJsonProcessor";
+
 /**
  * ExpertLayer Component
  * 
@@ -41,9 +43,19 @@ const ExpertLayer = ({
   combinedKeys,
 }) => {
   const map = useMap(); // Access the Leaflet map instance from react-leaflet.
+  
+  // Initialize data processing for works
+  // These works and their respective data will not be changed very often, so we can use a memoized version of the data.
+  // This will help in avoiding unnecessary re-renders and improve performance.
 
+  // filteredWorks: an array of features that have properties.type == "work"
+  // coordinatesToExperts: a map of coordinates to experts
+  // expertToWorksAndLocations: a map of experts to their works and locations
+  const { filteredWorks, coordinatesToExperts, expertToWorksAndLocations } = processWorkData(geoData);
+
+  
   useEffect(() => {
-    if (!map || !geoData) return;
+    if (!map || !filteredFeatures || !geoData) return;
 
     const zoomThresholds = {
       continental: 2, // Show continental polygons at zoom level 2 or lower
@@ -62,18 +74,14 @@ const ExpertLayer = ({
     const polygonLayers = [];
     const polygonMarkerLayers = [];
 
-     // Convert the search keyword to lowercase for case-insensitive matching.
-    const keyword = searchKeyword?.toLowerCase() || "";
-
-    // Filter features based on the type and the `showWorks` flag.
-    const filteredFeatures = geoData?.features?.filter(
-      (f) => (!f.properties?.type || f.properties?.type === "work") && showWorks
-    );
+    
+    // Make sure showWorks is enabled before proceeding.
+    if (!showWorks) return;
 
     // Initialize a MarkerClusterGroup for clustering point markers.
     let markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
-      maxClusterRadius: 40,
+      maxClusterRadius: 20,
       spiderfyOnMaxZoom: false,
       iconCreateFunction: (cluster) => {
         const markers = cluster.getAllChildMarkers();
@@ -90,6 +98,8 @@ const ExpertLayer = ({
       const currentZoom = map.getZoom();
 
       // Clear existing layers
+      // Reset locationExpertCounts to prevent accumulation of expert counts
+      locationExpertCounts.clear();
       polygonMarkerLayers.forEach(layer => map.removeLayer(layer));
       polygonLayers.forEach(layer => map.removeLayer(layer));
       map.removeLayer(markerClusterGroup);
@@ -191,7 +201,7 @@ const ExpertLayer = ({
           if (closeTimeout) clearTimeout(closeTimeout);
 
           
-          if (expertCount === 0) return; //if polygon has so related experts, skip hover
+          if (expertCount === 0) return; //if polygon has no related experts, skip hover
 
           const content = createMultiResearcherContent(
             expertCount,
@@ -277,54 +287,19 @@ const ExpertLayer = ({
         const [lng, lat] = feature.geometry.coordinates;
         const coords = geometry.type === "Point" ? [[lng, lat]] : geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
         const entries = feature.properties.entries || [];
-        // const location = feature.properties.location || "Unknown";
+        const workCount = entries.length;
 
-        coords.forEach(([lng, lat]) => {
-          const key = `${lat},${lng}`;
-          if (!locationMap.has(key)) locationMap.set(key, []);
-
-          const matchedEntries = [];
-
-          // Filter entries based on the search keyword.
-          entries.forEach(entry => {
-            if (keyword) {
-              const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase(); 
-              const quoteMatch = keyword.match(/^"(.*)"$/); // Exact phrase match.
-              if (quoteMatch) {
-                const phrase = quoteMatch[1].toLowerCase();
-                if (!entryText.includes(phrase)) return; 
-              } else {
-                const terms = keyword.toLowerCase().split(/\s+/); // Multi-word match.
-                const matchesAll = terms.every(term => entryText.includes(term));
-                if (!matchesAll) return;
-              }
-            }
-
-            const expert = entry.relatedExperts?.[0]; // Extract the first related expert from the entry, if available.
-            // Create an object representing the matched entry and push it to the `matchedEntries` array.
-            matchedEntries.push({
-              researcher_name: expert?.name || entry.authors?.join(", ") || "Unknown",
-              researcher_url: expert?.url
-                ? `https://experts.ucdavis.edu/${expert.url}`
-                : null,
-              location_name: feature.properties.location || "Unknown",
-              work_titles: [entry.title],
-              work_count: 1,
-              confidence: entry.confidence || "Unknown",
-              type: "expert",
-            });
-          });
-
-          // If there are any matched entries, add them to the `locationMap` for the corresponding key.
-          if (matchedEntries.length > 0) {
-            //console.log("Location:", key, "Matched Entries:", matchedEntries);
-            locationMap.get(key).push(...matchedEntries);
-          }
+        const expertCount = 0;
+        entries.forEach(entry => {
+          const relatedExperts = entry.relatedExperts || [];
+          expertCount += relatedExperts.length;
         });
+
+        
 
         const marker = L.marker([lat, lng], {
           icon: L.divIcon({
-            html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>1</div>`,
+            html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${expertCount}</div>`,
             className: "custom-marker-icon",
             iconSize: [30, 30]
           })
@@ -333,7 +308,7 @@ const ExpertLayer = ({
         marker.on("mouseover", () => {
           if (closeTimeout) clearTimeout(closeTimeout);
 
-          const content = createSingleResearcherContent(feature.properties);
+          // const content = createSingleResearcherContent();
           activePopup = L.popup({ closeButton: false, autoClose: false })
             .setLatLng(marker.getLatLng())
             .setContent(content)
