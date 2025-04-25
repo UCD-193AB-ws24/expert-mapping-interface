@@ -2,15 +2,16 @@
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\experts\fetchExperts.js
 */
 
-const { logBatch, fetchFromApi, saveCache, API_TOKEN } = require('../apiUtils');
+const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
 
 /**
- * Fetches experts from the Aggie Experts API
+ * Fetches experts from the Aggie Experts API and updates cache if new entries are found
  * @param {number} batchSize - How often to log progress
  * @param {number} maxPages - Maximum number of pages to fetch
- * @returns {Promise<Array>} Array of expert objects
+ * @param {boolean} forceUpdate - Force update the cache even if no new experts are found
+ * @returns {Promise<Object>} Object containing experts data and cache status
  */
-async function fetchExperts(batchSize = 10, maxPages = Infinity) {
+async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = false) {
     let experts = [];
     let page = 0;
     let totalFetched = 0;
@@ -39,8 +40,19 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity) {
         }
         
         logBatch('experts', page, true, totalFetched);
-        saveCache('experts', 'experts.json', experts);
-        return experts;
+        
+        // Manage cache using the new utility
+        const cacheResult = manageCacheData('experts', 'experts.json', experts, {
+            idField: 'url',
+            forceUpdate
+        });
+        
+        return {
+            experts: cacheResult.data,
+            cacheUpdated: cacheResult.cacheUpdated,
+            newCount: cacheResult.newCount,
+            hasNewEntries: cacheResult.hasNewEntries
+        };
     } catch (error) {
         console.error('Error fetching experts:', error.message);
         throw error;
