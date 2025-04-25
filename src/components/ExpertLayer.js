@@ -4,11 +4,14 @@ import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 
 import {
+  noResearcherContent,
   createSingleResearcherContent,
   createMultiResearcherContent,
   createGrantPopupContent,
   createMultiGrantPopup,
 } from "./Popups";
+
+
 
 /**
  * ExpertLayer Component
@@ -209,19 +212,23 @@ const ExpertLayer = ({
       polygonLayers.push(polygon); // Store the created polygon in the `polygonLayers` array for later use (e.g., cleanup).
 
 
-      // Add hover and click events for polygons.
       polygon.on("mouseover", () => {
         if (!showWorks) return;
         if (closeTimeout) clearTimeout(closeTimeout);
-
+    
         const expertCount = locationExpertCounts.get(location) || 0;
-        if (expertCount === 0) return; //if polygon has so related experts, skip hover
-
-        const content = createMultiResearcherContent(
-          expertCount,
-          feature.properties.display_name || feature.properties.location || "Unknown",
-          expertCount
-        );
+    
+        const content = (expertCount === 0)
+            ? noResearcherContent(
+                  expertCount,
+                  feature.properties.display_name || feature.properties.location || "Unknown",
+                  expertCount
+              )
+            : createMultiResearcherContent(
+                  expertCount,
+                  feature.properties.display_name || feature.properties.location || "Unknown",
+                  expertCount
+              );
 
         // Close any existing popup before opening a new one.
         if (activePopup) activePopup.close();

@@ -125,6 +125,25 @@ export const createMultiResearcherContent = (expertCount, locationName, totalWor
   </div>
 `;
 
+
+/**
+ * oResearcherContent
+ * 
+ * Generates HTML content for a popup displaying details about locations with no researchers.
+ * 
+*/
+
+export const noResearcherContent = (expertCount, locationName, totalWorks) => `
+  <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+    <div style="font-weight: bold; font-size: 16px; color: #13639e;">
+      No experts found at this Location
+    </div>
+    <div style="font-size: 14px; color: #333; margin-top: 5px;">
+      <strong>Location:</strong> ${locationName || "Unknown"}
+    </div>
+  </div>
+`;
+
 /**
  * createGrantPopupContent
  * 
