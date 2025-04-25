@@ -43,11 +43,13 @@ function generateID(keyword) {
 
 const processedExperts = new Map(); // Set to keep track of processed experts
 const processedLocations = new Map(); // Set to keep track of processed locations
+const processedWorks = new Map(); // Set to keep track of processed works
+const processedGrants = new Map(); // Set to keep track of processed grants
 
 const redisClient = createClient();
 
 async function populateRedis() {
-  try {
+try {
 
     await redisClient.connect();
     // Run fetchFeatures.js
@@ -93,11 +95,14 @@ async function populateRedis() {
       if (processedLocations.has(locationName)) {
         console.log(`📍 Location ${locationName} already processed. Skipping...`);
         locationID = processedLocations.get(locationName); 
+        const locationFeatureKey = `locationMap:${locationID}`; // Use the existing ID for the key
+        console.log(`Repeat locationFeatureKey hash:`, await redisClient.hGetAll(locationFeatureKey)); // Log the expert data for debugging
+        
       }
       else{
         locationID = generateID('location'); // Generate a unique ID for the location
         const locationFeatureKey = `locationMap:${locationID}`; // Use the generated ID for the key
-        console.log(`📍 Processing location ${locationName}...`);
+        // console.log(`📍 Processing location ${locationName}...`);
         try {
             await redisClient.hSet(locationFeatureKey, {
                 locationID: locationID || '',
@@ -112,13 +117,36 @@ async function populateRedis() {
           catch (error) {console.error(`❌ Error storing ${locationFeatureKey}`, error);}
           processedLocations.set(locationName, locationID); // Map the location name to the location ID
           console.log(`📍 Successfully stored ${locationFeatureKey}!`);
+          const locationData = await redisClient.hGetAll(locationFeatureKey);
+          console.log(`📍 Current locationFeatureKey hash:`, locationData);
       }
       
       for (const entry of entries) {
-        const workID = generateID('work'); // Generate a unique ID for the work
-        const workFeatureKey = `worksMap:${location}`; // Use the generated ID for the key
-        console.log(`📜 Processing work ${workID}...`);
-        try {
+        const workTitle = sanitizeString(entry.title) || ''; // Sanitize the work title
+        if(processedWorks.has(workTitle)){
+            console.log(`📜 Work ${workTitle} already processed. Skipping...`);
+            const workID = processedWorks.get(workTitle); // Get the work ID from the map
+            const workFeatureKey = `worksMap:${workID}`; // Use the existing ID for the key
+            
+            // If this is a repeat work, check the locationID with current locationID
+            // It is strange that one work would have multiple locationIDs, but it is possible.
+            const existingLocation = await redisClient.hGet(workFeatureKey, 'location');
+            const existingLocationIDs = existingLocation ? JSON.parse(existingLocation) : [];
+            if (!existingLocationIDs.includes(locationID)) {
+                existingLocationIDs.push(locationID); // Add the new location ID to the list
+                await redisClient.hSet(workFeatureKey, {
+                    location: JSON.stringify(existingLocationIDs),
+                });
+                console.log(`📍 Successfully added location ${locationID} to work ${workFeatureKey}!`);
+            }
+            const workData = await redisClient.hGetAll(workFeatureKey);
+            console.log(`📜 Current workFeatureKey hash:`, workData); // Log the expert data for debugging
+        }
+        else{
+            const workID = generateID('work'); // Generate a unique ID for the work
+            const workFeatureKey = `worksMap:${workID}`; // Use the generated ID for the key
+
+            try {
             await redisClient.hSet(workFeatureKey, {
             workID: workID || '',
             title: sanitizeString(entry.title) || '',
@@ -133,15 +161,15 @@ async function populateRedis() {
             relatedExperts: '[]',
             location: JSON.stringify([locationID]) || '[]',
             });
-            console.log(`📜 Successfully stored ${workFeatureKey}!`);
+            processedWorks.set(workTitle, workID); // Map the work title to the work ID
+            // console.log(`📜 Successfully stored ${workFeatureKey}!`);
             } catch (error) {console.error(`❌ Error storing ${workFeatureKey}`, error);}
                 
                 if (Array.isArray(entry.relatedExperts)) {
                     for (const relatedExpert of entry.relatedExperts) {
-                    const expertID = generateID('expert'); // Generate a unique ID for the expert
-                    const expertFeatureKey = `expertsMap:${expertID}`; // Use the generated ID for the key
+                    
                     const expertName = sanitizeString(relatedExpert.name) || ''; // Sanitize the expert name
-                    console.log(`👩‍🏫 Processing expert ${expertID}...`);
+                    console.log(`👩‍🏫 Processing expert ${expertName}...`);
                     // If the expert has already been processed, add the workID to their works list
                     if (processedExperts.has(expertName)) {
                         console.log(`👩‍🏫 Expert ${expertName} already processed. Adding workID and locationID to established expert...`);
@@ -151,6 +179,9 @@ async function populateRedis() {
                         const workListinExpert = nuExpert ? JSON.parse(nuExpert) : [];
                         const nuLoc = await redisClient.hGet(expertFeatureKey, 'location');
                         const LocsinExpert = nuLoc ? JSON.parse(nuLoc) : [];
+                        const expertsInCurrWork = await redisClient.hGet(workFeatureKey, 'relatedExperts');
+                        const expertListinCurrWork = expertsInCurrWork ? JSON.parse(expertsInCurrWork) : [];
+
                         if (!workListinExpert.includes(workID)) {
                             workListinExpert.push(workID);
                             await redisClient.hSet(expertFeatureKey, {
@@ -163,12 +194,24 @@ async function populateRedis() {
                             await redisClient.hSet(expertFeatureKey, {
                                 location: JSON.stringify(workListinExpert),
                             });
-                            console.log(`📍 Successfully added location ${locationID} to expert ${expertFeatureKey}!`);
+                            //console.log(`📍 Successfully added location ${locationID} to expert ${expertFeatureKey}!`);
                         }
+                        if (!expertListinCurrWork.includes(expertID)) {
+                            expertListinCurrWork.push(expertID);
+                            await redisClient.hSet(workFeatureKey, {
+                                relatedExperts: JSON.stringify(expertListinCurrWork),
+                            });
+                            console.log(`🧑‍🎓 Successfully added expert ${expertID} to ${workFeatureKey}!`);
+                        }
+                        console.log(`👩‍🏫 Repeat expertFeatureKey hash:`, await redisClient.hGetAll(expertFeatureKey));
+                        console.log(`Current workFeatureKey hash:`, await redisClient.hGetAll(workFeatureKey)); // Log the expert data for debugging
                         
                     }
                     // If the expert has not been processed yet...
-                    else {try {
+                    else {
+                        const expertID = generateID('expert'); // Generate a unique ID for the expert
+                        const expertFeatureKey = `expertsMap:${expertID}`; // Use the generated ID for the key
+                        try {
                         await redisClient.hSet(expertFeatureKey, {
                             expertID: expertID || '',
                             name: sanitizeString(relatedExpert.name) || '',
@@ -182,11 +225,11 @@ async function populateRedis() {
                             location: JSON.stringify([locationID]) || '[]',
                             });
                         processedExperts.set(expertName,expertID); // Add the expert name to the set of processed experts
-                        console.log(`👩‍🏫 Successfully stored ${expertFeatureKey}!`);
+                        // console.log(`👩‍🏫 Successfully stored ${expertFeatureKey}!`);
                         } catch (error) {
                         console.error(`❌ Error storing ${expertFeatureKey}`, error);
                         }
-
+                        
                         // check if the expertID is already in the works list of the current work
                         // put the expertID in the works list of the current work
                         const exisitingExpertWorks = await redisClient.hGet(expertFeatureKey, 'works');
@@ -202,13 +245,17 @@ async function populateRedis() {
                                 await redisClient.hSet(workFeatureKey, {
                                     relatedExperts: JSON.stringify(relatedExpertsInCurrWork),
                                 });
-                                console.log(`🧑‍🎓 Successfully added expert${expertID} to ${workFeatureKey}!`);
+                                // console.log(`🧑‍🎓 Successfully added expert${expertID} to ${workFeatureKey}!`);
                             }
                         
                         }
-                        
-                            
-                    }
+                        console.log(`👩‍🏫 Current workFeatureKey hash:`, await redisClient.hGetAll(workFeatureKey));
+                        console.log(`👩‍🏫 Current expertFeatureKey hash:`, await redisClient.hGetAll(expertFeatureKey));    
+                    }}
+                const workID = generateID('work'); // Generate a unique ID for the work
+                const workFeatureKey = `worksMap:${workID}`; // Use the generated ID for the key
+                // console.log(`📜 Processing work ${workID}...`);
+        
             }
         }
       }
@@ -219,6 +266,7 @@ async function populateRedis() {
         const GeoJson = JSON.parse(geoData);
         
         for (const feature of GeoJson.features) {
+
         const { geometry, properties } = feature;
         const { coordinates, type: geometryType } = geometry;
         const {
@@ -238,8 +286,11 @@ async function populateRedis() {
         const locationName = location || ''; // Use the location name if available
         console.log(`📍 Processing location ${locationName}...`);
         if (processedLocations.has(locationName)) {
-            console.log(`📍 Location ${locationName} already processed. Skipping location storage...`);
+            console.log(`📍 Location ${locationName} already processed. Skipping...`);
             locationID = processedLocations.get(locationName); // Get the location ID from the map
+            const locationFeatureKey = `locationMap:${locationID}`; // Use the existing ID for the key
+            const locationData = await redisClient.hGetAll(locationFeatureKey);
+            console.log(`📍 Current locationFeatureKey hash:`, locationData); // Log the location data for debugging
         } else {
             locationID = generateID('location'); // Generate a unique ID for the location
             const locationFeatureKey = `locationMap:${locationID}`; // Use the generated ID for the key
@@ -261,123 +312,159 @@ async function populateRedis() {
         }
         
         for (const entry of entries) {
-        const grantID = generateID('grant'); // Generate a unique ID for the work
-        const grantFeatureKey = `grantsMap:${grantID}`; // Use the generated ID for the key
-        console.log(`📜 Processing grant ${grantID}...`);
-        try {
-            await redisClient.hSet(grantFeatureKey, {
-                grantID: grantID || '',
-                title: sanitizeString(entry.title) || '',
-                funder: entry.funder || '',
-                end_date: entry.endDate || '',
-                start_date: entry.startDate || '',
-                confidence: entry.confidence || '',
-                relatedExpert: '[]',
-                location: JSON.stringify([locationID]) || '[]',
-            });
-            console.log(`📜 Successfully stored ${grantFeatureKey}!`);
-            } catch (error) {console.error(`❌ Error storing ${grantFeatureKey}`, error);}
-            console.log(`Related Expert: ${entry.relatedExpert.name}`); // Log the related experts for debugging
-            if (entry.relatedExpert) {
-                const expertName = sanitizeString(entry.relatedExpert.name) || ''; // Sanitize the expert name
-                console.log(`👩‍🏫 Processing expert ${expertName}...`);
-                if (processedExperts.has(expertName)) {
-                    const expertID = processedExperts.get(expertName); // Get the expert ID from the map
-                    const expertFeatureKey = `expertsMap:${expertID}`; // Use the expert ID for the key
-                    console.log(`👩‍🏫 Expert ${expertName} already processed. Adding grant data to establised expert...`);
-                    const currExpert = await redisClient.hGet(expertFeatureKey, 'grants');
-                    const grantsInCurrExpert = currExpert ? JSON.parse(currExpert) : [];
-
-                    const exExpert = await redisClient.hGet(expertFeatureKey, 'location');
-                    const locInexExpert = exExpert ? JSON.parse(exExpert) : [];
-
-                    if (!grantsInCurrExpert.includes(grantID)) {
-                        grantsInCurrExpert.push(grantID);
-                        await redisClient.hSet(expertFeatureKey, {
-                        grants: JSON.stringify(grantsInCurrExpert),
-                        });
-                        console.log(`🎓 Successfully added grant ${grantID} to expert ${expertFeatureKey}!`);
-                    }
-                    if (!locInexExpert.includes(locationID)) {
-                        locInexExpert.push(locationID);
-                        await redisClient.hSet(expertFeatureKey, {
-                        location: JSON.stringify(grantsInCurrExpert),
-                        });
-                        console.log(`📍 Successfully added location ${locationID} to expert ${expertFeatureKey}!`);
-                    }
-                    const currGrant = await redisClient.hGet(grantFeatureKey, 'relatedExpert');
-                    const relatedExpertsInCurrGrant = currGrant ? JSON.parse(currGrant) : [];
-                    if (!relatedExpertsInCurrGrant.includes(expertID)) {
-                        relatedExpertsInCurrGrant.push(expertID);
-                        await redisClient.hSet(grantFeatureKey, {
-                            relatedExpert: JSON.stringify(relatedExpertsInCurrGrant),
-                        });
-                        console.log(`🧑‍🎓 Successfully added expert ${expertID} to ${grantFeatureKey}!`);
-                    }
-
+            const grantTitle = sanitizeString(entry.title) || ''; // Sanitize the grant title
+            if(processedGrants.has(grantTitle)){
+                console.log(`📜 Grant ${grantTitle} already processed. Skipping...`);
+                const grantID = processedGrants.get(grantTitle); // Get the grant ID from the map
+                const grantFeatureKey = `grantsMap:${grantID}`; // Use the existing ID for the key
+                
+                // If this is a repeat work, check the locationID with current locationID
+                // It is strange that one work would have multiple locationIDs, but it is possible.
+                const existingLocation = await redisClient.hGet(grantFeatureKey, 'location');
+                const existingLocationIDs = existingLocation ? JSON.parse(existingLocation) : [];
+                if (!existingLocationIDs.includes(locationID)) {
+                    existingLocationIDs.push(locationID); // Add the new location ID to the list
+                    await redisClient.hSet(grantFeatureKey, {
+                        location: JSON.stringify(existingLocationIDs),
+                    });
+                    console.log(`📍 Successfully added location ${locationID} to grant ${grantFeatureKey}!`);
                 }
-                else {
-                    console.log(`👩‍🏫 Expert ${entry.relatedExpert.name} not processed yet. Storing new expert...`);
+                const grantData = await redisClient.hGetAll(grantFeatureKey);
+                console.log(`📜 Current grantFeatureKey hash:`, grantData); // Log the expert data for debugging
+            }
+            else{
+                const grantID = generateID('grant'); // Generate a unique ID for the work
+                const grantFeatureKey = `grantsMap:${grantID}`; // Use the generated ID for the key
+                console.log(`📜 Processing grant ${grantID}...`);
+                try {
+                await redisClient.hSet(grantFeatureKey, {
+                    grantID: grantID || '',
+                    title: sanitizeString(entry.title) || '',
+                    funder: entry.funder || '',
+                    end_date: entry.endDate || '',
+                    start_date: entry.startDate || '',
+                    confidence: entry.confidence || '',
+                    relatedExpert: '[]',
+                    location: JSON.stringify([locationID]) || '[]',
+                });
+                console.log(`📜 Successfully stored ${grantFeatureKey}!`);
+                processedGrants.set(grantTitle, grantID); // Map the grant title to the grant ID
+                } catch (error) {console.error(`❌ Error storing ${grantFeatureKey}`, error);}
+                console.log(`Related Expert: ${entry.relatedExpert.name}`); // Log the related experts for debugging
+                if (entry.relatedExpert) {
                     const expertName = sanitizeString(entry.relatedExpert.name) || ''; // Sanitize the expert name
-                    const expertID = generateID('expert'); // Generate a unique ID for the expert
-                    const expertFeatureKey = `expertsMap:${expertID}`; // Use the generated ID for the key
-                        try {
+                    console.log(`👩‍🏫 Processing expert ${expertName}...`);
+                    if (processedExperts.has(expertName)) {
+                        const expertID = processedExperts.get(expertName); // Get the expert ID from the map
+                        const expertFeatureKey = `expertsMap:${expertID}`; // Use the expert ID for the key
+                        console.log(`👩‍🏫 Expert ${expertName} already processed. Adding grant data to establised expert...`);
+                        
+                        const currExpert = await redisClient.hGet(expertFeatureKey, 'grants');
+                        const grantsInCurrExpert = currExpert ? JSON.parse(currExpert) : [];
+
+                        const exExpert = await redisClient.hGet(expertFeatureKey, 'location');
+                        const locInexExpert = exExpert ? JSON.parse(exExpert) : [];
+
+                        if (!grantsInCurrExpert.includes(grantID)) {
+                            grantsInCurrExpert.push(grantID);
                             await redisClient.hSet(expertFeatureKey, {
-                            expertID: expertID || '',
-                            name: expertName,
-                            expertURL: entry.relatedExpert.url || '',
-                            title: 'Temp Professor' || '',
-                            email: 'fake.email@blah.com' || '',
-                            pronouns: 'they/them' || '',
-                            organization: 'relatedExpert.organization' || '',
-                            works: '[]', // Assuming no grants for now...
-                            grants: JSON.stringify([grantID]), 
-                            location: JSON.stringify([locationID]) || '[]',
+                            grants: JSON.stringify(grantsInCurrExpert),
                             });
-                            processedExperts.set(expertName, expertID); // Add the expert name to the set of processed experts
-                            console.log(`👩‍🏫 Successfully stored ${expertFeatureKey}!`);
-                            console.log(`${expertName} added to processed experts.`); // Log the expert name for debugging
-                            } catch (error) {
-                            console.error(`❌ Error storing ${expertFeatureKey}`, error);
-                            }
-                            const exisitingExpertGrants = await redisClient.hGet(expertFeatureKey, 'grants');
-                            const grantInCurrExpert = exisitingExpertGrants ? JSON.parse(exisitingExpertGrants) : [];
-                            console.log(`GrantIDs in experMap: ${grantInCurrExpert}`); // Log the works for debugging
-                            console.log(`Grant ID: ${grantID}`); // Log the work ID for debugging
-                            console.log(`ExpertID: ${expertID}`); // Log the expert ID for debugging
+                            console.log(`🎓 Successfully added grant ${grantID} to expert ${expertFeatureKey}!`);
+                        }
+                        if (!locInexExpert.includes(locationID)) {
+                            locInexExpert.push(locationID);
+                            await redisClient.hSet(expertFeatureKey, {
+                            location: JSON.stringify(grantsInCurrExpert),
+                            });
+                            console.log(`📍 Successfully added location ${locationID} to expert ${expertFeatureKey}!`);
+                        }
+                        const currGrant = await redisClient.hGet(grantFeatureKey, 'relatedExpert');
+                        const relatedExpertsInCurrGrant = currGrant ? JSON.parse(currGrant) : [];
+                        if (!relatedExpertsInCurrGrant.includes(expertID)) {
+                            relatedExpertsInCurrGrant.push(expertID);
+                            await redisClient.hSet(grantFeatureKey, {
+                                relatedExpert: JSON.stringify(relatedExpertsInCurrGrant),
+                            });
+                            console.log(`🧑‍🎓 Successfully added expert ${expertID} to ${grantFeatureKey}!`);
+                        }
+                        const expertsInCurrGrant = await redisClient.hGet(grantFeatureKey, 'relatedExpert');
+                        const expertListinCurrGrant = expertsInCurrGrant ? JSON.parse(expertsInCurrGrant) : [];
+                        if (!expertListinCurrGrant.includes(expertID)) {
+                            expertListinCurrGrant.push(expertID);
+                            await redisClient.hSet(grantFeatureKey, {
+                                relatedExpert: JSON.stringify(expertListinCurrGrant),
+                            });
+                            console.log(`🧑‍🎓 Successfully added expert ${expertID} to ${grantFeatureKey}!`);
+                        }
+                        console.log(`👩‍🏫 Repeat expertFeatureKey hash:`, await redisClient.hGetAll(expertFeatureKey));
+                        console.log(`👩‍🏫 Current grantFeatureKey hash:`, await redisClient.hGetAll(grantFeatureKey)); // Log the expert data for debugging
+                    }
+                    else {
+                        console.log(`👩‍🏫 Expert ${entry.relatedExpert.name} not processed yet. Storing new expert...`);
+                        const expertName = sanitizeString(entry.relatedExpert.name) || ''; // Sanitize the expert name
+                        const expertID = generateID('expert'); // Generate a unique ID for the expert
+                        const expertFeatureKey = `expertsMap:${expertID}`; // Use the generated ID for the key
+                            try {
+                                await redisClient.hSet(expertFeatureKey, {
+                                expertID: expertID || '',
+                                name: expertName,
+                                expertURL: entry.relatedExpert.url || '',
+                                title: 'Temp Professor' || '',
+                                email: 'fake.email@blah.com' || '',
+                                pronouns: 'they/them' || '',
+                                organization: 'relatedExpert.organization' || '',
+                                works: '[]', // Assuming no grants for now...
+                                grants: JSON.stringify([grantID]), 
+                                location: JSON.stringify([locationID]) || '[]',
+                                });
+                                processedExperts.set(expertName, expertID); // Add the expert name to the set of processed experts
+                                console.log(`👩‍🏫 Successfully stored ${expertFeatureKey}!`);
+                                console.log(`${expertName} added to processed experts.`); // Log the expert name for debugging
+                                } catch (error) {
+                                console.error(`❌ Error storing ${expertFeatureKey}`, error);
+                                }
+                                const exisitingExpertGrants = await redisClient.hGet(expertFeatureKey, 'grants');
+                                const grantInCurrExpert = exisitingExpertGrants ? JSON.parse(exisitingExpertGrants) : [];
+                                // console.log(`GrantIDs in experMap: ${grantInCurrExpert}`); // Log the works for debugging
+                                // console.log(`Grant ID: ${grantID}`); // Log the work ID for debugging
+                                // console.log(`ExpertID: ${expertID}`); // Log the expert ID for debugging
+        
+                                // Add the expertID to the relatedExperts field of the current work
+                                const existingRelatedExperts = await redisClient.hGet(grantFeatureKey, 'relatedExpert');
+                                const relatedExpertsInCurrWork = existingRelatedExperts ? JSON.parse(existingRelatedExperts) : [];
+                                // console.log(`Related Experts in current work: ${relatedExpertsInCurrWork}`); // Log the related experts for debugging
+                                // if this expert has the workID in their works, add this expert as a related expert to the work
+                                if(grantInCurrExpert.includes(grantID)) {
+                                    if (!relatedExpertsInCurrWork.includes(expertID)) {
+                                        relatedExpertsInCurrWork.push(expertID);
+                                        await redisClient.hSet(grantFeatureKey, {
+                                            relatedExpert: JSON.stringify(relatedExpertsInCurrWork),
+                                        });
+                                        console.log(`🧑‍🎓 Successfully added expert${expertID} to ${grantFeatureKey}!`);
+                                    }   
+                                }
+                                console.log(`👩‍🏫 Repeat expertFeatureKey hash:`, await redisClient.hGetAll(expertFeatureKey));
+                                console.log(`👩‍🏫 Current grantFeatureKey hash:`, await redisClient.hGetAll(grantFeatureKey)); // Log the expert data for debugging   
+                            }   
+                        }        
+                    }
+   
+    }
     
-                            // Add the expertID to the relatedExperts field of the current work
-                            const existingRelatedExperts = await redisClient.hGet(grantFeatureKey, 'relatedExpert');
-                            const relatedExpertsInCurrWork = existingRelatedExperts ? JSON.parse(existingRelatedExperts) : [];
-                            // console.log(`Related Experts in current work: ${relatedExpertsInCurrWork}`); // Log the related experts for debugging
-                            // if this expert has the workID in their works, add this expert as a related expert to the work
-                            if(grantInCurrExpert.includes(grantID)) {
-                                if (!relatedExpertsInCurrWork.includes(expertID)) {
-                                    relatedExpertsInCurrWork.push(expertID);
-                                    await redisClient.hSet(grantFeatureKey, {
-                                        relatedExpert: JSON.stringify(relatedExpertsInCurrWork),
-                                    });
-                                    console.log(`🧑‍🎓 Successfully added expert${expertID} to ${grantFeatureKey}!`);
-                                }   
-                            }
-                            
-                    } 
-        }
-        }
     }
-    }
+}
     console.log('⏳ Processing data...');
-    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'));
-    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
+    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures1.geojson'));
+    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures1.geojson'));
     console.log('⌛ Processing data completed!');
-}catch (error) {
-    console.error('❌ Error populating Redis:', error);
-} finally {
-    await redisClient.quit();
-    console.log('✅ Redis client disconnected.');
+}
+    catch (error) {
+    console.error(`❌ Error populating Redis: ${error.message}`);
 }
 }
 
+// Call the function to populate Redis
 populateRedis()
   .catch((error) => {
     console.error('❌ Unhandled error:', error);
