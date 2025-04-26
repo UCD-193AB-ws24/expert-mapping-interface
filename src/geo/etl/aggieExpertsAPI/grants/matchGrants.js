@@ -1,15 +1,112 @@
 /**
 * @file matchGrants.js
-* @description Matches grants with experts from the Aggie Experts API data
+* @description Matches grants with experts from the Aggie Experts API data using Redis
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\matchGrants.js
 *
 * © Zoey Vo, 2025
 */
 
-const fs = require('fs');
-const path = require('path');
 const { saveCache } = require('../apiUtils');
+const { createClient } = require('redis');
+
+/**
+ * Connect to Redis and return client
+ * @returns {Promise<RedisClient>} Connected Redis client
+ */
+async function connectToRedis() {
+  // Create Redis client
+  const client = createClient({
+    url: 'redis://localhost:6379'
+  });
+
+  client.on('error', (err) => {
+    console.error('❌ Redis error:', err);
+  });
+
+  await client.connect();
+  console.log('✅ Redis connected successfully');
+  return client;
+}
+
+/**
+ * Fetch all experts from Redis
+ * @returns {Promise<Array>} Array of expert objects
+ */
+async function getExpertsFromRedis() {
+  let client;
+  try {
+    client = await connectToRedis();
+    
+    // Get all expert keys (excluding metadata)
+    const keys = await client.keys('expert:*');
+    const expertKeys = keys.filter(key => key !== 'expert:metadata');
+    
+    console.log(`Found ${expertKeys.length} experts in Redis`);
+    
+    // Get data for each expert
+    const experts = [];
+    for (const key of expertKeys) {
+      const expertData = await client.hGetAll(key);
+      experts.push({
+        firstName: expertData.first_name || '',
+        middleName: expertData.middle_name || '',
+        lastName: expertData.last_name || '',
+        url: expertData.url || ''
+      });
+    }
+    
+    return experts;
+  } catch (error) {
+    console.error('❌ Error fetching experts from Redis:', error);
+    return [];
+  } finally {
+    if (client) {
+      await client.disconnect();
+      console.log('🔌 Redis connection closed (experts)');
+    }
+  }
+}
+
+/**
+ * Fetch all grants from Redis
+ * @returns {Promise<Array>} Array of grant objects
+ */
+async function getGrantsFromRedis() {
+  let client;
+  try {
+    client = await connectToRedis();
+    
+    // Get all grant keys (excluding metadata)
+    const keys = await client.keys('grant:*');
+    const grantKeys = keys.filter(key => key !== 'grant:metadata');
+    
+    console.log(`Found ${grantKeys.length} grants in Redis`);
+    
+    // Get data for each grant
+    const grants = [];
+    for (const key of grantKeys) {
+      const grantData = await client.hGetAll(key);
+      grants.push({
+        title: grantData.title || '',
+        funder: grantData.funder || '',
+        startDate: grantData.start_date || '',
+        endDate: grantData.end_date || '',
+        inheresIn: grantData.inheres_in || ''
+      });
+    }
+    
+    return grants;
+  } catch (error) {
+    console.error('❌ Error fetching grants from Redis:', error);
+    return [];
+  } finally {
+    if (client) {
+      await client.disconnect();
+      console.log('🔌 Redis connection closed (grants)');
+    }
+  }
+}
 
 /**
  * Creates a map of experts indexed by their URLs
@@ -27,15 +124,21 @@ function createExpertsByUrlMap(experts) {
     return expertsByUrl;
 }
 
-function matchGrants(inputFileName = 'newGrants.json') {
+async function matchGrants() {
     try {
-        // Load experts data
-        const expertsPath = path.join(__dirname, '../experts/json', 'experts.json');
-        const experts = JSON.parse(fs.readFileSync(expertsPath, 'utf8'));
-
-        // Load grants data from specified file
-        const grantsPath = path.join(__dirname, 'json', inputFileName);
-        const grants = JSON.parse(fs.readFileSync(grantsPath, 'utf8'));
+        // Load experts and grants data from Redis
+        const experts = await getExpertsFromRedis();
+        const grants = await getGrantsFromRedis();
+        
+        if (experts.length === 0) {
+            console.error('No experts found in Redis. Please run fetchExperts.js first.');
+            return;
+        }
+        
+        if (grants.length === 0) {
+            console.error('No grants found in Redis. Please run fetchGrants.js first.');
+            return;
+        }
 
         // Create experts by URL map
         const expertsByUrl = createExpertsByUrlMap(experts);

@@ -11,8 +11,9 @@
 */
 
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
+const { cacheExperts } = require('../redis/redisUtils');
 
-async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = false) {
+async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = false, cacheToRedis = true) {
     let experts = [];
     let page = 0;
     let totalFetched = 0;
@@ -41,11 +42,26 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = f
         
         logBatch('experts', page, true, totalFetched);
         
-        // Manage cache using the new utility
-        const cacheResult = manageCacheData('experts', 'experts.json', experts, {
-            idField: 'url',
-            forceUpdate
-        });
+        // Skip file caching if cacheToRedis is true
+        let cacheResult = { 
+            data: experts,
+            cacheUpdated: false,
+            newCount: 0,
+            hasNewEntries: false
+        };
+        
+        // If file caching is still needed (when not using Redis)
+        if (!cacheToRedis) {
+            // Manage cache using the utility for file-based caching
+            cacheResult = manageCacheData('experts', 'experts.json', experts, {
+                idField: 'url',
+                forceUpdate
+            });
+        } else {
+            // Only cache to Redis
+            console.log('Caching experts to Redis...');
+            await cacheExperts(experts);
+        }
         
         return {
             experts: cacheResult.data,

@@ -1,49 +1,101 @@
 /**
 * @file fetchWorks.js
-* @description Fetches work publication information from the Aggie Experts API
+* @description Fetches scholarly works from the Aggie Experts API, processes them, and caches them
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
 * 
 * REQUIREMENTS: 
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
+* - Experts data to be fetched first (this module links works to experts)
 *
-* © Zoey Vo, Loc Nguyen, 2025
+* © Zoey Vo, 2025
 */
 
-const { logBatch, fetchFromApi, API_TOKEN, manageCacheData } = require('../apiUtils');
+const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
+const { fetchExperts } = require('../experts/fetchExperts');
+const { cacheWorks } = require('../redis/redisUtils');
 
-async function fetchWorks(batchSize = 10, maxPages = 1000, forceUpdate = false) {
+async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = true) {
+    // First, fetch experts to link to works
+    const { experts } = await fetchExperts(batchSize, maxPages, forceUpdate, cacheToRedis);
+    
     let works = [];
     let page = 0;
     let totalFetched = 0;
+    
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
-                '@type': 'work', page
+                '@type': 'publication', page
             }, { 'Authorization': API_TOKEN });
+            
             const hits = data.hits;
-            if (!hits.length) break;
-            works.push(...hits.map(work => ({
-                title: work.title || 'No Title',
-                authors: (work.author || []).map(author => `${author.given || ''} ${author.family || ''}`.trim()),
-                relatedExperts: [],
-                issued: work.issued || 'No Issued Date',
-                abstract: work.abstract || 'No Abstract',
-                name: work.name || 'No Name',
-                // Adding a unique identifier for caching comparison
-                id: work['@id'] || work.name
-            })));
+            if (hits.length === 0) break;
+            
+            const processedWorks = hits.map(work => {
+                // Extract and clean up the data
+                const workData = {
+                    id: work['@id'] || '',
+                    title: work.name || '',
+                    name: work.name || '',
+                    issued: work.datePublished || '',
+                    abstract: work.abstract || '',
+                    authors: work.authors?.map(author => ({
+                        name: author.name || '',
+                        id: author['@id'] || ''
+                    })) || []
+                };
+                
+                // Find the related experts for this work
+                if (workData.authors && workData.authors.length > 0) {
+                    workData.relatedExperts = workData.authors
+                        .filter(author => author.id)
+                        .map(author => {
+                            const relatedExpert = experts.find(expert => expert.url === author.id);
+                            if (relatedExpert) {
+                                return {
+                                    firstName: relatedExpert.firstName,
+                                    lastName: relatedExpert.lastName,
+                                    url: relatedExpert.url
+                                };
+                            }
+                            return null;
+                        })
+                        .filter(Boolean); // Remove nulls
+                }
+                
+                return workData;
+            });
+            
+            works.push(...processedWorks);
+            
             totalFetched += hits.length;
             if (page % batchSize === 0) logBatch('works', page, false);
             page++;
         }
+        
         logBatch('works', page, true, totalFetched);
         
-        // Manage cache using the new utility
-        const cacheResult = manageCacheData('works', 'works.json', works, {
-            idField: 'id',
-            forceUpdate
-        });
+        // Skip file caching if cacheToRedis is true
+        let cacheResult = { 
+            data: works,
+            cacheUpdated: false,
+            newCount: 0,
+            hasNewEntries: false
+        };
+        
+        // If file caching is still needed (when not using Redis)
+        if (!cacheToRedis) {
+            // Manage cache using the utility for file-based caching
+            cacheResult = manageCacheData('works', 'works.json', works, {
+                idField: 'id',
+                forceUpdate
+            });
+        } else {
+            // Only cache to Redis
+            console.log('Caching works to Redis...');
+            await cacheWorks(works);
+        }
         
         return {
             works: cacheResult.data,
@@ -57,8 +109,9 @@ async function fetchWorks(batchSize = 10, maxPages = 1000, forceUpdate = false) 
     }
 }
 
+// Run if this file is executed directly
 if (require.main === module) {
-fetchWorks();
+    fetchWorks();
 }
 
 module.exports = { fetchWorks };

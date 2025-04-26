@@ -1,46 +1,91 @@
 /**
 * @file fetchGrants.js
-* @description Fetches grant information from the Aggie Experts API
+* @description Fetches grant data from Aggie Experts, processes it, and optionally caches it
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\fetchGrants.js
 * 
 * REQUIREMENTS: 
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
+* - Experts data to be fetched first (this module links grants to experts)
 *
 * © Zoey Vo, Loc Nguyen, 2025
 */
 
-const { logBatch, fetchFromApi, API_TOKEN, manageCacheData } = require('../apiUtils');
+const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
+const { fetchExperts } = require('../experts/fetchExperts');
+const { cacheGrants } = require('../redis/redisUtils');
 
-async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false) {
+async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false, cacheToRedis = true) {
+    // First, fetch experts to link to grants
+    const { experts } = await fetchExperts(batchSize, maxPages, forceUpdate, cacheToRedis);
+    
     let grants = [];
     let page = 0;
     let totalFetched = 0;
+    
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
                 '@type': 'grant', page
             }, { 'Authorization': API_TOKEN });
+            
             const hits = data.hits;
-            if (!hits.length) break;
-            grants.push(...hits.map(grant => ({
-                title: grant.name.includes('§') ? grant.name.substr(0, grant.name.indexOf('§')) : grant.name,
-                funder: grant.assignedBy.name,
-                startDate: grant.dateTimeInterval.start.dateTime,
-                endDate: grant.dateTimeInterval.end.dateTime,
-                inheresIn: grant.relatedBy[0].inheres_in,
-            })));
+            if (hits.length === 0) break;
+            
+            const processedGrants = hits.map(grant => {
+                // Extract and clean up the data
+                const grantData = {
+                    title: grant.name || '',
+                    funder: grant.sponsor?.name || '',
+                    startDate: grant.dateTimeInterval?.start || '',
+                    endDate: grant.dateTimeInterval?.end || '',
+                    inheresIn: grant.inheresIn?.['@id'] || ''
+                };
+                
+                // Find the related expert for this grant
+                if (grantData.inheresIn) {
+                    const relatedExpert = experts.find(expert => expert.url === grantData.inheresIn);
+                    if (relatedExpert) {
+                        grantData.relatedExpert = {
+                            firstName: relatedExpert.firstName,
+                            lastName: relatedExpert.lastName,
+                            url: relatedExpert.url
+                        };
+                    }
+                }
+                
+                return grantData;
+            });
+            
+            grants.push(...processedGrants);
+            
             totalFetched += hits.length;
             if (page % batchSize === 0) logBatch('grants', page, false);
             page++;
         }
+        
         logBatch('grants', page, true, totalFetched);
         
-        // Manage cache using the new utility
-        const cacheResult = manageCacheData('grants', 'grants.json', grants, {
-            idField: 'inheresIn', // Using inheresIn as unique identifier
-            forceUpdate
-        });
+        // Skip file caching if cacheToRedis is true
+        let cacheResult = { 
+            data: grants,
+            cacheUpdated: false,
+            newCount: 0,
+            hasNewEntries: false
+        };
+        
+        // If file caching is still needed (when not using Redis)
+        if (!cacheToRedis) {
+            // Manage cache using the utility for file-based caching
+            cacheResult = manageCacheData('grants', 'grants.json', grants, {
+                idField: 'inheresIn',
+                forceUpdate
+            });
+        } else {
+            // Only cache to Redis
+            console.log('Caching grants to Redis...');
+            await cacheGrants(grants);
+        }
         
         return {
             grants: cacheResult.data,
@@ -54,8 +99,9 @@ async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false) {
     }
 }
 
+// Run if this file is executed directly
 if (require.main === module) {
-fetchGrants();
+    fetchGrants();
 }
 
 module.exports = { fetchGrants };

@@ -1,97 +1,195 @@
 /**
 * @file matchWorks.js
-* @description Matches works with experts from the Aggie Experts API data
+* @description Matches scholarly works with experts from the Aggie Experts API data using Redis
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\matchWorks.js
 *
 * © Zoey Vo, 2025
 */
 
-const fs = require('fs');
-const path = require('path');
+
 const { saveCache } = require('../apiUtils');
+const { createClient } = require('redis');
 
 /**
- * Creates a map of expert name variations for flexible matching
- * @param {Array} experts - Array of expert objects
- * @returns {Object} Map of name variations to expert data
+ * Connect to Redis and return client
+ * @returns {Promise<RedisClient>} Connected Redis client
  */
-function createExpertsNameMap(experts) {
-    const expertsMap = {};
-    
-    experts.forEach(expert => {
-        const fullName = `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' ');
-        const nameWithoutMiddle = `${expert.firstName} ${expert.lastName}`.trim().replace(/\s+/g, ' ');
-        
-        // Store multiple name variations as keys for the same expert
-        expertsMap[fullName.toLowerCase()] = { fullName, url: expert.url };
-        expertsMap[nameWithoutMiddle.toLowerCase()] = { fullName, url: expert.url };
-        
-        // If middle name is just an initial (e.g., "J"), add variations with and without the period
-        if (expert.middleName && expert.middleName.length === 1) {
-            const nameWithMiddleInitial = `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' ');
-            const nameWithMiddleInitialDot = `${expert.firstName} ${expert.middleName}. ${expert.lastName}`.trim().replace(/\s+/g, ' ');
-            expertsMap[nameWithMiddleInitial.toLowerCase()] = { fullName, url: expert.url };
-            expertsMap[nameWithMiddleInitialDot.toLowerCase()] = { fullName, url: expert.url };
-        }
-    });
-    
-    return expertsMap;
+async function connectToRedis() {
+  // Create Redis client
+  const client = createClient({
+    url: 'redis://localhost:6379'
+  });
+
+  client.on('error', (err) => {
+    console.error('❌ Redis error:', err);
+  });
+
+  await client.connect();
+  console.log('✅ Redis connected successfully');
+  return client;
 }
 
 /**
- * Match works with experts based on author names
- * @param {string} inputFileName - The name of the works JSON file to process (default: 'newWorks.json')
- * @returns {void} Writes matched works to the expertMatchedWorks.json file
+ * Fetch all experts from Redis
+ * @returns {Promise<Array>} Array of expert objects
  */
-function matchWorks(inputFileName = 'newWorks.json') {
+async function getExpertsFromRedis() {
+  let client;
+  try {
+    client = await connectToRedis();
+    
+    // Get all expert keys (excluding metadata)
+    const keys = await client.keys('expert:*');
+    const expertKeys = keys.filter(key => key !== 'expert:metadata');
+    
+    console.log(`Found ${expertKeys.length} experts in Redis`);
+    
+    // Get data for each expert
+    const experts = [];
+    for (const key of expertKeys) {
+      const expertData = await client.hGetAll(key);
+      experts.push({
+        firstName: expertData.first_name || '',
+        middleName: expertData.middle_name || '',
+        lastName: expertData.last_name || '',
+        url: expertData.url || ''
+      });
+    }
+    
+    return experts;
+  } catch (error) {
+    console.error('❌ Error fetching experts from Redis:', error);
+    return [];
+  } finally {
+    if (client) {
+      await client.disconnect();
+      console.log('🔌 Redis connection closed (experts)');
+    }
+  }
+}
+
+/**
+ * Fetch all works from Redis
+ * @returns {Promise<Array>} Array of work objects
+ */
+async function getWorksFromRedis() {
+  let client;
+  try {
+    client = await connectToRedis();
+    
+    // Get all work keys (excluding metadata)
+    const keys = await client.keys('work:*');
+    const workKeys = keys.filter(key => key !== 'work:metadata');
+    
+    console.log(`Found ${workKeys.length} works in Redis`);
+    
+    // Get data for each work
+    const works = [];
+    for (const key of workKeys) {
+      const workData = await client.hGetAll(key);
+      
+      // Parse the authors array from JSON string
+      let authors = [];
+      try {
+        if (workData.authors) {
+          authors = JSON.parse(workData.authors);
+        }
+      } catch (e) {
+        console.error(`Error parsing authors for ${key}:`, e.message);
+      }
+      
+      works.push({
+        id: workData.id || '',
+        title: workData.title || '',
+        name: workData.name || '',
+        issued: workData.issued || '',
+        abstract: workData.abstract || '',
+        authors: authors
+      });
+    }
+    
+    return works;
+  } catch (error) {
+    console.error('❌ Error fetching works from Redis:', error);
+    return [];
+  } finally {
+    if (client) {
+      await client.disconnect();
+      console.log('🔌 Redis connection closed (works)');
+    }
+  }
+}
+
+/**
+ * Creates a map of experts indexed by their URLs
+ * @param {Array} experts - Array of expert objects
+ * @returns {Object} Map of expert URLs to expert data
+ */
+function createExpertsByUrlMap(experts) {
+    const expertsByUrl = {};
+    
+    experts.forEach(expert => {
+        const fullName = `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' ');
+        expertsByUrl[expert.url] = { 
+            fullName, 
+            url: expert.url,
+            firstName: expert.firstName,
+            lastName: expert.lastName
+        };
+    });
+    
+    return expertsByUrl;
+}
+
+async function matchWorks() {
     try {
-        // Load experts data
-        const expertsPath = path.join(__dirname, '../experts/json', 'experts.json');
-        const experts = JSON.parse(fs.readFileSync(expertsPath, 'utf8'));
+        // Load experts and works data from Redis
+        const experts = await getExpertsFromRedis();
+        const works = await getWorksFromRedis();
+        
+        if (experts.length === 0) {
+            console.error('No experts found in Redis. Please run fetchExperts.js first.');
+            return;
+        }
+        
+        if (works.length === 0) {
+            console.error('No works found in Redis. Please run fetchWorks.js first.');
+            return;
+        }
 
-        // Load works data from specified file
-        const worksPath = path.join(__dirname, 'json', inputFileName);
-        const works = JSON.parse(fs.readFileSync(worksPath, 'utf8'));
-
-        // Create experts name map for flexible matching
-        const expertsMap = createExpertsNameMap(experts);
+        // Create experts by URL map
+        const expertsByUrl = createExpertsByUrlMap(experts);
 
         // Match works with experts
         const worksWithExperts = works.map(work => {
-            const relatedExperts = work.authors.map(author => {
-                // Try exact match first
-                const match = expertsMap[author.toLowerCase()];
-                
-                if (match) {
-                    return match;
-                }
-                
-                // If no match, try more flexible matching for first and last name
-                const [firstName, ...rest] = author.split(' ');
-                const lastName = rest.pop() || '';
-                
-                // Create various name patterns to try
-                const nameWithoutMiddle = `${firstName} ${lastName}`.toLowerCase();
-                
-                // Check if just first+last matches
-                if (expertsMap[nameWithoutMiddle]) {
-                    return expertsMap[nameWithoutMiddle];
-                }
-                
-                return null;
-            }).filter(Boolean);
-
-            return {
-                ...work,
-                relatedExperts: relatedExperts.map(expert => ({
+            // Extract author IDs (URLs) from the work
+            const authorIds = work.authors
+                ? work.authors.filter(author => author.id).map(author => author.id)
+                : [];
+            
+            // Find related experts for each author ID
+            const relatedExperts = authorIds
+                .map(id => expertsByUrl[id])
+                .filter(Boolean) // Remove nulls
+                .map(expert => ({
                     name: expert.fullName,
+                    firstName: expert.firstName,
+                    lastName: expert.lastName,
                     url: expert.url
-                }))
+                }));
+            
+            return {
+                title: work.title,
+                name: work.name,
+                id: work.id,
+                issued: work.issued,
+                abstract: work.abstract,
+                relatedExperts: relatedExperts
             };
         });
 
-        console.log(`Works with matches: ${worksWithExperts.filter(w => w.relatedExperts.length > 0).length}/${worksWithExperts.length}`);
+        console.log(`Works with expert matches: ${worksWithExperts.filter(w => w.relatedExperts.length > 0).length}/${worksWithExperts.length}`);
         
         // Save to the specified output file
         saveCache('works', 'expertMatchedWorks.json', worksWithExperts);
