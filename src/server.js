@@ -74,80 +74,71 @@ app.use((req, res, next) => {
 });
 
 // Fetch all works from Redis as geojson file
-app.get('/api/redis/worksQuery', async (req, res) => {
-  console.log('📍 Received request for Redis data');
+app.get('/api/redis/map-data', async (req, res) => {
+  console.log('📍 Received request for /api/redis/map-data');
   try {
     if (!redisClient.isOpen) {
       console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
-      const workKeys = await redisClient.keys('work:*');
-      const features = [];
-    
-      console.log(`Found ${workKeys.length} features in Redis`);
-    for (const workKey of workKeys) {
-      if (workKey.includes(':entry')) continue;
-      if(workKey.includes(':metadata')) continue;
-
-      const workData = await redisClient.hGetAll(workKey);
-      const feature_id = workData.id || workKey.split(':')[1]; 
-      const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
-      const entries = [];
       
-      for (const entryKey of entryKeys) {
-        const entryData = await redisClient.hGetAll(entryKey);
-        entries.push({
-          name: entryData.name || '',
-          title: entryData.title || '',
-          issued: entryData.issued || '',
-          authors: entryData.authors ? JSON.parse(entryData.authors) : [],
-          abstract: entryData.abstract || '',
-          confidence: entryData.confidence || '',
-          relatedExperts: entryData.related_experts
-            ? JSON.parse(entryData.related_experts)
-            : [],
-        });
-        
-      }
+      console.log('Fetching data from Redis...');
+      const locationKeys = await redisClient.keys('locationMap:*');
+      const locations = [];
 
-      features.push({
-        type: 'Feature',
-        id: feature_id,
-        geometry: {
-          type: workData.geometry_type,
-          coordinates: JSON.parse(workData.coordinates),
-        },
-        properties: {
-          name: workData.name || '',
-          type: workData.type || '',
-          class: workData.class || '',
-          entries: entries,
-          location: workData.location || '',
-          osm_type: workData.osm_type || '',
-          display_name: workData.display_name || '',
-          source: workData.source || '',
-        },
-      });
+      for (const locationKey of locationKeys) {
+      const locationData = await redisClient.hGetAll(locationKey);
+
+      const location = {
+        locationID: locationData.locationID,
+        displayName: locationData.displayName,
+        geometryType: locationData.geometryType,
+        coordinates: JSON.parse(locationData.coordinates),
+        expertCount: JSON.parse(locationData.relatedExperts).length,
+        worksCount: JSON.parse(locationData.works).length,
+        grantsCount: JSON.parse(locationData.grants).length,
+        experts: [],
+        works: [],
+        grants: []
+      };
+      // Fetch related experts
+      // for (const expertID of JSON.parse(locationData.relatedExperts)) {
+      //   const expertData = await redisClient.hGetAll(`expertsMap:${expertID}`);
+      //   location.experts.push({
+      //     expertID: expertData.expertID,
+      //     name: expertData.name,
+      //     works: JSON.parse(expertData.works),
+      //     grants: JSON.parse(expertData.grants)
+      //   });
+      // }
+      // // Fetch related works
+      // for (const workID of JSON.parse(locationData.works)) {
+      //   const workData = await redisClient.hGetAll(`worksMap:${workID}`);
+      //   location.works.push({
+      //     workID: workData.workID,
+      //     title: workData.title,
+      //     relatedExperts: JSON.parse(workData.relatedExperts)
+      //   });
+      // }
+      // // Fetch related grants
+      // for (const grantID of JSON.parse(locationData.grants)) {
+      //   const grantData = await redisClient.hGetAll(`grantsMap:${grantID}`);
+      //   location.grants.push({
+      //     grantID: grantData.grantID,
+      //     title: grantData.title,
+      //     relatedExperts: JSON.parse(grantData.relatedExperts)
+      //   });
+      // }
+      locations.push(location);
     }
-    
-    const metadata = await redisClient.hGetAll('work:metadata');
-    if (!metadata) {
-      console.error('❌ Metadata not found in Redis');
-      return res.status(500).json({ error: 'Metadata not found' });
-    }
-
-    const geojson = {
-      type: 'FeatureCollection',
-      features: features,
-      metadata: metadata,
-    };
-
-    res.json(geojson);
+      console.log('📤 Sending response:', JSON.stringify(locations, null, 2));
+      res.json({ locations });
   } catch (error) {
-    console.error('❌ Error querying Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+      console.error('❌ Error fetching map data:', error);
+      res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 });
+
 
 // Fetch all grants from Redis as geojson file
 app.get('/api/redis/grantsQuery', async (req, res) => {
