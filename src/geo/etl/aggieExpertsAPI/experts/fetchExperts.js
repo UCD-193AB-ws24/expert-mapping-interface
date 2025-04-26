@@ -13,7 +13,7 @@
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
 const { cacheExperts } = require('../redis/redisUtils');
 
-async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = false, cacheToRedis = true) {
+async function fetchExperts(batchSize = 10, maxPages = 1, forceUpdate = false, cacheToRedis = true) {
     let experts = [];
     let page = 0;
     let totalFetched = 0;
