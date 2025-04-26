@@ -1,0 +1,303 @@
+[
+  {
+    "key": "grantsMap:00000017",
+    "data": {
+      "grantID": "00000017",
+      "title": "Lost in the Streets of Bangkok",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2024-04-28",
+      "start_date": "2023-01-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000207\"",
+      "location": "[\"00000127\"]",
+      "relatedExperts": "[\"00000207\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000019",
+    "data": {
+      "grantID": "00000019",
+      "title": "Love Letters from Puerto Rico",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2019-12-15",
+      "start_date": "2017-07-01",
+      "confidence": "Mid",
+      "relatedExpert": "\"00000209\"",
+      "location": "[\"00000017\"]",
+      "relatedExperts": "[\"00000209\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000007",
+    "data": {
+      "start_date": "2008-07-01",
+      "title": "FIRE-INDUCED CHANGES IN ALBEDO AND THE ASSOCIATE RADIATIVE FORCING A COMPARISON OF BOREAL CANADA AND AUSTRALIA TROPICAL SAVANNAS I PROPOSE A 3-YEAR STUDY USING MODIS OBSERVATIONS AND AVAILABLE FIRE HISTORY DATA TO EXAMINE THE TEMPORAL EVOLUTION OF POST",
+      "displayTitle": "",
+      "end_date": "2012-06-30",
+      "relatedExperts": "[\"00000198\"]",
+      "funder": "National Aeronautics and Space Administration",
+      "relatedExpert": "\"00000198\"",
+      "location": "[\"00000049\"]",
+      "confidence": "High",
+      "grantID": "00000007"
+    }
+  },
+  {
+    "key": "grantsMap:00000001",
+    "data": {
+      "grantID": "00000001",
+      "title": "CA Quits Tobacco Cessation Learning Collaborative",
+      "displayTitle": "",
+      "funder": "California Department Of Public Health",
+      "end_date": "2018-03-30",
+      "start_date": "2017-03-24",
+      "confidence": "High",
+      "relatedExpert": "\"00000193\"",
+      "location": "[\"00000002\"]",
+      "relatedExperts": "[\"00000193\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000012",
+    "data": {
+      "grantID": "00000012",
+      "title": "Midnight in Barcelona",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2014-08-28",
+      "start_date": "2010-06-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000202\"",
+      "location": "[\"00000122\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000010",
+    "data": {
+      "grantID": "00000010",
+      "title": "Summer at Newport Beach",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2021-02-28",
+      "start_date": "2020-05-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000201\"",
+      "location": "[\"00000120\"]",
+      "relatedExperts": "[\"00000201\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000015",
+    "data": {
+      "grantID": "00000015",
+      "title": "Snowfall in Vermont",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2018-04-28",
+      "start_date": "2015-01-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000205\"",
+      "location": "[\"00000125\"]",
+      "relatedExperts": "[\"00000205\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000003",
+    "data": {
+      "grantID": "00000003",
+      "end_date": "2007-12-31",
+      "start_date": "2006-06-01",
+      "title": "EVALUATION SERVICES FOR PLUMAS COUNTY YOUTH VIOLENCE PREVENTION PLANING PROCESS",
+      "displayTitle": "",
+      "funder": "Plumas Rural Services, Inc.",
+      "relatedExpert": "\"00000152\"",
+      "location": "[\"00000117\"]",
+      "confidence": "High"
+    }
+  },
+  {
+    "key": "grantsMap:00000004",
+    "data": {
+      "start_date": "2022-07-01",
+      "title": "SacYouthWorks Service Agreement Summer Health Institute for Nursing Exploration and Success SHINES",
+      "displayTitle": "",
+      "end_date": "2022-09-05",
+      "relatedExperts": "[\"00000195\"]",
+      "funder": "Pro Youth And Families, Inc.",
+      "relatedExpert": "\"00000195\"",
+      "location": "[\"00000040\"]",
+      "confidence": "Mid",
+      "grantID": "00000004"
+    }
+  },
+  {
+    "key": "grantsMap:00000011",
+    "data": {
+      "grantID": "00000011",
+      "title": "A cold rainy night in Stoke",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2014-02-28",
+      "start_date": "2010-05-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000202\"",
+      "location": "[\"00000121\"]",
+      "relatedExperts": "[\"00000202\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000014",
+    "data": {
+      "grantID": "00000014",
+      "title": "Beneath the Lights of Tokyo",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2018-08-28",
+      "start_date": "2015-06-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000204\"",
+      "location": "[\"00000124\"]",
+      "relatedExperts": "[\"00000204\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000006",
+    "data": {
+      "grantID": "00000006",
+      "title": "Stockton CA is boring",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2016-02-28",
+      "start_date": "2014-05-01",
+      "confidence": "Mid",
+      "relatedExpert": "\"00000197\"",
+      "location": "[\"00000040\"]",
+      "relatedExperts": "[\"00000197\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000002",
+    "data": {
+      "grantID": "00000002",
+      "title": "WE ARE CALIFORNIA WORKSHOP SERIES",
+      "displayTitle": "",
+      "funder": "California Humanities",
+      "end_date": "2012-12-31",
+      "start_date": "2009-01-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000194\"",
+      "location": "[\"00000002\"]",
+      "relatedExperts": "[\"00000194\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000008",
+    "data": {
+      "grantID": "00000008",
+      "title": "Study about the cuisine of Vietnam",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2015-03-28",
+      "start_date": "2013-07-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000199\"",
+      "location": "[\"00000118\"]",
+      "relatedExperts": "[\"00000199\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000016",
+    "data": {
+      "grantID": "00000016",
+      "title": "The Girl from Reykjavik",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2018-04-28",
+      "start_date": "2015-01-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000206\"",
+      "location": "[\"00000126\"]",
+      "relatedExperts": "[\"00000206\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000013",
+    "data": {
+      "grantID": "00000013",
+      "title": "Echoes from the Paris Underground",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2017-08-28",
+      "start_date": "2013-06-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000203\"",
+      "location": "[\"00000123\"]",
+      "relatedExperts": "[\"00000203\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000018",
+    "data": {
+      "grantID": "00000018",
+      "title": "Last Train to Chicago",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2019-04-15",
+      "start_date": "2017-01-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000208\"",
+      "location": "[\"00000024\"]",
+      "relatedExperts": "[\"00000208\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000009",
+    "data": {
+      "grantID": "00000009",
+      "title": "Kangaroo in Australia",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2015-10-28",
+      "start_date": "2013-05-08",
+      "confidence": "High",
+      "relatedExpert": "\"00000200\"",
+      "location": "[\"00000119\"]",
+      "relatedExperts": "[\"00000200\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000020",
+    "data": {
+      "grantID": "00000020",
+      "title": "The Children of Chernobyl",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2019-5-15",
+      "start_date": "2017-12-01",
+      "confidence": "High",
+      "relatedExpert": "\"00000210\"",
+      "location": "[\"00000128\"]",
+      "relatedExperts": "[\"00000210\"]"
+    }
+  },
+  {
+    "key": "grantsMap:00000005",
+    "data": {
+      "grantID": "00000005",
+      "title": "Did you know theres a tunnel under Ocean blvd",
+      "displayTitle": "",
+      "funder": "Unknown",
+      "end_date": "2015-02-28",
+      "start_date": "2013-05-01",
+      "confidence": "Mid",
+      "relatedExpert": "\"00000196\"",
+      "location": "[\"00000040\"]",
+      "relatedExperts": "[\"00000196\"]"
+    }
+  },
+  {
+    "totalGrants": 20
+  }
+]
