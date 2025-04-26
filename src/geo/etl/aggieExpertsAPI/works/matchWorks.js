@@ -1,8 +1,11 @@
-/* 
+/**
+* @file matchWorks.js
+* @description Matches works with experts from the Aggie Experts API data
+* @module geo/etl/aggieExpertsAPI/works/matchWorks
+* 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\matchWorks.js
 *
-* Matches works with their associated expert(s) if possible. 
-* Employs flexible matching via name variation.
+* © Zoey Vo, 2025
 */
 
 const fs = require('fs');
@@ -39,16 +42,17 @@ function createExpertsNameMap(experts) {
 
 /**
  * Match works with experts based on author names
- * @returns {void} Writes matched works to file
+ * @param {string} inputFileName - The name of the works JSON file to process (default: 'newWorks.json')
+ * @returns {void} Writes matched works to the expertMatchedWorks.json file
  */
-function matchWorks() {
+function matchWorks(inputFileName = 'newWorks.json') {
     try {
         // Load experts data
-        const expertsPath = path.join(__dirname, '..', 'experts', 'experts.json');
+        const expertsPath = path.join(__dirname, '../experts/json', 'experts.json');
         const experts = JSON.parse(fs.readFileSync(expertsPath, 'utf8'));
 
-        // Load works data
-        const worksPath = path.join(__dirname, '..', 'works', 'works.json');
+        // Load works data from specified file
+        const worksPath = path.join(__dirname, 'json', inputFileName);
         const works = JSON.parse(fs.readFileSync(worksPath, 'utf8'));
 
         // Create experts name map for flexible matching
@@ -89,6 +93,8 @@ function matchWorks() {
         });
 
         console.log(`Works with matches: ${worksWithExperts.filter(w => w.relatedExperts.length > 0).length}/${worksWithExperts.length}`);
+        
+        // Save to the specified output file
         saveCache('works', 'expertMatchedWorks.json', worksWithExperts);
     } catch (error) {
         console.error('Error matching experts to works:', error.message);

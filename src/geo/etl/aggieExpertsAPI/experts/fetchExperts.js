@@ -1,21 +1,22 @@
-/*
+/**
+* @file fetchExperts.js
+* @description Fetches expert profiles from the Aggie Experts API and processes them for later use
+* @module geo/etl/aggieExpertsAPI/experts/fetchExperts
+* 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\experts\fetchExperts.js
+* 
+* REQUIREMENTS: 
+* - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
+*
+* © Zoey Vo, Loc Nguyen, 2025
 */
 
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
 
-/**
- * Fetches experts from the Aggie Experts API and updates cache if new entries are found
- * @param {number} batchSize - How often to log progress
- * @param {number} maxPages - Maximum number of pages to fetch
- * @param {boolean} forceUpdate - Force update the cache even if no new experts are found
- * @returns {Promise<Object>} Object containing experts data and cache status
- */
 async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = false) {
     let experts = [];
     let page = 0;
     let totalFetched = 0;
-    
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
@@ -33,7 +34,7 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = f
                 organizationUnit: expert.contactInfo.hasOrganizationalUnit?.name || '',
                 url: expert['@id'] || ''
             })));
-            
+
             totalFetched += hits.length;
             if (page % batchSize === 0) logBatch('experts', page, false);
             page++;

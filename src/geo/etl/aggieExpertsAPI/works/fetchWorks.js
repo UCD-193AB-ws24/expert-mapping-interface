@@ -1,17 +1,19 @@
-/*
+/**
+* @file fetchWorks.js
+* @description Fetches work publication information from the Aggie Experts API
+* @module geo/etl/aggieExpertsAPI/works/fetchWorks
+* 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
+* 
+* REQUIREMENTS: 
+* - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
+*
+* © Zoey Vo, Loc Nguyen, 2025
 */
 
 const { logBatch, fetchFromApi, API_TOKEN, manageCacheData } = require('../apiUtils');
 
-/**
- * Fetches works from the Aggie Experts API
- * @param {number} batchSize - How often to log progress
- * @param {number} maxPages - Maximum number of pages to fetch
- * @param {boolean} forceUpdate - Force update the cache even if no new works are found
- * @returns {Promise<Object>} Object containing works data and cache status
- */
-async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = false) {
+async function fetchWorks(batchSize = 10, maxPages = 100, forceUpdate = false) {
     let works = [];
     let page = 0;
     let totalFetched = 0;
@@ -57,7 +59,7 @@ async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = false) {
 }
 
 if (require.main === module) {
-    fetchWorks();
+fetchWorks();
 }
 
 module.exports = { fetchWorks };

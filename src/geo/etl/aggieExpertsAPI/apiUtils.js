@@ -1,3 +1,11 @@
+/**
+* @file apiUtils.js
+* @description Utility functions for working with the Aggie Experts API
+* @module geo/etl/aggieExpertsAPI/apiUtils
+*
+* © Zoey Vo, 2025
+*/
+
 const axios = require('axios');
 // requires .env files with API_TOKEN=<token> in the root directory
 require('dotenv').config();
@@ -5,7 +13,13 @@ require('dotenv').config();
 // API token setup
 const API_TOKEN = 'Bearer ' + process.env.API_TOKEN;
 
-// Utility for logging API batch progress
+/**
+ * Logs the progress of API batch operations
+ * @param {string} type - The type of data being fetched (e.g., 'experts', 'works', 'grants')
+ * @param {number} page - The current page being processed
+ * @param {boolean} done - Whether the operation is complete
+ * @param {number} total - The total number of items fetched (only used when done=true)
+ */
 function logBatch(type, page, done = false, total = 0) {
     if (!done) {
         console.log(`[${type}] Fetched page ${page}`);
@@ -14,7 +28,14 @@ function logBatch(type, page, done = false, total = 0) {
     }
 }
 
-// Common API GET call utility
+/**
+ * Makes a GET request to the Aggie Experts API
+ * @param {string} url - The API endpoint URL
+ * @param {Object} params - Query parameters for the request
+ * @param {Object} headers - HTTP headers for the request
+ * @returns {Promise<Object>} The response data
+ * @throws {Error} If the API request fails
+ */
 async function fetchFromApi(url, params = {}, headers = {}) {
     try {
         const response = await axios.get(url, { params, headers });
@@ -25,6 +46,11 @@ async function fetchFromApi(url, params = {}, headers = {}) {
     }
 }
 
+/**
+ * Creates a sorted array of experts with their full names
+ * @param {Array<Object>} experts - Array of expert objects with firstName, middleName, and lastName properties
+ * @returns {Array<Object>} Sorted array of expert objects with fullName and url properties
+ */
 function getSortedExperts(experts) {
     return experts.map(expert => ({
         fullName: `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' '),
@@ -32,13 +58,40 @@ function getSortedExperts(experts) {
     })).sort((a, b) => a.fullName.localeCompare(b.fullName));
 }
 
+/**
+ * Saves data to a JSON file in the specified directory
+ * @param {string} subDir - The subdirectory to save to
+ * @param {string} fileName - The name of the file to save
+ * @param {Array|Object} data - The data to save
+ * @param {string} baseDir - Base directory, defaults to current directory
+ */
 function saveCache(subDir, fileName, data, baseDir = __dirname) {
     const path = require('path');
     const fs = require('fs');
-    const fullPath = path.join(baseDir, subDir, fileName);
+    const fullPath = path.join(baseDir, subDir, 'json', fileName);
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
     fs.writeFileSync(fullPath, JSON.stringify(data, null, 2));
     console.log(`Data saved to ${fullPath}`);
+}
+
+/**
+ * Saves only the new entries to a separate file
+ * @param {string} subDir - The subdirectory to save to
+ * @param {string} fileName - The base name of the file (will be prefixed with 'new')
+ * @param {Array} newEntries - Array of new entries to save
+ * @param {string} baseDir - Base directory, defaults to current directory
+ */
+function saveNewEntries(subDir, fileName, newEntries, baseDir = __dirname) {
+    const path = require('path');
+    const fs = require('fs');
+    
+    // Create a filename with 'new' prefix
+    const newEntriesFileName = `new${fileName.charAt(0).toUpperCase()}${fileName.slice(1)}`;
+    const fullPath = path.join(baseDir, subDir, 'json', newEntriesFileName);
+    
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, JSON.stringify(newEntries, null, 2));
+    console.log(`New entries saved to ${fullPath}`);
 }
 
 /**
@@ -51,7 +104,7 @@ function saveCache(subDir, fileName, data, baseDir = __dirname) {
 function loadCache(subDir, fileName, baseDir = __dirname) {
     const path = require('path');
     const fs = require('fs');
-    const fullPath = path.join(baseDir, subDir, fileName);
+    const fullPath = path.join(baseDir, subDir, 'json', fileName);
     
     try {
         if (fs.existsSync(fullPath)) {
@@ -129,6 +182,11 @@ function manageCacheData(subDir, fileName, newData, options = {}) {
         console.log(comparison.hasNewEntries 
             ? `Cache updated with ${comparison.newCount} new entries` 
             : 'Cache force-updated (no new entries)');
+        
+        // Always save new entries to a separate file if they exist
+        if (comparison.hasNewEntries && comparison.newEntries.length > 0) {
+            saveNewEntries(subDir, fileName, comparison.newEntries, baseDir);
+        }
     } else {
         console.log('No new entries found. Cache remains unchanged.');
     }
@@ -138,7 +196,8 @@ function manageCacheData(subDir, fileName, newData, options = {}) {
         cachedData,
         cacheUpdated,
         newCount: comparison.newCount,
-        hasNewEntries: comparison.hasNewEntries
+        hasNewEntries: comparison.hasNewEntries,
+        newEntries: comparison.newEntries || []
     };
 }
 
@@ -147,6 +206,7 @@ module.exports = {
     fetchFromApi, 
     getSortedExperts, 
     saveCache,
+    saveNewEntries,
     loadCache,
     compareCacheData,
     manageCacheData,
