@@ -1,7 +1,7 @@
 /**
 * @file fetchFeatures.js
 * @description This is the main entry point for fetching all data from the Aggie Experts API.
-* @module geo/etl/aggieExpertsAPI/fetchFeatures
+* @module geo\etl\aggieExpertsAPI\fetchFeatures
 *
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\fetchFeatures.js
 * 

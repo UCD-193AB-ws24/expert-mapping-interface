@@ -1,7 +1,7 @@
 /**
 * @file matchFeatures.js
 * @description Matches works and grants with their associated expert(s) if possible. 
-* @module geo/etl/aggieExpertsAPI/matchFeatures
+* @module geo\etl\aggieExpertsAPI\matchFeatures
 *
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\matchFeatures.js
 *

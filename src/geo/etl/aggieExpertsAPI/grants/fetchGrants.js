@@ -1,7 +1,7 @@
 /**
 * @file fetchGrants.js
 * @description Fetches grant information from the Aggie Experts API
-* @module geo/etl/aggieExpertsAPI/grants/fetchGrants
+* @module geo\etl\aggieExpertsAPI\grants\fetchGrants
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\fetchGrants.js
 * 

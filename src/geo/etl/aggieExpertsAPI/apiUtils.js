@@ -1,7 +1,7 @@
 /**
 * @file apiUtils.js
 * @description Utility functions for working with the Aggie Experts API
-* @module geo/etl/aggieExpertsAPI/apiUtils
+* @module geo\etl\aggieExpertsAPI\apiUtils
 *
 * © Zoey Vo, 2025
 */

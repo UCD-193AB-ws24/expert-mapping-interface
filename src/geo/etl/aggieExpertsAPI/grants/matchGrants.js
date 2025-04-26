@@ -1,7 +1,7 @@
 /**
 * @file matchGrants.js
 * @description Matches grants with experts from the Aggie Experts API data
-* @module geo/etl/aggieExpertsAPI/grants/matchGrants
+* @module geo\etl\aggieExpertsAPI\grants\matchGrants
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\matchGrants.js
 *

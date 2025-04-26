@@ -1,7 +1,7 @@
 /**
 * @file fetchWorks.js
 * @description Fetches work publication information from the Aggie Experts API
-* @module geo/etl/aggieExpertsAPI/works/fetchWorks
+* @module geo\etl\aggieExpertsAPI\works\fetchWorks
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
 * 

@@ -1,7 +1,7 @@
 /**
 * @file matchWorks.js
 * @description Matches works with experts from the Aggie Experts API data
-* @module geo/etl/aggieExpertsAPI/works/matchWorks
+* @module geo\etl\aggieExpertsAPI\works\matchWorks
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\matchWorks.js
 *
