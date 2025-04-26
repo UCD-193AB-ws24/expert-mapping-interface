@@ -204,7 +204,7 @@ const ExpertLayer = ({
       // Set the polygon's style with a blue border, yellow fill, and 60% opacity.
       const polygon = L.polygon(flippedCoordinates, {
         color: "blue",
-        fillColor: "yellow",
+        fillColor: "lightyellow",
         fillOpacity: 0.6,
         weight: 2,
       }).addTo(map);

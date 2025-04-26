@@ -103,8 +103,8 @@ const GrantLayer = ({
 
       // Create a Leaflet polygon with styling and add it to the map
       const polygon = L.polygon(flippedCoordinates, {
-        color: "purple",
-        fillColor: "lightblue",
+        color: "darkblue",
+        fillColor: "orange",
         fillOpacity: 0.5,
         weight: 2,
       }).addTo(map);

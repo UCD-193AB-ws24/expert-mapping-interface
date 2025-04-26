@@ -188,6 +188,10 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
  * - onClose: Function to handle closing the panel.
  */
 export const GrantsPanel = ({ grants, onClose }) => {
+  const grantEntries = grants[0]?.properties?.entries
+  ? grants.flatMap(g => g.properties.entries || [])
+  : grants;
+
   return (
     <div style={{
       position: "fixed",
@@ -221,9 +225,8 @@ export const GrantsPanel = ({ grants, onClose }) => {
 
       {/* Header displaying the total number of grants */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#f59e0b" }}>
-        {grants.length} Grant{grants.length !== 1 ? 's' : ''} at this Location
+      {grantEntries.length} Grant{grantEntries.length !== 1 ? 's' : ''} at this Location
       </h2>
-
       {/* List of grants */}      
       <ul style={{ padding: 0, listStyle: 'none' }}>
   {grants.map((feature, index) => (
@@ -242,13 +245,9 @@ export const GrantsPanel = ({ grants, onClose }) => {
        <div style={{ marginTop: "5px", color: "#333" }}>
        <strong>Researcher:</strong> {entry.relatedExpert?.name || "Unknown"}<br />
        <strong>Location:</strong> {feature.properties.location || "Unknown"}<br />
-       <strong>Start Date:</strong> {entry.startDate || "Unknown"}<br />
        <strong>Funder:</strong> {entry.funder || "Unknown"}<br />
        <strong>Grant Title:</strong> {entry.title || "Untitled Grant"}<br />
-  
-</div>
-
-
+       </div>
         <a
           href={entry.relatedExpert?.url ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}` : "#"}
           target="_blank"
