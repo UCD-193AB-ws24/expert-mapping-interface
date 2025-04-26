@@ -227,7 +227,7 @@ try {
                 await redisClient.hSet(workFeatureKey, {
                     workID: workID || '',
                     title: sanitizeString(entry.title) || '',
-                    displayTitle: entry.name || '',
+                    displayTitle: entry.title || '',
                     issued: Array.isArray(entry.issued)
                         ? JSON.stringify(entry.issued.map(sanitizeString)) || '[]'
                         : sanitizeString(entry.issued) || '',
