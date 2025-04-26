@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main] 
-# comment test
+    branches: [main]
+    
 jobs:
   # --- Job 1: Build, Test, and Process Data ---
   build-and-test:
