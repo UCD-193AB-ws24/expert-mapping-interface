@@ -1,9 +1,11 @@
-/*
+/**
+* @file uploadFeatures.js
+* @description Loads GeoJSON features into PostGIS tables for works and grants.
+* @module geo/postgis/uploadFeatures
+*
 * USAGE: node src/geo/postgis/uploadFeatures.js
 *
-* Loads GeoJSON features into appropriate PostGIS tables based on data type.
-* Uploads both works and grants data to their respective tables.
-* Ensures all features are properly stored as points or polygons.
+* © Zoey Vo, 2025
 */
 
 const { pool, tables } = require('./config');

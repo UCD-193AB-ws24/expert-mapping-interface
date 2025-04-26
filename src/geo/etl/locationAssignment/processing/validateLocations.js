@@ -1,14 +1,12 @@
-/*
- * USAGE: node src/geo/etl/locationAssignment/processing/validateLocations.js
- * 
- * Validate the locations extracted by Llama in geoExpertWorks.json and geoExpertGrants.json by
- * comparing Nominatim API and Llama's ISO 3166-1 code.
- * 
- * Standardize location names with the following priority:
- * 1) Nominatim API's "name" property
- * 2) ISO code
- * 3) Original name
- */
+/**
+* @file validateLocations.js
+* @description Validates the locations extracted by Llama in location based works and grant by
+*              comparing Nominatim API and Llama's ISO 3166-1 code.
+*      
+* USAGE: node src/geo/etl/locationAssignment/processing/validateLocations.js
+*
+* © Loc Nguyen, 2025
+*/
 
 const axios = require('axios');
 const path = require('path');

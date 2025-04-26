@@ -1,7 +1,11 @@
-/*
+/**
+* @file fetchFeatures.js
+* @description Fetches GeoJSON data from specified endpoints and saves it to the project root directory. 
+* @module geo/postgis/fetchFeatures 
+*
 * USAGE: node src/geo/postgis/fetchFeatures.js
 *
-* Fetches GeoJSON data from the specified endpoints and saves it to the project root directory.
+* © Zoey Vo, 2025
 */
 
 const fs = require('fs');
