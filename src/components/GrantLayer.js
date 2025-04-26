@@ -10,17 +10,18 @@ import {
 /**
  * GrantLayer Component
  * 
- * This component renders grant-related polygons on a Leaflet map, calculates
- * the number of related experts for each location, and handles interactive
- * popups and side panel actions.
+ * This component is responsible for rendering grant-related data on a Leaflet map.
+ * It processes GeoJSON data to display markers for grants and handles interactions such as hover and click events.
  * 
  * Props:
- * - grantGeoJSON: GeoJSON object containing grant data with features and properties.
- * - showGrants: Boolean indicating whether to display grant polygons on the map.
+ * - grantGeoJSON: GeoJSON data containing features with grant-related information.
+ * - showGrants: Boolean to toggle the display of grant markers.
  * - searchKeyword: String used to filter grants based on a search term.
  * - setSelectedGrants: Function to update the selected grants for the side panel.
- * - setPanelOpen: Function to control whether the side panel is open.
- * - setPanelType: Function to set the type of content displayed in the side panel.
+ * - setPanelOpen: Function to toggle the side panel's visibility.
+ * - setPanelType: Function to set the type of data displayed in the side panel.
+ * - combinedKeys: Set of keys used to avoid duplicate markers for combined data.
+ * - showWorks: Boolean to toggle the display of works-related data (used to avoid conflicts with grants).
  */
 
 const GrantLayer = ({
@@ -31,44 +32,17 @@ const GrantLayer = ({
   setPanelOpen,
   setPanelType,
 }) => {
-  // Access the Leaflet map instance from react-leaflet's useMap hook
-  const map = useMap();
+  const map = useMap(); // Access the Leaflet map instance from react-leaflet.
 
   useEffect(() => {
-    // Exit early if map, grantGeoJSON, or showGrants is not available
-    if (!map || !grantGeoJSON || !showGrants) return;
+    if (!map || !grantGeoJSON || !showGrants) return; // Exit early if the map, grants, or GeoJSON data is not available.
 
-    // Convert the search keyword to lowercase for case-insensitive matching
-    const keyword = searchKeyword?.toLowerCase() || "";
-
-    // Map to store the count of experts per location
-    const locationGrantCounts = new Map();
-    // Array to keep track of all polygon layers added to the map
+    const keyword = searchKeyword?.toLowerCase() || ""; // Prepare the search keyword for filtering (case-insensitive).
     const polygonLayers = [];
-    // Variable to store the currently active popup
     let activePopup = null;
-    // Timeout for closing popups on mouseout
     let closeTimeout = null;
 
-    // Process each feature in the GeoJSON to calculate the total number of related experts
-    grantGeoJSON.features.forEach((feature) => {
-      const entries = feature.properties.entries || [];
-      const location = feature.properties.location || "Unknown";
-      let totalLocationExperts = 0;
-
-      // Count the number of related experts for each entry
-      entries.forEach(entry => {
-        const relatedExperts = entry.relatedExpert ? [entry.relatedExpert] : [];
-        totalLocationExperts += relatedExperts.length;
-      });
-
-      // Update the expert count for the location
-      if (location) {
-        locationGrantCounts.set(location, (locationGrantCounts.get(location) || 0) + totalLocationExperts);
-      }
-    });
-
-    // Filter and sort polygons by area (largest first)
+    // Filter and sort polygons 
     const sortedPolygons = grantGeoJSON.features
       .filter((feature) => feature.geometry?.type === "Polygon")
       .sort((a, b) => {
@@ -79,29 +53,38 @@ const GrantLayer = ({
         return area(b) - area(a);
       });
 
-    console.log("Grant Polygons to draw:", sortedPolygons.length);
-
-    // Set to track locations that have already been rendered
     const polygonsToRender = new Set();
 
-    // Render each polygon on the map
     sortedPolygons.forEach((feature) => {
-      const geometry = feature.geometry;
-      const location = feature.properties.location;
-
-      // Skip rendering if the location has already been processed
+      const location = feature.properties.location || "Unknown";
       if (polygonsToRender.has(location)) return;
-      if (location) polygonsToRender.add(location);
+      if (!location) return;
 
-      // Flip coordinates from [lng, lat] to [lat, lng] for Leaflet compatibility
-      const flippedCoordinates = geometry.coordinates.map((ring) =>
+      const entries = feature.properties.entries || [];
+
+       // Filter entries based on the search keyword.
+      const matchedEntries = entries.filter(entry => {
+        if (!keyword) return true;
+        const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+        const quoteMatch = keyword.match(/^"(.*)"$/);  // Exact phrase match.
+        if (quoteMatch) {
+          const phrase = quoteMatch[1].toLowerCase();
+          return entryText.includes(phrase);
+        } else {
+          const terms = keyword.split(/\s+/); // Multi-word match.
+          return terms.every(term => entryText.includes(term));
+        }
+      });
+
+      if (matchedEntries.length === 0) return;  // Skip polygons with no matched entries
+
+      polygonsToRender.add(location);
+
+      const flippedCoordinates = feature.geometry.coordinates.map((ring) =>
         ring.map(([lng, lat]) => [lat, lng])
       );
 
-      // Get the display name or location name for the polygon
-      const name = feature.properties?.display_name || feature.properties?.location || "Unknown";
-
-      // Create a Leaflet polygon with styling and add it to the map
+      // Create a polygon layer for the feature.
       const polygon = L.polygon(flippedCoordinates, {
         color: "darkblue",
         fillColor: "orange",
@@ -109,26 +92,16 @@ const GrantLayer = ({
         weight: 2,
       }).addTo(map);
 
-      // Add the polygon to the list of layers
       polygonLayers.push(polygon);
 
-      // Add event listeners for interactivity
       polygon.on("mouseover", () => {
         if (!showGrants) return;
         if (closeTimeout) clearTimeout(closeTimeout);
 
-        // Get the expert count for the location
-        const expertCount = locationGrantCounts.get(location) || 0;
+        const content = createMultiGrantPopup(matchedEntries.length, location);
 
-        // Determine the popup content based on the expert count
-        const content = (expertCount === 0)
-          ? noGrantContent(location)
-          : createMultiGrantPopup(expertCount, location);
-
-        // Close the currently active popup if it exists
         if (activePopup) activePopup.close();
 
-        // Create and open a new popup
         activePopup = L.popup({
           closeButton: false,
           autoClose: false,
@@ -142,15 +115,14 @@ const GrantLayer = ({
           .setContent(content)
           .openOn(map);
 
-        // Add event listeners to the popup for mouse interactions
         const popupElement = activePopup.getElement();
         if (popupElement) {
           popupElement.style.pointerEvents = 'auto';
 
-          popupElement.addEventListener('mouseenter', () => {
-            if (closeTimeout) clearTimeout(closeTimeout);
-          });
-
+          // Prevent the popup from closing when the mouse enters it.
+          popupElement.addEventListener('mouseenter', () => clearTimeout(closeTimeout));
+          
+          // Close the popup when the mouse leaves it after a short delay.
           popupElement.addEventListener('mouseleave', () => {
             closeTimeout = setTimeout(() => {
               if (activePopup) {
@@ -160,21 +132,19 @@ const GrantLayer = ({
             }, 300);
           });
 
-          // Add a click event listener to the "View Grants" button in the popup
+           // Add a click event listener to the "View Grants" button in the popup.
           const viewGrantsBtn = popupElement.querySelector(".view-grants-btn");
           if (viewGrantsBtn) {
             viewGrantsBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
 
-              // Filter grants for the selected location and update the side panel
-              const grantsAtLocation = grantGeoJSON.features.filter(f => f.properties.location === location);
-
-              setSelectedGrants(grantsAtLocation);
+              // Update the selected grants and open the side panel.
+              setSelectedGrants([feature]);  
               setPanelType("grant-polygon");
               setPanelOpen(true);
 
-              // Close the active popup
+              // Close the popup after the button is clicked.
               if (activePopup) {
                 activePopup.close();
                 activePopup = null;
@@ -184,7 +154,6 @@ const GrantLayer = ({
         }
       });
 
-      // Close the popup on mouseout with a delay
       polygon.on("mouseout", () => {
         closeTimeout = setTimeout(() => {
           if (activePopup) {
@@ -195,15 +164,11 @@ const GrantLayer = ({
       });
     });
 
-    console.log("Grant Polygons drawn on map:", polygonLayers.length);
-
-    // Cleanup function to remove all polygons from the map when the component unmounts
     return () => {
       polygonLayers.forEach(p => map.removeLayer(p));
     };
   }, [map, grantGeoJSON, showGrants, searchKeyword, setSelectedGrants, setPanelOpen, setPanelType]);
 
-  // This component does not render any JSX
   return null;
 };
 
