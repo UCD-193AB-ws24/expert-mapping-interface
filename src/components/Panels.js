@@ -226,49 +226,54 @@ export const GrantsPanel = ({ grants, onClose }) => {
 
       {/* List of grants */}      
       <ul style={{ padding: 0, listStyle: 'none' }}>
-        {grants.map((grant, index) => (
-          <li key={index} style={{
-            position: "relative",
-            padding: "15px",
-            fontSize: "14px",
-            lineHeight: "1.5",
-            width: "100%",
-            border: "1px solid #ddd",
+  {grants.map((feature, index) => (
+    feature.properties.entries.map((entry, subIndex) => (
+      <li key={`${index}-${subIndex}`} style={{
+        position: "relative",
+        padding: "15px",
+        fontSize: "14px",
+        lineHeight: "1.5",
+        width: "100%",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+        marginBottom: "15px",
+        background: "#f9f9f9"
+      }}>
+       <div style={{ marginTop: "5px", color: "#333" }}>
+       <strong>Researcher:</strong> {entry.relatedExpert?.name || "Unknown"}<br />
+       <strong>Location:</strong> {feature.properties.location || "Unknown"}<br />
+       <strong>Start Date:</strong> {entry.startDate || "Unknown"}<br />
+       <strong>Funder:</strong> {entry.funder || "Unknown"}<br />
+       <strong>Grant Title:</strong> {entry.title || "Untitled Grant"}<br />
+  
+</div>
+
+
+        <a
+          href={entry.relatedExpert?.url ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}` : "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "block",
+            marginTop: "12px",
+            padding: "8px 10px",
+            background: "#f59e0b",
+            color: "white",
+            textAlign: "center",
             borderRadius: "5px",
-            marginBottom: "15px",
-            background: "#f9f9f9"
-          }}>
+            textDecoration: "none",
+            fontWeight: "bold",
+            opacity: entry.relatedExpert?.url ? '1' : '0.6',
+            cursor: entry.relatedExpert?.url ? 'pointer' : 'default'
+          }}
+        >
+          {entry.relatedExpert?.url ? "View Researcher Profile" : "No Profile Found"}
+        </a>
+      </li>
+    ))
+  ))}
+</ul>
 
-            <div style={{ marginTop: "5px", color: "#333" }}>
-              <strong>Grant:</strong> {grant.title || "Untitled Grant"}<br />
-              <strong>Researcher:</strong> {grant.researcher_name  || "Unknown"}<br />
-              <strong>Location:</strong> {grant.location_name || "Unknown"}<br />
-              <strong>Funder:</strong> {grant.funder || "Unknown"}
-            </div>
-
-            <a
-              href={grant.researcher_url || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "block",
-                marginTop: "12px",
-                padding: "8px 10px",
-                background: "#f59e0b",
-                color: "white",
-                textAlign: "center",
-                borderRadius: "5px",
-                textDecoration: "none",
-                fontWeight: "bold",
-                opacity: grant.researcher_url ? '1' : '0.6',
-                cursor: grant.researcher_url ? 'pointer' : 'default'
-              }}
-            >
-              {grant.researcher_url ? "View Researcher Profile" : "No Profile Found"}
-            </a>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

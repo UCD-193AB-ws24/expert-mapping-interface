@@ -285,9 +285,10 @@ useEffect(() => {
       )}
 
       {/* Panels */}
-      {panelOpen && panelType === "grants" && (
-        <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} />
-      )}
+      {panelOpen && (panelType === "grants" || panelType === "grant-polygon") && (
+  <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} />
+)}
+
       {panelOpen && (panelType === "polygon" || panelType === "point") && (
         <ExpertsPanel
           experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
