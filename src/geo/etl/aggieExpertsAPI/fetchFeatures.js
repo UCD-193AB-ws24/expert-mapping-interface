@@ -1,7 +1,6 @@
 /**
 * @file fetchFeatures.js
 * @description This is the main entry point for fetching all data from the Aggie Experts API.
-* @module geo\etl\aggieExpertsAPI\fetchFeatures
 *
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\fetchFeatures.js
 * 
@@ -80,19 +79,7 @@ async function fetchFeatures() {
 }
 
 if (require.main === module) {
-    // Parse command line arguments
-    const [expertPagesArg, grantPagesArg, workPagesArg, forceUpdateArg] = process.argv.slice(2);
-    
-    // Convert arguments to appropriate types
-    const options = {
-        expertPages: expertPagesArg ? parseInt(expertPagesArg, 10) : undefined,
-        grantPages: grantPagesArg ? parseInt(grantPagesArg, 10) : undefined,
-        workPages: workPagesArg ? parseInt(workPagesArg, 10) : undefined,
-        forceUpdate: forceUpdateArg === 'true'
-    };
-    
-    console.log(`Running with options: ${JSON.stringify(options)}`);
-    fetchFeatures(options);
+    fetchFeatures();
 }
 
 module.exports = { fetchFeatures };

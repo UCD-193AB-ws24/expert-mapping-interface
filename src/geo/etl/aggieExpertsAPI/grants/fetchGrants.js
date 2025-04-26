@@ -1,7 +1,6 @@
 /**
 * @file fetchGrants.js
 * @description Fetches grant information from the Aggie Experts API
-* @module geo\etl\aggieExpertsAPI\grants\fetchGrants
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\fetchGrants.js
 * 
@@ -13,7 +12,7 @@
 
 const { logBatch, fetchFromApi, API_TOKEN, manageCacheData } = require('../apiUtils');
 
-async function fetchGrants(batchSize = 10, maxPages = 100, forceUpdate = false) {
+async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;

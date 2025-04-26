@@ -1,7 +1,6 @@
 /**
 * @file fetchWorks.js
 * @description Fetches work publication information from the Aggie Experts API
-* @module geo\etl\aggieExpertsAPI\works\fetchWorks
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
 * 
@@ -13,7 +12,7 @@
 
 const { logBatch, fetchFromApi, API_TOKEN, manageCacheData } = require('../apiUtils');
 
-async function fetchWorks(batchSize = 10, maxPages = 100, forceUpdate = false) {
+async function fetchWorks(batchSize = 10, maxPages = 1000, forceUpdate = false) {
     let works = [];
     let page = 0;
     let totalFetched = 0;

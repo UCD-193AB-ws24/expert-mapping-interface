@@ -1,7 +1,6 @@
 /**
 * @file fetchExperts.js
 * @description Fetches expert profiles from the Aggie Experts API and processes them for later use
-* @module geo\etl\aggieExpertsAPI\experts\fetchExperts
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\experts\fetchExperts.js
 * 

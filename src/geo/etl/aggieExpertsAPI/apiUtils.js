@@ -1,7 +1,6 @@
 /**
 * @file apiUtils.js
 * @description Utility functions for working with the Aggie Experts API
-* @module geo\etl\aggieExpertsAPI\apiUtils
 *
 * © Zoey Vo, 2025
 */
@@ -22,7 +21,7 @@ const API_TOKEN = 'Bearer ' + process.env.API_TOKEN;
  */
 function logBatch(type, page, done = false, total = 0) {
     if (!done) {
-        console.log(`[${type}] Fetched page ${page}`);
+        console.log(`[${type}] Fetched ${page} pages so far...`);
     } else {
         console.log(`[${type}] Finished fetching. Total pages: ${page}, Total items: ${total}`);
     }

@@ -1,14 +1,12 @@
-/*
-* USAGE: node .\src\server.js
-* 
-* This Express server provides the backend API for the Expert Mapping Interface application.
-* It handles geospatial data retrieval and researcher information management through a
-* PostGIS database connection.
-* 
-* Key features:
-  - Provides endpoints for fetching works and grants data in GeoJSON format from PostGIS
+/**
+* @file server.js
+* @description This file sets up an Express server that connects to a PostGIS database and Redis.
+*              It provides endpoints for fetching works and grants data in GeoJSON format from PostGIS and Redis.
 *
-* @module server
+* USAGE: node .\src\server.js
+*
+* postgis api © Zoey Vo, 2025
+* redis api © Alyssa Vallejo, 2025
 */
 
 require('dotenv').config();
