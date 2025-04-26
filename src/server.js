@@ -74,7 +74,7 @@ app.use((req, res, next) => {
 });
 
 // Fetch all works from Redis as geojson file
-app.get('/api/redis/map-data', async (req, res) => {
+app.get('/api/redis/comboMapData', async (req, res) => {
   console.log('📍 Received request for /api/redis/map-data');
   try {
     if (!redisClient.isOpen) {
@@ -82,6 +82,142 @@ app.get('/api/redis/map-data', async (req, res) => {
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
       
+      console.log('Fetching data from Redis...');
+      const locationKeys = await redisClient.keys('locationMap:*');
+      const locations = [];
+
+      for (const locationKey of locationKeys) {
+      const locationData = await redisClient.hGetAll(locationKey);
+      if (JSON.parse(locationData.relatedExperts).length === 0) {
+        console.log(`Skipping location ${locationData.displayName} as it has no experts.`);
+        continue;
+      }
+      const location = {
+        locationID: locationData.locationID,
+        displayName: locationData.displayName,
+        geometryType: locationData.geometryType,
+        country: locationData.country,
+        rank: locationData.rank,
+        coordinates: JSON.parse(locationData.coordinates),
+        totalExpertCount: JSON.parse(locationData.relatedExperts).length,
+        works2ExpertCount: 0, // Initialize works-specific expert count
+        grants2ExpertCount: 0, // Initialize grants-specific expert count
+        worksCount: JSON.parse(locationData.works).length,
+        grantsCount: JSON.parse(locationData.grants).length,
+        experts: [],
+        works: [],
+        grants: []
+      };
+
+      // Calculate works-specific expert count
+      const works2ExpertSet = new Set();
+      for (const workID of JSON.parse(locationData.works)) {
+        const workData = await redisClient.hGetAll(`worksMap:${workID}`);
+        console.log(`Work Data for ${workID}:`, workData);
+      
+        if (workData.relatedExperts) {
+          const relatedExperts = JSON.parse(workData.relatedExperts);
+          console.log(`Related Experts for Work ${workID}:`, relatedExperts);
+      
+          if (Array.isArray(relatedExperts)) {
+            relatedExperts.forEach(expertID => works2ExpertSet.add(expertID));
+          } else {
+            console.error(`❌ Expected an array but got:`, relatedExperts);
+          }
+        }
+      }
+      location.works2ExpertCount = works2ExpertSet.size; // Set the count of unique experts related to works
+
+      // Calculate grants-specific expert count
+      const grants2ExpertSet = new Set();
+      for (const grantID of JSON.parse(locationData.grants)) {
+        const grantData = await redisClient.hGetAll(`grantsMap:${grantID}`);
+        console.log(`Grant Data for ${grantID}:`, grantData);
+      
+        if (grantData.relatedExpert) {
+          const relatedExperts = JSON.parse(grantData.relatedExpert);
+          console.log(`Related Experts for Grant ${grantID}:`, relatedExperts);
+      
+          if (Array.isArray(relatedExperts)) {
+            relatedExperts.forEach(expertID => grants2ExpertSet.add(expertID));
+          } 
+          else if(relatedExperts){
+              grants2ExpertSet.add(relatedExperts);
+          }
+          else {
+            console.error(`❌ Expected an array but got:`, relatedExperts);
+          }
+        }
+      }
+      location.grants2ExpertCount = grants2ExpertSet.size; // Set the count of unique experts related to grants
+      // Fetch related experts
+      for (const expertID of JSON.parse(locationData.relatedExperts)) {
+        const expertData = await redisClient.hGetAll(`expertsMap:${expertID}`);
+        location.experts.push({
+          expertID: expertData.expertID,
+          name: expertData.name,
+          displayName: expertData.displayName,
+          expertURL: expertData.expertURL,
+          relatedWorkIDs: JSON.parse(expertData.works),
+          relatedGrantIDs: JSON.parse(expertData.grants)
+        });
+      }
+      // Fetch related works
+      for (const workID of JSON.parse(locationData.works)) {
+        const workData = await redisClient.hGetAll(`worksMap:${workID}`);
+        if (!workData.relatedExperts || JSON.parse(workData.relatedExperts).length === 0) {
+          console.log(`Skipping work ${workData.title} as it has no related experts.`);
+          continue;
+        }
+        location.works.push({
+          workID: workData.workID,
+          title: workData.title,
+          displayTitle: workData.displayTitle,
+          abstract: workData.abstract,
+          confidence: workData.confidence,
+          issued: workData.issued,
+          relatedExpertIDs: JSON.parse(workData.relatedExperts),
+        });
+      }
+      
+    
+      // Fetch related grants
+      for (const grantID of JSON.parse(locationData.grants)) {
+        const grantData = await redisClient.hGetAll(`grantsMap:${grantID}`);
+        if (!grantData.relatedExpert || JSON.parse(grantData.relatedExpert).length === 0) {
+          console.log(`Skipping grant ${grantData.title} as it has no related experts.`);
+          continue;
+        }
+        location.grants.push({
+          grantID: grantData.grantID,
+          title: grantData.title,
+          displayTitle: grantData.displayTitle,
+          abstract: grantData.abstract,
+          confidence: grantData.confidence,
+          start_date: grantData.start_date,
+          end_date: grantData.end_date,
+          relatedExpertIDs: JSON.parse(grantData.relatedExpert),
+        });
+      }
+      locations.push(location);
+    }
+    const locationCount = locations.length;
+    console.log(`Found ${locationCount} locations in Redis`);
+      console.log('📤 Sending response!');
+      res.json({ locations, locationCount });
+  } catch (error) {
+      console.error('❌ Error fetching map data:', error);
+      res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+});
+
+app.get('/api/redis/workMapData', async (req, res) => {
+  console.log('📍 Received request for /api/redis/workMapData');
+  try {
+    if (!redisClient.isOpen) {
+      console.error('❌ Redis client is not connected');
+      return res.status(500).json({ error: 'Redis client is not connected' });
+    }
       console.log('Fetching data from Redis...');
       const locationKeys = await redisClient.keys('locationMap:*');
       const locations = [];
@@ -98,10 +234,8 @@ app.get('/api/redis/map-data', async (req, res) => {
         coordinates: JSON.parse(locationData.coordinates),
         expertCount: JSON.parse(locationData.relatedExperts).length,
         worksCount: JSON.parse(locationData.works).length,
-        grantsCount: JSON.parse(locationData.grants).length,
         experts: [],
-        works: [],
-        grants: []
+        works: []
       };
       // Fetch related experts
       for (const expertID of JSON.parse(locationData.relatedExperts)) {
@@ -153,8 +287,8 @@ app.get('/api/redis/map-data', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 });
-
-
+app.get('/api/redis/grantMapdata', async (req, res) => {
+});
 // Fetch all grants from Redis as geojson file
 app.get('/api/redis/grantsQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
