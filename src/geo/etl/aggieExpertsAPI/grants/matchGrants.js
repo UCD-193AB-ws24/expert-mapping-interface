@@ -1,8 +1,10 @@
-/* 
-* USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\fetchGrants.js
+/**
+* @file matchGrants.js
+* @description Matches grants with experts from the Aggie Experts API data
+* 
+* USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\matchGrants.js
 *
-* Matches grants with their associated expert if possible.
-* Matches grants to experts by URL reference.
+* © Zoey Vo, 2025
 */
 
 const fs = require('fs');
@@ -25,18 +27,14 @@ function createExpertsByUrlMap(experts) {
     return expertsByUrl;
 }
 
-/**
- * Match grants with experts based on inheresIn URL
- * @returns {void} Writes matched grants to file
- */
-function matchGrants() {
+function matchGrants(inputFileName = 'newGrants.json') {
     try {
         // Load experts data
-        const expertsPath = path.join(__dirname, '../experts', 'experts.json');
+        const expertsPath = path.join(__dirname, '../experts/json', 'experts.json');
         const experts = JSON.parse(fs.readFileSync(expertsPath, 'utf8'));
 
-        // Load grants data
-        const grantsPath = path.join(__dirname, 'grants.json');
+        // Load grants data from specified file
+        const grantsPath = path.join(__dirname, 'json', inputFileName);
         const grants = JSON.parse(fs.readFileSync(grantsPath, 'utf8'));
 
         // Create experts by URL map
@@ -56,6 +54,8 @@ function matchGrants() {
         });
 
         console.log(`Grants with matches: ${grantsWithExperts.filter(g => g.relatedExpert).length}/${grantsWithExperts.length}`);
+        
+        // Save to the specified output file
         saveCache('grants', 'expertMatchedGrants.json', grantsWithExperts);
     } catch (error) {
         console.error('Error matching experts to grants:', error.message);

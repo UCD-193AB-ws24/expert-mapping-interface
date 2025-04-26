@@ -1,16 +1,18 @@
-/*
+/**
+* @file fetchWorks.js
+* @description Fetches work publication information from the Aggie Experts API
+* 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
+* 
+* REQUIREMENTS: 
+* - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
+*
+* © Zoey Vo, Loc Nguyen, 2025
 */
 
-const { logBatch, fetchFromApi, API_TOKEN, saveCache } = require('../apiUtils');
+const { logBatch, fetchFromApi, API_TOKEN, manageCacheData } = require('../apiUtils');
 
-/**
- * Fetches works from the Aggie Experts API
- * @param {number} batchSize - How often to log progress
- * @param {number} maxPages - Maximum number of pages to fetch
- * @returns {Promise<Array>} Array of work objects
- */
-async function fetchWorks(batchSize = 10, maxPages = 1) {
+async function fetchWorks(batchSize = 10, maxPages = 1000, forceUpdate = false) {
     let works = [];
     let page = 0;
     let totalFetched = 0;
@@ -28,14 +30,27 @@ async function fetchWorks(batchSize = 10, maxPages = 1) {
                 issued: work.issued || 'No Issued Date',
                 abstract: work.abstract || 'No Abstract',
                 name: work.name || 'No Name',
+                // Adding a unique identifier for caching comparison
+                id: work['@id'] || work.name
             })));
             totalFetched += hits.length;
             if (page % batchSize === 0) logBatch('works', page, false);
             page++;
         }
         logBatch('works', page, true, totalFetched);
-        saveCache('works', 'works.json', works);
-        return works;
+        
+        // Manage cache using the new utility
+        const cacheResult = manageCacheData('works', 'works.json', works, {
+            idField: 'id',
+            forceUpdate
+        });
+        
+        return {
+            works: cacheResult.data,
+            cacheUpdated: cacheResult.cacheUpdated,
+            newCount: cacheResult.newCount,
+            hasNewEntries: cacheResult.hasNewEntries
+        };
     } catch (error) {
         console.error('Error fetching works:', error.message);
         throw error;
@@ -43,7 +58,7 @@ async function fetchWorks(batchSize = 10, maxPages = 1) {
 }
 
 if (require.main === module) {
-    fetchWorks();
+fetchWorks();
 }
 
 module.exports = { fetchWorks };

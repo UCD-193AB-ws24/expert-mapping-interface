@@ -1,16 +1,18 @@
-/*
+/**
+* @file fetchGrants.js
+* @description Fetches grant information from the Aggie Experts API
+* 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\fetchGrants.js
+* 
+* REQUIREMENTS: 
+* - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
+*
+* © Zoey Vo, Loc Nguyen, 2025
 */
 
-const { logBatch, fetchFromApi, API_TOKEN, saveCache } = require('../apiUtils');
+const { logBatch, fetchFromApi, API_TOKEN, manageCacheData } = require('../apiUtils');
 
-/**
- * Fetches grants from the Aggie Experts API
- * @param {number} batchSize - How often to log progress
- * @param {number} maxPages - Maximum number of pages to fetch
- * @returns {Promise<Array>} Array of grant objects
- */
-async function fetchGrants(batchSize = 10, maxPages = 1) {
+async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;
@@ -33,8 +35,19 @@ async function fetchGrants(batchSize = 10, maxPages = 1) {
             page++;
         }
         logBatch('grants', page, true, totalFetched);
-        saveCache('grants', 'grants.json', grants);
-        return grants;
+        
+        // Manage cache using the new utility
+        const cacheResult = manageCacheData('grants', 'grants.json', grants, {
+            idField: 'inheresIn', // Using inheresIn as unique identifier
+            forceUpdate
+        });
+        
+        return {
+            grants: cacheResult.data,
+            cacheUpdated: cacheResult.cacheUpdated,
+            newCount: cacheResult.newCount,
+            hasNewEntries: cacheResult.hasNewEntries
+        };
     } catch (error) {
         console.error('Error fetching grants:', error.message);
         throw error;
@@ -42,7 +55,7 @@ async function fetchGrants(batchSize = 10, maxPages = 1) {
 }
 
 if (require.main === module) {
-    fetchGrants();
+fetchGrants();
 }
 
 module.exports = { fetchGrants };

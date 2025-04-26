@@ -1,16 +1,19 @@
-/*
- * USAGE: node src/geo/etl/locationAssignment/processing/extractLocations.js
- * 
- * This script extracts geopolitical locations from works and grants data using the Llama API.
- * It processes the data and saves the extracted locations into separate JSON files.
- */
+/** 
+* @file extractLocations.js
+* @description Extracts geopolitical locations from works and grants data using the Llama API.
+*              Processes the data and saves the extracted locations into separate JSON files.
+* 
+* USAGE: node src/geo/etl/locationAssignment/processing/extractLocations.js
+* 
+* © Loc Nguyen, 2025
+*/
 
 const path = require('path');
 const fs = require("fs");
 const { default: ollama } = require('ollama');
 
-const worksPath = path.join(__dirname, '../../aggieExpertsAPI/works', "expertMatchedWorks.json");
-const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/grants', "expertMatchedGrants.json");
+const worksPath = path.join(__dirname, '../../aggieExpertsAPI/works/json', "expertMatchedWorks.json");
+const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/grants/json', "expertMatchedGrants.json");
 const geoWorksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const geoGrantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
 
