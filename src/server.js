@@ -93,6 +93,8 @@ app.get('/api/redis/map-data', async (req, res) => {
         locationID: locationData.locationID,
         displayName: locationData.displayName,
         geometryType: locationData.geometryType,
+        country: locationData.country,
+        rank: locationData.rank,
         coordinates: JSON.parse(locationData.coordinates),
         expertCount: JSON.parse(locationData.relatedExperts).length,
         worksCount: JSON.parse(locationData.works).length,
@@ -102,37 +104,50 @@ app.get('/api/redis/map-data', async (req, res) => {
         grants: []
       };
       // Fetch related experts
-      // for (const expertID of JSON.parse(locationData.relatedExperts)) {
-      //   const expertData = await redisClient.hGetAll(`expertsMap:${expertID}`);
-      //   location.experts.push({
-      //     expertID: expertData.expertID,
-      //     name: expertData.name,
-      //     works: JSON.parse(expertData.works),
-      //     grants: JSON.parse(expertData.grants)
-      //   });
-      // }
-      // // Fetch related works
-      // for (const workID of JSON.parse(locationData.works)) {
-      //   const workData = await redisClient.hGetAll(`worksMap:${workID}`);
-      //   location.works.push({
-      //     workID: workData.workID,
-      //     title: workData.title,
-      //     relatedExperts: JSON.parse(workData.relatedExperts)
-      //   });
-      // }
-      // // Fetch related grants
-      // for (const grantID of JSON.parse(locationData.grants)) {
-      //   const grantData = await redisClient.hGetAll(`grantsMap:${grantID}`);
-      //   location.grants.push({
-      //     grantID: grantData.grantID,
-      //     title: grantData.title,
-      //     relatedExperts: JSON.parse(grantData.relatedExperts)
-      //   });
-      // }
+      for (const expertID of JSON.parse(locationData.relatedExperts)) {
+        const expertData = await redisClient.hGetAll(`expertsMap:${expertID}`);
+        location.experts.push({
+          expertID: expertData.expertID,
+          name: expertData.name,
+          displayName: expertData.displayName,
+          expertURL: expertData.expertURL,
+          relatedWorkIDs: JSON.parse(expertData.works),
+          relatedGrantIDs: JSON.parse(expertData.grants)
+        });
+      }
+      // Fetch related works
+      for (const workID of JSON.parse(locationData.works)) {
+        const workData = await redisClient.hGetAll(`worksMap:${workID}`);
+        location.works.push({
+          workID: workData.workID,
+          title: workData.title,
+          displayTitle: workData.displayTitle,
+          abstract: workData.abstract,
+          confidence: workData.confidence,
+          issued: workData.issued,
+          relatedExpertIDs: workData.relatedExperts ? JSON.parse(workData.relatedExperts) : [],
+        });
+      }
+      // Fetch related grants
+      for (const grantID of JSON.parse(locationData.grants)) {
+        const grantData = await redisClient.hGetAll(`grantsMap:${grantID}`);
+        location.grants.push({
+          grantID: grantData.grantID,
+          title: grantData.title,
+          displayTitle: grantData.displayTitle,
+          abstract: grantData.abstract,
+          confidence: grantData.confidence,
+          start_date: grantData.start_date,
+          end_date: grantData.end_date,
+          relatedExpertIDs: grantData.relatedExpert ? JSON.parse(grantData.relatedExpert) : [],
+        });
+      }
       locations.push(location);
     }
-      console.log('📤 Sending response:', JSON.stringify(locations, null, 2));
-      res.json({ locations });
+    const locationCount = locations.length;
+    console.log(`Found ${locationCount} locations in Redis`);
+      console.log('📤 Sending response!');
+      res.json({ locations, locationCount });
   } catch (error) {
       console.error('❌ Error fetching map data:', error);
       res.status(500).json({ error: 'Internal Server Error', details: error.message });
