@@ -13,7 +13,7 @@ const fs = require('fs').promises;
 async function testQuery() {
   try {
     // Fetch data from two different APIs concurrently
-    const response = await fetch("http://localhost:3001/api/redis/map-data");
+    const response = await fetch("http://localhost:3001/api/redis/comboMapData");
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
