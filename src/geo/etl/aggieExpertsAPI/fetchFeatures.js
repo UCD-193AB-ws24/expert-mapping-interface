@@ -15,39 +15,48 @@ const { fetchGrants } = require('./grants/fetchGrants');
 const { fetchWorks } = require('./works/fetchWorks');
 
 async function fetchFeatures() {
-
     try {
-        console.log('Fetching experts...');
+        console.log('\n====== FETCHING ALL FEATURES ======\n');
+        
+        console.log('1. Fetching experts...');
         const expertsResult = await fetchExperts();
         
-        if (expertsResult.cacheUpdated) {
-            console.log(`Experts cache updated. ${expertsResult.newCount} new expert(s) found.`);
-        } else {
-            console.log('No new experts found. Using existing cache.');
-        }
-        
-        console.log(`Total experts in cache: ${expertsResult.experts.length}`);
-
-        console.log('Fetching grants...');
+        console.log('2. Fetching grants...');
         const grantsResult = await fetchGrants();
         
-        if (grantsResult.cacheUpdated) {
-            console.log(`Grants cache updated. ${grantsResult.newCount} new grant(s) found.`);
-        } else {
-            console.log('No new grants found. Using existing cache.');
-        }
-        
-        console.log(`Total grants in cache: ${grantsResult.grants.length}`);
-
-        console.log('Fetching works...');
+        console.log('3. Fetching works...');
         const worksResult = await fetchWorks();
         
-        if (worksResult.cacheUpdated) {
-            console.log(`Works cache updated. ${worksResult.newCount} new work(s) found.`);
-        } else {
-            console.log('No new works found. Using existing cache.');
-        }
+        console.log('\n====== FETCH SUMMARY ======\n');
         
+        console.log('Experts:');
+        if (expertsResult.newCount > 0 || expertsResult.updatedCount > 0) {
+            console.log(`- ${expertsResult.newCount} new expert(s)`);
+            console.log(`- ${expertsResult.updatedCount} updated expert(s)`);
+            console.log(`- ${expertsResult.count - expertsResult.newCount - expertsResult.updatedCount} unchanged expert(s)`);
+        } else {
+            console.log('- No new or updated experts found. Using existing cache.');
+        }
+        console.log(`Total experts in cache: ${expertsResult.count}`);
+        
+        console.log('\nGrants:');
+        if (grantsResult.newCount > 0 || grantsResult.updatedCount > 0) {
+            console.log(`- ${grantsResult.newCount} new grant(s)`);
+            console.log(`- ${grantsResult.updatedCount} updated grant(s)`);
+            console.log(`- ${grantsResult.count - grantsResult.newCount - grantsResult.updatedCount} unchanged grant(s)`);
+        } else {
+            console.log('- No new or updated grants found. Using existing cache.');
+        }
+        console.log(`Total grants in cache: ${grantsResult.count}`);
+        
+        console.log('\nWorks:');
+        if (worksResult.newCount > 0 || worksResult.updatedCount > 0) {
+            console.log(`- ${worksResult.newCount} new work(s)`);
+            console.log(`- ${worksResult.updatedCount} updated work(s)`);
+            console.log(`- ${worksResult.count - worksResult.newCount - worksResult.updatedCount} unchanged work(s)`);
+        } else {
+            console.log('- No new or updated works found. Using existing cache.');
+        }
         console.log(`Total works in cache: ${worksResult.works.length}`);
 
         return { 
@@ -56,20 +65,23 @@ async function fetchFeatures() {
             works: worksResult.works,
             cacheStatus: {
                 experts: {
-                    updated: expertsResult.cacheUpdated,
-                    newCount: expertsResult.newCount
+                    updated: expertsResult.newCount > 0 || expertsResult.updatedCount > 0,
+                    newCount: expertsResult.newCount,
+                    updatedCount: expertsResult.updatedCount
                 },
                 grants: {
-                    updated: grantsResult.cacheUpdated,
-                    newCount: grantsResult.newCount
+                    updated: grantsResult.newCount > 0 || grantsResult.updatedCount > 0,
+                    newCount: grantsResult.newCount,
+                    updatedCount: grantsResult.updatedCount
                 },
                 works: {
-                    updated: worksResult.cacheUpdated,
-                    newCount: worksResult.newCount
+                    updated: worksResult.newCount > 0 || worksResult.updatedCount > 0,
+                    newCount: worksResult.newCount,
+                    updatedCount: worksResult.updatedCount
                 },
-                anyUpdated: expertsResult.cacheUpdated || 
-                            grantsResult.cacheUpdated || 
-                            worksResult.cacheUpdated
+                anyUpdated: (expertsResult.newCount > 0 || expertsResult.updatedCount > 0) || 
+                            (grantsResult.newCount > 0 || grantsResult.updatedCount > 0) || 
+                            (worksResult.newCount > 0 || worksResult.updatedCount > 0)
             }
         };
     } catch (error) {

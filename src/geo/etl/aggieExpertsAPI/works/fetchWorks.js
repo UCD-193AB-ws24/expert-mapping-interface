@@ -1,6 +1,6 @@
 /**
 * @file fetchWorks.js
-* @description Fetches scholarly works from the Aggie Experts API, processes them, and caches them
+* @description Fetches work data from Aggie Experts, processes it, and optionally caches it
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
 * 
@@ -8,7 +8,7 @@
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
 * - Experts data to be fetched first (this module links works to experts)
 *
-* © Zoey Vo, 2025
+* © Zoey Vo, Loc Nguyen, 2025
 */
 
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
