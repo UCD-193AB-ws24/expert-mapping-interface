@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
+
 import {
   noResearcherContent,
   createSingleResearcherContent,
@@ -11,9 +12,9 @@ import {
 /**
  * ExpertLayer Component
  * 
- * This component renders expert-related polygons and markers on a Leaflet map.
- * It handles interactive popups, clustering of markers, and updates the state
- * for selected experts and the side panel.
+ * This component renders expert-related polygons and point markers on a Leaflet map.
+ * It handles keyword filtering, clustering of markers, interactive popups, and updates
+ * the state for selected experts and the side panel.
  * 
  * Props:
  * - geoData: GeoJSON object containing expert-related data.
@@ -56,30 +57,74 @@ const ExpertLayer = ({
     });
 
     // Map to store the count of experts per location
+    const locationMap = new Map();
     const locationExpertCounts = new Map();
-    // Array to keep track of all polygon layers added to the map
-    const polygonLayers = [];
-    // Variable to store the currently active popup
-    let activePopup = null;
-    // Timeout for closing popups on mouseout
-    let closeTimeout = null;
+    const polygonLayers = []; // Array to keep track of all polygon layers added to the map
+    let activePopup = null; // Variable to store the currently active popup
+    let closeTimeout = null; // Timeout for closing popups on mouseout
 
     // Filter features to include only work-related data if showWorks is true
     const filteredFeatures = geoData.features.filter(f =>
       (!f.properties?.type || f.properties.type === "work") && showWorks
     );
 
-    // Calculate the total number of experts for each location
+    // --- Handle Points with Keyword Filtering ---
     filteredFeatures.forEach(feature => {
+      const geometry = feature.geometry;
       const entries = feature.properties.entries || [];
       const location = feature.properties.location || "Unknown";
-      const totalLocationExperts = entries.reduce((sum, e) => sum + (e.relatedExperts?.length || 0), 0);
-      if (location) {
-        locationExpertCounts.set(location, (locationExpertCounts.get(location) || 0) + totalLocationExperts);
+
+      // Calculate the total number of experts for the location
+      let totalLocationExperts = entries.reduce((sum, e) => sum + (e.relatedExperts?.length || 0), 0);
+      locationExpertCounts.set(location, (locationExpertCounts.get(location) || 0) + totalLocationExperts);
+
+      // Handle point geometries (Point or MultiPoint)
+      if (["Point", "MultiPoint"].includes(geometry.type)) {
+        const coords = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
+
+        coords.forEach(([lng, lat]) => {
+          const key = `${lat},${lng}`;
+          if (!locationMap.has(key)) locationMap.set(key, []);
+
+          const matchedEntries = [];
+
+          // Filter entries based on the search keyword
+          entries.forEach(entry => {
+            if (keyword) {
+              const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+              const quoteMatch = keyword.match(/^"(.*)"$/); // Match exact phrases in quotes
+              if (quoteMatch) {
+                const phrase = quoteMatch[1];
+                if (!entryText.includes(phrase)) return;  //Exact phrase match
+              } else {
+                const terms = keyword.split(/\s+/); // Split multi-word input
+                const matchesAll = terms.every(term => entryText.includes(term));
+                if (!matchesAll) return; //// Partial + multi-word match (AND logic)
+              }
+            }
+
+            // Collect matched entries with expert details
+            const expert = entry.relatedExperts?.[0];
+            matchedEntries.push({
+              researcher_name: expert?.name || entry.authors?.join(", ") || "Unknown",
+              researcher_url: expert?.url ? `https://experts.ucdavis.edu/${expert.url}` : null,
+              location_name: location,
+              work_titles: [entry.title],
+              work_count: 1,
+              confidence: entry.confidence || "Unknown",
+              type: "expert",
+            });
+          });
+
+          // Add matched entries to the location map
+          if (matchedEntries.length > 0) {
+            locationMap.get(key).push(...matchedEntries);
+          }
+        });
       }
     });
 
-    // Sort polygons by area (largest first)
+    // --- Handle Polygons ---
     const sortedPolygons = geoData.features
       .filter(f => f.geometry?.type === "Polygon")
       .sort((a, b) => {
@@ -90,10 +135,8 @@ const ExpertLayer = ({
         return area(b) - area(a);
       });
 
-    // Set to track locations that have already been rendered
-    const polygonsToRender = new Set();
+    const polygonsToRender = new Set(); // Set to track locations that have already been rendered
 
-    // Render each polygon on the map
     sortedPolygons.forEach(feature => {
       const locationRaw = feature.properties.location || "Unknown";
       const location = locationRaw.trim().toLowerCase();
@@ -115,6 +158,9 @@ const ExpertLayer = ({
         ring.map(([lng, lat]) => [lat, lng])
       );
 
+      // Get the expert count for the location
+      const expertCount = locationExpertCounts.get(locationRaw) || 0;
+
       // Create a Leaflet polygon with styling and add it to the map
       const polygon = L.polygon(flippedCoordinates, {
         color: "blue",
@@ -130,9 +176,6 @@ const ExpertLayer = ({
       polygon.on("mouseover", () => {
         if (!showWorks) return;
         if (closeTimeout) clearTimeout(closeTimeout);
-
-        // Get the expert count for the location
-        const expertCount = locationExpertCounts.get(locationRaw) || 0;
 
         // Determine the popup content based on the expert count
         const content = expertCount === 0
@@ -200,6 +243,50 @@ const ExpertLayer = ({
           }
         }, 300);
       });
+    });
+
+    // --- Render Markers for Points ---
+    locationMap.forEach((experts, key) => {
+      if (!experts.length || (showGrants && showWorks && combinedKeys?.has(key))) return;
+
+      const [lat, lng] = key.split(",").map(Number);
+
+      // Create a custom marker for the location
+      const marker = L.marker([lat, lng], {
+        icon: L.divIcon({
+          html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${experts.length}</div>`,
+          className: "custom-marker-icon",
+          iconSize: [30, 30],
+        }),
+        experts,
+        expertCount: experts.length,
+      });
+
+      // Add event listeners for marker interactivity
+      marker.on("mouseover", () => {
+        const content = experts.length === 1
+          ? createSingleResearcherContent(experts[0])
+          : createMultiResearcherContent(experts.length, experts[0]?.location_name, experts.reduce((s, e) => s + (parseInt(e.work_count) || 0), 0));
+
+        if (activePopup) activePopup.close();
+
+        activePopup = L.popup({ closeButton: false, autoClose: false, maxWidth: 250 })
+          .setLatLng(marker.getLatLng())
+          .setContent(content)
+          .openOn(map);
+      });
+
+      marker.on("mouseout", () => {
+        closeTimeout = setTimeout(() => {
+          if (activePopup) {
+            activePopup.close();
+            activePopup = null;
+          }
+        }, 500);
+      });
+
+      // Add the marker to the cluster group
+      markerClusterGroup.addLayer(marker);
     });
 
     // Add the marker cluster group to the map
