@@ -11,7 +11,9 @@ const CombinedPolygonLayer = ({
   setSelectedExperts,
   setSelectedGrants,
   setPanelOpen,
-  setPanelType
+  setPanelType,
+  setCombinedKeys,
+  combinedKeys, 
 }) => {
   const map = useMap();
   const polygonLayersRef = useRef([]);
@@ -32,7 +34,7 @@ const CombinedPolygonLayer = ({
       // Collect work polygons
       workGeoJSON.features.forEach(feature => {
         if (feature.geometry.type === "Polygon") {
-          const location = feature.properties.location || feature.properties.display_name;
+          const location = (feature.properties.location || feature.properties.display_name || "").toLowerCase().trim();
           if (!location) return;
           if (!workPolygons.has(location)) workPolygons.set(location, []);
           workPolygons.get(location).push(feature);
@@ -42,16 +44,20 @@ const CombinedPolygonLayer = ({
       // Collect grant polygons
       grantGeoJSON.features.forEach(feature => {
         if (feature.geometry.type === "Polygon") {
-          const location = feature.properties.location;
+          const location = (feature.properties.location || "").toLowerCase().trim();
           if (!location) return;
           if (!grantPolygons.has(location)) grantPolygons.set(location, []);
           grantPolygons.get(location).push(feature);
         }
       });
 
+      const overlappingLocations = [];
+
       // Draw combined polygons where overlaps exist
       workPolygons.forEach((worksFeatures, location) => {
         if (grantPolygons.has(location)) {
+          overlappingLocations.push(location);
+
           const grantsFeatures = grantPolygons.get(location);
 
           const worksCount = worksFeatures.reduce((sum, f) => sum + (f.properties.entries?.length || 0), 0);
@@ -77,8 +83,7 @@ const CombinedPolygonLayer = ({
           }).addTo(map);
 
           polygonLayersRef.current.push(polygon);
-        
-        polygon.bringToFront();
+          polygon.bringToFront();
 
           polygon.on("mouseover", () => {
             if (closeTimeout) clearTimeout(closeTimeout);
@@ -145,9 +150,23 @@ const CombinedPolygonLayer = ({
           });
         }
       });
+
+      // 👉 Set combinedKeys after processing overlaps
+      const newCombinedKeys = new Set(overlappingLocations);
+const currentKeysString = JSON.stringify(Array.from(newCombinedKeys));
+const existingKeysString = JSON.stringify(Array.from(combinedKeys));
+
+if (currentKeysString !== existingKeysString) {
+  console.log("Updating combinedKeys:", overlappingLocations);
+  setCombinedKeys(newCombinedKeys);
+} else {
+  console.log("combinedKeys unchanged.");
+}
+
     }
 
-  }, [map, workGeoJSON, grantGeoJSON, showWorks, showGrants]);
+  }, [map, workGeoJSON, grantGeoJSON, showWorks, showGrants, setCombinedKeys, combinedKeys]);
+
 
   return null;
 };

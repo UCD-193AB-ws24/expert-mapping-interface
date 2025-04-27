@@ -209,6 +209,8 @@ useEffect(() => {
             setSelectedGrants={setSelectedGrants}
             setPanelOpen={setPanelOpen}
             setPanelType={setPanelType}
+            setCombinedKeys={setCombinedKeys} 
+            combinedKeys={combinedKeys} 
           />
 
 

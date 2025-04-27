@@ -1,28 +1,7 @@
 import { useEffect } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
-
-import {
-  noGrantContent,
-  createMultiGrantPopup,
-} from "./Popups";
-
-/**
- * GrantLayer Component
- * 
- * This component is responsible for rendering grant-related data on a Leaflet map.
- * It processes GeoJSON data to display markers for grants and handles interactions such as hover and click events.
- * 
- * Props:
- * - grantGeoJSON: GeoJSON data containing features with grant-related information.
- * - showGrants: Boolean to toggle the display of grant markers.
- * - searchKeyword: String used to filter grants based on a search term.
- * - setSelectedGrants: Function to update the selected grants for the side panel.
- * - setPanelOpen: Function to toggle the side panel's visibility.
- * - setPanelType: Function to set the type of data displayed in the side panel.
- * - combinedKeys: Set of keys used to avoid duplicate markers for combined data.
- * - showWorks: Boolean to toggle the display of works-related data (used to avoid conflicts with grants).
- */
+import { createMultiGrantPopup } from "./Popups";
 
 const GrantLayer = ({
   grantGeoJSON,
@@ -34,21 +13,22 @@ const GrantLayer = ({
   combinedKeys,
   showWorks   
 }) => {
-  const map = useMap(); // Access the Leaflet map instance from react-leaflet.
+  const map = useMap();
 
   useEffect(() => {
-    if (!map || !grantGeoJSON || !showGrants) return; // Exit early if the map, grants, or GeoJSON data is not available.
+    if (!map || !grantGeoJSON || !showGrants) return;
 
-    const keyword = searchKeyword?.toLowerCase() || ""; // Prepare the search keyword for filtering (case-insensitive).
+    console.log("GrantLayer - combinedKeys:", Array.from(combinedKeys));
+
+    const keyword = searchKeyword?.toLowerCase() || "";
     const polygonLayers = [];
     let activePopup = null;
     let closeTimeout = null;
 
-    // Filter and sort polygons 
     const sortedPolygons = grantGeoJSON.features
-      .filter((feature) => feature.geometry?.type === "Polygon")
+      .filter(f => f.geometry?.type === "Polygon")
       .sort((a, b) => {
-        const area = (f) => {
+        const area = f => {
           const bounds = L.polygon(f.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
           return (bounds.getEast() - bounds.getWest()) * (bounds.getNorth() - bounds.getSouth());
         };
@@ -57,45 +37,31 @@ const GrantLayer = ({
 
     const polygonsToRender = new Set();
 
-    sortedPolygons.forEach((feature) => {
-      const location = feature.properties.location || "Unknown";
-      // if (polygonsToRender.has(location)) return;
-      // if (!location) return;
+    sortedPolygons.forEach(feature => {
+      const locationRaw = feature.properties.location || "Unknown";
+      const location = locationRaw.trim().toLowerCase();
 
-      if (!location) return;
+      console.log("GrantLayer - Checking location:", location);
 
-if (showWorks && showGrants && combinedKeys?.has(location)) return;
-
-if (polygonsToRender.has(location)) return;
-
-polygonsToRender.add(location);
-
-
-      const entries = feature.properties.entries || [];
-
-       // Filter entries based on the search keyword.
-      const matchedEntries = entries.filter(entry => {
-        if (!keyword) return true;
-        const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
-        const quoteMatch = keyword.match(/^"(.*)"$/);  // Exact phrase match.
-        if (quoteMatch) {
-          const phrase = quoteMatch[1].toLowerCase();
-          return entryText.includes(phrase);
-        } else {
-          const terms = keyword.split(/\s+/); // Multi-word match.
-          return terms.every(term => entryText.includes(term));
-        }
-      });
-
-      if (matchedEntries.length === 0) return;  // Skip polygons with no matched entries
-
+      if (!location || polygonsToRender.has(location)) return;
       polygonsToRender.add(location);
 
-      const flippedCoordinates = feature.geometry.coordinates.map((ring) =>
-        ring.map(([lng, lat]) => [lat, lng])
-      );
+      const matchedEntries = (feature.properties.entries || []).filter(entry => {
+        if (!keyword) return true;
+        const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+        const quoteMatch = keyword.match(/^"(.*)"$/);
+        return quoteMatch ? entryText.includes(quoteMatch[1].toLowerCase()) : keyword.split(/\s+/).every(term => entryText.includes(term));
+      });
 
-      // Create a polygon layer for the feature.
+      if (matchedEntries.length === 0) return;
+
+      // 🔹 Normalized overlap check
+      if (showWorks && showGrants && [...combinedKeys].some(key => key.trim().toLowerCase() === location)) {
+        console.log(`GrantLayer - Skipping popup for overlapping location: ${location}`);
+        return;
+      }
+
+      const flippedCoordinates = feature.geometry.coordinates.map(ring => ring.map(([lng, lat]) => [lat, lng]));
       const polygon = L.polygon(flippedCoordinates, {
         color: "darkblue",
         fillColor: "orange",
@@ -104,25 +70,15 @@ polygonsToRender.add(location);
       }).addTo(map);
 
       polygonLayers.push(polygon);
-      
 
       polygon.on("mouseover", () => {
         if (!showGrants) return;
         if (closeTimeout) clearTimeout(closeTimeout);
 
-        const content = createMultiGrantPopup(matchedEntries.length, location);
-
+        const content = createMultiGrantPopup(matchedEntries.length, locationRaw);
         if (activePopup) activePopup.close();
 
-        activePopup = L.popup({
-          closeButton: false,
-          autoClose: false,
-          maxWidth: 300,
-          className: 'hoverable-popup',
-          autoPan: false,
-          keepInView: false,
-          interactive: true
-        })
+        activePopup = L.popup({ closeButton: false, autoClose: false, maxWidth: 300, className: 'hoverable-popup', autoPan: false })
           .setLatLng(polygon.getBounds().getCenter())
           .setContent(content)
           .openOn(map);
@@ -130,37 +86,22 @@ polygonsToRender.add(location);
         const popupElement = activePopup.getElement();
         if (popupElement) {
           popupElement.style.pointerEvents = 'auto';
-
-          // Prevent the popup from closing when the mouse enters it.
           popupElement.addEventListener('mouseenter', () => clearTimeout(closeTimeout));
-          
-          // Close the popup when the mouse leaves it after a short delay.
           popupElement.addEventListener('mouseleave', () => {
             closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
+              if (activePopup) { activePopup.close(); activePopup = null; }
             }, 300);
           });
 
-           // Add a click event listener to the "View Grants" button in the popup.
           const viewGrantsBtn = popupElement.querySelector(".view-grants-btn");
           if (viewGrantsBtn) {
             viewGrantsBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
-
-              // Update the selected grants and open the side panel.
               setSelectedGrants([feature]);  
               setPanelType("grant-polygon");
               setPanelOpen(true);
-
-              // Close the popup after the button is clicked.
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
+              if (activePopup) { activePopup.close(); activePopup = null; }
             });
           }
         }
@@ -168,10 +109,7 @@ polygonsToRender.add(location);
 
       polygon.on("mouseout", () => {
         closeTimeout = setTimeout(() => {
-          if (activePopup) {
-            activePopup.close();
-            activePopup = null;
-          }
+          if (activePopup) { activePopup.close(); activePopup = null; }
         }, 300);
       });
     });
