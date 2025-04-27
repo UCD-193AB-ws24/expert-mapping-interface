@@ -45,6 +45,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
   const [error, setError] = useState(null);
   const [combinedKeys, setCombinedKeys] = useState(new Set());
   const mapRef = useRef(null);
+  const [locationName, setLocationName] = useState("Unknown");
+
 
 
 /**
@@ -211,6 +213,7 @@ useEffect(() => {
             setPanelType={setPanelType}
             setCombinedKeys={setCombinedKeys} 
             combinedKeys={combinedKeys} 
+            setLocationName={setLocationName}
           />
 
 
@@ -315,9 +318,12 @@ useEffect(() => {
   <CombinedPanel
     works={selectedExperts}
     grants={selectedGrants}
+    locationName={locationName}
     onClose={() => setPanelOpen(false)}
   />
 )}
+
+
     </div>
   );
 };

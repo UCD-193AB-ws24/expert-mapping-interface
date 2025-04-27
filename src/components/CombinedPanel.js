@@ -1,64 +1,35 @@
+import React, { useState } from "react";
+
 /**
  * CombinedPanel Component
  * 
- * This component displays a side panel with detailed information about works and grants
- * at a specific location. It allows users to toggle between "Works" and "Grants" tabs
- * and view detailed information about each item.
+ * This component displays a side panel with two tabs: "Works" and "Grants".
+ * It allows users to view detailed information about works and grants related
+ * to a specific location. The panel is interactive and includes features like
+ * tab switching, confidence level styling, and researcher profile links.
  * 
- * @file CombinedPanel.js
- * @module CombinedPanel
+ * Props:
+ * - works: Array of work entries related to the location.
+ * - grants: Array of grant entries related to the location.
+ * - locationName: String representing the name of the location.
+ * - onClose: Function to handle closing the panel.
  */
-
-import React, { useState } from "react";
-
-export const CombinedPanel = ({ works, grants, onClose }) => {
+export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
+  // State to track the currently active tab ("works" or "grants")
   const [activeTab, setActiveTab] = useState("works");
-  const locationName = works[0]?.location_name || grants[0]?.location_name || "Unknown";
 
   /**
-   * Helper function to extract work titles from an expert object.
-   * Handles cases where titles are stored as arrays or JSON strings.
+   * getConfidenceStyle
    * 
-   * @param {Object} expert - The expert object containing work titles.
-   * @returns {Array} An array of work titles.
-   */
-
-  const getWorkTitles = (expert) => {
-    try {
-      const titles = expert.work_titles;
-      
-      if (!titles) return [];
-      
-      if (Array.isArray(titles)) {
-        return titles;
-      }
-
-      if (typeof titles === 'string') {
-        try {
-          const parsed = JSON.parse(titles);
-          return Array.isArray(parsed) ? parsed : [];
-        } catch (e) {
-          return [];
-        }
-      }
-
-      return [];
-    } catch (e) {
-      return [];
-    }
-  };
-
-  /**
-   * Helper function to determine the style for confidence levels.
+   * Determines the style and label for the confidence level of a work entry.
    * 
-   * @param {string} confidenceValue - The confidence level (e.g., "high", "low").
-   * @returns {Object} An object containing a label and style for the confidence level.
+   * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
+   * @returns {object} An object containing the label and style for the confidence level.
    */
-
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
 
-    if (confidenceValue === 'high' || confidenceValue === 'High') {
+    if (confidenceValue.toLowerCase() === 'high') {
       return {
         label: 'High',
         style: {
@@ -70,7 +41,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
           display: 'inline-block'
         }
       };
-    } else if (confidenceValue === 'low' || confidenceValue === 'Low') {
+    } else if (confidenceValue.toLowerCase() === 'low') {
       return {
         label: 'Low',
         style: {
@@ -111,7 +82,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
       overflowY: "auto",
       zIndex: 1001
     }}>
-       {/* Close button */}
+      {/* Close Button */}
       <button
         onClick={onClose}
         style={{
@@ -128,14 +99,14 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
         ×
       </button>
 
-      {/* Location name */}
+      {/* Location Header */}
       <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#10b981" }}>
         Location: {locationName}
       </h2>
 
-      {/* Tab navigation */}
+      {/* Tab Navigation */}
       <div style={{ display: "flex", marginBottom: "15px", borderBottom: "1px solid #eaeaea" }}>
-        {/* Works tab button */}
+        {/* Works Tab Button */}
         <button 
           onClick={() => setActiveTab("works")}
           style={{
@@ -153,7 +124,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
           Works ({works.length})
         </button>
 
-        {/* Grants tab button */}
+        {/* Grants Tab Button */}
         <button 
           onClick={() => setActiveTab("grants")}
           style={{
@@ -172,145 +143,125 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
         </button>
       </div>
 
-      {/* Works tab content */}
+      {/* Works Tab Content */}
       {activeTab === "works" && (
-        <div>
-          <ul style={{ padding: 0, listStyle: 'none' }}>
-            {works
-              .sort((a, b) => a.researcher_name.localeCompare(b.researcher_name)) // Sort works alphabetically by researcher name
-              .map((expert, index) => {
-                const workTitles = getWorkTitles(expert); // Extract work titles
-                const confidence = expert.confidence; // Get confidence level
-                const confidenceStyle = getConfidenceStyle(confidence); // Get confidence style
+        <ul style={{ padding: 0, listStyle: 'none' }}>
+          {works.map((entry, index) => {
+            const relatedExpert = entry.relatedExperts?.[0] || {};
+            const researcherName = relatedExpert.name || entry.authors?.join(", ") || "Unknown";
+            const researcherURL = relatedExpert.url ? `https://experts.ucdavis.edu/${relatedExpert.url}` : null;
+            const confidenceStyle = getConfidenceStyle(entry.confidence);
 
-                return (
-                  <div key={index} style={{
-                    position: "relative",
-                    padding: "15px",
-                    fontSize: "14px",
-                    lineHeight: "1.5",
-                    width: "100%",
-                    border: "1px solid #ccc",
+            return (
+              <li key={index} style={{
+                position: "relative",
+                padding: "15px",
+                fontSize: "14px",
+                lineHeight: "1.5",
+                width: "100%",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                marginBottom: "15px",
+                background: "#f9f9f9"
+              }}>
+                {/* Researcher Name */}
+                <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
+                  {researcherName}
+                </div>
+                {/* Issued Date and Confidence */}
+                <div style={{ marginTop: "5px", color: "#333" }}>
+                  <strong>Issued:</strong> {entry.issued || "Unknown"}
+                  {entry.confidence && (
+                    <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
+                  )}
+                </div>
+                {/* Work Title */}
+                <div style={{ marginTop: "10px", color: "#333" }}>
+                  <strong>Title:</strong>
+                  <div style={{ marginTop: "3px" }}>{entry.title || "Untitled"}</div>
+                </div>
+                {/* Researcher Profile Link */}
+                <a
+                  href={researcherURL || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "block",
+                    marginTop: "12px",
+                    padding: "8px 10px",
+                    background: "#13639e",
+                    color: "white",
+                    textAlign: "center",
                     borderRadius: "5px",
-                    marginBottom: "15px",
-                    background: "#f9f9f9"
-                  }}>
-                    {/* Researcher name */}
-                    <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
-                      {expert.researcher_name}
-                    </div>
-                    {/* Confidence level */}
-                    <div style={{ marginTop: "5px", color: "#333" }}>
-                      {confidence && (
-                        <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
-                      )}
-                    </div>
-                    {/* Related works */}
-                    <div style={{ marginTop: "10px", color: "#333" }}>
-                      <strong>Related Works {expert.work_count}:</strong>
-                      {workTitles.length > 0 ? (
-                        <ul style={{ margin: "5px 0", paddingLeft: "20px" }}>
-                          {workTitles.slice(0, 3).map((title, i) => (
-                            <li key={i} style={{ marginBottom: "3px" }}>{title}</li>
-                          ))}
-                          {workTitles.length > 3 && (
-                            <li style={{ listStyle: "none", fontStyle: "italic" }}>
-                              ... and {workTitles.length - 3} more
-                            </li>
-                          )}
-                        </ul>
-                      ) : (
-                        <div style={{ marginTop: "3px" }}>No works found</div>
-                      )}
-                    </div>
-
-                     {/* Researcher profile link */}
-                    <a
-                      href={expert.researcher_url || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: "block",
-                        marginTop: "12px",
-                        padding: "8px 10px",
-                        background: "#13639e",
-                        color: "white",
-                        textAlign: "center",
-                        borderRadius: "5px",
-                        textDecoration: "none",
-                        fontWeight: "bold",
-                        opacity: expert.researcher_url ? '1' : '0.6',
-                        cursor: expert.researcher_url ? 'pointer' : 'default'
-                      }}
-                    >
-                      {expert.researcher_url ? "View Profile" : "No Profile Found"}
-                    </a>
-                  </div>
-                );
-              })}
-          </ul>
-        </div>
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                    opacity: researcherURL ? '1' : '0.6',
+                    cursor: researcherURL ? 'pointer' : 'default'
+                  }}
+                >
+                  {researcherURL ? "View Profile" : "No Profile Found"}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
-      {/* Grants tab content */}
+      {/* Grants Tab Content */}
       {activeTab === "grants" && (
-        <div>
-          <ul style={{ padding: 0, listStyle: 'none' }}>
-            {grants.map((grant, index) => {
-              const rawTitle = grant.title || "";
-              const cleanTitle = rawTitle.split("§")[0].trim().replace(/^"+|"+$/g, "");
-              
-              return (
-                <li key={index} style={{
-                  position: "relative",
-                  padding: "15px",
-                  fontSize: "14px",
-                  lineHeight: "1.5",
-                  width: "100%",
-                  border: "1px solid #ddd",
-                  borderRadius: "5px",
-                  marginBottom: "15px",
-                  background: "#f9f9f9"
-                }}>
-                  {/* Researcher name */}
-                   <div style={{ marginTop: "5px", color: "#333" }}>
-                    <strong>Researcher: </strong>{grant.researcher_name || "Unknown"}
-                  </div>
-                  {/* Grant title */}
-                  <div style={{ marginTop: "5px", color: "#333" }}>
-                    <strong>Grant: </strong>{cleanTitle || "Untitled Grant"}
-                  </div>
-                  {/* Funder */}
-                  <div style={{ marginTop: "5px", color: "#333" }}>
-                    <strong>Funder:</strong> {grant.funder || "Unknown"}
-                  </div>
-
-                  {/* Researcher profile link */}
-                  <a
-                    href={grant.researcher_url || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "block",
-                      marginTop: "12px",
-                      padding: "8px 10px",
-                      background: "#f59e0b",
-                      color: "white",
-                      textAlign: "center",
-                      borderRadius: "5px",
-                      textDecoration: "none",
-                      fontWeight: "bold",
-                      opacity: grant.researcher_url ? '1' : '0.6',
-                      cursor: grant.researcher_url ? 'pointer' : 'default'
-                    }}
-                  >
-                    {grant.researcher_url ? "View Researcher Profile" : "No Profile Found"}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <ul style={{ padding: 0, listStyle: 'none' }}>
+          {grants.map((grant, index) => {
+            const rawTitle = grant.title || "";
+            const cleanTitle = rawTitle.split("§")[0].trim().replace(/^"+|"+$/g, "");
+            return (
+              <li key={index} style={{
+                position: "relative",
+                padding: "15px",
+                fontSize: "14px",
+                lineHeight: "1.5",
+                width: "100%",
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                marginBottom: "15px",
+                background: "#f9f9f9"
+              }}>
+                {/* Researcher Name */}
+                <div style={{ marginTop: "5px", color: "#333" }}>
+                  <strong>Researcher: </strong>{grant.relatedExpert.name || "Unknown"}
+                </div>
+                {/* Grant Title */}
+                <div style={{ marginTop: "5px", color: "#333" }}>
+                  <strong>Grant: </strong>{cleanTitle || "Untitled Grant"}
+                </div>
+                {/* Funder */}
+                <div style={{ marginTop: "5px", color: "#333" }}>
+                  <strong>Funder:</strong> {grant.funder || "Unknown"}
+                </div>
+                {/* Researcher Profile Link */}
+                <a
+                  href={grant.relatedExpert.url || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "block",
+                    marginTop: "12px",
+                    padding: "8px 10px",
+                    background: "#f59e0b",
+                    color: "white",
+                    textAlign: "center",
+                    borderRadius: "5px",
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                    opacity: grant.relatedExpert.url ? '1' : '0.6',
+                    cursor: grant.relatedExpert.url  ? 'pointer' : 'default'
+                  }}
+                >
+                  {grant.relatedExpert.url ? "View Researcher Profile" : "No Profile Found"}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );
