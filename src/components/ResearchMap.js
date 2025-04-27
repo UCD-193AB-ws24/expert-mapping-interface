@@ -8,6 +8,8 @@ import GrantLayer from "./GrantLayer";
 import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
+import CombinedPolygonLayer from "./CombinedPolygonLayer";
+
 
 /**
  * ResearchMap Component
@@ -43,6 +45,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
   const [error, setError] = useState(null);
   const [combinedKeys, setCombinedKeys] = useState(new Set());
   const mapRef = useRef(null);
+  const [locationName, setLocationName] = useState("Unknown");
+
 
 
 /**
@@ -198,6 +202,20 @@ useEffect(() => {
               setCombinedKeys={setCombinedKeys}
             />
           )}
+          <CombinedPolygonLayer
+            workGeoJSON={filteredWorkGeoJSON}
+            grantGeoJSON={filteredGrantGeoJSON}
+            showWorks={showWorks}
+            showGrants={showGrants}
+            setSelectedExperts={setSelectedExperts}
+            setSelectedGrants={setSelectedGrants}
+            setPanelOpen={setPanelOpen}
+            setPanelType={setPanelType}
+            setCombinedKeys={setCombinedKeys} 
+            combinedKeys={combinedKeys} 
+            setLocationName={setLocationName}
+          />
+
 
           {/* Regular works layer */} 
           {(showWorks || searchKeyword) && (
@@ -296,13 +314,16 @@ useEffect(() => {
           panelType={panelType}
         />
       )}
-      {panelOpen && panelType === "combined" && (
-        <CombinedPanel
-          works={selectedPointExperts}
-          grants={selectedGrants}
-          onClose={() => setPanelOpen(false)}
-        />
-      )}
+      {panelOpen && panelType === "combined-polygon" && (
+  <CombinedPanel
+    works={selectedExperts}
+    grants={selectedGrants}
+    locationName={locationName}
+    onClose={() => setPanelOpen(false)}
+  />
+)}
+
+
     </div>
   );
 };

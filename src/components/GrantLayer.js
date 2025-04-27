@@ -1,29 +1,12 @@
 import { useEffect } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
-
-import {
-  noGrantContent,
-  createMultiGrantPopup,
-} from "./Popups";
+import { createMultiGrantPopup } from "./Popups";
 
 /**
  * GrantLayer Component
- * 
- * This component is responsible for rendering grant-related data on a Leaflet map.
- * It processes GeoJSON data to display markers for grants and handles interactions such as hover and click events.
- * 
- * Props:
- * - grantGeoJSON: GeoJSON data containing features with grant-related information.
- * - showGrants: Boolean to toggle the display of grant markers.
- * - searchKeyword: String used to filter grants based on a search term.
- * - setSelectedGrants: Function to update the selected grants for the side panel.
- * - setPanelOpen: Function to toggle the side panel's visibility.
- * - setPanelType: Function to set the type of data displayed in the side panel.
- * - combinedKeys: Set of keys used to avoid duplicate markers for combined data.
- * - showWorks: Boolean to toggle the display of works-related data (used to avoid conflicts with grants).
+ * Renders grant-related polygons on a Leaflet map with keyword filtering and interactive popups.
  */
-
 const GrantLayer = ({
   grantGeoJSON,
   showGrants,
@@ -31,22 +14,23 @@ const GrantLayer = ({
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
+  combinedKeys,
+  showWorks   
 }) => {
-  const map = useMap(); // Access the Leaflet map instance from react-leaflet.
+  const map = useMap();
 
   useEffect(() => {
-    if (!map || !grantGeoJSON || !showGrants) return; // Exit early if the map, grants, or GeoJSON data is not available.
+    if (!map || !grantGeoJSON || !showGrants) return;
 
-    const keyword = searchKeyword?.toLowerCase() || ""; // Prepare the search keyword for filtering (case-insensitive).
+    const keyword = searchKeyword?.toLowerCase() || "";
     const polygonLayers = [];
     let activePopup = null;
     let closeTimeout = null;
 
-    // Filter and sort polygons 
     const sortedPolygons = grantGeoJSON.features
-      .filter((feature) => feature.geometry?.type === "Polygon")
+      .filter(f => f.geometry?.type === "Polygon")
       .sort((a, b) => {
-        const area = (f) => {
+        const area = f => {
           const bounds = L.polygon(f.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])).getBounds();
           return (bounds.getEast() - bounds.getWest()) * (bounds.getNorth() - bounds.getSouth());
         };
@@ -55,36 +39,41 @@ const GrantLayer = ({
 
     const polygonsToRender = new Set();
 
-    sortedPolygons.forEach((feature) => {
-      const location = feature.properties.location || "Unknown";
-      if (polygonsToRender.has(location)) return;
-      if (!location) return;
+    sortedPolygons.forEach(feature => {
+      const locationRaw = feature.properties.location || "Unknown";
+      const location = locationRaw.trim().toLowerCase();
+
+      if (!location || polygonsToRender.has(location)) return;
+
+      // Skip if overlapping with combinedKeys
+      if (showWorks && showGrants && [...combinedKeys].some(key => key.trim().toLowerCase() === location)) {
+        console.log(`GrantLayer - Skipping popup for overlapping location: ${location}`);
+        return;
+      }
 
       const entries = feature.properties.entries || [];
 
-       // Filter entries based on the search keyword.
+      // --- Keyword Filtering ---
       const matchedEntries = entries.filter(entry => {
         if (!keyword) return true;
         const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
-        const quoteMatch = keyword.match(/^"(.*)"$/);  // Exact phrase match.
+        const quoteMatch = keyword.match(/^"(.*)"$/);
         if (quoteMatch) {
-          const phrase = quoteMatch[1].toLowerCase();
-          return entryText.includes(phrase);
+          return entryText.includes(quoteMatch[1]);
         } else {
-          const terms = keyword.split(/\s+/); // Multi-word match.
+          const terms = keyword.split(/\s+/);
           return terms.every(term => entryText.includes(term));
         }
       });
 
-      if (matchedEntries.length === 0) return;  // Skip polygons with no matched entries
+      if (matchedEntries.length === 0) return;
 
       polygonsToRender.add(location);
 
-      const flippedCoordinates = feature.geometry.coordinates.map((ring) =>
+      const flippedCoordinates = feature.geometry.coordinates.map(ring =>
         ring.map(([lng, lat]) => [lat, lng])
       );
 
-      // Create a polygon layer for the feature.
       const polygon = L.polygon(flippedCoordinates, {
         color: "darkblue",
         fillColor: "orange",
@@ -98,7 +87,7 @@ const GrantLayer = ({
         if (!showGrants) return;
         if (closeTimeout) clearTimeout(closeTimeout);
 
-        const content = createMultiGrantPopup(matchedEntries.length, location);
+        const content = createMultiGrantPopup(matchedEntries.length, locationRaw);
 
         if (activePopup) activePopup.close();
 
@@ -107,9 +96,7 @@ const GrantLayer = ({
           autoClose: false,
           maxWidth: 300,
           className: 'hoverable-popup',
-          autoPan: false,
-          keepInView: false,
-          interactive: true
+          autoPan: false
         })
           .setLatLng(polygon.getBounds().getCenter())
           .setContent(content)
@@ -118,11 +105,7 @@ const GrantLayer = ({
         const popupElement = activePopup.getElement();
         if (popupElement) {
           popupElement.style.pointerEvents = 'auto';
-
-          // Prevent the popup from closing when the mouse enters it.
           popupElement.addEventListener('mouseenter', () => clearTimeout(closeTimeout));
-          
-          // Close the popup when the mouse leaves it after a short delay.
           popupElement.addEventListener('mouseleave', () => {
             closeTimeout = setTimeout(() => {
               if (activePopup) {
@@ -132,19 +115,16 @@ const GrantLayer = ({
             }, 300);
           });
 
-           // Add a click event listener to the "View Grants" button in the popup.
           const viewGrantsBtn = popupElement.querySelector(".view-grants-btn");
           if (viewGrantsBtn) {
             viewGrantsBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
 
-              // Update the selected grants and open the side panel.
-              setSelectedGrants([feature]);  
+              setSelectedGrants([feature]);
               setPanelType("grant-polygon");
               setPanelOpen(true);
 
-              // Close the popup after the button is clicked.
               if (activePopup) {
                 activePopup.close();
                 activePopup = null;
