@@ -31,6 +31,8 @@ const GrantLayer = ({
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
+  combinedKeys,
+  showWorks   
 }) => {
   const map = useMap(); // Access the Leaflet map instance from react-leaflet.
 
@@ -57,8 +59,17 @@ const GrantLayer = ({
 
     sortedPolygons.forEach((feature) => {
       const location = feature.properties.location || "Unknown";
-      if (polygonsToRender.has(location)) return;
+      // if (polygonsToRender.has(location)) return;
+      // if (!location) return;
+
       if (!location) return;
+
+if (showWorks && showGrants && combinedKeys?.has(location)) return;
+
+if (polygonsToRender.has(location)) return;
+
+polygonsToRender.add(location);
+
 
       const entries = feature.properties.entries || [];
 
@@ -93,6 +104,7 @@ const GrantLayer = ({
       }).addTo(map);
 
       polygonLayers.push(polygon);
+      
 
       polygon.on("mouseover", () => {
         if (!showGrants) return;

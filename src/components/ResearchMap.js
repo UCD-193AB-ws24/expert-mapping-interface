@@ -8,6 +8,8 @@ import GrantLayer from "./GrantLayer";
 import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
+import CombinedPolygonLayer from "./CombinedPolygonLayer";
+
 
 /**
  * ResearchMap Component
@@ -198,6 +200,17 @@ useEffect(() => {
               setCombinedKeys={setCombinedKeys}
             />
           )}
+          <CombinedPolygonLayer
+            workGeoJSON={filteredWorkGeoJSON}
+            grantGeoJSON={filteredGrantGeoJSON}
+            showWorks={showWorks}
+            showGrants={showGrants}
+            setSelectedExperts={setSelectedExperts}
+            setSelectedGrants={setSelectedGrants}
+            setPanelOpen={setPanelOpen}
+            setPanelType={setPanelType}
+          />
+
 
           {/* Regular works layer */} 
           {(showWorks || searchKeyword) && (
@@ -296,13 +309,13 @@ useEffect(() => {
           panelType={panelType}
         />
       )}
-      {panelOpen && panelType === "combined" && (
-        <CombinedPanel
-          works={selectedPointExperts}
-          grants={selectedGrants}
-          onClose={() => setPanelOpen(false)}
-        />
-      )}
+      {panelOpen && panelType === "combined-polygon" && (
+  <CombinedPanel
+    works={selectedExperts}
+    grants={selectedGrants}
+    onClose={() => setPanelOpen(false)}
+  />
+)}
     </div>
   );
 };

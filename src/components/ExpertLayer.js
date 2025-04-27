@@ -94,7 +94,7 @@ const ExpertLayer = ({
         totalLocationExperts += relatedExperts.length;
       });
       if (totalLocationExperts > 0) {
-        console.log("Location:", location, "Total Experts:", totalLocationExperts);
+    
       }
       if (location) {
         locationExpertCounts.set(location, (locationExpertCounts.get(location) || 0) + (totalLocationExperts || 0));
@@ -176,7 +176,6 @@ const ExpertLayer = ({
         return area(b) - area(a);
       });
 
-    console.log("Polygons to draw:", sortedPolygons.length);
     const polygonsToRender = new Set();
 
     sortedPolygons.forEach((feature, i) => {
@@ -184,11 +183,20 @@ const ExpertLayer = ({
       const geometry = feature.geometry;
       const location = feature.properties.location;
 
-      // Skip rendering if the location has already been processed.
+      // // Skip rendering if the location has already been processed.
+      // if (polygonsToRender.has(location)) return;
+
+      // // Add the location to the set of polygons to render if it exists.
+      // if (location) polygonsToRender.add(location);
+
+      if (!location) return;
+
+      if (showWorks && showGrants && combinedKeys?.has(location)) return;
+
       if (polygonsToRender.has(location)) return;
 
-      // Add the location to the set of polygons to render if it exists.
-      if (location) polygonsToRender.add(location);
+      polygonsToRender.add(location);
+
 
       // Flip the coordinates from [lng, lat] to [lat, lng] as required by Leaflet.
       const flippedCoordinates = geometry.coordinates.map((ring) =>
@@ -198,7 +206,6 @@ const ExpertLayer = ({
       // Retrieve the name of the polygon, using either the display name or location.
       // Default to "Unknown" if neither is available.
       const name = feature.properties?.display_name || feature.properties?.location || "Unknown";
-      console.log(" Drawing polygon:", name, flippedCoordinates[0]);
 
       // Create a Leaflet polygon using the flipped coordinates.
       // Set the polygon's style with a blue border, yellow fill, and 60% opacity.
@@ -304,7 +311,6 @@ const ExpertLayer = ({
 
     });
 
-    console.log("Polygons drawn on map:", polygonLayers.length);
 
      // Add markers for point geometries.
     locationMap.forEach((experts, key) => {

@@ -223,3 +223,23 @@ export const noGrantContent = (locationName) => `
     </div>
   </div>
 `;
+
+export const createCombinedPolygonPopup = (worksCount, grantsCount, locationName) => `
+  <div style='padding: 15px; font-size: 14px; width: 250px;'>
+    <div style='font-weight: bold; font-size: 16px; color: #10b981;'>Combined Polygon</div>
+    <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
+    <div style='margin-top: 5px;'>
+      <div style='color: #13639e; display: inline-block; margin-right: 10px;'>
+        <strong>${worksCount}</strong> Works
+      </div>
+      <div style='color: #f59e0b; display: inline-block;'>
+        <strong>${grantsCount}</strong> Grants
+      </div>
+    </div>
+    <a href='#'
+      class='view-combined-polygon-btn'
+      style='display: block; margin-top: 12px; padding: 8px 10px; background: #10b981; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+      Open Panel
+    </a>
+  </div>
+`;
