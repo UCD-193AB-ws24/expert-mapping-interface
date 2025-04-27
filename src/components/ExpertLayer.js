@@ -102,6 +102,7 @@ const ExpertLayer = ({
                 if (!matchesAll) return; //// Partial + multi-word match (AND logic)
               }
             }
+            
 
             // Collect matched entries with expert details
             const expert = entry.relatedExperts?.[0];
@@ -141,17 +142,32 @@ const ExpertLayer = ({
       const locationRaw = feature.properties.location || "Unknown";
       const location = locationRaw.trim().toLowerCase();
 
-      console.log("ExpertLayer - Checking location:", location);
 
       // Skip rendering if the location has already been processed
       if (!location || polygonsToRender.has(location)) return;
-      polygonsToRender.add(location);
 
       // Skip rendering if the location overlaps with combinedKeys
       if (showWorks && showGrants && [...combinedKeys].some(key => key.trim().toLowerCase() === location)) {
         console.log(`ExpertLayer - Skipping popup for overlapping location: ${location}`);
         return;
       }
+      const entries = feature.properties.entries || [];
+
+      const matchedEntries = entries.filter(entry => {
+        if (!keyword) return true;
+        const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+        const quoteMatch = keyword.match(/^"(.*)"$/);
+        if (quoteMatch) {
+          return entryText.includes(quoteMatch[1]);
+        } else {
+          const terms = keyword.split(/\s+/);
+          return terms.every(term => entryText.includes(term));
+        }
+      });
+    
+      if (matchedEntries.length === 0) return;  // ⬅️ Skip rendering if no matches
+    
+      polygonsToRender.add(location);
 
       // Flip coordinates from [lng, lat] to [lat, lng] for Leaflet compatibility
       const flippedCoordinates = feature.geometry.coordinates.map(ring =>
