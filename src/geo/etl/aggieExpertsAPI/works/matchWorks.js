@@ -7,38 +7,17 @@
 * © Zoey Vo, 2025
 */
 
-
 const { saveCache } = require('../apiUtils');
-const { createClient } = require('redis');
-
-/**
- * Connect to Redis and return client
- * @returns {Promise<RedisClient>} Connected Redis client
- */
-async function connectToRedis() {
-  // Create Redis client
-  const client = createClient({
-    url: 'redis://localhost:6379'
-  });
-
-  client.on('error', (err) => {
-    console.error('❌ Redis error:', err);
-  });
-
-  await client.connect();
-  console.log('✅ Redis connected successfully');
-  return client;
-}
+const { createRedisClient } = require('../redis/redisConfig');
 
 /**
  * Fetch all experts from Redis
  * @returns {Promise<Array>} Array of expert objects
  */
 async function getExpertsFromRedis() {
-  let client;
+  const client = createRedisClient();
   try {
-    client = await connectToRedis();
-    
+    await client.connect();
     // Get all expert keys (excluding metadata)
     const keys = await client.keys('expert:*');
     const expertKeys = keys.filter(key => key !== 'expert:metadata');
@@ -74,9 +53,9 @@ async function getExpertsFromRedis() {
  * @returns {Promise<Array>} Array of work objects
  */
 async function getWorksFromRedis() {
-  let client;
+  const client = createRedisClient();
   try {
-    client = await connectToRedis();
+    await client.connect();
     
     // Get all work keys (excluding metadata)
     const keys = await client.keys('work:*');

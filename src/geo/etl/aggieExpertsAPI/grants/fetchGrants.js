@@ -15,9 +15,7 @@ const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUt
 const { fetchExperts } = require('../experts/fetchExperts');
 const { cacheGrants } = require('../redis/redisUtils');
 
-async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false, cacheToRedis = true) {
-    // First, fetch experts to link to grants
-    const { experts } = await fetchExperts(batchSize, maxPages, forceUpdate, cacheToRedis);
+async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, cacheToRedis = true) {
     
     let grants = [];
     let page = 0;
@@ -41,18 +39,6 @@ async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false, c
                     endDate: grant.dateTimeInterval?.end || '',
                     inheresIn: grant.inheresIn?.['@id'] || ''
                 };
-                
-                // Find the related expert for this grant
-                if (grantData.inheresIn) {
-                    const relatedExpert = experts.find(expert => expert.url === grantData.inheresIn);
-                    if (relatedExpert) {
-                        grantData.relatedExpert = {
-                            firstName: relatedExpert.firstName,
-                            lastName: relatedExpert.lastName,
-                            url: relatedExpert.url
-                        };
-                    }
-                }
                 
                 return grantData;
             });

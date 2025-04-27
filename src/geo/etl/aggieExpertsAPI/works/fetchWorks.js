@@ -15,9 +15,8 @@ const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUt
 const { fetchExperts } = require('../experts/fetchExperts');
 const { cacheWorks } = require('../redis/redisUtils');
 
-async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = true) {
+async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = true, cacheToRedis = true) {
     // First, fetch experts to link to works
-    const { experts } = await fetchExperts(batchSize, maxPages, forceUpdate, cacheToRedis);
     
     let works = [];
     let page = 0;
@@ -45,24 +44,6 @@ async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = true) {
                         id: author['@id'] || ''
                     })) || []
                 };
-                
-                // Find the related experts for this work
-                if (workData.authors && workData.authors.length > 0) {
-                    workData.relatedExperts = workData.authors
-                        .filter(author => author.id)
-                        .map(author => {
-                            const relatedExpert = experts.find(expert => expert.url === author.id);
-                            if (relatedExpert) {
-                                return {
-                                    firstName: relatedExpert.firstName,
-                                    lastName: relatedExpert.lastName,
-                                    url: relatedExpert.url
-                                };
-                            }
-                            return null;
-                        })
-                        .filter(Boolean); // Remove nulls
-                }
                 
                 return workData;
             });
