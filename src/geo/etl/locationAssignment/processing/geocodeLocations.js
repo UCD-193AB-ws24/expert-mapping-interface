@@ -130,7 +130,8 @@ async function geocodeLocation(location) {
         display_name: result.display_name,
         type: result.type,
         osm_type: result.osm_type,
-        class: result.class
+        class: result.class,
+        place_rank: result.place_rank
       },
       geometry: geometry
     };
@@ -147,7 +148,8 @@ function createFeature(geometry, location, result) {
     properties: {
       name: location,
       display_name: result.display_name,
-      type: result.type
+      type: result.type,
+      place_rank: result.place_rank
     },
     geometry: geometry
   };
