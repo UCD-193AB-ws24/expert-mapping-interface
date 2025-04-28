@@ -12,10 +12,9 @@
 */
 
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
-const { fetchExperts } = require('../experts/fetchExperts');
 const { cacheWorks } = require('../redis/redisUtils');
 
-async function fetchWorks(batchSize = 10, maxPages = 100, forceUpdate = false, cacheToRedis = true) {
+async function fetchWorks(batchSize = 10, maxPages = 2, forceUpdate = false, cacheToRedis = true) {
     // First, fetch experts to link to works
     
     let works = [];

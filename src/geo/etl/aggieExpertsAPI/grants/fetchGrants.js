@@ -32,13 +32,13 @@ async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, ca
             const processedGrants = hits.map(grant => {
                 // Extract and clean up the data
                 const grantData = {
-                    title: grant.name || '',
+                    title: grant.name?.split('§')[0] || '',
                     funder: grant.sponsor?.name || '',
                     startDate: grant.dateTimeInterval?.start || '',
                     endDate: grant.dateTimeInterval?.end || '',
                     inheresIn: grant.inheresIn?.['@id'] || ''
                 };
-                
+                console.log(grantData);
                 return grantData;
             });
             

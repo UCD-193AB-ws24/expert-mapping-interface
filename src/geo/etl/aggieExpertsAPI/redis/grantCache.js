@@ -78,24 +78,18 @@ async function cacheGrants(grants) {
       }
       
       if (shouldUpdate) {
-        // Store the grant data 
+        // Store the grant data with string type checking
         await redisClient.hSet(grantKey, {
-          id: grantId,
+          id: grantId ? String(grantId) : '',
           title: sanitizeString(grant.title) || '',
-          funder: grant.funder || '',
-          start_date: grant.startDate || '',
-          end_date: grant.endDate || '',
-          inheres_in: grant.inheresIn || '',
+          funder: grant.funder ? String(grant.funder) : '',
+          start_date: grant.startDate ? String(grant.startDate) : '',
+          end_date: grant.endDate ? String(grant.endDate) : '',
+          inheres_in: grant.inheresIn ? String(grant.inheresIn) : '',
           cache_session: sessionId,
           cached_at: new Date().toISOString()
         });
         
-        // If the grant has a related expert, store it
-        if (grant.relatedExpert) {
-          await redisClient.hSet(grantKey, {
-            related_expert: JSON.stringify(grant.relatedExpert)
-          });
-        }
       }
     }
     
