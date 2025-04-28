@@ -15,7 +15,7 @@ const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUt
 const { fetchExperts } = require('../experts/fetchExperts');
 const { cacheWorks } = require('../redis/redisUtils');
 
-async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = true, cacheToRedis = true) {
+async function fetchWorks(batchSize = 10, maxPages = 100, forceUpdate = false, cacheToRedis = true) {
     // First, fetch experts to link to works
     
     let works = [];
@@ -25,7 +25,7 @@ async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = true, cac
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
-                '@type': 'publication', page
+                '@type': 'work', page
             }, { 'Authorization': API_TOKEN });
             
             const hits = data.hits;

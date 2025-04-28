@@ -12,7 +12,6 @@
 */
 
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
-const { fetchExperts } = require('../experts/fetchExperts');
 const { cacheGrants } = require('../redis/redisUtils');
 
 async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, cacheToRedis = true) {
