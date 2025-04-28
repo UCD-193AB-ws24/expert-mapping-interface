@@ -23,6 +23,20 @@ import { createCombinedPolygonPopup } from "./Popups";
  * - combinedKeys: Set of currently overlapping locations.
  * - setLocationName: Function to set the name of the location for the side panel.
  */
+
+//helper function for keyword search
+const matchesKeyword = (keyword, feature, entry) => {
+  if (!keyword) return true;
+  const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+  const quoteMatch = keyword.match(/^"(.*)"$/);
+  if (quoteMatch) {
+    return entryText.includes(quoteMatch[1]);
+  } else {
+    const terms = keyword.split(/\s+/);
+    return terms.every(term => entryText.includes(term));
+  }
+};
+
 const CombinedPolygonLayer = ({
   workGeoJSON,
   grantGeoJSON,
@@ -34,7 +48,8 @@ const CombinedPolygonLayer = ({
   setPanelType,
   setCombinedKeys,
   combinedKeys,
-  setLocationName
+  setLocationName,
+  searchKeyword
 }) => {
   // Access the Leaflet map instance from react-leaflet's useMap hook
   const map = useMap();
@@ -86,9 +101,21 @@ const CombinedPolygonLayer = ({
 
           const grantsFeatures = grantPolygons.get(location);
 
-          // Calculate the total number of works and grants for the location
-          const worksCount = worksFeatures.reduce((sum, f) => sum + (f.properties.entries?.length || 0), 0);
-          const grantsCount = grantsFeatures.reduce((sum, f) => sum + (f.properties.entries?.length || 0), 0);
+           // Apply keyword filtering to works and grants entries
+          const filteredWorksEntries = worksFeatures.flatMap(f => 
+            (f.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, f, entry))
+          );
+
+          const filteredGrantsEntries = grantsFeatures.flatMap(f => 
+            (f.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, f, entry))
+          );
+
+          // Only render if there's at least one matching entry
+          if (filteredWorksEntries.length === 0 && filteredGrantsEntries.length === 0) return;
+
+          // Calculate counts based on filtered entries
+          const worksCount = filteredWorksEntries.length;
+          const grantsCount = filteredGrantsEntries.length;
 
           // Use the geometry of the first work feature for the polygon
           const geometry = worksFeatures[0].geometry;
@@ -171,6 +198,8 @@ const CombinedPolygonLayer = ({
                   setPanelType("combined-polygon");
                   setLocationName(locationName);
                   setPanelOpen(true);
+                  setSelectedExperts(filteredWorksEntries);
+                  setSelectedGrants(filteredGrantsEntries);
 
                   // Close the active popup
                   if (activePopup) {

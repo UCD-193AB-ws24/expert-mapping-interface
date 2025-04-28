@@ -214,6 +214,7 @@ useEffect(() => {
             setCombinedKeys={setCombinedKeys} 
             combinedKeys={combinedKeys} 
             setLocationName={setLocationName}
+            searchKeyword={searchKeyword}
           />
 
 
