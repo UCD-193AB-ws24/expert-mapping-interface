@@ -13,7 +13,7 @@
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
 const { cacheWorks } = require('../redis/redisUtils');
 
-async function fetchWorks(batchSize = 10, maxPages = 1000, forceUpdate = false, cacheToRedis = true) {
+async function fetchWorks(batchSize = 10, maxPages = 10, forceUpdate = false, cacheToRedis = true) {
     let works = [];
     let page = 0;
     let totalFetched = 0;
@@ -26,25 +26,16 @@ async function fetchWorks(batchSize = 10, maxPages = 1000, forceUpdate = false, 
             const hits = data.hits;
             if (hits.length === 0) break;
             
-            const processedWorks = hits.map(work => {
-                // Extract and clean up the data
-                const workData = {
-                    id: work['@id'] || '',
-                    title: work.name || '',
-                    name: work.name || '',
-                    issued: work.datePublished || '',
-                    abstract: work.abstract || '',
-                    authors: work.authors?.map(author => ({
-                        name: author.name || '',
-                        id: author['@id'] || ''
-                    })) || []
-                };
-                
-                return workData;
-            });
-            
-            works.push(...processedWorks);
-            
+            works.push(...hits.map(work => ({
+                title: work.title?.split('§')[0] || 'No Title',
+                authors: (work.author || []).map(author => `${author.given || ''} ${author.family || ''}`.trim()),
+                relatedExperts: [],
+                issued: work.issued || 'No Issued Date',
+                abstract: work.abstract || 'No Abstract',
+                name: work.name || 'No Name',
+                // Adding a unique identifier for caching comparison
+                id: work['@id'] || work.name
+            })));
             totalFetched += hits.length;
             if (page % batchSize === 0) logBatch('works', page, false);
             page++;

@@ -125,6 +125,47 @@ async function cacheExperts(experts) {
   }
 }
 
+/**
+ * Retrieves experts from Redis cache
+ * @returns {Promise<Array>} Array of expert objects
+ */
+async function getCachedExperts() {
+  const redisClient = createRedisClient();
+  try {
+    await redisClient.connect();
+    
+    // Get all expert keys (excluding metadata)
+    const keys = await redisClient.keys('expert:*');
+    const expertKeys = keys.filter(key => key !== 'expert:metadata' && !key.includes(':entry:'));
+    
+    console.log(`Found ${expertKeys.length} experts in Redis`);
+    
+    // Get data for each expert
+    const experts = [];
+    for (const key of expertKeys) {
+      const expertData = await redisClient.hGetAll(key);
+      experts.push({
+        firstName: expertData.first_name || '',
+        middleName: expertData.middle_name || '',
+        lastName: expertData.last_name || '',
+        fullName: expertData.full_name || '',
+        title: expertData.title || '',
+        organizationUnit: expertData.organization_unit || '',
+        url: expertData.url || ''
+      });
+    }
+    
+    return experts;
+  } catch (error) {
+    console.error('❌ Error fetching experts from Redis:', error);
+    return [];
+  } finally {
+    await redisClient.disconnect();
+  }
+}
+
+// Update module.exports to include the new function
 module.exports = {
-  cacheExperts
+  cacheExperts,
+  getCachedExperts
 };

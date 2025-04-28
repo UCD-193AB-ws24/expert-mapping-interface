@@ -29,34 +29,10 @@ async function fetchFeatures() {
         
         console.log('\n====== FETCH SUMMARY ======\n');
         
-        console.log('Experts:');
-        if (expertsResult.newCount > 0 || expertsResult.updatedCount > 0) {
-            console.log(`- ${expertsResult.newCount} new expert(s)`);
-            console.log(`- ${expertsResult.updatedCount} updated expert(s)`);
-            console.log(`- ${expertsResult.count - expertsResult.newCount - expertsResult.updatedCount} unchanged expert(s)`);
-        } else {
-            console.log('- No new or updated experts found. Using existing cache.');
-        }
         console.log(`Total experts in cache: ${expertsResult.count}`);
         
-        console.log('\nGrants:');
-        if (grantsResult.newCount > 0 || grantsResult.updatedCount > 0) {
-            console.log(`- ${grantsResult.newCount} new grant(s)`);
-            console.log(`- ${grantsResult.updatedCount} updated grant(s)`);
-            console.log(`- ${grantsResult.count - grantsResult.newCount - grantsResult.updatedCount} unchanged grant(s)`);
-        } else {
-            console.log('- No new or updated grants found. Using existing cache.');
-        }
         console.log(`Total grants in cache: ${grantsResult.count}`);
         
-        console.log('\nWorks:');
-        if (worksResult.newCount > 0 || worksResult.updatedCount > 0) {
-            console.log(`- ${worksResult.newCount} new work(s)`);
-            console.log(`- ${worksResult.updatedCount} updated work(s)`);
-            console.log(`- ${worksResult.count - worksResult.newCount - worksResult.updatedCount} unchanged work(s)`);
-        } else {
-            console.log('- No new or updated works found. Using existing cache.');
-        }
         console.log(`Total works in cache: ${worksResult.works.length}`);
 
         return { 

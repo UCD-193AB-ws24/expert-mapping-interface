@@ -12,7 +12,7 @@ const { getCachedGrants, cacheGrants } = require('../redis/grantCache');
 const { getCachedExperts } = require('../redis/expertCache');
 
 /**
- * Creates a map of experts indexed by their URLs
+ * Creates a map of experts indexed by their URLs with multiple formats
  * @param {Array} experts - Array of expert objects
  * @returns {Object} Map of expert URLs to expert data
  */
@@ -21,13 +21,35 @@ function createExpertsByUrlMap(experts) {
     
     experts.forEach(expert => {
         const fullName = `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' ');
+        
+        // Store expert with original URL
         expertsByUrl[expert.url] = { 
             fullName, 
             url: expert.url,
             firstName: expert.firstName,
             lastName: expert.lastName
         };
+        
+        // Get the expert ID from the URL
+        const expertId = expert.url.split('/').pop();
+        
+        // Store with full URL patterns
+        const urlPatterns = [
+            `https://experts.ucdavis.edu/expert/${expertId}`,
+            `http://experts.ucdavis.edu/expert/${expertId}`,
+            `experts.ucdavis.edu/expert/${expertId}`,
+            `//experts.ucdavis.edu/expert/${expertId}`,
+            `expert/${expertId}`,
+            expertId
+        ];
+        
+        // Add all patterns to the map
+        urlPatterns.forEach(pattern => {
+            expertsByUrl[pattern] = expertsByUrl[expert.url];
+        });
     });
+    
+    console.log(`DEBUG: Created expert map with ${Object.keys(expertsByUrl).length} entries`);
     
     return expertsByUrl;
 }
@@ -39,9 +61,47 @@ function createExpertsByUrlMap(experts) {
  * @returns {Array} Grants with related experts
  */
 function matchGrantsToExperts(grants, expertsByUrl) {
-    return grants.map(grant => {
-        // The inheresIn property links to the expert
-        const expert = expertsByUrl[grant.inheresIn];
+    console.log('DEBUG: Starting grant-expert matching');
+    
+    // Log some sample data for debugging
+    if (grants.length > 0) {
+        const sampleGrants = grants.slice(0, 5);
+        console.log('DEBUG: Sample grant inheresIn values:');
+        sampleGrants.forEach((grant, i) => {
+            console.log(`  Grant ${i+1}: "${grant.title?.substring(0, 30)}..." inheresIn: ${grant.inheresIn || 'MISSING'}`);
+        });
+    }
+    
+    // Log expert URLs for debugging
+    const expertUrlsCount = Object.keys(expertsByUrl).length;
+    console.log(`DEBUG: Found ${expertUrlsCount} expert URL variations`);
+    
+    // Count matches during mapping
+    let matchCount = 0;
+    let noInheresInCount = 0;
+    
+    const matchedGrants = grants.map(grant => {
+        if (!grant.inheresIn) {
+            noInheresInCount++;
+            return { ...grant, relatedExpert: null };
+        }
+        
+        // Try to extract just the ID from inheresIn if it's a full URL
+        let expertId = null;
+        if (grant.inheresIn.includes('/')) {
+            expertId = grant.inheresIn.split('/').pop();
+        }
+        
+        // Try different matching patterns
+        const expert = 
+            expertsByUrl[grant.inheresIn] || 
+            (expertId ? expertsByUrl[expertId] : null) ||
+            (expertId ? expertsByUrl[`expert/${expertId}`] : null);
+        
+        if (expert) {
+            matchCount++;
+            console.log(`DEBUG: Matched grant "${grant.title?.substring(0, 30)}..." to expert ${expert.fullName}`);
+        }
         
         return {
             ...grant,
@@ -53,6 +113,29 @@ function matchGrantsToExperts(grants, expertsByUrl) {
             } : null
         };
     });
+    
+    console.log(`DEBUG: Matched ${matchCount}/${grants.length} grants to experts`);
+    console.log(`DEBUG: ${noInheresInCount} grants had no inheresIn value`);
+    
+    // Log a few examples of unmatched grants for debugging
+    if (grants.length > 0) {
+        const unmatched = grants.filter(g => g.inheresIn && !expertsByUrl[g.inheresIn]).slice(0, 3);
+        if (unmatched.length > 0) {
+            console.log('DEBUG: Sample unmatched grant inheresIn values:');
+            unmatched.forEach((g, i) => {
+                console.log(`  Unmatched ${i+1}: "${g.title?.substring(0, 30)}..." inheresIn: ${g.inheresIn}`);
+                
+                // Extract and check ID-based patterns
+                if (g.inheresIn.includes('/')) {
+                    const id = g.inheresIn.split('/').pop();
+                    console.log(`    Checking ID: ${id}, present in map: ${expertsByUrl[id] ? 'YES' : 'NO'}`);
+                    console.log(`    Checking expert/${id}, present in map: ${expertsByUrl[`expert/${id}`] ? 'YES' : 'NO'}`);
+                }
+            });
+        }
+    }
+    
+    return matchedGrants;
 }
 
 /**

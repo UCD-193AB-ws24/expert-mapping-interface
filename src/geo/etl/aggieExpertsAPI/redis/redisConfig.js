@@ -15,7 +15,18 @@ const { createClient } = require('redis');
 
 // Create Redis client
 const createRedisClient = () => {
-  const client = createClient(process.env.REDIS_HOST, process.env.BACKEND_REDIS_PORT);
+  // Use port 6380 as requested
+  const host = process.env.REDIS_HOST || '127.0.0.1';
+  const port = 6380; // Fixed port as requested
+  
+  console.log(`Connecting to Redis at ${host}:${port}...`);
+  
+  const client = createClient({
+    socket: {
+      host: host,
+      port: port
+    }
+  });
 
   client.on('error', (err) => {
     console.error('❌ Redis error:', err);

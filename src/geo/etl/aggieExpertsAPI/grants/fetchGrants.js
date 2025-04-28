@@ -13,7 +13,7 @@
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
 const { cacheGrants } = require('../redis/redisUtils');
 
-async function fetchGrants(batchSize = 10, maxPages = 1000, forceUpdate = false, cacheToRedis = true) {
+async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false, cacheToRedis = true) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;
@@ -26,19 +26,16 @@ async function fetchGrants(batchSize = 10, maxPages = 1000, forceUpdate = false,
             const hits = data.hits;
             if (hits.length === 0) break;
             
-            const processedGrants = hits.map(grant => {
-                // Extract and clean up the data
-                const grantData = {
-                    title: grant.name?.split('§')[0] || '',
-                    funder: grant.sponsor?.name || '',
-                    startDate: grant.dateTimeInterval?.start || '',
-                    endDate: grant.dateTimeInterval?.end || '',
-                    inheresIn: grant.inheresIn?.['@id'] || ''
-                };
-                return grantData;
-            });
-            
-            grants.push(...processedGrants);
+            grants.push(...hits.map(grant => ({
+                title: grant.name.split('§')[0] || 'No Title',
+                funder: grant.assignedBy && grant.assignedBy.name ? grant.assignedBy.name : '',
+                startDate: grant.dateTimeInterval && grant.dateTimeInterval.start && grant.dateTimeInterval.start.dateTime ? 
+                    grant.dateTimeInterval.start.dateTime : '',
+                endDate: grant.dateTimeInterval && grant.dateTimeInterval.end && grant.dateTimeInterval.end.dateTime ? 
+                    grant.dateTimeInterval.end.dateTime : '',
+                inheresIn: grant.relatedBy && grant.relatedBy[0] && grant.relatedBy[0].inheres_in ? 
+                    grant.relatedBy[0].inheres_in : '',
+            })));
             
             totalFetched += hits.length;
             if (page % batchSize === 0) logBatch('grants', page, false);
