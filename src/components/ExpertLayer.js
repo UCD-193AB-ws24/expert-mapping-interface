@@ -149,6 +149,7 @@ filteredFeatures.forEach(feature => {
     sortedPolygons.forEach(feature => {
       const locationRaw = feature.properties.location || "Unknown";
       const location = locationRaw.trim().toLowerCase();
+      if (!showWorks && (showGrants || !searchKeyword)) return;
 
 
       // Skip rendering if the location has already been processed
