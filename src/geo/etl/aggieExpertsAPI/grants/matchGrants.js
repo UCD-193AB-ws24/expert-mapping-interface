@@ -8,85 +8,8 @@
 */
 
 const { saveCache } = require('../apiUtils');
-const { createRedisClient } = require('../redis/redisConfig');
-
-/**
- * Fetch all experts from Redis
- * @returns {Promise<Array>} Array of expert objects
- */
-async function getExpertsFromRedis() {
-  const client = createRedisClient();
-  try {
-    await client.connect();
-    // Get all expert keys (excluding metadata)
-    const keys = await client.keys('expert:*');
-    const expertKeys = keys.filter(key => key !== 'expert:metadata');
-    
-    console.log(`Found ${expertKeys.length} experts in Redis`);
-    
-    // Get data for each expert
-    const experts = [];
-    for (const key of expertKeys) {
-      const expertData = await client.hGetAll(key);
-      experts.push({
-        firstName: expertData.first_name || '',
-        middleName: expertData.middle_name || '',
-        lastName: expertData.last_name || '',
-        url: expertData.url || ''
-      });
-    }
-    
-    return experts;
-  } catch (error) {
-    console.error('❌ Error fetching experts from Redis:', error);
-    return [];
-  } finally {
-    if (client) {
-      await client.disconnect();
-      console.log('🔌 Redis connection closed (experts)');
-    }
-  }
-}
-
-/**
- * Fetch all grants from Redis
- * @returns {Promise<Array>} Array of grant objects
- */
-async function getGrantsFromRedis() {
-  const client = createRedisClient();
-  try {
-    await client.connect();
-
-    // Get all grant keys (excluding metadata)
-    const keys = await client.keys('grant:*');
-    const grantKeys = keys.filter(key => key !== 'grant:metadata');
-    
-    console.log(`Found ${grantKeys.length} grants in Redis`);
-    
-    // Get data for each grant
-    const grants = [];
-    for (const key of grantKeys) {
-      const grantData = await client.hGetAll(key);
-      grants.push({
-        title: grantData.title || '',
-        funder: grantData.funder || '',
-        startDate: grantData.start_date || '',
-        endDate: grantData.end_date || '',
-        inheresIn: grantData.inheres_in || ''
-      });
-    }
-    
-    return grants;
-  } catch (error) {
-    console.error('❌ Error fetching grants from Redis:', error);
-    return [];
-  } finally {
-    if (client) {
-      await client.disconnect();
-      console.log('🔌 Redis connection closed (grants)');
-    }
-  }
-}
+const { getCachedGrants, cacheGrants } = require('../redis/grantCache');
+const { getCachedExperts } = require('../redis/expertCache');
 
 /**
  * Creates a map of experts indexed by their URLs
@@ -98,50 +21,103 @@ function createExpertsByUrlMap(experts) {
     
     experts.forEach(expert => {
         const fullName = `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' ');
-        expertsByUrl[expert.url] = { fullName, url: expert.url };
+        expertsByUrl[expert.url] = { 
+            fullName, 
+            url: expert.url,
+            firstName: expert.firstName,
+            lastName: expert.lastName
+        };
     });
     
     return expertsByUrl;
 }
 
-async function matchGrants() {
+/**
+ * Match grants to their associated experts
+ * @param {Array} grants - Array of grants
+ * @param {Object} expertsByUrl - Map of experts by URL
+ * @returns {Array} Grants with related experts
+ */
+function matchGrantsToExperts(grants, expertsByUrl) {
+    return grants.map(grant => {
+        // The inheresIn property links to the expert
+        const expert = expertsByUrl[grant.inheresIn];
+        
+        return {
+            ...grant,
+            relatedExpert: expert ? {
+                name: expert.fullName,
+                firstName: expert.firstName,
+                lastName: expert.lastName,
+                url: expert.url
+            } : null
+        };
+    });
+}
+
+/**
+ * Match grants with experts, optionally update Redis and save to file
+ * @param {Object} options - Configuration options
+ * @returns {Promise<Object>} - Result of matching operation
+ */
+async function matchGrants(options = {}) {
+    const {
+        saveToFile = true,
+        updateRedis = false,
+        experts = null
+    } = options;
+
     try {
         // Load experts and grants data from Redis
-        const experts = await getExpertsFromRedis();
-        const grants = await getGrantsFromRedis();
+        const cachedExperts = experts || await getCachedExperts();
+        const grants = await getCachedGrants();
         
-        if (experts.length === 0) {
+        if (cachedExperts.length === 0) {
             console.error('No experts found in Redis. Please run fetchExperts.js first.');
-            return;
+            return { success: false, error: 'No experts found' };
         }
         
         if (grants.length === 0) {
             console.error('No grants found in Redis. Please run fetchGrants.js first.');
-            return;
+            return { success: false, error: 'No grants found' };
         }
 
+        console.log(`Processing ${grants.length} grants with ${cachedExperts.length} experts`);
+
         // Create experts by URL map
-        const expertsByUrl = createExpertsByUrlMap(experts);
+        const expertsByUrl = createExpertsByUrlMap(cachedExperts);
 
         // Match grants with experts
-        const grantsWithExperts = grants.map(grant => {
-            const relatedExpert = expertsByUrl[grant.inheresIn];
-            
-            return {
-                title: grant.title,
-                funder: grant.funder,
-                startDate: grant.startDate,
-                endDate: grant.endDate,
-                relatedExpert: relatedExpert ? { name: relatedExpert.fullName, url: relatedExpert.url } : null
-            };
-        });
+        const grantsWithExperts = matchGrantsToExperts(grants, expertsByUrl);
 
-        console.log(`Grants with matches: ${grantsWithExperts.filter(g => g.relatedExpert).length}/${grantsWithExperts.length}`);
+        // Count matches
+        const matchedGrantsCount = grantsWithExperts.filter(g => g.relatedExpert).length;
+        console.log(`Grants with expert matches: ${matchedGrantsCount}/${grantsWithExperts.length}`);
         
-        // Save to the specified output file
-        saveCache('grants', 'expertMatchedGrants.json', grantsWithExperts);
+        // Save to file if requested
+        if (saveToFile) {
+            saveCache('grants', 'expertMatchedGrants.json', grantsWithExperts);
+            console.log('✅ Matched grants saved to file');
+        }
+
+        // Update Redis if requested
+        if (updateRedis) {
+            await cacheGrants(grantsWithExperts);
+            console.log('✅ Grants with expert relationships cached to Redis');
+        }
+
+        return {
+            success: true,
+            grantsWithExperts,
+            matchedCount: matchedGrantsCount,
+            totalCount: grantsWithExperts.length
+        };
     } catch (error) {
-        console.error('Error matching experts to grants:', error.message);
+        console.error('❌ Error matching experts to grants:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
     }
 }
 
@@ -150,4 +126,7 @@ if (require.main === module) {
     matchGrants();
 }
 
-module.exports = matchGrants;
+module.exports = {
+    matchGrants,
+    matchGrantsToExperts
+};

@@ -129,6 +129,68 @@ async function cacheWorks(works) {
   }
 }
 
+/**
+ * Retrieves works from Redis cache
+ * @returns {Promise<Array>} Array of work objects
+ */
+async function getCachedWorks() {
+  const redisClient = createRedisClient();
+  try {
+    await redisClient.connect();
+    
+    // Get all work keys (excluding metadata)
+    const keys = await redisClient.keys('work:*');
+    const workKeys = keys.filter(key => key !== 'work:metadata' && !key.includes(':entry:'));
+    
+    console.log(`Found ${workKeys.length} works in Redis`);
+    
+    // Get data for each work
+    const works = [];
+    for (const key of workKeys) {
+      const workData = await redisClient.hGetAll(key);
+      
+      // Parse the authors array from JSON string
+      let authors = [];
+      try {
+        if (workData.authors) {
+          authors = JSON.parse(workData.authors);
+        }
+      } catch (e) {
+        console.error(`Error parsing authors for ${key}:`, e.message);
+      }
+      
+      // Parse related experts if available
+      let relatedExperts = [];
+      try {
+        if (workData.related_experts) {
+          relatedExperts = JSON.parse(workData.related_experts);
+        }
+      } catch (e) {
+        console.error(`Error parsing related experts for ${key}:`, e.message);
+      }
+      
+      works.push({
+        id: workData.id || '',
+        title: workData.title || '',
+        name: workData.name || '',
+        issued: workData.issued || '',
+        abstract: workData.abstract || '',
+        authors: authors,
+        relatedExperts: relatedExperts
+      });
+    }
+    
+    return works;
+  } catch (error) {
+    console.error('❌ Error fetching works from Redis:', error);
+    return [];
+  } finally {
+    await redisClient.disconnect();
+  }
+}
+
+// Update the module exports to include the new function
 module.exports = {
-  cacheWorks
+  cacheWorks,
+  getCachedWorks
 };

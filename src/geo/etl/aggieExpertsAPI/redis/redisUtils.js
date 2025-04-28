@@ -13,16 +13,7 @@
 const { cacheExperts } = require('./expertCache');
 const { cacheGrants } = require('./grantCache');
 const { cacheWorks } = require('./workCache');
-const { createRedisClient } = require('./redisConfig');
-
-// Helper function to sanitize strings
-function sanitizeString(input) {
-  if (!input) return '';
-  return input
-    .replace(/[^\w\s.-]/g, '') // Remove special characters except word characters, spaces, hyphens, and periods
-    .replace(/\s+/g, ' ')      // Replace multiple spaces with a single space
-    .trim();                   
-}
+const { createRedisClient, sanitizeString } = require('./redisConfig');
 
 /**
  * Check if Redis is available

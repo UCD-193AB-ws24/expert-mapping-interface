@@ -122,6 +122,58 @@ async function cacheGrants(grants) {
   }
 }
 
+/**
+ * Retrieves grants from Redis cache
+ * @returns {Promise<Array>} Array of grant objects
+ */
+async function getCachedGrants() {
+  const redisClient = createRedisClient();
+  try {
+    await redisClient.connect();
+    
+    // Get all grant keys (excluding metadata)
+    const keys = await redisClient.keys('grant:*');
+    const grantKeys = keys.filter(key => key !== 'grant:metadata' && !key.includes(':entry:'));
+    
+    console.log(`Found ${grantKeys.length} grants in Redis`);
+    
+    // Get data for each grant
+    const grants = [];
+    for (const key of grantKeys) {
+      const grantData = await redisClient.hGetAll(key);
+      
+      // Parse related expert if available
+      let relatedExpert = null;
+      try {
+        if (grantData.related_expert) {
+          relatedExpert = JSON.parse(grantData.related_expert);
+        }
+      } catch (e) {
+        console.error(`Error parsing related expert for ${key}:`, e.message);
+      }
+      
+      grants.push({
+        id: grantData.id || '',
+        title: grantData.title || '',
+        funder: grantData.funder || '',
+        startDate: grantData.start_date || '',
+        endDate: grantData.end_date || '',
+        inheresIn: grantData.inheres_in || '',
+        relatedExpert: relatedExpert
+      });
+    }
+    
+    return grants;
+  } catch (error) {
+    console.error('❌ Error fetching grants from Redis:', error);
+    return [];
+  } finally {
+    await redisClient.disconnect();
+  }
+}
+
+// Update exports to include the new function
 module.exports = {
-  cacheGrants
+  cacheGrants,
+  getCachedGrants
 };
