@@ -7,7 +7,7 @@
 * © Zoey Vo, 2025
 */
 
-const { createRedisClient, sanitizeString } = require('./redisConfig');
+const { createRedisClient } = require('./redisConfig');
 
 /**
  * Cache experts data to Redis

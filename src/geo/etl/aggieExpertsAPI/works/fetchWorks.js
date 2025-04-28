@@ -6,7 +6,6 @@
 * 
 * REQUIREMENTS: 
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
-* - Experts data to be fetched first (this module links works to experts)
 *
 * © Zoey Vo, Loc Nguyen, 2025
 */
@@ -14,13 +13,10 @@
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
 const { cacheWorks } = require('../redis/redisUtils');
 
-async function fetchWorks(batchSize = 10, maxPages = 2, forceUpdate = false, cacheToRedis = true) {
-    // First, fetch experts to link to works
-    
+async function fetchWorks(batchSize = 10, maxPages = 1000, forceUpdate = false, cacheToRedis = true) {
     let works = [];
     let page = 0;
     let totalFetched = 0;
-    
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {

@@ -6,7 +6,6 @@
 * 
 * REQUIREMENTS: 
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
-* - Experts data to be fetched first (this module links grants to experts)
 *
 * © Zoey Vo, Loc Nguyen, 2025
 */
@@ -14,12 +13,10 @@
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
 const { cacheGrants } = require('../redis/redisUtils');
 
-async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, cacheToRedis = true) {
-    
+async function fetchGrants(batchSize = 10, maxPages = 1000, forceUpdate = false, cacheToRedis = true) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;
-    
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
@@ -38,7 +35,6 @@ async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, ca
                     endDate: grant.dateTimeInterval?.end || '',
                     inheresIn: grant.inheresIn?.['@id'] || ''
                 };
-                console.log(grantData);
                 return grantData;
             });
             

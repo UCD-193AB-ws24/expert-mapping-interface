@@ -32,16 +32,6 @@ const createRedisClient = () => {
   return client;
 };
 
-// Helper function to sanitize strings
-function sanitizeString(input) {
-  if (!input) return '';
-  return input
-    .replace(/[^\w\s.-]/g, '') // Remove special characters except word characters, spaces, hyphens, and periods
-    .replace(/\s+/g, ' ')      // Replace multiple spaces with a single space
-    .trim();                   
-}
-
 module.exports = {
-  createRedisClient,
-  sanitizeString
+  createRedisClient
 };
