@@ -43,3 +43,30 @@ html, body {
   font-size: 1.5rem; /* Adjust the size as needed */
   font-weight: 600; /* If you still want it semi-bold */
 }
+
+/* Overall slider bar */
+.custom-slider {
+  height: 8px;
+  background: #facc15; /* yellow */
+  border-radius: 9999px;
+  position: relative;
+}
+
+/* The colored "active" range */
+.custom-track {
+  background: #facc15; /* yellow for full bar */
+  border-radius: 9999px;
+}
+
+/*The draggable thumbs */
+.custom-thumb {
+  height: 20px;
+  width: 20px;
+  background: #022851;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  cursor: grab;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 2px solid white;
+}
