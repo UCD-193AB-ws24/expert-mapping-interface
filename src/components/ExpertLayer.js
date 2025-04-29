@@ -191,7 +191,7 @@ filteredFeatures.forEach(feature => {
       // Create a Leaflet polygon with styling and add it to the map
       const polygon = L.polygon(flippedCoordinates, {
         color: "blue",
-        fillColor: "lightyellow",
+        fillColor: "#dbeafe",
         fillOpacity: 0.6,
         weight: 2
       }).addTo(map);
