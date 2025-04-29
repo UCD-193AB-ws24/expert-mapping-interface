@@ -49,32 +49,32 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
 
 
 
-/**
-   * useEffect: Fetch GeoJSON data for works and grants.
-   * - Fetches data from two APIs concurrently.
-   * - Processes the data into GeoJSON format and updates state variables.
-   * - Handles errors and updates the loading state.
-   */
+  /**
+     * useEffect: Fetch GeoJSON data for works and grants.
+     * - Fetches data from two APIs concurrently.
+     * - Processes the data into GeoJSON format and updates state variables.
+     * - Handles errors and updates the loading state.
+     */
 
-useEffect(() => {
+  useEffect(() => {
     setIsLoading(true);
     const loadGeoData = async () => {
-    try {
-      // Fetch data from two different APIs concurrently
-      Promise.all([
-        fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        }),
-        fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
+      try {
+        // Fetch data from two different APIs concurrently
+        Promise.all([
+          fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
             return response.json();
           }),
-          ])
+          fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          }),
+        ])
           .then(([worksData, grantsData]) => {
             console.log("Converting data to GeoJSON format...");
             // Process works data into GeoJSON format.
@@ -99,7 +99,7 @@ useEffect(() => {
                 },
               })),
             };
-          
+
             setWorkGeoJSON(processedWorksData);
             setGrantGeoJSON(processedGrantsData);
             setIsLoading(false);
@@ -109,16 +109,16 @@ useEffect(() => {
             setIsLoading(false);
             setError("Failed to load map data. Please ensure the API server is running on port 3001.");
           });
-    } catch (err) {
-            console.error(" Error loading geojson:", err);
-            setError("Failed to load map data.");
-            setIsLoading(false);
-          }
+      } catch (err) {
+        console.error(" Error loading geojson:", err);
+        setError("Failed to load map data.");
+        setIsLoading(false);
+      }
     };
-        loadGeoData();
+    loadGeoData();
   }, []);
-  
- 
+
+
 
   /**
    * Helper function to filter works by issued year.
@@ -129,7 +129,7 @@ useEffect(() => {
   const isWorkInDate = (entry) => {
     if (!selectedDate) return true;
     return String(entry.issued || "").startsWith(selectedDate);
-  };  
+  };
 
   /**
    * Helper function to filter grants by start or end date.
@@ -138,56 +138,66 @@ useEffect(() => {
    * @returns {boolean} True if the grant matches the selected date, otherwise false.
    */
   const isGrantInDate = (entry) => {
+    console.log("🟡 Checking entry:", entry.start_date, entry.end_date, "against selectedDate:", selectedDate);
+
     if (!selectedDate) return true;
-    return (
-      entry.startDate?.startsWith(selectedDate) ||
-      entry.endDate?.startsWith(selectedDate)
-    );
+
+    const start = entry.start_date || "";
+    const end = entry.end_date || "";
+
+    return start.startsWith(selectedDate) || end.startsWith(selectedDate);
   };
 
   // Filter workGeoJSON by date
   const filteredWorkGeoJSON = workGeoJSON
     ? {
-        ...workGeoJSON,
-        features: workGeoJSON.features
-          .map((feature) => {
-            const filteredEntries = (feature.properties.entries || []).filter(isWorkInDate);
-            return {
-              ...feature,
-              properties: {
-                ...feature.properties,
-                entries: filteredEntries,
-              },
-            };
-          })
-          .filter((f) => f.properties.entries.length > 0),
-      }
+      ...workGeoJSON,
+      features: workGeoJSON.features
+        .map((feature) => {
+          const filteredEntries = (feature.properties.entries || []).filter(isWorkInDate);
+          return {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              entries: filteredEntries,
+            },
+          };
+        })
+        .filter((f) => f.properties.entries.length > 0),
+    }
     : null;
 
   // Filter grantGeoJSON by date
   const filteredGrantGeoJSON = grantGeoJSON
     ? {
-        ...grantGeoJSON,
-        features: grantGeoJSON.features
-          .map((feature) => {
-            const filteredEntries = (feature.properties.entries || []).filter(isGrantInDate);
-            return {
-              ...feature,
-              properties: {
-                ...feature.properties,
-                entries: filteredEntries,
-              },
-            };
-          })
-          .filter((f) => f.properties.entries.length > 0),
-      }
+      ...grantGeoJSON,
+      features: grantGeoJSON.features
+        .map((feature) => {
+          console.log("🔵 Full feature.properties.entries:", feature.properties.entries);
+
+          // pass isGrantInDate directly
+          const filteredEntries = (feature.properties.entries || []).filter(isGrantInDate);
+
+          return {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              entries: filteredEntries,
+            },
+          };
+        })
+        .filter(f => f.properties.entries && f.properties.entries.length > 0)
+    }
     : null;
+
+
+  ;
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
-           {/* Combined location layer must come first to handle overlaps */}
+          {/* Combined location layer must come first to handle overlaps */}
           {showWorks && showGrants && (
             <CombinedLocationLayer
               geoData={geoData}
@@ -211,14 +221,14 @@ useEffect(() => {
             setSelectedGrants={setSelectedGrants}
             setPanelOpen={setPanelOpen}
             setPanelType={setPanelType}
-            setCombinedKeys={setCombinedKeys} 
-            combinedKeys={combinedKeys} 
+            setCombinedKeys={setCombinedKeys}
+            combinedKeys={combinedKeys}
             setLocationName={setLocationName}
             searchKeyword={searchKeyword}
           />
 
 
-          {/* Regular works layer */} 
+          {/* Regular works layer */}
           {(showWorks || searchKeyword) && (
             <ExpertLayer
               geoData={filteredWorkGeoJSON}
@@ -305,8 +315,8 @@ useEffect(() => {
 
       {/* Panels */}
       {panelOpen && (panelType === "grants" || panelType === "grant-polygon") && (
-  <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} />
-)}
+        <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} />
+      )}
 
       {panelOpen && (panelType === "polygon" || panelType === "point") && (
         <ExpertsPanel
@@ -316,13 +326,13 @@ useEffect(() => {
         />
       )}
       {panelOpen && panelType === "combined-polygon" && (
-  <CombinedPanel
-    works={selectedExperts}
-    grants={selectedGrants}
-    locationName={locationName}
-    onClose={() => setPanelOpen(false)}
-  />
-)}
+        <CombinedPanel
+          works={selectedExperts}
+          grants={selectedGrants}
+          locationName={locationName}
+          onClose={() => setPanelOpen(false)}
+        />
+      )}
 
 
     </div>

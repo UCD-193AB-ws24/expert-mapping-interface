@@ -12,9 +12,10 @@ function App() {
   const [showWorks, setShowWorks] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  const [selectedDate, setSelectedDate] = useState([1990, 2025]); 
-  const [pendingDateSelection, setPendingDateSelection] = useState([1990, 2025]);
-  
+  const [selectedDate, setSelectedDate] = useState("");
+  const [pendingDateSelection, setPendingDateSelection] = useState(2025);
+
+
 
   const handleSearchChange = (e) => {
     setSearchKeyword(e.target.value);
@@ -122,40 +123,41 @@ function App() {
               <h2 className="text-lg font-medium mb-3">Filters</h2>
               {/* Date Filter */}
               <div className="mb-3">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-              {/* Selected Dates */}
-              <div className="flex justify-between text-sm mb-2">
-                <span>{pendingDateSelection[0]}</span>
-                <span>{pendingDateSelection[1]}</span>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                {/* Selected Dates */}
+                <div className="flex justify-center items-center text-lg font-semibold mb-2">
+                  {pendingDateSelection}
+                </div>
+                {/* Date Range Slider */}
+                <ReactSlider
+                  min={1990}
+                  max={2025}
+                  value={pendingDateSelection}
+                  onChange={(value) => setPendingDateSelection(value)}
+                  step={1}
+                  className="custom-slider"
+                  thumbClassName="custom-thumb"
+                  trackClassName="custom-track"
+                  withTracks={true}
+                />
+
+
               </div>
-              {/* Date Range Slider */}
-              <ReactSlider
-              className="custom-slider"
-              thumbClassName="custom-thumb"
-              trackClassName="custom-track"
-              min={1990}
-              max={2025}
-              value={pendingDateSelection}
-              onChange={(value) => setPendingDateSelection(value)}
-              withTracks={true}
-              pearling
-              minDistance={1}
-            />
-            </div>
               {/* Apply + Clear Filters */}
               <div className={`flex gap-2 mt-2 p-2 rounded ${selectedDate ? "bg-yellow-100 border border-yellow-400" : ""}`}> {/*highlight the filter box while filters are box to let user know filters are applied*/}
                 <button
-                  onClick={() => setSelectedDate(pendingDateSelection)}
+                  onClick={() => setSelectedDate(pendingDateSelection.toString())}
                   className="w-1/2 bg-[#022851] hover:bg-[#033a73] text-white font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#022851]"
                   aria-label="Apply selected filters"
-                  >
+                >
+
                   Apply
                 </button>
                 <button
-                        onClick={() => {
-                          setPendingDateSelection([1990, 2025]);
-                          setSelectedDate([1990, 2025]);
-                        }}
+                  onClick={() => {
+                    setPendingDateSelection(2025); // Reset back to max year
+                    setSelectedDate("");
+                  }}
                   className="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
                   aria-label="Clear all filters"
                 >
