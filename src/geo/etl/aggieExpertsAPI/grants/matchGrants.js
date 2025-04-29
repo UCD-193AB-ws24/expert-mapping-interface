@@ -13,156 +13,95 @@ function extractExpertIdFromUrl(url) {
   
   // Extract ID from URL patterns like "expert/83x5AQ8a"
   const expertMatch = url.match(/expert\/([^\/\s]+)/);
-  if (expertMatch && expertMatch[1]) {
-    return expertMatch[1];
-  }
+  if (expertMatch && expertMatch[1]) return expertMatch[1];
   
-  // Fallback: Extract the last part of the URL which should be the ID
-  const parts = url.split('/');
-  return parts[parts.length - 1] || null;
+  // Fallback: Extract the last part of the URL
+  return url.split('/').pop() || null;
 }
 
 /**
  * Match grants with experts based on the inheresIn URL
  * @param {Object} options - Configuration options
- * @returns {Object} Map of expert IDs to their matched grants
+ * @returns {Object} Result object with matching data
  */
 async function matchGrants(options = {}) {
-  const {
-    saveToFile = true,
-    experts: providedExperts = null,
-  } = options;
+  const { saveToFile = true, experts: providedExperts = null } = options;
 
   console.log("Starting to match grants with experts...");
   
   try {
-    // Retrieve all experts and grants from Redis
+    // Retrieve experts and grants
     const experts = providedExperts || await getCachedExperts();
     const grants = await getCachedGrants();
     
     console.log(`Found ${experts.length} experts and ${grants.length} grants`);
     
-    // Create a map to store expert URLs mapped to expert IDs
-    const expertUrlMap = new Map();
+    // Maps for tracking relationships
     const expertIdMap = new Map();
-    
-    // Create a map to store expert IDs mapped to their grants
     const expertGrantsMap = {};
-    
-    // Create map to store experts by their ID for quicker lookups
     const expertsById = {};
     
     // Process all experts
     for (const expert of experts) {
-      if (expert && expert.url) {
-        // Extract expert ID from URL
-        const expertId = extractExpertIdFromUrl(expert.url);
-        if (!expertId) continue;
-        
-        // Store the expert ID for mapping
-        expertUrlMap.set(expert.url, expertId);
-        expertIdMap.set(expertId, expertId);
-        
-        // Store the expert by ID for easy lookup
-        expertsById[expertId] = expert;
-        
-        // Initialize the expert's grant list
-        expertGrantsMap[expertId] = [];
-      }
+      if (!expert?.url) continue;
+      
+      const expertId = extractExpertIdFromUrl(expert.url);
+      if (!expertId) continue;
+      
+      expertIdMap.set(expertId, expertId);
+      expertsById[expertId] = expert;
+      expertGrantsMap[expertId] = [];
     }
     
+    // Process all grants
     let matchCount = 0;
     let skippedCount = 0;
-    
-    // Store matched grants with their related experts
     const matchedGrants = [];
     
-    // Process all grants
     for (const grant of grants) {
-      if (!grant || !grant.inheresIn) {
+      if (!grant?.inheresIn || !grant.id) {
         skippedCount++;
         continue;
       }
       
-      // Use the grant's ID from Redis (should be in gX format)
-      const grantId = grant.id || '';
-      if (!grantId) {
+      const matchedExpertId = extractExpertIdFromUrl(grant.inheresIn);
+      
+      // Skip if no match found
+      if (!matchedExpertId || !expertIdMap.has(matchedExpertId)) {
         skippedCount++;
         continue;
       }
+
+      // Add grant to expert's list
+      expertGrantsMap[matchedExpertId].push(grant.id);
+      matchCount++;
       
-      // Extract expert ID from the inheresIn property
-      const expertIdFromUrl = extractExpertIdFromUrl(grant.inheresIn);
+      // Format the expert data for output
+      const matchedExpert = expertsById[matchedExpertId];
+      const relatedExpert = matchedExpert ? {
+        id: matchedExpertId,
+        firstName: matchedExpert.firstName || '',
+        lastName: matchedExpert.lastName || '',
+        fullName: `${matchedExpert.firstName || ''} ${matchedExpert.lastName || ''}`.trim(),
+        url: matchedExpert.url || ''
+      } : 'N/A';
       
-      // Skip if we can't extract an expert ID
-      if (!expertIdFromUrl) {
-        skippedCount++;
-        continue;
-      }
-      
-      let matchedExpertId = null;
-      
-      // Try direct match with expert ID - this is the most likely match
-      if (expertIdMap.has(expertIdFromUrl)) {
-        matchedExpertId = expertIdMap.get(expertIdFromUrl);
-        expertGrantsMap[matchedExpertId].push(grantId);
-        matchCount++;
-      } else {
-        // If direct match fails, try looking for expert IDs in the inheresIn URL
-        let matched = false;
-        for (const expertId of expertIdMap.keys()) {
-          if (grant.inheresIn.includes(expertId)) {
-            matchedExpertId = expertId;
-            expertGrantsMap[expertId].push(grantId);
-            matchCount++;
-            matched = true;
-            break;
-          }
-        }
-        
-        if (!matched) {
-          skippedCount++;
-          continue; // Skip to next grant if no match found
-        }
-      }
-      
-      // Only add grants that were successfully matched
-      if (matchedExpertId) {
-        // Get the matched expert
-        const matchedExpert = expertsById[matchedExpertId];
-        
-        // Format the expert data
-        const relatedExpert = matchedExpert ? {
-          id: matchedExpertId,
-          firstName: matchedExpert.firstName || '',
-          lastName: matchedExpert.lastName || '',
-          fullName: `${matchedExpert.firstName || ''} ${matchedExpert.lastName || ''}`.trim(),
-          url: matchedExpert.url || ''
-        } : 'N/A';
-        
-        // Add the grant with related expert to the output array
-        matchedGrants.push({
-          ...grant,
-          relatedExpert
-        });
-      }
+      // Add to matched results
+      matchedGrants.push({ ...grant, relatedExpert });
     }
     
     console.log(`Successfully matched ${matchedGrants.length}/${grants.length} grants to experts (${skippedCount} grants with no associated expert)`);
     
     // Count experts with at least one grant
-    const expertsWithGrants = Object.keys(expertGrantsMap).filter(expertId => 
-      expertGrantsMap[expertId] && expertGrantsMap[expertId].length > 0
+    const expertsWithGrants = Object.keys(expertGrantsMap).filter(id => 
+      expertGrantsMap[id]?.length > 0
     ).length;
     
-    // Save the results to a JSON file if requested
+    // Save results if requested
     if (saveToFile) {
       const jsonDir = path.join(__dirname, 'json');
-      if (!fs.existsSync(jsonDir)) {
-        fs.mkdirSync(jsonDir, { recursive: true });
-      }
+      if (!fs.existsSync(jsonDir)) fs.mkdirSync(jsonDir, { recursive: true });
       
-      // Save only matched grants with their related experts
       const outputPath = path.join(jsonDir, 'expertMatchedGrants.json');
       fs.writeFileSync(outputPath, JSON.stringify(matchedGrants, null, 2));
       console.log(`Matching complete. ${matchedGrants.length} matched grants saved to ${outputPath}`);
@@ -174,7 +113,7 @@ async function matchGrants(options = {}) {
       matchCount,
       skippedCount,
       expertsWithGrants,
-      totalProcessed: grants.length // Add the total number of grants processed
+      totalProcessed: grants.length
     };
     
   } catch (error) {
@@ -183,12 +122,7 @@ async function matchGrants(options = {}) {
   }
 }
 
-module.exports = {
-  matchGrants,
-  extractExpertIdFromUrl
-};
+module.exports = { matchGrants, extractExpertIdFromUrl };
 
-// Main execution
-if (require.main === module) {
-    matchGrants();
-}
+// Run directly if called as a script
+if (require.main === module) matchGrants();

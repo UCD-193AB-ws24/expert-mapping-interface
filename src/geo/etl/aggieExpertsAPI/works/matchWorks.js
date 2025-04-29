@@ -121,6 +121,145 @@ function parseAuthors(authors) {
 }
 
 /**
+ * Creates a map of expert name variations to expert IDs
+ * @param {Array} experts - List of experts
+ * @returns {Object} - Maps containing expert data for lookups
+ */
+function prepareExpertMaps(experts) {
+  const expertNameMap = new Map();
+  const expertWorksMap = new Map();
+  const expertsById = {};
+  
+  for (const expert of experts) {
+    if (!expert?.fullName) continue;
+    
+    const expertId = expert.url ? extractExpertIdFromUrl(expert.url) : null;
+    if (!expertId) continue;
+    
+    // Store expert by ID for easy lookup
+    expertsById[expertId] = expert;
+    
+    // Create and store name variations
+    const nameVariations = createNameVariations(expert.fullName);
+    nameVariations.forEach(variation => {
+      if (!expertNameMap.has(variation)) {
+        expertNameMap.set(variation, []);
+      }
+      expertNameMap.get(variation).push(expertId);
+    });
+    
+    // Initialize the expert's work list
+    expertWorksMap.set(expertId, []);
+  }
+  
+  return { expertNameMap, expertWorksMap, expertsById };
+}
+
+/**
+ * Find experts matching an author name
+ * @param {string} fullName - Author's full name
+ * @param {Map} expertNameMap - Map of name variations to expert IDs
+ * @returns {Array} - List of matching expert IDs
+ */
+function findMatchingExperts(fullName, expertNameMap) {
+  const authorNameVariations = createNameVariations(fullName);
+  const matchingExperts = new Set();
+  
+  // Check all name variations for matches
+  for (const variation of authorNameVariations) {
+    const experts = expertNameMap.get(variation) || [];
+    experts.forEach(id => matchingExperts.add(id));
+  }
+  
+  return Array.from(matchingExperts);
+}
+
+/**
+ * Process a single work and find matching experts
+ * @param {Object} work - Work data object
+ * @param {Map} expertNameMap - Map of name variations to expert IDs
+ * @param {Map} expertWorksMap - Map of expert IDs to their works
+ * @param {Object} expertsById - Experts indexed by ID for quick lookup
+ * @returns {Object} - Processing results
+ */
+function processWork(work, expertNameMap, expertWorksMap, expertsById) {
+  // Extract work ID
+  const workId = work.url ? extractExpertIdFromUrl(work.url) : work.id;
+  if (!workId) return { skipped: true };
+  
+  // Parse authors
+  const normalizedAuthors = parseAuthors(work.authors);
+  if (normalizedAuthors.length === 0) return { skipped: true };
+  
+  // Track experts matched to this work
+  const matchedExpertsForWork = new Set();
+  let authorMatches = 0;
+  
+  // Process each author
+  for (const author of normalizedAuthors) {
+    if (!author.fullName) continue;
+    
+    // Find matching experts for this author
+    const matchedExperts = findMatchingExperts(author.fullName, expertNameMap);
+    
+    // Record matches
+    if (matchedExperts.length > 0) {
+      authorMatches++;
+      
+      // Add the work to all matching experts
+      for (const expertId of matchedExperts) {
+        if (expertWorksMap.has(expertId)) {
+          expertWorksMap.get(expertId).push(workId);
+          matchedExpertsForWork.add(expertId);
+        }
+      }
+    }
+  }
+  
+  // If no experts matched, we're done
+  if (matchedExpertsForWork.size === 0) return { 
+    authorCount: normalizedAuthors.length,
+    authorMatches,
+    skipped: false 
+  };
+  
+  // Create related experts array for this work
+  const relatedExperts = Array.from(matchedExpertsForWork).map(expertId => {
+    const expert = expertsById[expertId];
+    return expert ? {
+      id: expertId,
+      firstName: expert.firstName || '',
+      lastName: expert.lastName || '',
+      fullName: `${expert.firstName || ''} ${expert.lastName || ''}`.trim(),
+      url: expert.url || ''
+    } : 'N/A';
+  });
+  
+  // Return the work with its matched data
+  return {
+    workWithExperts: { ...work, relatedExperts },
+    authorCount: normalizedAuthors.length,
+    authorMatches,
+    skipped: false
+  };
+}
+
+/**
+ * Save results to file
+ * @param {Array} matchedWorks - Works with their matched experts
+ */
+function saveResults(matchedWorks) {
+  const jsonDir = path.join(__dirname, 'json');
+  if (!fs.existsSync(jsonDir)) {
+    fs.mkdirSync(jsonDir, { recursive: true });
+  }
+  
+  const matchedWorksPath = path.join(jsonDir, 'expertMatchedWorks.json');
+  fs.writeFileSync(matchedWorksPath, JSON.stringify(matchedWorks, null, 2));
+  console.log(`Matching complete. ${matchedWorks.length} matched works saved to ${matchedWorksPath}`);
+}
+
+/**
  * Match works with experts based on author names
  * @param {Object} options - Configuration options
  * @returns {Object} Map of expert IDs to their matched works
@@ -140,121 +279,31 @@ async function matchWorks(options = {}) {
     
     console.log(`Found ${experts.length} experts and ${works.length} works`);
     
-    // Create a map to store expert name variations
-    const expertNameMap = new Map();
+    // Prepare expert data structures for efficient lookups
+    const { expertNameMap, expertWorksMap, expertsById } = prepareExpertMaps(experts);
     
-    // Create a map to store expert IDs mapped to their works
-    const expertWorksMap = new Map();
-    
-    // Store experts by ID for quick lookup
-    const expertsById = {};
-    
-    // Process all experts and create name variations
-    for (const expert of experts) {
-      if (expert && expert.fullName) {
-        // Extract expert ID from URL
-        const expertId = expert.url ? extractExpertIdFromUrl(expert.url) : null;
-        if (!expertId) continue;
-        
-        // Store expert by ID for easy lookup
-        expertsById[expertId] = expert;
-        
-        const nameVariations = createNameVariations(expert.fullName);
-        
-        // Store all name variations for this expert
-        nameVariations.forEach(variation => {
-          if (!expertNameMap.has(variation)) {
-            expertNameMap.set(variation, []);
-          }
-          expertNameMap.get(variation).push(expertId);
-        });
-        
-        // Initialize the expert's work list
-        expertWorksMap.set(expertId, []);
-      }
-    }
-    
+    // Process all works
+    const matchedWorks = [];
     let matchCount = 0;
     let skippedCount = 0;
     let authorCount = 0;
     
-    // Store matched works with their related experts
-    const matchedWorks = [];
-    
-    // Process all works
     for (const work of works) {
-      // Extract work ID from URL
-      const workId = work.url ? extractExpertIdFromUrl(work.url) : work.id;
-      if (!workId) {
+      const result = processWork(work, expertNameMap, expertWorksMap, expertsById);
+      
+      if (result.skipped) {
         skippedCount++;
-        continue;
-      }
-      
-      // Parse authors from the work data
-      const normalizedAuthors = parseAuthors(work.authors);
-      
-      // Track experts matched to this work
-      const matchedExpertsForWork = new Set();
-      
-      if (normalizedAuthors.length > 0) {
-        // For each author of the work
-        for (const author of normalizedAuthors) {
-          if (author.fullName) {
-            authorCount++;
-            
-            // Create name variations for the author
-            const authorNameVariations = createNameVariations(author.fullName);
-            
-            // Collection of experts matched for this author
-            const matchedExpertsForAuthor = new Set();
-            
-            // Check if any variation matches an expert
-            for (const variation of authorNameVariations) {
-              const matchingExperts = expertNameMap.get(variation) || [];
-              
-              // Add the work to all matching experts
-              for (const expertId of matchingExperts) {
-                if (expertWorksMap.has(expertId)) {
-                  expertWorksMap.get(expertId).push(workId);
-                  matchedExpertsForAuthor.add(expertId);
-                  matchedExpertsForWork.add(expertId);
-                }
-              }
-            }
-            
-            // Update match count
-            if (matchedExpertsForAuthor.size > 0) {
-              matchCount++;
-            }
-          }
-        }
       } else {
-        skippedCount++;
-      }
-      
-      // If work was matched to any expert, add it to matchedWorks with related experts
-      if (matchedExpertsForWork.size > 0) {
-        // Convert the set of expertIds to an array of related expert objects
-        const relatedExperts = Array.from(matchedExpertsForWork).map(expertId => {
-          const expert = expertsById[expertId];
-          return expert ? {
-            id: expertId,
-            firstName: expert.firstName || '',
-            lastName: expert.lastName || '',
-            fullName: `${expert.firstName || ''} ${expert.lastName || ''}`.trim(),
-            url: expert.url || ''
-          } : 'N/A';
-        });
+        authorCount += result.authorCount || 0;
+        matchCount += result.authorMatches || 0;
         
-        // Add the work with related experts to the output array
-        matchedWorks.push({
-          ...work,
-          relatedExperts
-        });
+        if (result.workWithExperts) {
+          matchedWorks.push(result.workWithExperts);
+        }
       }
     }
     
-    // Convert map to object for JSON serialization and deduplicate works
+    // Prepare result object with unique works per expert
     const result = {};
     let totalWorksMatched = 0;
     
@@ -267,22 +316,14 @@ async function matchWorks(options = {}) {
     
     // Calculate experts with at least one work
     const expertsWithWorks = Object.keys(result).filter(
-      expertId => result[expertId] && result[expertId].length > 0
+      expertId => result[expertId]?.length > 0
     ).length;
     
     console.log(`Successfully matched ${matchedWorks.length}/${works.length} works to ${expertsWithWorks} experts`);
     
-    // Save the results to JSON files
+    // Save the results to JSON file if requested
     if (saveToFile) {
-      const jsonDir = path.join(__dirname, 'json');
-      if (!fs.existsSync(jsonDir)) {
-        fs.mkdirSync(jsonDir, { recursive: true });
-      }
-      
-      // Save matched works with their related experts
-      const matchedWorksPath = path.join(jsonDir, 'expertMatchedWorks.json');
-      fs.writeFileSync(matchedWorksPath, JSON.stringify(matchedWorks, null, 2));
-      console.log(`Matching complete. ${matchedWorks.length} matched works saved to ${matchedWorksPath}`);
+      saveResults(matchedWorks);
     }
     
     return {
@@ -292,7 +333,7 @@ async function matchWorks(options = {}) {
       skippedCount,
       totalWorksMatched,
       expertsWithWorks,
-      totalProcessed: works.length // Add the total number of works processed
+      totalProcessed: works.length
     };
     
   } catch (error) {

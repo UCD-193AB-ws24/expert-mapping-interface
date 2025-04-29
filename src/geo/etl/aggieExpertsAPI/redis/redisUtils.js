@@ -20,15 +20,11 @@ const { createClient } = require('redis');
  * @returns {Object} - Configured Redis client
  */
 const createRedisClient = () => {
-  // Use port 6380 as requested
-  const host = process.env.REDIS_HOST || '127.0.0.1';
-  const port = 6380; // Fixed port as requested
+  const host = process.env.REDIS_HOST;
+  const port = process.env.BACKEND_REDIS_PORT; // Fixed port as requested
     
   const client = createClient({
-    socket: {
-      host: host,
-      port: port
-    }
+    socket: { host, port }
   });
 
   client.on('error', (err) => {
@@ -36,7 +32,7 @@ const createRedisClient = () => {
   });
 
   client.on('connect', () => {
-    console.log(`✅ Redis connected successfully at ${host}:${port}...`);
+    console.log(`✅ Redis connected successfully at ${host}:${port}`);
   });
 
   client.on('end', () => {
@@ -53,8 +49,9 @@ const createRedisClient = () => {
  */
 function sanitizeString(input) {
   if (!input) return '';
+  
   return input
-    .replace(/[^\w\s.-]/g, '') // Remove special characters except word characters, spaces, hyphens, and periods
+    .replace(/[^\w\s.-]/g, '') // Remove special characters except word chars, spaces, hyphens, periods
     .replace(/\s+/g, ' ')      // Replace multiple spaces with a single space
     .trim();                   
 }
@@ -66,25 +63,25 @@ function sanitizeString(input) {
  * @returns {Promise<boolean>} - True if Redis is available, false otherwise
  */
 async function isRedisAvailable() {
-  const redisClient = createRedisClient();
+  const client = createRedisClient();
+  
   try {
-    await redisClient.connect();
-    await redisClient.ping();
+    await client.connect();
+    await client.ping();
     return true;
   } catch (error) {
     console.error('❌ Redis is not available:', error.message);
     return false;
   } finally {
-    await redisClient.disconnect();
+    if (client.isOpen) {
+      await client.disconnect();
+    }
   }
 }
 
-// Export core Redis utilities
+// Export utility functions
 module.exports = {
-  // Client configuration
   createRedisClient,
   sanitizeString,
-  
-  // Utility functions
   isRedisAvailable
 };

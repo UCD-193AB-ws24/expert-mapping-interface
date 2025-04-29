@@ -10,7 +10,7 @@
 * © Zoey Vo, Loc Nguyen, 2025
 *
 * NOTES: 
-*   - should expect ~ 2069 experts
+*   - should expect ~ 2086 unique experts 
 */
 
 const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');

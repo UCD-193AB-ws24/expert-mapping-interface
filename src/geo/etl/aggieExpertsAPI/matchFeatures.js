@@ -19,10 +19,7 @@ const { matchGrants } = require('./grants/matchGrants');
  * @returns {Promise<Object>} Result of the matching operation
  */
 async function matchFeatures(options = {}) {
-  const {
-    saveToFile = true,
-    updateRedis = true
-  } = options;
+  const { saveToFile = true } = options;
   
   try {
     console.log('📊 Starting feature matching pipeline');
@@ -37,23 +34,11 @@ async function matchFeatures(options = {}) {
         
     // Step 2: Match works to experts
     console.log('\n2) Matching works to experts...');
-    const worksResult = await matchWorks({
-      saveToFile,
-      experts,
-    });
-    
-    // Get total works count directly from the totalProcessed field
-    const totalWorks = worksResult.totalProcessed || 0;
+    const worksResult = await matchWorks({ saveToFile, experts });
     
     // Step 3: Match grants to experts
-    console.log('\n3)Matching grants to experts...');
-    const grantsResult = await matchGrants({
-      saveToFile,
-      experts  
-    });
-    
-    // Get total grants count directly from the totalProcessed field
-    const totalGrants = grantsResult.totalProcessed || 0;
+    console.log('\n3) Matching grants to experts...');
+    const grantsResult = await matchGrants({ saveToFile, experts });
     
     // Step 4: Summarize results
     console.log('\n✅ Matching completed');
@@ -67,30 +52,26 @@ async function matchFeatures(options = {}) {
       stats: {
         experts: experts.length,
         works: {
-          matched: worksResult.totalWorksMatched,
-          total: totalWorks,
+          matched: worksResult.matchedWorks.length,
+          total: worksResult.totalProcessed,
           expertsWithWorks: worksResult.expertsWithWorks
         },
         grants: {
           matched: grantsResult.matchedGrants.length,
-          total: totalGrants,
+          total: grantsResult.totalProcessed,
           expertsWithGrants: grantsResult.expertsWithGrants
         }
       }
     };
   } catch (error) {
     console.error('❌ Error in feature matching pipeline:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    return { success: false, error: error.message };
   }
 }
 
+// Run directly if this is the main module
 if (require.main === module) {
   matchFeatures();
 }
 
-module.exports = { 
-  matchFeatures
-};
+module.exports = { matchFeatures };
