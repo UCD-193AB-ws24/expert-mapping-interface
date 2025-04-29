@@ -18,18 +18,12 @@ async function cacheExperts(experts) {
   // Log the number of experts being cached
   console.log(`Preparing to cache ${experts.length} experts to Redis...`);
   
-  // Debug: Log a sample expert to verify structure
-  if (experts.length > 0) {
-    console.log('Sample expert data structure:', JSON.stringify(experts[0], null, 2));
-  }
-  
   return cacheItems(experts, {
     entityType: 'expert',
     
     // Extract expert ID from expert object
     getItemId: (expert, index) => {
       const id = expert.url ? expert.url.split('/').pop() : index.toString();
-      console.log(`Processing expert: ${expert.firstName} ${expert.lastName} with ID: ${id}`);
       return id;
     },
     

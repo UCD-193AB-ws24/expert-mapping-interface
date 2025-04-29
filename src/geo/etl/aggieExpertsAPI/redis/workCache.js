@@ -11,34 +11,50 @@ const { sanitizeString } = require('./redisUtils');
 const { cacheItems, getCachedItems } = require('./cacheUtils');
 
 /**
+ * @param {number} index - The index to use for ID generation
+ * @returns {string} - A unique ID for the work in the format wX
+ */
+function generateSequentialWorkId(index) {
+  return `w${index + 1}`;
+}
+
+/**
  * Cache works data to Redis
  * @param {Array} works - Array of work objects
  * @returns {Promise<Object>} - Result of caching operation
  */
 async function cacheWorks(works) {
+  // Debug the works structure
+  console.log(`Preparing to cache ${works.length} works to Redis...`);
+  
+  // Pre-process works to ensure sequential IDs in the wX format
+  for (let i = 0; i < works.length; i++) {
+    works[i].cachedId = generateSequentialWorkId(i);
+  }
+    
   return cacheItems(works, {
     entityType: 'work',
     
-    // Extract work ID from work object
-    getItemId: (work, index) => work.id.split('/').pop() || index.toString(),
+    // Use the pre-generated sequential IDs
+    getItemId: (work) => work.cachedId,
     
     // Check if work is unchanged
     isItemUnchanged: (work, existingWork) => (
-      sanitizeString(work.title) === existingWork.title &&
-      sanitizeString(work.name) === existingWork.name &&
-      work.issued === existingWork.issued &&
-      sanitizeString(work.abstract) === existingWork.abstract &&
+      sanitizeString(String(work.title || '')) === existingWork.title &&
+      sanitizeString(String(work.name || '')) === existingWork.name &&
+      (work.issued || '') === existingWork.issued &&
+      sanitizeString(String(work.abstract || '')) === existingWork.abstract &&
       JSON.stringify(work.authors || []) === existingWork.authors
     ),
     
     // Format work for Redis cache
     formatItemForCache: (work, sessionId) => {
       const formattedItem = {
-        id: work.id.split('/').pop() || '',
-        title: sanitizeString(work.title) || '',
-        name: sanitizeString(work.name) || '',
+        id: work.cachedId,
+        title: sanitizeString(String(work.title || '')),
+        name: sanitizeString(String(work.name || '')),
         issued: work.issued || '',
-        abstract: sanitizeString(work.abstract) || '',
+        abstract: sanitizeString(String(work.abstract || '')),
         authors: JSON.stringify(work.authors || []),
         cache_session: sessionId,
         cached_at: new Date().toISOString()
@@ -99,5 +115,6 @@ async function getCachedWorks() {
 
 module.exports = {
   cacheWorks,
-  getCachedWorks
+  getCachedWorks,
+  generateSequentialWorkId
 };

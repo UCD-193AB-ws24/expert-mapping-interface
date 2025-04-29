@@ -16,17 +16,36 @@ const { createRedisClient, sanitizeString } = require('./redisUtils');
  * @returns {Promise<Object>} Map of entity IDs to their Redis data
  */
 async function buildExistingRecordsMap(redisClient, entityType) {
+  console.log(`[DEBUG] Building existing records map for ${entityType}...`);
   const existingKeys = await redisClient.keys(`${entityType}:*`);
+  console.log(`[DEBUG] Found ${existingKeys.length} total keys for ${entityType}`);
+  
   const existingRecords = {};
   
+  // Track filtered keys for debugging
+  const filteredKeys = existingKeys.filter(key => key !== `${entityType}:metadata` && !key.includes(':entry:'));
+  console.log(`[DEBUG] After filtering, working with ${filteredKeys.length} keys`);
+  
   // Build lookup map - process only relevant keys (skip metadata and entry keys)
-  await Promise.all(existingKeys
-    .filter(key => key !== `${entityType}:metadata` && !key.includes(':entry:'))
-    .map(async (key) => {
+  await Promise.all(filteredKeys.map(async (key) => {
       const id = key.split(':')[1];
-      existingRecords[id] = await redisClient.hGetAll(key);
+      const data = await redisClient.hGetAll(key);
+      
+      // Debug any keys with empty data
+      if (!data || Object.keys(data).length === 0) {
+        console.log(`[DEBUG] Warning: Empty data for key ${key}`);
+      } else {
+        existingRecords[id] = data;
+      }
     })
   );
+  
+  console.log(`[DEBUG] Successfully built map with ${Object.keys(existingRecords).length} records`);
+  
+  // If there's a discrepancy, log more details
+  if (Object.keys(existingRecords).length !== filteredKeys.length) {
+    console.log(`[DEBUG] DISCREPANCY: ${filteredKeys.length - Object.keys(existingRecords).length} keys did not result in valid records`);
+  }
   
   return existingRecords;
 }
@@ -88,10 +107,14 @@ async function cacheItems(items, options) {
     // Get all existing records for the entity type
     const existingRecords = await buildExistingRecordsMap(redisClient, entityType);
     
+    // Track duplicate IDs found during caching
+    const duplicateTracker = new Map();
+    
     // Counters
     let newCount = 0;
     let updatedCount = 0;
     let unchangedCount = 0;
+    let duplicateCount = 0;
     
     // Update metadata with initial count
     await updateMetadata(redisClient, entityType, { 
@@ -99,11 +122,32 @@ async function cacheItems(items, options) {
       sessionId 
     });
     
+    // Track processed IDs to detect duplicates
+    const processedIds = new Set();
+    
     // Process each item
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const itemId = getItemId(item, i);
       const itemKey = `${entityType}:${itemId}`;
+      
+      // Check for duplicate IDs in the current batch
+      if (processedIds.has(itemId)) {
+        duplicateCount++;
+        
+        // Track duplicate occurrence
+        if (duplicateTracker.has(itemId)) {
+          duplicateTracker.set(itemId, duplicateTracker.get(itemId) + 1);
+        } else {
+          duplicateTracker.set(itemId, 1);
+        }
+        
+        console.log(`⚠️ DUPLICATE DETECTED: ${entityType} with ID ${itemId} at index ${i} is a duplicate entry`);
+        continue;
+      }
+      
+      // Add to processed IDs
+      processedIds.add(itemId);
       
       // Check if item already exists and if it's changed
       const existingItem = existingRecords[itemId];
@@ -124,21 +168,53 @@ async function cacheItems(items, options) {
       if (shouldUpdate) {
         // Format and store the item data
         const formattedItem = formatItemForCache(item, sessionId);
-        await redisClient.hSet(itemKey, formattedItem);
+        
+        // Convert all values to strings to prevent Redis errors
+        const stringifiedItem = {};
+        for (const [key, value] of Object.entries(formattedItem)) {
+          stringifiedItem[key] = value === null || value === undefined ? '' : String(value);
+        }
+        
+        await redisClient.hSet(itemKey, stringifiedItem);
       }
+    }
+    
+    // Display duplicate summary if duplicates were found
+    if (duplicateCount > 0) {
+      console.log(`\n====== DUPLICATE ${entityType.toUpperCase()}S ALERT ======`);
+      console.log(`Found ${duplicateCount} duplicate entries for ${duplicateTracker.size} unique ${entityType}s during caching`);
+      
+      // Convert to array for sorting by occurrence count
+      const sortedDuplicates = [...duplicateTracker.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10); // Show top 10 duplicates
+      
+      // Display duplicate entries in a table format
+      console.log(` ID                  | Occurrences `);
+      console.log(`---------------------|------------`);
+      sortedDuplicates.forEach(([id, count]) => {
+        console.log(` ${id.padEnd(19)} | ${count.toString().padStart(10)} `);
+      });
+      
+      if (duplicateTracker.size > 10) {
+        console.log(`... and ${duplicateTracker.size - 10} more duplicate IDs`);
+      }
+      
+      console.log(`=========================================\n`);
     }
     
     // Update metadata with counts
     await updateMetadata(redisClient, entityType, { 
-      totalCount: items.length, 
+      totalCount: items.length - duplicateCount, 
       newCount, 
       updatedCount, 
       unchangedCount, 
+      duplicateCount,
       sessionId 
     });
     
     console.log(`✅ Successfully cached ${entityType}s to Redis with session ID: ${sessionId}`);
-    console.log(`📊 Cache stats: ${newCount} new, ${updatedCount} updated, ${unchangedCount} unchanged`);
+    console.log(`📊 Cache stats: ${newCount} new, ${updatedCount} updated, ${unchangedCount} unchanged, ${duplicateCount} duplicates skipped`);
     
     return { 
       success: true, 
@@ -146,6 +222,7 @@ async function cacheItems(items, options) {
       newCount,
       updatedCount,
       unchangedCount,
+      duplicateCount,
       sessionId
     };
   } catch (error) {

@@ -8,6 +8,9 @@
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
 *
 * © Zoey Vo, Loc Nguyen, 2025
+*
+* NOTES: 
+*   - should expect ~ 2069 experts
 */
 
 const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
@@ -50,7 +53,7 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity) {
         logBatch('experts', page, true, totalFetched);
         
         // Cache to Redis
-        console.log('Caching experts to Redis...');
+        console.log('\nCaching experts to Redis...');
         const cacheResult = await cacheExperts(experts);
         
         return {

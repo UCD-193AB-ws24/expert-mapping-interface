@@ -23,9 +23,7 @@ const createRedisClient = () => {
   // Use port 6380 as requested
   const host = process.env.REDIS_HOST || '127.0.0.1';
   const port = 6380; // Fixed port as requested
-  
-  console.log(`Connecting to Redis at ${host}:${port}...`);
-  
+    
   const client = createClient({
     socket: {
       host: host,
@@ -38,7 +36,7 @@ const createRedisClient = () => {
   });
 
   client.on('connect', () => {
-    console.log('✅ Redis connected successfully');
+    console.log(`✅ Redis connected successfully at ${host}:${port}...`);
   });
 
   client.on('end', () => {

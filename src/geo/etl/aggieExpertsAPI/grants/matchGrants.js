@@ -1,144 +1,198 @@
-/**
-* @file matchGrants.js
-* @description Matches grants with experts from the Aggie Experts API data using Redis
-* 
-* USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\matchGrants.js
-*
-* © Zoey Vo, 2025
-*/
-
-const { getCachedGrants, cacheGrants } = require('../redis/grantCache');
+const fs = require('fs');
+const path = require('path');
 const { getCachedExperts } = require('../redis/expertCache');
+const { getCachedGrants } = require('../redis/grantCache');
 
 /**
- * Creates a map of experts indexed by their URLs with multiple formats
- * @param {Array} experts - Array of expert objects
- * @returns {Object} Map of expert URLs to expert data
+ * Extract the expert ID from a URL
+ * @param {string} url - The URL to extract from
+ * @returns {string|null} - The extracted expert ID or null if not found
  */
-function createExpertsByUrlMap(experts) {
-    const expertsByUrl = {};
-    
-    experts.forEach(expert => {
-        // Get the expert ID from the URL
-        const expertId = expert.url.split('/').pop();
-        
-        // Store expert with multiple URL formats for better matching
-        expertsByUrl[expert.url] = expert;
-        expertsByUrl[expertId] = expert;
-        expertsByUrl[`expert/${expertId}`] = expert;
-    });
-    
-    return expertsByUrl;
+function extractExpertIdFromUrl(url) {
+  if (!url) return null;
+  
+  // Extract ID from URL patterns like "expert/83x5AQ8a"
+  const expertMatch = url.match(/expert\/([^\/\s]+)/);
+  if (expertMatch && expertMatch[1]) {
+    return expertMatch[1];
+  }
+  
+  // Fallback: Extract the last part of the URL which should be the ID
+  const parts = url.split('/');
+  return parts[parts.length - 1] || null;
 }
 
 /**
- * Match grants to their associated experts by URL only
- * @param {Array} grants - Array of grants
- * @param {Object} expertsByUrl - Map of experts by URL
- * @returns {Array} Grants with related experts
+ * Match grants with experts based on the inheresIn URL
+ * @param {Object} options - Configuration options
+ * @returns {Object} Map of expert IDs to their matched grants
  */
-function matchGrantsToExperts(grants, expertsByUrl) {
-    // Count for reporting
-    let matchCount = 0;
-    let noInheresInCount = 0;
+async function matchGrants(options = {}) {
+  const {
+    saveToFile = true,
+    experts: providedExperts = null,
+  } = options;
+
+  console.log("Starting to match grants with experts...");
+  
+  try {
+    // Retrieve all experts and grants from Redis
+    const experts = providedExperts || await getCachedExperts();
+    const grants = await getCachedGrants();
+        
+    // Create a map to store expert URLs mapped to expert IDs
+    const expertUrlMap = new Map();
+    const expertIdMap = new Map();
     
-    const matchedGrants = grants.map(grant => {
-        // Only match by URL
-        if (grant.inheresIn) {
-            // Try to extract just the ID from inheresIn if it's a full URL
-            const expertId = grant.inheresIn.includes('/') ? grant.inheresIn.split('/').pop() : grant.inheresIn;
-            
-            // Try different matching patterns
-            const expert = 
-                expertsByUrl[grant.inheresIn] || 
-                expertsByUrl[expertId] ||
-                expertsByUrl[`expert/${expertId}`];
-            
-            if (expert) {
-                matchCount++;
-                return {
-                    ...grant,
-                    relatedExpert: {
-                        name: `${expert.firstName} ${expert.middleName || ''} ${expert.lastName}`.trim().replace(/\s+/g, ' '),
-                        firstName: expert.firstName,
-                        lastName: expert.lastName,
-                        url: expert.url
-                    }
-                };
-            }
-        } else {
-            noInheresInCount++;
-        }
-        
-        return { ...grant, relatedExpert: null };
-    });
+    // Create a map to store expert IDs mapped to their grants
+    const expertGrantsMap = {};
     
-    console.log(`Matched ${matchCount} grants by URL`);
-    console.log(`${noInheresInCount} grants had no inheresIn value`);
+    // Create map to store experts by their ID for quicker lookups
+    const expertsById = {};
     
-    return matchedGrants;
-}
-
-/**
- * Match grants with experts using Redis data
- * @returns {Promise<Object>} - Result of matching operation
- */
-async function matchGrants() {
-    try {
-        // Load experts and grants data from Redis
-        const experts = await getCachedExperts();
-        const grants = await getCachedGrants();
+    // Process all experts
+    for (const expert of experts) {
+      if (expert && expert.url) {
+        // Extract expert ID from URL
+        const expertId = extractExpertIdFromUrl(expert.url);
+        if (!expertId) continue;
         
-        if (!experts || !experts.length) {
-            console.error('No experts found in Redis. Please run fetchExperts.js first.');
-            return { success: false, error: 'No experts found' };
-        }
+        // Store the expert ID for mapping
+        expertUrlMap.set(expert.url, expertId);
+        expertIdMap.set(expertId, expertId);
         
-        if (!grants || !grants.length) {
-            console.error('No grants found in Redis. Please run fetchGrants.js first.');
-            return { success: false, error: 'No grants found' };
-        }
-
-        console.log(`Processing ${grants.length} grants with ${experts.length} experts`);
-
-        // Create experts map and match with grants
-        const expertsByUrl = createExpertsByUrlMap(experts);
-        console.log(`Created expert map with ${Object.keys(expertsByUrl).length} entries`);
+        // Store the expert by ID for easy lookup
+        expertsById[expertId] = expert;
         
-        const grantsWithExperts = matchGrantsToExperts(grants, expertsByUrl);
-
-        // Count matches
-        const matchedGrantsCount = grantsWithExperts.filter(g => g.relatedExpert).length;
-        console.log(`Grants with expert matches: ${matchedGrantsCount}/${grantsWithExperts.length}`);
-        
-        // Cache the matched grants to Redis
-        await cacheGrants(grantsWithExperts);
-        console.log('✅ Grants with expert relationships cached to Redis');
-
-        return {
-            success: true,
-            matchedCount: matchedGrantsCount,
-            totalCount: grantsWithExperts.length
-        };
-    } catch (error) {
-        console.error('❌ Error matching experts to grants:', error.message);
-        return { success: false, error: error.message };
+        // Initialize the expert's grant list
+        expertGrantsMap[expertId] = [];
+      }
     }
-}
-
-// Execute matching if this file is run directly
-if (require.main === module) {
-    matchGrants()
-        .then(result => {
-            if (!result.success) {
-                console.error(`Matching failed: ${result.error}`);
-                process.exit(1);
-            }
-        })
-        .catch(error => {
-            console.error('Uncaught error during grant matching:', error);
-            process.exit(1);
+    
+    let matchCount = 0;
+    let skippedCount = 0;
+    
+    // Store matched grants with their related experts
+    const matchedGrants = [];
+    
+    // Process all grants
+    for (const grant of grants) {
+      if (!grant || !grant.inheresIn) {
+        skippedCount++;
+        continue;
+      }
+      
+      // Use the grant's ID from Redis (should be in gX format)
+      const grantId = grant.id || '';
+      if (!grantId) {
+        skippedCount++;
+        continue;
+      }
+      
+      // Extract expert ID from the inheresIn property
+      const expertIdFromUrl = extractExpertIdFromUrl(grant.inheresIn);
+      
+      // Skip if we can't extract an expert ID
+      if (!expertIdFromUrl) {
+        skippedCount++;
+        continue;
+      }
+      
+      let matchedExpertId = null;
+      
+      // Try direct match with expert ID - this is the most likely match
+      if (expertIdMap.has(expertIdFromUrl)) {
+        matchedExpertId = expertIdMap.get(expertIdFromUrl);
+        expertGrantsMap[matchedExpertId].push(grantId);
+        matchCount++;
+      } else {
+        // If direct match fails, try looking for expert IDs in the inheresIn URL
+        let matched = false;
+        for (const expertId of expertIdMap.keys()) {
+          if (grant.inheresIn.includes(expertId)) {
+            matchedExpertId = expertId;
+            expertGrantsMap[expertId].push(grantId);
+            matchCount++;
+            matched = true;
+            break;
+          }
+        }
+        
+        if (!matched) {
+          skippedCount++;
+          continue; // Skip to next grant if no match found
+        }
+      }
+      
+      // Only add grants that were successfully matched
+      if (matchedExpertId) {
+        // Get the matched expert
+        const matchedExpert = expertsById[matchedExpertId];
+        
+        // Format the expert data
+        const relatedExpert = matchedExpert ? {
+          id: matchedExpertId,
+          firstName: matchedExpert.firstName || '',
+          lastName: matchedExpert.lastName || '',
+          fullName: `${matchedExpert.firstName || ''} ${matchedExpert.lastName || ''}`.trim(),
+          url: matchedExpert.url || ''
+        } : 'N/A';
+        
+        // Add the grant with related expert to the output array
+        matchedGrants.push({
+          ...grant,
+          relatedExpert
         });
+      }
+    }
+    
+    console.log(`Successfully matched ${matchCount} grants to experts (${skippedCount} grants skipped)`);
+    
+    // Count experts with at least one grant
+    const expertsWithGrants = Object.keys(expertGrantsMap).filter(expertId => 
+      expertGrantsMap[expertId] && expertGrantsMap[expertId].length > 0
+    ).length;
+    console.log(`Experts with at least one grant: ${expertsWithGrants} of ${experts.length}`);
+    
+    // Save the results to a JSON file if requested
+    if (saveToFile) {
+      const jsonDir = path.join(__dirname, 'json');
+      if (!fs.existsSync(jsonDir)) {
+        fs.mkdirSync(jsonDir, { recursive: true });
+      }
+      
+      // Save only matched grants with their related experts
+      const outputPath = path.join(jsonDir, 'matchedGrants.json');
+      fs.writeFileSync(outputPath, JSON.stringify(matchedGrants, null, 2));
+      
+      // Also save the expert-to-grants mapping for reference
+      const mappingPath = path.join(jsonDir, 'expertMatchedGrants.json');
+      fs.writeFileSync(mappingPath, JSON.stringify(expertGrantsMap, null, 2));
+      
+      console.log(`Matching complete. ${matchedGrants.length} matched grants saved to ${outputPath}`);
+      console.log(`Expert-to-grants mapping saved to ${mappingPath}`);
+    }
+    
+    return {
+      expertGrantsMap,
+      matchedGrants,
+      matchCount,
+      skippedCount,
+      expertsWithGrants
+    };
+    
+  } catch (error) {
+    console.error("Error matching grants with experts:", error);
+    throw error;
+  }
 }
 
-module.exports = matchGrants;
+module.exports = {
+  matchGrants,
+  extractExpertIdFromUrl
+};
+
+// Main execution
+if (require.main === module) {
+    matchGrants();
+}

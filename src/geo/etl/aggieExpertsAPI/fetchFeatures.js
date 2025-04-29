@@ -16,15 +16,15 @@ const { fetchWorks } = require('./works/fetchWorks');
 
 async function fetchFeatures() {
     try {
-        console.log('\n====== FETCHING ALL FEATURES ======\n');
+        console.log('\n====== FETCHING ALL FEATURES ======');
         
-        console.log('1. Fetching experts...');
+        console.log('\n1. Fetching experts...');
         const expertsResult = await fetchExperts();
         
-        console.log('2. Fetching grants...');
+        console.log('\n2. Fetching grants...');
         const grantsResult = await fetchGrants();
         
-        console.log('3. Fetching works...');
+        console.log('\n3. Fetching works...');
         const worksResult = await fetchWorks();
         
         console.log('\n====== FETCH SUMMARY ======\n');

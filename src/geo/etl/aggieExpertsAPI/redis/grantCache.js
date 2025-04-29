@@ -11,16 +11,32 @@ const { sanitizeString } = require('./redisUtils');
 const { cacheItems, getCachedItems } = require('./cacheUtils');
 
 /**
+ * @param {number} index - The index to use for ID generation
+ * @returns {string} - A unique ID for the grant in the format gX
+ */
+function generateSequentialGrantId(index) {
+  return `g${index + 1}`;
+}
+
+/**
  * Cache grants data to Redis
  * @param {Array} grants - Array of grant objects
  * @returns {Promise<Object>} - Result of caching operation
  */
 async function cacheGrants(grants) {
+  // Debug the grants structure
+  console.log(`Preparing to cache ${grants.length} grants to Redis...`);
+  
+  // Pre-process grants to ensure sequential IDs in the gX format
+  for (let i = 0; i < grants.length; i++) {
+    grants[i].cachedId = generateSequentialGrantId(i);
+  }
+    
   return cacheItems(grants, {
     entityType: 'grant',
     
-    // Extract grant ID from grant object
-    getItemId: (grant, index) => grant.inheresIn.split('/').pop() || index.toString(),
+    // Use the pre-generated sequential IDs
+    getItemId: (grant) => grant.cachedId,
     
     // Check if grant is unchanged
     isItemUnchanged: (grant, existingGrant) => (
@@ -32,14 +48,14 @@ async function cacheGrants(grants) {
     
     // Format grant for Redis cache
     formatItemForCache: (grant, sessionId) => {
-      const grantId = grant.inheresIn.split('/').pop() || '';
       return {
-        id: grantId ? String(grantId) : '',
+        id: grant.cachedId,
         title: sanitizeString(grant.title) || '',
         funder: grant.funder ? String(grant.funder) : '',
         start_date: grant.startDate ? String(grant.startDate) : '',
         end_date: grant.endDate ? String(grant.endDate) : '',
         inheres_in: grant.inheresIn ? String(grant.inheresIn) : '',
+        url: grant.url ? String(grant.url) : '',
         cache_session: sessionId,
         cached_at: new Date().toISOString()
       };
@@ -74,6 +90,7 @@ async function getCachedGrants() {
         startDate: grantData.start_date || '',
         endDate: grantData.end_date || '',
         inheresIn: grantData.inheres_in || '',
+        url: grantData.url || '',
         relatedExpert: relatedExpert
       };
     }
@@ -82,5 +99,6 @@ async function getCachedGrants() {
 
 module.exports = {
   cacheGrants,
-  getCachedGrants
+  getCachedGrants,
+  generateSequentialGrantId
 };

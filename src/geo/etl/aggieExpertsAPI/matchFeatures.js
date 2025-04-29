@@ -42,8 +42,22 @@ async function matchFeatures(options = {}) {
     const worksResult = await matchWorks({
       saveToFile,
       updateRedis,
-      experts  
+      experts,
+      debug: false  // Set to true to enable name matching debug
     });
+    
+    // Extract data from the works result object
+    const expertWorksMap = worksResult.expertWorksMap || worksResult;
+    const expertsWithWorks = worksResult.expertsWithWorks || 
+      Object.keys(expertWorksMap).filter(
+        expertId => expertWorksMap[expertId] && expertWorksMap[expertId].length > 0
+      ).length;
+    
+    // Count total matched works
+    const totalMatchedWorks = worksResult.totalWorksMatched || 
+      Object.values(expertWorksMap).reduce(
+        (sum, works) => sum + (works ? works.length : 0), 0
+      );
     
     // Step 3: Match grants to experts
     console.log('\n3️⃣ Matching grants to experts...');
@@ -53,35 +67,38 @@ async function matchFeatures(options = {}) {
       experts  
     });
     
+    // Count how many experts have at least one matched grant
+    const expertGrantsMap = grantsResult.expertGrantsMap || grantsResult;
+    const expertsWithGrants = grantsResult.expertsWithGrants || 
+      Object.keys(expertGrantsMap).filter(
+        expertId => expertGrantsMap[expertId] && expertGrantsMap[expertId].length > 0
+      ).length;
+    
+    // Count total matched grants - use matchCount if available, or calculate from the map
+    const totalMatchedGrants = grantsResult.matchCount || 
+      Object.values(expertGrantsMap).reduce(
+        (sum, grants) => sum + (grants ? grants.length : 0), 0
+      );
+    
     // Step 4: Summarize results
     console.log('\n✅ Matching completed');
     console.log('📊 Summary:');
     console.log(`- Experts: ${experts.length}`);
-    
-    if (worksResult.success) {
-      console.log(`- Works matched: ${worksResult.matchedCount}/${worksResult.totalCount}`);
-    } else {
-      console.log(`- Works: Error - ${worksResult.error}`);
-    }
-    
-    if (grantsResult.success) {
-      console.log(`- Grants matched: ${grantsResult.matchedCount}/${grantsResult.totalCount}`);
-    } else {
-      console.log(`- Grants: Error - ${grantsResult.error}`);
-    }
+    console.log(`- Works matched: ${totalMatchedWorks} works across ${expertsWithWorks} experts`);
+    console.log(`- Grants matched: ${totalMatchedGrants} grants across ${expertsWithGrants} experts`);
     
     return {
       success: true,
       stats: {
         experts: experts.length,
-        works: worksResult.success ? {
-          matched: worksResult.matchedCount,
-          total: worksResult.totalCount
-        } : { error: worksResult.error },
-        grants: grantsResult.success ? {
-          matched: grantsResult.matchedCount,
-          total: grantsResult.totalCount
-        } : { error: grantsResult.error }
+        works: {
+          matched: totalMatchedWorks,
+          expertsWithWorks
+        },
+        grants: {
+          matched: totalMatchedGrants,
+          expertsWithGrants
+        }
       }
     };
   } catch (error) {

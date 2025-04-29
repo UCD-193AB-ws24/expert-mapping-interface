@@ -8,6 +8,9 @@
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
 *
 * © Zoey Vo, Loc Nguyen, 2025
+*
+* NOTES:
+*   - should expect ~ 63 grants
 */
 
 const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
@@ -17,7 +20,7 @@ const { cacheGrants } = require('../redis/grantCache');
 * @param {number} batchSize - Number of pages to fetch in each batch (default: 10)
 * @param {number} maxPages - Maximum number of pages to fetch (default: Infinity)
 */
-async function fetchGrants(batchSize = 10, maxPages = 1) {
+async function fetchGrants(batchSize = 10, maxPages = Infinity) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;
@@ -34,7 +37,7 @@ async function fetchGrants(batchSize = 10, maxPages = 1) {
             
             // Extracting relevant fields from the hits
             grants.push(...hits.map(grant => ({
-                title: grant.name.split('§')[0] || 'No Title',
+                title: grant.name ? (grant.name.split('§')[0].trim() || 'No Title') : 'No Title',
                 funder: grant.assignedBy && grant.assignedBy.name ? grant.assignedBy.name : '',
                 startDate: grant.dateTimeInterval && grant.dateTimeInterval.start && grant.dateTimeInterval.start.dateTime ? 
                     grant.dateTimeInterval.start.dateTime : '',
@@ -42,6 +45,7 @@ async function fetchGrants(batchSize = 10, maxPages = 1) {
                     grant.dateTimeInterval.end.dateTime : '',
                 inheresIn: grant.relatedBy && grant.relatedBy[0] && grant.relatedBy[0].inheres_in ? 
                     grant.relatedBy[0].inheres_in : '',
+                url: grant['@id'] || '' // Capture the grant's own URL if available
             })));
             
             totalFetched += hits.length;
@@ -52,7 +56,7 @@ async function fetchGrants(batchSize = 10, maxPages = 1) {
         logBatch('grants', page, true, totalFetched);
         
         // Cache to Redis
-        console.log('Caching grants to Redis...');
+        console.log('\nCaching grants to Redis...');
         const cacheResult = await cacheGrants(grants);
         
         return {
