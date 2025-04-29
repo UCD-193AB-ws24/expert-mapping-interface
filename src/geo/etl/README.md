@@ -1,78 +1,67 @@
 # ETL Pipeline for Expert Mapping Interface
 
-This directory contains the Extract, Transform, Load (ETL) pipeline for the Expert Mapping Interface project. The pipeline processes data from the Aggie Experts API, extracts location information, validates it, geocodes it, and generates GeoJSON files for visualization on the map.
+This directory contains the Extract, Transform, Load (ETL) pipeline for the Expert Mapping Interface. The pipeline fetches data from Aggie Experts API, processes locations, and generates GeoJSON files for map visualization.
 
-## Pipeline Overview
+## Pipeline Flow
 
 ```
-aggieExpertsAPI → locationAssignment → geojsonGeneration
+Data Extraction → Expert Matching → Location Processing → GeoJSON Generation
 ```
 
-## 📁 Directory Structure
+## 📋 Components
 
-### 1. /aggieExpertsAPI
-Data extraction and expert matching process.
+### 1. Data Extraction (`/aggieExpertsAPI`)
 
-- **fetchAll.js**
-  - Orchestrates the entire data fetch process by running:
-    - a. fetchExperts.js - Retrieves expert profiles
-    - b. fetchGrants.js - Retrieves grant information
-    - c. fetchWorks.js - Retrieves research works
+- **fetchExperts.js**: Retrieves expert profiles from Aggie Experts API
+- **fetchWorks.js**: Retrieves research publications and works
+- **fetchGrants.js**: Retrieves grant and funding information
+- **fetchFeatures.js**: Manages the entire fetch process
 
-- **matchAll.js**
-  - Associates grants and works with their respective experts
-    - a. matchWorks.js - Matches works by expert name
-    - b. matchGrants.js - Matches grants by expert URL
+### 2. Expert Matching (`/aggieExpertsAPI`)
 
-- **apiUtils.js**
-  - Contains helper functions used across the API interaction modules
+- **matchWorks.js**: Associates works with experts using name matching algorithms
+- **matchGrants.js**: Links grants to experts using expert URLs
+- **matchFeatures.js**: Manages the complete matching process
 
-### 2. /locationAssignment
-Process for extracting, validating, and geocoding locations from data.
+### 3. Location Processing (`/locationAssignment`)
 
-- **processLocations.js**
-  - Manages the location processing workflow:
-    - a. **extractLocations.js**
-      - Uses LLM (llama3.3) to extract geopolitical entities from work and grant text
-      - Outputs structured location data (City, Country format)
-    
-    - b. **validateLocations.js**
-      - Validates extracted locations against ISO standards
-      - Ensures location names are standardized and recognized
-    
-    - c. **geocodeLocations.js**
-      - Converts validated location names to geographic coordinates
-      - Creates GeoJSON features for each valid location
+- **extractLocations.js**: Uses LLM (llama3.3) to identify geographic entities from text
+- **validateLocations.js**: Standardizes location names against ISO references
+- **geocodeLocations.js**: Converts locations to geographic coordinates
+- **processLocations.js**: Manages the complete location workflow
 
-### 3. /geojsonGeneration
-Generation of final GeoJSON files for map visualization.
+### 4. GeoJSON Generation (`/geojsonGeneration`)
 
-- **generateGeoJson.js**
-  - Combines location coordinates with location-based works and grants
-  - Generates two separate GeoJSON files:
-    - grants.geojson - For visualizing grants on the map
-    - works.geojson - For visualizing research works on the map
+- **generateGeoJson.js**: Creates finalized GeoJSON files for the map interface
+- Output files:
+  - `generatedWorks.geojson`: Expert matched research work data with associated coordinates
+  - `generatedGrants.geojson`: Expert matched grant data with associated coordinates
 
-## Data Flow
+## Data Storage
 
-1. Fetch expert, grant, and work data from Aggie Experts API
-2. Match grants and works to experts
-3. Extract location information from grant and work descriptions
-4. Validate locations against standard geographical references
-5. Convert locations to geographic coordinates
-6. Generate GeoJSON files for map visualization
-
-![ETL Diagram](../../assets/etl.png)
+- **Redis**: Temporary caching of API data
+- **JSON files**: Intermediate data storage between pipeline stages
+- **GeoJSON files**: Final output for the map visualization component
 
 ## Usage
+Prerequisite: Backend Redis Server is Running
 
-To run the entire ETL pipeline:
+Run the complete pipeline:
 
 ```bash
-node ./src/geo/etl/aggieExpertsAPI/fetchAll.js
-node ./src/geo/etl/aggieExpertsAPI/matchAll.js
+# 1. Fetch data from Aggie Experts API
+node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js
+
+# 2. Match experts with works and grants
+node ./src/geo/etl/aggieExpertsAPI/matchFeatures.js
+
+# 3. Process and geocode locations
 node ./src/geo/etl/locationAssignment/processLocations.js
+
+# 4. Generate GeoJSON for visualization
 node ./src/geo/etl/geojsonGeneration/generateGeoJson.js
 ```
 
-Each component can also be run individually for testing or debugging purposes.
+Each component can be run individually for testing or development purposes.
+
+![ETL Pipeline Diagram](../../assets/etl.png)
