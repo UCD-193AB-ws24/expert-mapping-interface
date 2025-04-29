@@ -1,6 +1,6 @@
 /**
 * @file fetchExperts.js
-* @description Fetches expert profiles from the Aggie Experts API and processes them for later use
+* @description Fetches expert data from Aggie Experts, processes it, and caches it to Redis
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\experts\fetchExperts.js
 * 
@@ -8,23 +8,34 @@
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
 *
 * © Zoey Vo, Loc Nguyen, 2025
+*
+* NOTES: 
+*   - should expect ~ 2086 unique experts 
 */
 
-const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
+const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
+const { cacheExperts } = require('../redis/expertCache');
 
-async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = false) {
+/**
+* @param {number} batchSize - Number of pages to fetch in each batch (default: 10)
+* @param {number} maxPages - Maximum number of pages to fetch (default: Infinity)
+*/
+async function fetchExperts(batchSize = 10, maxPages = Infinity) {
     let experts = [];
     let page = 0;
     let totalFetched = 0;
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
-                '@type': 'expert', page
+                '@type': 'expert', 
+                page,
+                q: 'all'
             }, { 'Authorization': API_TOKEN });
             
             const hits = data.hits;
             if (hits.length === 0) break;
             
+            // Extracting relevant fields from the hits
             experts.push(...hits.map(expert => ({
                 firstName: expert.contactInfo?.hasName?.given || '',
                 middleName: expert.contactInfo?.hasName?.middle || '',
@@ -41,17 +52,15 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = f
         
         logBatch('experts', page, true, totalFetched);
         
-        // Manage cache using the new utility
-        const cacheResult = manageCacheData('experts', 'experts.json', experts, {
-            idField: 'url',
-            forceUpdate
-        });
+        // Cache to Redis
+        console.log('\nCaching experts to Redis...');
+        const cacheResult = await cacheExperts(experts);
         
         return {
-            experts: cacheResult.data,
-            cacheUpdated: cacheResult.cacheUpdated,
-            newCount: cacheResult.newCount,
-            hasNewEntries: cacheResult.hasNewEntries
+            experts: experts,
+            totalCount: experts.length,
+            newCount: cacheResult.newCount || 0,
+            updatedCount: cacheResult.updatedCount || 0
         };
     } catch (error) {
         console.error('Error fetching experts:', error.message);
@@ -59,7 +68,6 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity, forceUpdate = f
     }
 }
 
-// Run if this file is executed directly
 if (require.main === module) {
     fetchExperts();
 }
