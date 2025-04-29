@@ -48,27 +48,6 @@ function createNameVariations(fullName) {
 }
 
 /**
- * Debug function to log name matching information
- * @param {string} authorName - The author name being matched
- * @param {Array} variations - Name variations generated for the author
- * @param {Array} matchedExperts - The experts matched with this author
- */
-function debugNameMatch(authorName, variations, matchedExperts) {
-  console.log(`\n=== NAME MATCHING DEBUG ===`);
-  console.log(`Original author name: "${authorName}"`);
-  console.log(`Generated variations (${variations.length}):`);
-  variations.forEach((v, i) => console.log(`  ${i+1}. "${v}"`));
-  
-  console.log(`Matched experts (${matchedExperts.length}):`);
-  if (matchedExperts.length > 0) {
-    matchedExperts.forEach(id => console.log(`  - ${id}`));
-  } else {
-    console.log(`  No matches found`);
-  }
-  console.log(`=== END NAME MATCHING DEBUG ===\n`);
-}
-
-/**
  * Normalizes author data to ensure consistent structure
  * @param {Object|string} authorData - Author data which could be an object or string
  * @returns {Object} - Normalized author object with fullName property
@@ -197,22 +176,6 @@ async function matchWorks(options = {}) {
       }
     }
     
-    // Debug output for expert name variations if enabled
-    if (debug) {
-      console.log(`\nCreated ${expertNameMap.size} unique name variations for ${experts.length} experts`);
-      
-      // Sample some expert name variations
-      if (expertNameMap.size > 0) {
-        console.log("\nSample expert name variations:");
-        let count = 0;
-        for (const [variation, expertIds] of expertNameMap.entries()) {
-          if (count >= 5) break;
-          console.log(`  "${variation}" -> ${expertIds.join(', ')}`);
-          count++;
-        }
-      }
-    }
-    
     let matchCount = 0;
     let skippedCount = 0;
     let authorCount = 0;
@@ -231,15 +194,6 @@ async function matchWorks(options = {}) {
       
       // Parse authors from the work data
       const normalizedAuthors = parseAuthors(work.authors);
-      
-      if (debug) {
-        console.log(`\nWork: ${work.title || 'Untitled'}`);
-        console.log(`  ID: ${workId}`);
-        console.log(`  Found ${normalizedAuthors.length} authors`);
-        normalizedAuthors.forEach((author, i) => 
-          console.log(`  Author ${i+1}: ${author.fullName || 'Unknown'}`)
-        );
-      }
       
       // Track experts matched to this work
       const matchedExpertsForWork = new Set();
@@ -268,15 +222,6 @@ async function matchWorks(options = {}) {
                   matchedExpertsForWork.add(expertId);
                 }
               }
-            }
-            
-            // Debug name matching if enabled
-            if (debug && (matchedExpertsForAuthor.size > 0 || authorCount % 5 === 0)) {
-              debugNameMatch(
-                author.fullName,
-                authorNameVariations,
-                Array.from(matchedExpertsForAuthor)
-              );
             }
             
             // Update match count
@@ -327,8 +272,7 @@ async function matchWorks(options = {}) {
       expertId => result[expertId] && result[expertId].length > 0
     ).length;
     
-    console.log(`Successfully matched ${matchedWorks.length} works to ${expertsWithWorks} experts`);
-    console.log(`Authors processed: ${authorCount}, matches found: ${matchCount}, skipped works: ${skippedCount}`);
+    console.log(`Successfully matched ${matchedWorks.length}/${works.length} works to ${expertsWithWorks} experts`);
     
     // Save the results to JSON files
     if (saveToFile) {
@@ -340,13 +284,7 @@ async function matchWorks(options = {}) {
       // Save matched works with their related experts
       const matchedWorksPath = path.join(jsonDir, 'matchedWorks.json');
       fs.writeFileSync(matchedWorksPath, JSON.stringify(matchedWorks, null, 2));
-      
-      // Also save the expert-to-works mapping for reference
-      const mappingPath = path.join(jsonDir, 'expertMatchedWorks.json');
-      fs.writeFileSync(mappingPath, JSON.stringify(result, null, 2));
-      
       console.log(`Matching complete. ${matchedWorks.length} matched works saved to ${matchedWorksPath}`);
-      console.log(`Expert-to-works mapping saved to ${mappingPath}`);
     }
     
     return {
@@ -355,7 +293,8 @@ async function matchWorks(options = {}) {
       matchCount,
       skippedCount,
       totalWorksMatched,
-      expertsWithWorks
+      expertsWithWorks,
+      totalProcessed: works.length // Add the total number of works processed
     };
     
   } catch (error) {

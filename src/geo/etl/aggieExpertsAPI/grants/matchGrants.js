@@ -39,7 +39,9 @@ async function matchGrants(options = {}) {
     // Retrieve all experts and grants from Redis
     const experts = providedExperts || await getCachedExperts();
     const grants = await getCachedGrants();
-        
+    
+    console.log(`Found ${experts.length} experts and ${grants.length} grants`);
+    
     // Create a map to store expert URLs mapped to expert IDs
     const expertUrlMap = new Map();
     const expertIdMap = new Map();
@@ -146,13 +148,12 @@ async function matchGrants(options = {}) {
       }
     }
     
-    console.log(`Successfully matched ${matchCount} grants to experts (${skippedCount} grants skipped)`);
+    console.log(`Successfully matched ${matchedGrants.length}/${grants.length} grants to experts (${skippedCount} grants with associated expert)`);
     
     // Count experts with at least one grant
     const expertsWithGrants = Object.keys(expertGrantsMap).filter(expertId => 
       expertGrantsMap[expertId] && expertGrantsMap[expertId].length > 0
     ).length;
-    console.log(`Experts with at least one grant: ${expertsWithGrants} of ${experts.length}`);
     
     // Save the results to a JSON file if requested
     if (saveToFile) {
@@ -164,13 +165,7 @@ async function matchGrants(options = {}) {
       // Save only matched grants with their related experts
       const outputPath = path.join(jsonDir, 'matchedGrants.json');
       fs.writeFileSync(outputPath, JSON.stringify(matchedGrants, null, 2));
-      
-      // Also save the expert-to-grants mapping for reference
-      const mappingPath = path.join(jsonDir, 'expertMatchedGrants.json');
-      fs.writeFileSync(mappingPath, JSON.stringify(expertGrantsMap, null, 2));
-      
       console.log(`Matching complete. ${matchedGrants.length} matched grants saved to ${outputPath}`);
-      console.log(`Expert-to-grants mapping saved to ${mappingPath}`);
     }
     
     return {
@@ -178,7 +173,8 @@ async function matchGrants(options = {}) {
       matchedGrants,
       matchCount,
       skippedCount,
-      expertsWithGrants
+      expertsWithGrants,
+      totalProcessed: grants.length // Add the total number of grants processed
     };
     
   } catch (error) {
