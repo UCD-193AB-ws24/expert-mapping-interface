@@ -14,72 +14,68 @@ const { fetchExperts } = require('./experts/fetchExperts');
 const { fetchGrants } = require('./grants/fetchGrants');
 const { fetchWorks } = require('./works/fetchWorks');
 
+
+/**
+ * Fetches experts, grants, and works from the API and caches them
+ * @returns {Promise<Object>} Results of the fetching operation
+ */
 async function fetchFeatures() {
+  try {
+    console.log('\n====== FETCHING ALL FEATURES ======');
+    
+    console.log('\n1. Fetching experts...');
+    const expertsResult = await fetchExperts();
+    
+    console.log('\n2. Fetching grants...');
+    const grantsResult = await fetchGrants();
+    
+    console.log('\n3. Fetching works...');
+    const worksResult = await fetchWorks();
+    
+    console.log('\n====== FETCH SUMMARY ======\n');
+    
+    // Displaying counts
+    console.log(`Total experts in cache: ${expertsResult.totalCount}`);
+    console.log(`Total grants in cache: ${grantsResult.totalCount}`);
+    console.log(`Total works in cache: ${worksResult.totalCount}`);
+    
+    // Check if any content was updated
+    const anyUpdated = [expertsResult, grantsResult, worksResult].some(
+      result => result.newCount > 0 || result.updatedCount > 0
+    );
 
-    try {
-        console.log('Fetching experts...');
-        const expertsResult = await fetchExperts();
-        
-        if (expertsResult.cacheUpdated) {
-            console.log(`Experts cache updated. ${expertsResult.newCount} new expert(s) found.`);
-        } else {
-            console.log('No new experts found. Using existing cache.');
-        }
-        
-        console.log(`Total experts in cache: ${expertsResult.experts.length}`);
-
-        console.log('Fetching grants...');
-        const grantsResult = await fetchGrants();
-        
-        if (grantsResult.cacheUpdated) {
-            console.log(`Grants cache updated. ${grantsResult.newCount} new grant(s) found.`);
-        } else {
-            console.log('No new grants found. Using existing cache.');
-        }
-        
-        console.log(`Total grants in cache: ${grantsResult.grants.length}`);
-
-        console.log('Fetching works...');
-        const worksResult = await fetchWorks();
-        
-        if (worksResult.cacheUpdated) {
-            console.log(`Works cache updated. ${worksResult.newCount} new work(s) found.`);
-        } else {
-            console.log('No new works found. Using existing cache.');
-        }
-        
-        console.log(`Total works in cache: ${worksResult.works.length}`);
-
-        return { 
-            experts: expertsResult.experts, 
-            grants: grantsResult.grants,
-            works: worksResult.works,
-            cacheStatus: {
-                experts: {
-                    updated: expertsResult.cacheUpdated,
-                    newCount: expertsResult.newCount
-                },
-                grants: {
-                    updated: grantsResult.cacheUpdated,
-                    newCount: grantsResult.newCount
-                },
-                works: {
-                    updated: worksResult.cacheUpdated,
-                    newCount: worksResult.newCount
-                },
-                anyUpdated: expertsResult.cacheUpdated || 
-                            grantsResult.cacheUpdated || 
-                            worksResult.cacheUpdated
-            }
-        };
-    } catch (error) {
-        console.error('Error fetching all entries:', error);
-        throw error;
-    }
+    return { 
+      experts: expertsResult.experts, 
+      grants: grantsResult.grants,
+      works: worksResult.works,
+      cacheStatus: {
+        experts: {
+          updated: expertsResult.newCount > 0 || expertsResult.updatedCount > 0,
+          newCount: expertsResult.newCount,
+          updatedCount: expertsResult.updatedCount
+        },
+        grants: {
+          updated: grantsResult.newCount > 0 || grantsResult.updatedCount > 0,
+          newCount: grantsResult.newCount,
+          updatedCount: grantsResult.updatedCount
+        },
+        works: {
+          updated: worksResult.newCount > 0 || worksResult.updatedCount > 0,
+          newCount: worksResult.newCount,
+          updatedCount: worksResult.updatedCount
+        },
+        anyUpdated
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching all entries:', error);
+    throw error;
+  }
 }
 
+// Run directly if this is the main module
 if (require.main === module) {
-    fetchFeatures();
+  fetchFeatures();
 }
 
 module.exports = { fetchFeatures };
