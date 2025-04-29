@@ -234,12 +234,12 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
 
 // ================ POSTGIS ENDPOINTS ================ //
 
-// Test database connection on startup
+// Test postgis database connection on startup
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
-    console.error('❌ Database connection error:', err);
+    console.error('❌ Postgis connection error:', err);
   } else {
-    console.log('✅ Database connected successfully');
+    console.log('✅ Postgis connected successfully');
   }
 });
 
@@ -320,7 +320,7 @@ function gracefulShutdown() {
   server.close(async () => {
     try {
       await pool.end();
-      console.log('✅ Database pool has ended');
+      console.log('✅ Postgis pool has ended');
       await redisClient.disconnect();
       console.log('✅ Redis client disconnected');
       console.log('✅ Closed out remaining connections');
