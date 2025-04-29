@@ -1,6 +1,6 @@
 /**
 * @file fetchGrants.js
-* @description Fetches grant data from Aggie Experts, processes it, and optionally caches it
+* @description Fetches grant data from Aggie Experts, processes it, and caches it to Redis
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\grants\fetchGrants.js
 * 
@@ -10,10 +10,14 @@
 * © Zoey Vo, Loc Nguyen, 2025
 */
 
-const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
+const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
 const { cacheGrants } = require('../redis/grantCache');
 
-async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, cacheToRedis = true) {
+/**
+* @param {number} batchSize - Number of pages to fetch in each batch (default: 10)
+* @param {number} maxPages - Maximum number of pages to fetch (default: Infinity)
+*/
+async function fetchGrants(batchSize = 10, maxPages = 1) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;
@@ -22,12 +26,13 @@ async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, ca
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
                 '@type': 'grant',
                 page,
-                q: 'all' // Add the required query parameter - '*' to fetch all works
+                q: 'all'
             }, { 'Authorization': API_TOKEN });
             
             const hits = data.hits;
             if (hits.length === 0) break;
             
+            // Extracting relevant fields from the hits
             grants.push(...hits.map(grant => ({
                 title: grant.name.split('§')[0] || 'No Title',
                 funder: grant.assignedBy && grant.assignedBy.name ? grant.assignedBy.name : '',
@@ -46,32 +51,15 @@ async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, ca
         
         logBatch('grants', page, true, totalFetched);
         
-        // Skip file caching if cacheToRedis is true
-        let cacheResult = { 
-            data: grants,
-            cacheUpdated: false,
-            newCount: 0,
-            hasNewEntries: false
-        };
-        
-        // If file caching is still needed (when not using Redis)
-        if (!cacheToRedis) {
-            // Manage cache using the utility for file-based caching
-            cacheResult = manageCacheData('grants', 'grants.json', grants, {
-                idField: 'inheresIn',
-                forceUpdate
-            });
-        } else {
-            // Only cache to Redis
-            console.log('Caching grants to Redis...');
-            await cacheGrants(grants);
-        }
+        // Cache to Redis
+        console.log('Caching grants to Redis...');
+        const cacheResult = await cacheGrants(grants);
         
         return {
-            grants: cacheResult.data,
-            cacheUpdated: cacheResult.cacheUpdated,
-            newCount: cacheResult.newCount,
-            hasNewEntries: cacheResult.hasNewEntries
+            grants: grants,
+            totalCount: grants.length,
+            newCount: cacheResult.newCount || 0,
+            updatedCount: cacheResult.updatedCount || 0
         };
     } catch (error) {
         console.error('Error fetching grants:', error.message);
@@ -79,7 +67,6 @@ async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, ca
     }
 }
 
-// Run if this file is executed directly
 if (require.main === module) {
     fetchGrants();
 }

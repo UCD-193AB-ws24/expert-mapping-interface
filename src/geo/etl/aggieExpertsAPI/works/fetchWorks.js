@@ -1,6 +1,6 @@
 /**
 * @file fetchWorks.js
-* @description Fetches work data from Aggie Experts, processes it, and optionally caches it
+* @description Fetches work data from Aggie Experts, processes it, and caches it to Redis
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\works\fetchWorks.js
 * 
@@ -10,10 +10,14 @@
 * © Zoey Vo, Loc Nguyen, 2025
 */
 
-const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
+const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
 const { cacheWorks } = require('../redis/workCache');
 
-async function fetchWorks(batchSize = 10, maxPages = 1, forceUpdate = false, cacheToRedis = true) {
+/**
+* @param {number} batchSize - Number of pages to fetch in each batch (default: 10)
+* @param {number} maxPages - Maximum number of pages to fetch (default: Infinity)
+*/
+async function fetchWorks(batchSize = 10, maxPages = 1) {
     let works = [];
     let page = 0;
     let totalFetched = 0;
@@ -22,12 +26,13 @@ async function fetchWorks(batchSize = 10, maxPages = 1, forceUpdate = false, cac
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
                 '@type': 'work', 
                 page,
-                q: 'all' // Add the required query parameter - '*' to fetch all works
+                q: 'all'
             }, { 'Authorization': API_TOKEN });
             
             const hits = data.hits;
             if (hits.length === 0) break;
             
+            // Extracting relevant fields from the hits
             works.push(...hits.map(work => ({
                 title: work.title?.split('§')[0] || 'No Title',
                 authors: (work.author || []).map(author => `${author.given || ''} ${author.family || ''}`.trim()),
@@ -45,32 +50,15 @@ async function fetchWorks(batchSize = 10, maxPages = 1, forceUpdate = false, cac
         
         logBatch('works', page, true, totalFetched);
         
-        // Skip file caching if cacheToRedis is true
-        let cacheResult = { 
-            data: works,
-            cacheUpdated: false,
-            newCount: 0,
-            hasNewEntries: false
-        };
-        
-        // If file caching is still needed (when not using Redis)
-        if (!cacheToRedis) {
-            // Manage cache using the utility for file-based caching
-            cacheResult = manageCacheData('works', 'works.json', works, {
-                idField: 'id',
-                forceUpdate
-            });
-        } else {
-            // Only cache to Redis
-            console.log('Caching works to Redis...');
-            await cacheWorks(works);
-        }
+        // Cache to Redis
+        console.log('Caching works to Redis...');
+        const cacheResult = await cacheWorks(works);
         
         return {
-            works: cacheResult.data,
-            cacheUpdated: cacheResult.cacheUpdated,
-            newCount: cacheResult.newCount,
-            hasNewEntries: cacheResult.hasNewEntries
+            works: works,
+            totalCount: works.length,
+            newCount: cacheResult.newCount || 0,
+            updatedCount: cacheResult.updatedCount || 0
         };
     } catch (error) {
         console.error('Error fetching works:', error.message);
@@ -78,7 +66,6 @@ async function fetchWorks(batchSize = 10, maxPages = 1, forceUpdate = false, cac
     }
 }
 
-// Run if this file is executed directly
 if (require.main === module) {
     fetchWorks();
 }

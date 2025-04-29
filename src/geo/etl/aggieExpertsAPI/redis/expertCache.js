@@ -7,7 +7,6 @@
 * © Zoey Vo, 2025
 */
 
-const { createRedisClient, sanitizeString } = require('./redisUtils');
 const { cacheItems, getCachedItems } = require('./cacheUtils');
 
 /**

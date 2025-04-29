@@ -32,7 +32,6 @@ async function matchFeatures(options = {}) {
     const experts = await getCachedExperts();
     
     if (experts.length === 0) {
-      console.error('No experts found in Redis. Please run fetchExperts.js first.');
       return { success: false, error: 'No experts found' };
     }
     
@@ -43,7 +42,7 @@ async function matchFeatures(options = {}) {
     const worksResult = await matchWorks({
       saveToFile,
       updateRedis,
-      experts  // Pass experts to avoid duplicate fetching
+      experts  
     });
     
     // Step 3: Match grants to experts
@@ -51,7 +50,7 @@ async function matchFeatures(options = {}) {
     const grantsResult = await matchGrants({
       saveToFile,
       updateRedis,
-      experts  // Pass experts to avoid duplicate fetching
+      experts  
     });
     
     // Step 4: Summarize results
@@ -94,7 +93,6 @@ async function matchFeatures(options = {}) {
   }
 }
 
-// Execute if run directly
 if (require.main === module) {
   matchFeatures();
 }
