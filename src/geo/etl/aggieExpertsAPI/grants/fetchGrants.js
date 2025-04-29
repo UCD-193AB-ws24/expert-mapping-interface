@@ -11,16 +11,18 @@
 */
 
 const { logBatch, fetchFromApi, manageCacheData, API_TOKEN } = require('../apiUtils');
-const { cacheGrants } = require('../redis/redisUtils');
+const { cacheGrants } = require('../redis/grantCache');
 
-async function fetchGrants(batchSize = 10, maxPages = 10, forceUpdate = false, cacheToRedis = true) {
+async function fetchGrants(batchSize = 10, maxPages = 1, forceUpdate = false, cacheToRedis = true) {
     let grants = [];
     let page = 0;
     let totalFetched = 0;
     try {
         while (page < maxPages) {
             const data = await fetchFromApi('https://experts.ucdavis.edu/api/search', {
-                '@type': 'grant', page
+                '@type': 'grant',
+                page,
+                q: 'all' // Add the required query parameter - '*' to fetch all works
             }, { 'Authorization': API_TOKEN });
             
             const hits = data.hits;

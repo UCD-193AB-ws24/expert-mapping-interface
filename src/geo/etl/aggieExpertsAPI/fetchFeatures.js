@@ -29,11 +29,12 @@ async function fetchFeatures() {
         
         console.log('\n====== FETCH SUMMARY ======\n');
         
-        console.log(`Total experts in cache: ${expertsResult.count}`);
+        // Using the appropriate properties to display counts
+        console.log(`Total experts in cache: ${expertsResult.experts ? expertsResult.experts.length : 0}`);
         
-        console.log(`Total grants in cache: ${grantsResult.count}`);
+        console.log(`Total grants in cache: ${grantsResult.grants ? grantsResult.grants.length : 0}`);
         
-        console.log(`Total works in cache: ${worksResult.works.length}`);
+        console.log(`Total works in cache: ${worksResult.works ? worksResult.works.length : 0}`);
 
         return { 
             experts: expertsResult.experts, 

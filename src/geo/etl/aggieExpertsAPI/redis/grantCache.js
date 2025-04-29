@@ -7,7 +7,8 @@
 * © Zoey Vo, 2025
 */
 
-const { createRedisClient, sanitizeString } = require('./redisConfig');
+const { sanitizeString } = require('./redisUtils');
+const { cacheItems, getCachedItems } = require('./cacheUtils');
 
 /**
  * Cache grants data to Redis
@@ -15,111 +16,35 @@ const { createRedisClient, sanitizeString } = require('./redisConfig');
  * @returns {Promise<Object>} - Result of caching operation
  */
 async function cacheGrants(grants) {
-  const redisClient = createRedisClient();
-  
-  try {
-    await redisClient.connect();
-    console.log(`Processing ${grants.length} grants for Redis cache...`);
+  return cacheItems(grants, {
+    entityType: 'grant',
     
-    // Generate a unique session ID for this caching operation
-    const sessionId = `session_${Date.now()}`;
+    // Extract grant ID from grant object
+    getItemId: (grant, index) => grant.inheresIn.split('/').pop() || index.toString(),
     
-    // Get all existing grant keys to compare
-    const existingGrantKeys = await redisClient.keys('grant:*');
-    const existingGrants = {};
-    let newCount = 0;
-    let updatedCount = 0;
-    let unchangedCount = 0;
+    // Check if grant is unchanged
+    isItemUnchanged: (grant, existingGrant) => (
+      sanitizeString(grant.title) === existingGrant.title &&
+      grant.funder === existingGrant.funder &&
+      grant.startDate === existingGrant.start_date &&
+      grant.endDate === existingGrant.end_date
+    ),
     
-    // Build a map of existing grants for faster lookup
-    for (const key of existingGrantKeys) {
-      // Skip metadata or entry keys
-      if (key === 'grant:metadata' || key.includes(':entry:')) continue;
-      
-      const grantData = await redisClient.hGetAll(key);
-      const grantId = key.split(':')[1];
-      existingGrants[grantId] = grantData;
+    // Format grant for Redis cache
+    formatItemForCache: (grant, sessionId) => {
+      const grantId = grant.inheresIn.split('/').pop() || '';
+      return {
+        id: grantId ? String(grantId) : '',
+        title: sanitizeString(grant.title) || '',
+        funder: grant.funder ? String(grant.funder) : '',
+        start_date: grant.startDate ? String(grant.startDate) : '',
+        end_date: grant.endDate ? String(grant.endDate) : '',
+        inheres_in: grant.inheresIn ? String(grant.inheresIn) : '',
+        cache_session: sessionId,
+        cached_at: new Date().toISOString()
+      };
     }
-    
-    // Store metadata with update info
-    await redisClient.hSet('grant:metadata', {
-      total_count: grants.length.toString(),
-      timestamp: new Date().toISOString(),
-      last_session: sessionId
-    });
-    
-    // Store each grant
-    for (let i = 0; i < grants.length; i++) {
-      const grant = grants[i];
-      // Use inheresIn property to create a unique ID
-      const grantId = grant.inheresIn.split('/').pop() || i.toString();
-      const grantKey = `grant:${grantId}`;
-      
-      // Check if grant already exists and if it's changed
-      const existingGrant = existingGrants[grantId];
-      let shouldUpdate = true;
-      
-      if (existingGrant) {
-        // Compare relevant fields to see if there are changes
-        const isUnchanged = 
-          sanitizeString(grant.title) === existingGrant.title &&
-          grant.funder === existingGrant.funder &&
-          grant.startDate === existingGrant.start_date &&
-          grant.endDate === existingGrant.end_date;
-        
-        if (isUnchanged) {
-          shouldUpdate = false;
-          unchangedCount++;
-        } else {
-          updatedCount++;
-        }
-      } else {
-        newCount++;
-      }
-      
-      if (shouldUpdate) {
-        // Store the grant data with string type checking
-        await redisClient.hSet(grantKey, {
-          id: grantId ? String(grantId) : '',
-          title: sanitizeString(grant.title) || '',
-          funder: grant.funder ? String(grant.funder) : '',
-          start_date: grant.startDate ? String(grant.startDate) : '',
-          end_date: grant.endDate ? String(grant.endDate) : '',
-          inheres_in: grant.inheresIn ? String(grant.inheresIn) : '',
-          cache_session: sessionId,
-          cached_at: new Date().toISOString()
-        });
-        
-      }
-    }
-    
-    // Update metadata with the counts
-    await redisClient.hSet('grant:metadata', {
-      new_count: newCount.toString(),
-      updated_count: updatedCount.toString(),
-      unchanged_count: unchangedCount.toString()
-    });
-    
-    console.log(`✅ Successfully cached grants to Redis with session ID: ${sessionId}`);
-    console.log(`📊 Cache stats: ${newCount} new, ${updatedCount} updated, ${unchangedCount} unchanged`);
-    
-    return { 
-      success: true, 
-      count: grants.length,
-      newCount,
-      updatedCount,
-      unchangedCount,
-      sessionId
-    };
-  } catch (error) {
-    console.error('❌ Error caching grants to Redis:', error);
-    return { 
-      success: false, 
-      error: error.message 
-    };
-  } finally {
-    await redisClient.disconnect();
-  }
+  });
 }
 
 /**
@@ -127,21 +52,11 @@ async function cacheGrants(grants) {
  * @returns {Promise<Array>} Array of grant objects
  */
 async function getCachedGrants() {
-  const redisClient = createRedisClient();
-  try {
-    await redisClient.connect();
+  return getCachedItems({
+    entityType: 'grant',
     
-    // Get all grant keys (excluding metadata)
-    const keys = await redisClient.keys('grant:*');
-    const grantKeys = keys.filter(key => key !== 'grant:metadata' && !key.includes(':entry:'));
-    
-    console.log(`Found ${grantKeys.length} grants in Redis`);
-    
-    // Get data for each grant
-    const grants = [];
-    for (const key of grantKeys) {
-      const grantData = await redisClient.hGetAll(key);
-      
+    // Format Redis data to grant object
+    formatItemFromCache: (grantData) => {
       // Parse related expert if available
       let relatedExpert = null;
       try {
@@ -149,10 +64,10 @@ async function getCachedGrants() {
           relatedExpert = JSON.parse(grantData.related_expert);
         }
       } catch (e) {
-        console.error(`Error parsing related expert for ${key}:`, e.message);
+        console.error(`Error parsing related expert for grant ${grantData.id}:`, e.message);
       }
       
-      grants.push({
+      return {
         id: grantData.id || '',
         title: grantData.title || '',
         funder: grantData.funder || '',
@@ -160,19 +75,11 @@ async function getCachedGrants() {
         endDate: grantData.end_date || '',
         inheresIn: grantData.inheres_in || '',
         relatedExpert: relatedExpert
-      });
+      };
     }
-    
-    return grants;
-  } catch (error) {
-    console.error('❌ Error fetching grants from Redis:', error);
-    return [];
-  } finally {
-    await redisClient.disconnect();
-  }
+  });
 }
 
-// Update exports to include the new function
 module.exports = {
   cacheGrants,
   getCachedGrants
