@@ -20,7 +20,7 @@ const { cacheWorks } = require('../redis/workCache');
 * @param {number} batchSize - Number of pages to fetch in each batch (default: 10)
 * @param {number} maxPages - Maximum number of pages to fetch (default: Infinity)
 */
-async function fetchWorks(batchSize = 10, maxPages = 10) {
+async function fetchWorks(batchSize = 10, maxPages = 100) {
     let works = [];
     let page = 0;
     let totalFetched = 0;

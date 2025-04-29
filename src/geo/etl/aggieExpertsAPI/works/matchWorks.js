@@ -128,9 +128,7 @@ function parseAuthors(authors) {
 async function matchWorks(options = {}) {
   const {
     saveToFile = true,
-    updateRedis = false,
     experts: providedExperts = null,
-    debug = false
   } = options;
 
   console.log("Starting to match works with experts...");
@@ -282,7 +280,7 @@ async function matchWorks(options = {}) {
       }
       
       // Save matched works with their related experts
-      const matchedWorksPath = path.join(jsonDir, 'matchedWorks.json');
+      const matchedWorksPath = path.join(jsonDir, 'expertMatchedWorks.json');
       fs.writeFileSync(matchedWorksPath, JSON.stringify(matchedWorks, null, 2));
       console.log(`Matching complete. ${matchedWorks.length} matched works saved to ${matchedWorksPath}`);
     }
@@ -311,21 +309,16 @@ async function matchWorks(options = {}) {
 function extractExpertIdFromUrl(url) {
   if (!url) return null;
   
-  // Extract ID from URL patterns like "expert/83x5AQ8a"
+  // Check for "expert/ID" pattern
   const expertMatch = url.match(/expert\/([^\/\s]+)/);
-  if (expertMatch && expertMatch[1]) {
-    return expertMatch[1];
-  }
+  if (expertMatch) return expertMatch[1];
   
-  // Extract ID patterns like "w1" directly
-  const workMatch = url.match(/^w\d+$/);
-  if (workMatch) {
-    return workMatch[0];
-  }
+  // Check for "wX" work ID pattern
+  if (/^w\d+$/.test(url)) return url;
   
-  // Fallback: Extract the last part of the URL as a fallback
-  const parts = url.split('/');
-  return parts[parts.length - 1] || null;
+  // Fallback: get the last segment of the URL
+  const lastSegment = url.split('/').pop();
+  return lastSegment || null;
 }
 
 module.exports = {
@@ -336,5 +329,5 @@ module.exports = {
 
 // Main execution
 if (require.main === module) {
-    matchWorks({ debug: true });
+    matchWorks();
 }

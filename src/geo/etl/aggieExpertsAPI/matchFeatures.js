@@ -39,9 +39,7 @@ async function matchFeatures(options = {}) {
     console.log('\n2) Matching works to experts...');
     const worksResult = await matchWorks({
       saveToFile,
-      updateRedis,
       experts,
-      debug: false  // Set to true to enable name matching debug
     });
     
     // Get total works count directly from the totalProcessed field
@@ -51,7 +49,6 @@ async function matchFeatures(options = {}) {
     console.log('\n3)Matching grants to experts...');
     const grantsResult = await matchGrants({
       saveToFile,
-      updateRedis,
       experts  
     });
     

@@ -148,7 +148,7 @@ async function matchGrants(options = {}) {
       }
     }
     
-    console.log(`Successfully matched ${matchedGrants.length}/${grants.length} grants to experts (${skippedCount} grants with associated expert)`);
+    console.log(`Successfully matched ${matchedGrants.length}/${grants.length} grants to experts (${skippedCount} grants with no associated expert)`);
     
     // Count experts with at least one grant
     const expertsWithGrants = Object.keys(expertGrantsMap).filter(expertId => 
@@ -163,7 +163,7 @@ async function matchGrants(options = {}) {
       }
       
       // Save only matched grants with their related experts
-      const outputPath = path.join(jsonDir, 'matchedGrants.json');
+      const outputPath = path.join(jsonDir, 'expertMatchedGrants.json');
       fs.writeFileSync(outputPath, JSON.stringify(matchedGrants, null, 2));
       console.log(`Matching complete. ${matchedGrants.length} matched grants saved to ${outputPath}`);
     }
