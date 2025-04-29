@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
 import MapWrapper from "./MapContainer";
 import ExpertLayer from "./ExpertLayer";
 import GrantLayer from "./GrantLayer";
@@ -9,7 +8,6 @@ import CombinedLocationLayer from "./CombinedLocations";
 import { ExpertsPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 import CombinedPolygonLayer from "./CombinedPolygonLayer";
-
 
 /**
  * ResearchMap Component
@@ -32,7 +30,7 @@ import CombinedPolygonLayer from "./CombinedPolygonLayer";
  * - Handles loading and error states during data fetching.
  */
 
-const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => {
+const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }) => {
   const [geoData, setGeoData] = useState(null);
   const [grantGeoJSON, setGrantGeoJSON] = useState(null);
   const [workGeoJSON, setWorkGeoJSON] = useState(null);
@@ -46,8 +44,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
   const [combinedKeys, setCombinedKeys] = useState(new Set());
   const mapRef = useRef(null);
   const [locationName, setLocationName] = useState("Unknown");
-
-
 
   /**
      * useEffect: Fetch GeoJSON data for works and grants.
@@ -99,7 +95,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
                 },
               })),
             };
-
             setWorkGeoJSON(processedWorksData);
             setGrantGeoJSON(processedGrantsData);
             setIsLoading(false);
@@ -118,8 +113,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
     loadGeoData();
   }, []);
 
-
-
   /**
    * Helper function to filter works by issued year.
    * 
@@ -127,10 +120,11 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
    * @returns {boolean} True if the work matches the selected date, otherwise false.
    */
   const isWorkInDate = (entry) => {
-    if (!selectedDate) return true;
-    return String(entry.issued || "").startsWith(selectedDate);
+    if (!selectedDateRange || selectedDateRange.length !== 2) return true;
+    const issuedYear = parseInt(entry.issued, 10);
+    return issuedYear >= selectedDateRange[0] && issuedYear <= selectedDateRange[1];
   };
-
+  
   /**
    * Helper function to filter grants by start or end date.
    * 
@@ -138,16 +132,15 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
    * @returns {boolean} True if the grant matches the selected date, otherwise false.
    */
   const isGrantInDate = (entry) => {
-    console.log("🟡 Checking entry:", entry.start_date, entry.end_date, "against selectedDate:", selectedDate);
-
-    if (!selectedDate) return true;
-
-    const start = entry.start_date || "";
-    const end = entry.end_date || "";
-
-    return start.startsWith(selectedDate) || end.startsWith(selectedDate);
+    if (!selectedDateRange || selectedDateRange.length !== 2) return true;
+    const start = parseInt(entry.start_date, 10);
+    const end = parseInt(entry.end_date, 10);
+    const [minYear, maxYear] = selectedDateRange;
+    return (
+      (!isNaN(start) && start >= minYear && start <= maxYear) ||
+      (!isNaN(end) && end >= minYear && end <= maxYear)
+    );
   };
-
   // Filter workGeoJSON by date
   const filteredWorkGeoJSON = workGeoJSON
     ? {
@@ -173,11 +166,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
       ...grantGeoJSON,
       features: grantGeoJSON.features
         .map((feature) => {
-          console.log("🔵 Full feature.properties.entries:", feature.properties.entries);
-
           // pass isGrantInDate directly
           const filteredEntries = (feature.properties.entries || []).filter(isGrantInDate);
-
           return {
             ...feature,
             properties: {
@@ -189,10 +179,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
         .filter(f => f.properties.entries && f.properties.entries.length > 0)
     }
     : null;
-
-
   ;
-
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
@@ -226,8 +213,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
             setLocationName={setLocationName}
             searchKeyword={searchKeyword}
           />
-
-
           {/* Regular works layer */}
           {(showWorks || searchKeyword) && (
             <ExpertLayer
@@ -257,7 +242,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
           )}
         </MapWrapper>
       </div>
-
       {/* Loading spinner */}
       {isLoading && (
         <div
@@ -333,8 +317,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDate }) => 
           onClose={() => setPanelOpen(false)}
         />
       )}
-
-
     </div>
   );
 };

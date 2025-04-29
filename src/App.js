@@ -11,12 +11,9 @@ function App() {
   const [showGrants, setShowGrants] = useState(false);
   const [showWorks, setShowWorks] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
-
-  const [selectedDate, setSelectedDate] = useState("");
-  const [pendingDateSelection, setPendingDateSelection] = useState(2025);
-  const isFilterPending = pendingDateSelection.toString() !== selectedDate;
-
-
+  const [selectedDateRange, setSelectedDateRange] = useState([1990, 2025]);
+  const [pendingDateRange, setPendingDateRange] = useState([1990, 2025]);
+  const isFilterPending = JSON.stringify(pendingDateRange) !== JSON.stringify(selectedDateRange);
 
 
   const handleSearchChange = (e) => {
@@ -34,7 +31,6 @@ function App() {
           </h1>
         </div>
       </header>
-
       {/* 🔗 Navigation Bar */}
       <nav className="flex justify-between items-center bg-[#022851] px-10 py-2 fixed top-[80px] left-0 w-full z-50" aria-label="Main navigation">
         <div className="flex space-x-12">
@@ -51,7 +47,6 @@ function App() {
           </span>
         </a>
       </nav>
-
       {/* 🗺️ Map Section */}
       <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
         <div className="flex w-full h-full">
@@ -61,10 +56,9 @@ function App() {
               showGrants={showGrants}
               showWorks={showWorks}
               searchKeyword={searchKeyword}
-              selectedDate={selectedDate}
+              selectedDateRange={selectedDateRange}
             />
           </div>
-
           {/* Sidebar */}
           <aside className="w-[20%] p-4 bg-gray-50 border-l border-gray-200" aria-label="Search and filter controls">
             {/* Search Bar */}
@@ -88,7 +82,6 @@ function App() {
                 </button>
               </div>
             </div>
-
             {/* Toggles */}
             <div className="mb-4">
               <div className="flex justify-between items-center mb-3">
@@ -104,7 +97,6 @@ function App() {
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
                 </label>
               </div>
-
               <div className="flex justify-between items-center mb-6">
                 <span id="works-label" className="text-gray-700 font-medium">Show Works</span>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -119,7 +111,6 @@ function App() {
                 </label>
               </div>
             </div>
-
             {/* Filters */}
             <div>
               <h2 className="text-lg font-medium mb-3">Filters</h2>
@@ -128,41 +119,37 @@ function App() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
                 {/* Selected Dates */}
                 <div className="flex justify-center items-center text-lg font-semibold mb-2">
-                  {pendingDateSelection}
+                  {pendingDateRange[0]} – {pendingDateRange[1]}
                 </div>
                 {/* Date Range Slider */}
                 <ReactSlider
                   min={1990}
                   max={2025}
-                  value={pendingDateSelection}
-                  onChange={(value) => setPendingDateSelection(value)}
+                  value={pendingDateRange}
+                  onChange={(value) => setPendingDateRange(value)}
                   step={1}
                   className="custom-slider"
                   thumbClassName="custom-thumb"
                   trackClassName="custom-track"
                   withTracks={true}
                 />
-
-
               </div>
               {/* Apply + Clear Filters */}
               <div className="flex gap-2 mt-2 p-2 rounded">
-
                 <button
-                  onClick={() => setSelectedDate(pendingDateSelection.toString())}
+                  onClick={() => setSelectedDateRange([...pendingDateRange])}
                   className={`w-1/2 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 ${isFilterPending
-                      ? "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-600"
-                      : "bg-gray-300 text-gray-700 hover:bg-gray-400 focus:ring-gray-400"
+                    ? "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-600"
+                    : "bg-gray-300 text-gray-700 hover:bg-gray-400 focus:ring-gray-400"
                     }`}
                   aria-label="Apply selected filters"
                 >
                   Apply
                 </button>
-
                 <button
                   onClick={() => {
-                    setPendingDateSelection(2025); // Reset back to max year
-                    setSelectedDate("");
+                    setPendingDateRange([1990, 2025]);
+                    setSelectedDateRange([1990, 2025]);
                   }}
                   className="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
                   aria-label="Clear all filters"
@@ -170,7 +157,6 @@ function App() {
                   Clear
                 </button>
               </div>
-
             </div>
           </aside>
         </div>
