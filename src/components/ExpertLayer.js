@@ -287,7 +287,7 @@ const ExpertLayer = ({
         }),
         experts,
         expertCount: experts.length,
-        //panelData: locationMap.get(key).panelData   // Attach panel data here
+        panelData: locationMap.get(key).panelData   // Attach panel data here
       });
 
       marker.on("mouseover", () => {
