@@ -21,7 +21,7 @@ const { createClient } = require('redis');
  */
 const createRedisClient = () => {
   const host = process.env.REDIS_HOST;
-  const port = process.env.BACKEND_REDIS_PORT; // Fixed port as requested
+  const port = process.env.REDIS_PORT;
     
   const client = createClient({
     socket: { host, port }
