@@ -16,14 +16,14 @@
 export const createSingleResearcherContent = (researcher, isPopup = true) => {
   let workTitles = [];
   try {
-     // Extract work titles from the researcher object.
+    // Extract work titles from the researcher object.
     const titles = researcher.work_titles || researcher.properties?.work_titles;
-    
+
     if (Array.isArray(titles)) {
-       // If titles are already an array, use them directly.
+      // If titles are already an array, use them directly.
       workTitles = titles;
     } else if (typeof titles === 'string') {
-     // If titles are a string, attempt to parse them as JSON.
+      // If titles are a string, attempt to parse them as JSON.
       try {
         workTitles = JSON.parse(titles);
       } catch (e) {
@@ -39,21 +39,21 @@ export const createSingleResearcherContent = (researcher, isPopup = true) => {
   // Extract confidence level from the researcher object.
   const confidence = researcher.confidence || researcher.properties?.confidence;
 
-   // Helper function to style the confidence level.
+  // Helper function to style the confidence level.
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
     if (confidenceValue === 'high' || confidenceValue === 'High') {
-      return { 
+      return {
         label: 'High',
         style: 'background-color: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 2px 5px; border-radius: 3px;'
       };
     } else if (confidenceValue === 'low' || confidenceValue === 'Low') {
-      return { 
+      return {
         label: 'Low',
         style: 'background-color: #ffebee; color: #c62828; font-weight: bold; padding: 2px 5px; border-radius: 3px;'
       };
     } else {
-      return { 
+      return {
         label: confidenceValue,
         style: 'background-color: #f5f5f5; color: #757575; font-weight: bold; padding: 2px 5px; border-radius: 3px;'
       };
@@ -70,31 +70,26 @@ export const createSingleResearcherContent = (researcher, isPopup = true) => {
       </div>
       <div style="font-size: 14px; color: #333; margin-top: 5px;">
         <strong>Location:</strong> ${researcher.location_name || "Unknown"}
-        ${confidence ? 
-          `<div><strong>Confidence:</strong> <span style="${confidenceStyle.style}">${confidenceStyle.label}</span></div>` 
-          : ''}
+        ${confidence ?
+      `<div><strong>Confidence:</strong> <span style="${confidenceStyle.style}">${confidenceStyle.label}</span></div>`
+      : ''}
       </div>
-      <div style="font-size: 14px; color: #333; margin-top: 5px;">
-        <strong>Related Works ${researcher.work_count ||  0}:</strong>
-        ${ workTitles.length > 0 ? `
-          <ul style="margin: 5px 0; padding-left: 20px;">
-            ${workTitles.slice(0, 3).map(title => 
-              `<li style="margin-bottom: 3px;">${title}</li>`
-            ).join('')}
-            ${workTitles.length > 3 ? 
-              `<li style="list-style: none; font-style: italic;">... and ${workTitles.length - 3} more</li>` : ''}
-          </ul>
-        ` : '<div style="margin-top: 3px;">No works found</div>'}
-      </div>
-      <a href='${researcher.researcher_url || "#"}' 
- target='_blank'
- rel="noopener noreferrer"
- style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold; opacity: ${researcher.researcher_url ? '1' : '0.6'}; cursor: ${researcher.researcher_url ? 'pointer' : 'default'}">
-${researcher.researcher_url  ? "View Profile" : "No Profile Found"}
+<div style="font-size: 14px; color: #333; margin-top: 5px;">
+  
+  ${workTitles.length > 0
+      ? `<div style="margin-top: 4px;"><strong>Title:</strong> ${workTitles[0]}</div>`
+      : '<div style="margin-top: 3px;">No works found</div>'}
+</div>
+<a href='${researcher.researcher_url || "#"}' 
+   target='_blank'
+   rel="noopener noreferrer"
+   style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold; opacity: ${researcher.researcher_url ? '1' : '0.6'}; cursor: ${researcher.researcher_url ? 'pointer' : 'default'}">
+  ${researcher.researcher_url ? "View Profile" : "No Profile Found"}
 </a>
-    </div>
-  `;
+</div>
+`;
 };
+
 
 /**
  * createMultiResearcherContent
@@ -158,7 +153,7 @@ export const createGrantPopupContent = (grant) => {
   return `
   <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
 <div style="margin-top: 4px;">
-        <strong>Grant:</strong> ${cleanTitle  || "Unknown"}
+        <strong>Grant:</strong> ${cleanTitle || "Unknown"}
       </div>
       <div style="margin-top: 4px;">
         <strong>Researcher:</strong> ${grant.researcher_name || "Unknown"}

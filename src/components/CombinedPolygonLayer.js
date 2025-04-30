@@ -101,12 +101,12 @@ const CombinedPolygonLayer = ({
 
           const grantsFeatures = grantPolygons.get(location);
 
-           // Apply keyword filtering to works and grants entries
-          const filteredWorksEntries = worksFeatures.flatMap(f => 
+          // Apply keyword filtering to works and grants entries
+          const filteredWorksEntries = worksFeatures.flatMap(f =>
             (f.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, f, entry))
           );
 
-          const filteredGrantsEntries = grantsFeatures.flatMap(f => 
+          const filteredGrantsEntries = grantsFeatures.flatMap(f =>
             (f.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, f, entry))
           );
 
@@ -124,18 +124,17 @@ const CombinedPolygonLayer = ({
           );
 
           // Determine the location name
-          const locationName = 
-            worksFeatures[0]?.properties?.display_name || 
-            worksFeatures[0]?.properties?.location || 
-            grantsFeatures[0]?.properties?.location || 
+          const locationName =
+            worksFeatures[0]?.properties?.display_name ||
+            worksFeatures[0]?.properties?.location ||
+            grantsFeatures[0]?.properties?.location ||
             "Unknown";
 
           // Create a Leaflet polygon with dashed styling
           const polygon = L.polygon(flippedCoordinates, {
-            color: "red",
-            fillColor: "transparent",
-            dashArray: "5,5",
-            fillOpacity: 0,
+            color: "#10b981",
+            fillColor: "#d1fae5",
+            fillOpacity: 0.7,
             weight: 3
           }).addTo(map);
 

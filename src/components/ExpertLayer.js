@@ -69,69 +69,69 @@ const ExpertLayer = ({
     );
 
     // --- Handle Points with Keyword Filtering ---
-filteredFeatures.forEach(feature => {
-  const geometry = feature.geometry;
-  const entries = feature.properties.entries || [];
-  const location = feature.properties.location || "Unknown";
+    filteredFeatures.forEach(feature => {
+      const geometry = feature.geometry;
+      const entries = feature.properties.entries || [];
+      const location = feature.properties.location || "Unknown";
 
-  // Calculate the total number of experts for the location
-  let totalLocationExperts = entries.reduce((sum, e) => sum + (e.relatedExperts?.length || 0), 0);
-  locationExpertCounts.set(location, (locationExpertCounts.get(location) || 0) + totalLocationExperts);
+      // Calculate the total number of experts for the location
+      let totalLocationExperts = entries.reduce((sum, e) => sum + (e.relatedExperts?.length || 0), 0);
+      locationExpertCounts.set(location, (locationExpertCounts.get(location) || 0) + totalLocationExperts);
 
-  // Handle point geometries (Point or MultiPoint)
-  if (["Point", "MultiPoint"].includes(geometry.type)) {
-    const coords = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
+      // Handle point geometries (Point or MultiPoint)
+      if (["Point", "MultiPoint"].includes(geometry.type)) {
+        const coords = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
 
-    coords.forEach(([lng, lat]) => {
-      const key = `${lat},${lng}`;
-      if (!locationMap.has(key)) locationMap.set(key, []);
-    
-      const popupEntries = [];   // For marker popups
-      const panelEntries = [];   // For side panel
-    
-      // Filter entries based on the search keyword
-      entries.forEach(entry => {
-        if (keyword) {
-          const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
-          const quoteMatch = keyword.match(/^"(.*)"$/); // Match exact phrases in quotes
-          if (quoteMatch) {
-            const phrase = quoteMatch[1];
-            if (!entryText.includes(phrase)) return;  //Exact phrase match
-          } else {
-            const terms = keyword.split(/\s+/); // Split multi-word input
-            const matchesAll = terms.every(term => entryText.includes(term));
-            if (!matchesAll) return; // Partial + multi-word match (AND logic)
+        coords.forEach(([lng, lat]) => {
+          const key = `${lat},${lng}`;
+          if (!locationMap.has(key)) locationMap.set(key, []);
+
+          const popupEntries = [];   // For marker popups
+          const panelEntries = [];   // For side panel
+
+          // Filter entries based on the search keyword
+          entries.forEach(entry => {
+            if (keyword) {
+              const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+              const quoteMatch = keyword.match(/^"(.*)"$/); // Match exact phrases in quotes
+              if (quoteMatch) {
+                const phrase = quoteMatch[1];
+                if (!entryText.includes(phrase)) return;  //Exact phrase match
+              } else {
+                const terms = keyword.split(/\s+/); // Split multi-word input
+                const matchesAll = terms.every(term => entryText.includes(term));
+                if (!matchesAll) return; // Partial + multi-word match (AND logic)
+              }
+            }
+
+            // Collect matched entries with expert details
+            const expert = entry.relatedExperts?.[0];
+            popupEntries.push({
+              researcher_name: expert?.name || entry.authors?.join(", ") || "Unknown",
+              researcher_url: expert?.url ? `https://experts.ucdavis.edu/${expert.url}` : null,
+              location_name: location,
+              work_titles: [entry.title],
+              work_count: 1,
+              confidence: entry.confidence || "Unknown",
+              type: "expert",
+            });
+
+            // For Side Panel
+            panelEntries.push({
+              ...entry,
+              relatedExperts: entry.relatedExperts || [],
+              location_name: location
+            });
+          });
+
+          // Add popup entries to the location map
+          if (popupEntries.length > 0) {
+            locationMap.get(key).push(...popupEntries);
+            locationMap.get(key).panelData = panelEntries;
           }
-        }
-    
-        // Collect matched entries with expert details
-        const expert = entry.relatedExperts?.[0];
-        popupEntries.push({
-          researcher_name: expert?.name || entry.authors?.join(", ") || "Unknown",
-          researcher_url: expert?.url ? `https://experts.ucdavis.edu/${expert.url}` : null,
-          location_name: location,
-          work_titles: [entry.title],
-          work_count: 1,
-          confidence: entry.confidence || "Unknown",
-          type: "expert",
         });
-    
-        // For Side Panel
-        panelEntries.push({
-          ...entry,
-          relatedExperts: entry.relatedExperts || [],
-          location_name: location
-        });
-      });
-    
-      // Add popup entries to the location map
-      if (popupEntries.length > 0) {
-        locationMap.get(key).push(...popupEntries);
-        locationMap.get(key).panelData = panelEntries;
       }
-    });  
-  } 
-});  
+    });
 
     // --- Handle Polygons ---
     const sortedPolygons = geoData.features
@@ -174,10 +174,10 @@ filteredFeatures.forEach(feature => {
           return terms.every(term => entryText.includes(term));
         }
       });
-      
-    
+
+
       if (matchedEntries.length === 0) return;  // Skip rendering if no matches
-    
+
       polygonsToRender.add(location);
 
       // Flip coordinates from [lng, lat] to [lat, lng] for Leaflet compatibility
@@ -287,20 +287,20 @@ filteredFeatures.forEach(feature => {
         }),
         experts,
         expertCount: experts.length,
-        panelData: locationMap.get(key).panelData   // Attach panel data here
+        //panelData: locationMap.get(key).panelData   // Attach panel data here
       });
-      
+
       marker.on("mouseover", () => {
         const content = experts.length === 1
           ? createSingleResearcherContent(experts[0])
           : createMultiResearcherContent(
-              experts.length,
-              experts[0]?.location_name,
-              experts.reduce((s, e) => s + (parseInt(e.work_count) || 0), 0)
-            );
-      
+            experts.length,
+            experts[0]?.location_name,
+            experts.reduce((s, e) => s + (parseInt(e.work_count) || 0), 0)
+          );
+
         if (activePopup) activePopup.close();
-      
+
         // Create and open a new popup (same style as polygon)
         activePopup = L.popup({
           closeButton: false,
@@ -312,7 +312,7 @@ filteredFeatures.forEach(feature => {
           .setLatLng(marker.getLatLng())
           .setContent(content)
           .openOn(map);
-      
+
         // Add event listeners to the popup for mouse interactions
         const popupElement = activePopup.getElement();
         if (popupElement) {
@@ -326,18 +326,18 @@ filteredFeatures.forEach(feature => {
               }
             }, 300);
           });
-      
+
           // Handle the "View Experts" button click
           const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
           if (viewExpertsBtn) {
             viewExpertsBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
-            
+
               setSelectedPointExperts(marker.options.panelData);   // ⭐ Use panelData
               setPanelType("point");
               setPanelOpen(true);
-            
+
               if (activePopup) {
                 activePopup.close();
                 activePopup = null;
@@ -346,7 +346,7 @@ filteredFeatures.forEach(feature => {
           }
         }
       });
-      
+
       // Close popup on mouseout like polygons
       marker.on("mouseout", () => {
         closeTimeout = setTimeout(() => {
@@ -356,7 +356,7 @@ filteredFeatures.forEach(feature => {
           }
         }, 500);
       });
-      
+
       // Add the marker to the cluster group
       markerClusterGroup.addLayer(marker);
     });

@@ -37,15 +37,10 @@ function App() {
           <a href="https://experts.ucdavis.edu/browse/expert/a" className="text-lg text-white hover:underline">Experts</a>
           <a href="https://experts.ucdavis.edu/browse/grant/1" className="text-lg text-white hover:underline">Grants</a>
         </div>
-        <a href="https://www.ucdavis.edu/" className="text-lg text-white flex items-center hover:underline">
-          My Account
           <span className="ml-2 p-2 rounded-full" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="white">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
             </svg>
           </span>
-        </a>
       </nav>
       {/* 🗺️ Map Section */}
       <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
@@ -158,6 +153,12 @@ function App() {
                 </button>
               </div>
             </div>
+            <div className="map-legend">
+              <div><span className="legend-marker expert" /> Expert</div>
+              <div><span className="legend-marker grant" /> Grant</div>
+              <div><span className="legend-marker overlap" /> Overlap</div>
+            </div>
+
           </aside>
         </div>
       </main>
