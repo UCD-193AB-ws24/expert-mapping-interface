@@ -85,4 +85,4 @@ Each component can be run individually for testing or development purposes.
 
 ![ETL Pipeline Diagram](../../assets/etl.png)
 
-* © Zoey Vo, Loc Nguyen, 2025
+*© Zoey Vo, Loc Nguyen, 2025*
