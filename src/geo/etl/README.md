@@ -11,7 +11,6 @@ Data Extraction → Expert Matching → Location Processing → GeoJSON Generati
 ## 📋 Components
 
 ### 1. Data Extraction (`/aggieExpertsAPI`)
-- Fetched from Aggie Experts API:
 - **fetchExperts.js**: Retrieves expert profiles 
 - **fetchWorks.js**: Retrieves research works
 - **fetchGrants.js**: Retrieves grants
