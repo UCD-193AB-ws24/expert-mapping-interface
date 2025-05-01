@@ -238,3 +238,46 @@ export const createCombinedPolygonPopup = (worksCount, grantsCount, locationName
     </a>
   </div>
 `;
+
+export const createMatchedGrantPopup = (grantCount, locationName) => `
+  <div style='padding: 15px; font-size: 14px; width: 250px;'>
+    <div style='margin-top: 5px; color: green;'>🔍 Match found</div>
+    <div style='margin-top: 8px; color: #333;'>
+      <strong>Location:</strong> ${locationName || "Unknown"}
+    </div>
+    <a href='#'
+       class='view-grants-btn'
+       style='display: block; margin-top: 12px; padding: 8px 10px; background: #f59e0b; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+      View Grants
+    </a>
+  </div>
+`;
+
+export const createMatchedExpertPopup = (expertCount, locationName, totalWorks) => `
+  <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
+    
+    <div style="margin-top: 5px; color: green;">🔍 Match found</div>
+    <div style="font-size: 14px; color: #333; margin-top: 5px;">
+      <strong>Location:</strong> ${locationName || "Unknown"}
+    </div>
+    <a href='#'
+       class="view-experts-btn"
+       style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
+      View Experts
+    </a>
+  </div>
+`;
+
+export const createMatchedCombinedPolygonPopup = (worksCount, grantsCount, locationName) => `
+  <div style='padding: 15px; font-size: 14px; width: 250px;'>
+    <div style='font-weight: bold; font-size: 16px; color: #10b981;'>Combined Polygon</div>
+    <div style='margin-top: 5px; color: green;'>🔍 Match found</div> 
+    <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
+    <a href='#'
+      class='view-combined-polygon-btn'
+      style='display: block; margin-top: 12px; padding: 8px 10px; background: #10b981; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+      Open Panel
+    </a>
+  </div>
+`;
+

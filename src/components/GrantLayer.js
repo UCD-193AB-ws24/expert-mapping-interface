@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { createMultiGrantPopup } from "./Popups";
+import { createMatchedGrantPopup } from "./Popups";
+
 
 /**
  * GrantLayer Component
@@ -15,7 +17,7 @@ const GrantLayer = ({
   setPanelOpen,
   setPanelType,
   combinedKeys,
-  showWorks   
+  showWorks
 }) => {
   const map = useMap();
 
@@ -52,18 +54,24 @@ const GrantLayer = ({
       }
 
       const entries = feature.properties.entries || [];
+      console.log("🟦 All grant entries at this location:", entries);
 
       // --- Keyword Filtering ---
       const matchedEntries = entries.filter(entry => {
-        if (!keyword) return true;
-        const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
-        const quoteMatch = keyword.match(/^"(.*)"$/);
-        if (quoteMatch) {
-          return entryText.includes(quoteMatch[1]);
-        } else {
-          const terms = keyword.split(/\s+/);
-          return terms.every(term => entryText.includes(term));
-        }
+        if (!keyword?.trim()) return true;
+
+        const lowerKeyword = keyword.toLowerCase();
+        const terms = lowerKeyword.split(/\s+/); // split into words like ["elisa", "tong"]
+
+        const entryText = JSON.stringify({ ...entry }).toLowerCase();
+        const expertName = entry.relatedExpert?.name?.toLowerCase() || "";
+        const funder = entry.funder?.toLowerCase() || "";
+
+        return terms.every(term =>
+          entryText.includes(term) ||
+          expertName.includes(term) ||
+          funder.includes(term)
+        );
       });
 
       if (matchedEntries.length === 0) return;
@@ -87,7 +95,10 @@ const GrantLayer = ({
         if (!showGrants) return;
         if (closeTimeout) clearTimeout(closeTimeout);
 
-        const content = createMultiGrantPopup(matchedEntries.length, locationRaw);
+        const content = keyword
+          ? createMatchedGrantPopup(matchedEntries.length, locationRaw)
+          : createMultiGrantPopup(matchedEntries.length, locationRaw);
+
 
         if (activePopup) activePopup.close();
 
@@ -121,7 +132,21 @@ const GrantLayer = ({
               e.preventDefault();
               e.stopPropagation();
 
-              setSelectedGrants([feature]);
+              setSelectedGrants([{
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: matchedEntries // Only matching entries
+                }
+              }]);
+              console.log("📤 Sent to GrantsPanel:", {
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: matchedEntries
+                }
+              });
+
               setPanelType("grant-polygon");
               setPanelOpen(true);
 

@@ -14,7 +14,18 @@ import React, { useState } from "react";
  * - locationName: String representing the name of the location.
  * - onClose: Function to handle closing the panel.
  */
-export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
+export const CombinedPanel = ({ works, grants, locationName, onClose, keyword }) => {
+  const lowerKeyword = (keyword || "").toLowerCase().trim();
+
+  const filteredWorks = works.filter(entry =>
+    JSON.stringify(entry).toLowerCase().includes(lowerKeyword)
+  );
+
+  const filteredGrants = grants.filter(entry =>
+    JSON.stringify(entry).toLowerCase().includes(lowerKeyword)
+  );
+
+
   // State to track the currently active tab ("works" or "grants")
   const [activeTab, setActiveTab] = useState("works");
 
@@ -121,7 +132,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
             fontWeight: "bold"
           }}
         >
-          Works ({works.length})
+          Works ({filteredWorks.length})
         </button>
 
         {/* Grants Tab Button */}
@@ -139,14 +150,14 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
             fontWeight: "bold"
           }}
         >
-          Grants ({grants.length})
+          Grants ({filteredGrants.length})
         </button>
       </div>
 
       {/* Works Tab Content */}
       {activeTab === "works" && (
         <ul style={{ padding: 0, listStyle: 'none' }}>
-          {works.map((entry, index) => {
+          {filteredWorks.map((entry, index) => {
             const relatedExpert = entry.relatedExperts?.[0] || {};
             const researcherName = relatedExpert.name || entry.authors?.join(", ") || "Unknown";
             const researcherURL = relatedExpert.url ? `https://experts.ucdavis.edu/${relatedExpert.url}` : null;
@@ -210,7 +221,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
       {/* Grants Tab Content */}
       {activeTab === "grants" && (
         <ul style={{ padding: 0, listStyle: 'none' }}>
-          {grants.map((grant, index) => {
+          {filteredGrants.map((grant, index) => {
             const rawTitle = grant.title || "";
             const cleanTitle = rawTitle.split("§")[0].trim().replace(/^"+|"+$/g, "");
             return (

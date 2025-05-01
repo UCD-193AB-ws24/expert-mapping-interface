@@ -12,29 +12,46 @@
  */
 
 import React from "react";
-export const ExpertsPanel = ({ experts, onClose, panelType }) => {
-    // Determine if the data is from polygon properties.
+
+export const ExpertsPanel = ({ experts, onClose, panelType, keyword = "" }) => {
   const isFromProperties = panelType === "polygon";
+  const lowerKeyword = (keyword || "").toLowerCase().trim();
 
-  // Calculate the total number of experts by flattening the data structure.
-  const totalExperts = experts.flatMap(exp => {
-    const entries = isFromProperties ? exp.properties.entries || [] : [exp];
-    return entries.flatMap(entry => entry.relatedExperts || []);
-  }).length;
+  const filteredEntries = experts.flatMap((feature) => {
+    const entries = panelType === "polygon"
+      ? feature.properties.entries || [] // already filtered upstream
+      : [feature]; // for point mode
+  
+    // Skip if there are no actual experts
+    return entries
+      .filter(entry => (entry.relatedExperts?.length > 0))
+      .filter(entry => {
+        // Only apply keyword filtering for point mode
+        if (panelType === "polygon") return true;
+  
+        const authors = (entry.authors || []).join(" ").toLowerCase();
+        const expertNames = (entry.relatedExperts || []).map(e => e.name?.toLowerCase()).join(" ");
+        const flat = [
+          entry.title,
+          entry.abstract,
+          entry.funder,
+          entry.issued,
+          authors,
+          expertNames
+        ].join(" ");
+  
+        return flat.includes(lowerKeyword);
+      })
+      .map(entry => ({ ...entry, parentFeature: feature }));
+  });
+  
 
-
-  /**
-   * Helper function to style the confidence level.
-   * - High confidence: Green background with bold text.
-   * - Low confidence: Red background with bold text.
-   * - Default: Gray background with bold text.
-   * 
-   * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
-   * @returns {object} An object containing the label and style for the confidence level.
-   */
+  // Count total matching experts
+  const totalExperts = filteredEntries.reduce((sum, entry) => {
+    return sum + (entry.relatedExperts?.length || 0);
+  }, 0);
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
-
     if (confidenceValue.toLowerCase() === 'high') {
       return {
         label: 'High',
@@ -88,7 +105,6 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
       overflowY: "auto",
       zIndex: 1001
     }}>
-      {/* Close button for the panel */}
       <button
         onClick={onClose}
         style={{
@@ -105,77 +121,75 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
         ×
       </button>
 
-      {/* Header displaying the total number of experts */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#13639e" }}>
         {totalExperts} Expert{totalExperts !== 1 ? 's' : ''} at this Location
       </h2>
 
-      {/* List of experts */}
       <ul style={{ padding: 0, listStyle: 'none' }}>
-        {experts.flatMap((feature, featureIndex) => {
-          const entries = isFromProperties ? feature.properties.entries || [] : [feature];
-          return entries.flatMap((entry, entryIndex) => {
-            const relatedExperts = entry.relatedExperts || [];
-            return relatedExperts.map((relExpert, relIndex) => {
-              const researcherName = relExpert.name || entry.authors?.join(", ") || "Unknown";
-              const researcherURL = relExpert.url ? `https://experts.ucdavis.edu/${relExpert.url}` : null;
-              const confidenceStyle = getConfidenceStyle(entry.confidence);
+        {filteredEntries.map((entry, index) => {
+          const feature = entry.parentFeature;
+          const relatedExperts = entry.relatedExperts || [];
 
-              return (
-                <div key={`feature-${featureIndex}-entry-${entryIndex}-rel-${relIndex}`} style={{
-                  position: "relative",
-                  padding: "15px",
-                  fontSize: "14px",
-                  lineHeight: "1.5",
-                  width: "100%",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
-                  marginBottom: "15px",
-                  background: "#f9f9f9"
-                }}>
-                  <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
-                    {researcherName}
-                  </div>
-                  <div style={{ marginTop: "5px", color: "#333" }}>
-                    <strong>Location:</strong> {feature.properties?.display_name || feature.location_name || "Unknown"}<br />
-                    <strong>Issued:</strong> {entry.issued || "Unknown"}
-                    {entry.confidence && (
-                      <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
-                    )}
-                  </div>
-                  <div style={{ marginTop: "10px", color: "#333" }}>
-                    <strong>Title:</strong>
-                    <div style={{ marginTop: "3px" }}>{entry.title || "Untitled"}</div>
-                  </div>
-                  <a
-                    href={researcherURL || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "block",
-                      marginTop: "12px",
-                      padding: "8px 10px",
-                      background: "#13639e",
-                      color: "white",
-                      textAlign: "center",
-                      borderRadius: "5px",
-                      textDecoration: "none",
-                      fontWeight: "bold",
-                      opacity: researcherURL ? '1' : '0.6',
-                      cursor: researcherURL ? 'pointer' : 'default'
-                    }}
-                  >
-                    {researcherURL ? "View Profile" : "No Profile Found"}
-                  </a>
+          return relatedExperts.map((relExpert, relIndex) => {
+            const researcherName = relExpert.name || entry.authors?.join(", ") || "Unknown";
+            const researcherURL = relExpert.url ? `https://experts.ucdavis.edu/${relExpert.url}` : null;
+            const confidenceStyle = getConfidenceStyle(entry.confidence);
+
+            return (
+              <div key={`entry-${index}-rel-${relIndex}`} style={{
+                position: "relative",
+                padding: "15px",
+                fontSize: "14px",
+                lineHeight: "1.5",
+                width: "100%",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                marginBottom: "15px",
+                background: "#f9f9f9"
+              }}>
+                <div style={{ fontWeight: "bold", fontSize: "16px", color: "#13639e" }}>
+                  {researcherName}
                 </div>
-              );
-            });
+                <div style={{ marginTop: "5px", color: "#333" }}>
+                  <strong>Location:</strong> {feature.properties?.display_name || feature.location_name || "Unknown"}<br />
+                  <strong>Issued:</strong> {entry.issued || "Unknown"}
+                  {entry.confidence && (
+                    <div><strong>Confidence:</strong> <span style={confidenceStyle.style}>{confidenceStyle.label}</span></div>
+                  )}
+                </div>
+                <div style={{ marginTop: "10px", color: "#333" }}>
+                  <strong>Title:</strong>
+                  <div style={{ marginTop: "3px" }}>{entry.title || "Untitled"}</div>
+                </div>
+                <a
+                  href={researcherURL || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "block",
+                    marginTop: "12px",
+                    padding: "8px 10px",
+                    background: "#13639e",
+                    color: "white",
+                    textAlign: "center",
+                    borderRadius: "5px",
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                    opacity: researcherURL ? '1' : '0.6',
+                    cursor: researcherURL ? 'pointer' : 'default'
+                  }}
+                >
+                  {researcherURL ? "View Profile" : "No Profile Found"}
+                </a>
+              </div>
+            );
           });
         })}
       </ul>
     </div>
   );
 };
+
 
 /**
  * GrantsPanel Component
@@ -187,11 +201,8 @@ export const ExpertsPanel = ({ experts, onClose, panelType }) => {
  * - grants: Array of grant-related data to display in the panel.
  * - onClose: Function to handle closing the panel.
  */
-export const GrantsPanel = ({ grants, onClose }) => {
-  const grantEntries = grants[0]?.properties?.entries
-  ? grants.flatMap(g => g.properties.entries || [])
-  : grants;
-
+export const GrantsPanel = ({ grants, onClose, keyword }) => {
+  const grantEntries = grants.flatMap(g => g.properties.entries || []);
   return (
     <div style={{
       position: "fixed",
@@ -206,7 +217,7 @@ export const GrantsPanel = ({ grants, onClose }) => {
       overflowY: "auto",
       zIndex: 1001
     }}>
-       {/* Close button for the panel */}
+      {/* Close button for the panel */}
       <button
         onClick={onClose}
         style={{
@@ -225,53 +236,53 @@ export const GrantsPanel = ({ grants, onClose }) => {
 
       {/* Header displaying the total number of grants */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#f59e0b" }}>
-      {grantEntries.length} Grant{grantEntries.length !== 1 ? 's' : ''} at this Location
+      <h2>{grantEntries.length} Grant{grantEntries.length !== 1 ? 's' : ''} at this Location</h2>
       </h2>
-      {/* List of grants */}      
+      {/* List of grants */}
       <ul style={{ padding: 0, listStyle: 'none' }}>
-  {grants.map((feature, index) => (
-    feature.properties.entries.map((entry, subIndex) => (
-      <li key={`${index}-${subIndex}`} style={{
-        position: "relative",
-        padding: "15px",
-        fontSize: "14px",
-        lineHeight: "1.5",
-        width: "100%",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-        marginBottom: "15px",
-        background: "#f9f9f9"
-      }}>
-       <div style={{ marginTop: "5px", color: "#333" }}>
-       <strong>Researcher:</strong> {entry.relatedExpert?.name || "Unknown"}<br />
-       <strong>Location:</strong> {feature.properties.location || "Unknown"}<br />
-       <strong>Funder:</strong> {entry.funder || "Unknown"}<br />
-       <strong>Grant Title:</strong> {entry.title || "Untitled Grant"}<br />
-       </div>
-        <a
-          href={entry.relatedExpert?.url ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}` : "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "block",
-            marginTop: "12px",
-            padding: "8px 10px",
-            background: "#f59e0b",
-            color: "white",
-            textAlign: "center",
-            borderRadius: "5px",
-            textDecoration: "none",
-            fontWeight: "bold",
-            opacity: entry.relatedExpert?.url ? '1' : '0.6',
-            cursor: entry.relatedExpert?.url ? 'pointer' : 'default'
-          }}
-        >
-          {entry.relatedExpert?.url ? "View Researcher Profile" : "No Profile Found"}
-        </a>
-      </li>
-    ))
-  ))}
-</ul>
+        {grants.map((feature, index) => (
+          feature.properties.entries.map((entry, subIndex) => (
+            <li key={`${index}-${subIndex}`} style={{
+              position: "relative",
+              padding: "15px",
+              fontSize: "14px",
+              lineHeight: "1.5",
+              width: "100%",
+              border: "1px solid #ddd",
+              borderRadius: "5px",
+              marginBottom: "15px",
+              background: "#f9f9f9"
+            }}>
+              <div style={{ marginTop: "5px", color: "#333" }}>
+                <strong>Researcher:</strong> {entry.relatedExpert?.name || "Unknown"}<br />
+                <strong>Location:</strong> {feature.properties.location || "Unknown"}<br />
+                <strong>Funder:</strong> {entry.funder || "Unknown"}<br />
+                <strong>Grant Title:</strong> {entry.title || "Untitled Grant"}<br />
+              </div>
+              <a
+                href={entry.relatedExpert?.url ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}` : "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "block",
+                  marginTop: "12px",
+                  padding: "8px 10px",
+                  background: "#f59e0b",
+                  color: "white",
+                  textAlign: "center",
+                  borderRadius: "5px",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  opacity: entry.relatedExpert?.url ? '1' : '0.6',
+                  cursor: entry.relatedExpert?.url ? 'pointer' : 'default'
+                }}
+              >
+                {entry.relatedExpert?.url ? "View Researcher Profile" : "No Profile Found"}
+              </a>
+            </li>
+          ))
+        ))}
+      </ul>
 
     </div>
   );

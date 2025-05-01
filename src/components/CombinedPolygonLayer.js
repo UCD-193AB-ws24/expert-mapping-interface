@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import { createCombinedPolygonPopup } from "./Popups";
+import { createCombinedPolygonPopup, createMatchedCombinedPolygonPopup } from "./Popups";
 
 /**
  * CombinedPolygonLayer Component
@@ -26,16 +26,35 @@ import { createCombinedPolygonPopup } from "./Popups";
 
 //helper function for keyword search
 const matchesKeyword = (keyword, feature, entry) => {
-  if (!keyword) return true;
-  const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
+  // Must have at least one related expert
+  const relatedExperts = entry.relatedExperts || (entry.relatedExpert ? [entry.relatedExpert] : []);
+  if (!relatedExperts.length) return false;
+
+  // If no keyword, allow the entry as long as it has experts
+  if (!keyword?.trim()) return true;
+
+  const lowerKeyword = keyword.toLowerCase();
   const quoteMatch = keyword.match(/^"(.*)"$/);
-  if (quoteMatch) {
-    return entryText.includes(quoteMatch[1]);
-  } else {
-    const terms = keyword.split(/\s+/);
-    return terms.every(term => entryText.includes(term));
-  }
+  const terms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
+
+  // Fields to include in match (exclude authors[])
+  const searchable = [
+    entry.title,
+    entry.abstract,
+    entry.issued,
+    entry.funder,
+    entry.confidence,
+    ...relatedExperts.map(e => e.name)
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return terms.every(term => searchable.includes(term));
 };
+
+
+
 
 const CombinedPolygonLayer = ({
   workGeoJSON,
@@ -50,6 +69,7 @@ const CombinedPolygonLayer = ({
   combinedKeys,
   setLocationName,
   searchKeyword
+
 }) => {
   // Access the Leaflet map instance from react-leaflet's useMap hook
   const map = useMap();
@@ -101,14 +121,20 @@ const CombinedPolygonLayer = ({
 
           const grantsFeatures = grantPolygons.get(location);
 
-          // Apply keyword filtering to works and grants entries
           const filteredWorksEntries = worksFeatures.flatMap(f =>
-            (f.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, f, entry))
+            (f.properties.entries || []).filter(entry =>
+              entry.relatedExperts && entry.relatedExperts.length > 0 &&
+              matchesKeyword(searchKeyword, f, entry)
+            )
           );
 
           const filteredGrantsEntries = grantsFeatures.flatMap(f =>
-            (f.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, f, entry))
+            (f.properties.entries || []).filter(entry =>
+              entry.relatedExpert && Object.keys(entry.relatedExpert).length > 0 &&
+              matchesKeyword(searchKeyword, f, entry)
+            )
           );
+
 
           // Only render if there's at least one matching entry
           if (filteredWorksEntries.length === 0 && filteredGrantsEntries.length === 0) return;
@@ -146,8 +172,12 @@ const CombinedPolygonLayer = ({
           polygon.on("mouseover", () => {
             if (closeTimeout) clearTimeout(closeTimeout);
 
+            const keyword = searchKeyword?.toLowerCase().trim();
             // Create popup content for the combined polygon
-            const content = createCombinedPolygonPopup(worksCount, grantsCount, locationName);
+            const content = keyword?.trim()
+              ? createMatchedCombinedPolygonPopup(worksCount, grantsCount, locationName)
+              : createCombinedPolygonPopup(worksCount, grantsCount, locationName);
+
 
             // Close the currently active popup if it exists
             if (activePopup) activePopup.close();
@@ -192,13 +222,12 @@ const CombinedPolygonLayer = ({
                   const grantsEntries = grantsFeatures.flatMap(f => f.properties.entries || []);
 
                   // Update the state for the side panel
-                  setSelectedExperts(worksEntries);
-                  setSelectedGrants(grantsEntries);
+                  setSelectedExperts(filteredWorksEntries);
+                  setSelectedGrants(filteredGrantsEntries);
                   setPanelType("combined-polygon");
                   setLocationName(locationName);
                   setPanelOpen(true);
-                  setSelectedExperts(filteredWorksEntries);
-                  setSelectedGrants(filteredGrantsEntries);
+
 
                   // Close the active popup
                   if (activePopup) {
@@ -234,7 +263,7 @@ const CombinedPolygonLayer = ({
         console.log("combinedKeys unchanged.");
       }
     }
-  }, [map, workGeoJSON, grantGeoJSON, showWorks, showGrants, setCombinedKeys, combinedKeys]);
+  }, [map, workGeoJSON, grantGeoJSON, showWorks, showGrants, searchKeyword, setCombinedKeys, combinedKeys]);
 
   // This component does not render any JSX
   return null;

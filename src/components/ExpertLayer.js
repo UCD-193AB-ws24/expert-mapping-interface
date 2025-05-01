@@ -6,7 +6,8 @@ import { useMap } from "react-leaflet";
 import {
   noResearcherContent,
   createSingleResearcherContent,
-  createMultiResearcherContent
+  createMultiResearcherContent,
+  createMatchedExpertPopup
 } from "./Popups";
 
 /**
@@ -164,16 +165,33 @@ const ExpertLayer = ({
 
       // Filter entries based on the search keyword
       const matchedEntries = entries.filter(entry => {
-        if (!keyword) return true;
-        const entryText = JSON.stringify({ ...feature.properties, ...entry }).toLowerCase();
-        const quoteMatch = keyword.match(/^"(.*)"$/); // Match exact phrases in quotes
-        if (quoteMatch) {
-          return entryText.includes(quoteMatch[1]);
-        } else {
-          const terms = keyword.split(/\s+/);
-          return terms.every(term => entryText.includes(term));
-        }
+        // Must have at least one related expert
+        if (!entry.relatedExperts || entry.relatedExperts.length === 0) return false;
+      
+        // If no keyword is provided, allow the entry
+        if (!keyword?.trim()) return true;
+      
+        const lowerKeyword = keyword.toLowerCase();
+        const quoteMatch = keyword.match(/^"(.*)"$/);
+        const terms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
+      
+        // Only search in relatedExperts names + safe fields (exclude authors)
+        const searchable = [
+          entry.title,
+          entry.abstract,
+          entry.issued,
+          entry.confidence,
+          ...entry.relatedExperts.map(e => e.name)
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+      
+        return terms.every(term => searchable.includes(term));
       });
+      
+      
+
 
 
       if (matchedEntries.length === 0) return;  // Skip rendering if no matches
@@ -207,7 +225,10 @@ const ExpertLayer = ({
         // Determine the popup content based on the expert count
         const content = expertCount === 0
           ? noResearcherContent(expertCount, locationRaw, expertCount)
-          : createMultiResearcherContent(expertCount, locationRaw, expertCount);
+          : (keyword
+            ? createMatchedExpertPopup(expertCount, locationRaw, expertCount)
+            : createMultiResearcherContent(expertCount, locationRaw, expertCount));
+
 
         // Close the currently active popup if it exists
         if (activePopup) activePopup.close();
@@ -247,7 +268,13 @@ const ExpertLayer = ({
 
               // Collect experts for the selected location and update the side panel
               const expertsAtLocation = geoData.features.filter(f => f.properties.location === locationRaw);
-              setSelectedExperts(expertsAtLocation);
+              setSelectedExperts([{
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: matchedEntries  // Only send matching entries
+                }
+              }]);
               setPanelType("polygon");
               setPanelOpen(true);
 

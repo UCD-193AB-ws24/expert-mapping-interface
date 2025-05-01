@@ -225,6 +225,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
+              
             />
           )}
           {/* Regular grants layer */}
@@ -299,7 +300,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
 
       {/* Panels */}
       {panelOpen && (panelType === "grants" || panelType === "grant-polygon") && (
-        <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} />
+        <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} keyword={searchKeyword} />
       )}
 
       {panelOpen && (panelType === "polygon" || panelType === "point") && (
@@ -307,6 +308,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
           onClose={() => setPanelOpen(false)}
           panelType={panelType}
+          keyword={searchKeyword}
         />
       )}
       {panelOpen && panelType === "combined-polygon" && (
@@ -315,6 +317,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           grants={selectedGrants}
           locationName={locationName}
           onClose={() => setPanelOpen(false)}
+          keyword={searchKeyword}
         />
       )}
     </div>
