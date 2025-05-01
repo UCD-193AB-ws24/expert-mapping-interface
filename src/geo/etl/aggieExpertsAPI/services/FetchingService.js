@@ -1,5 +1,5 @@
 /**
-* @file FetchService.js
+* @file FetchingService.js
 * @description A consolidated service class for fetching different types of data from Aggie Experts API
 *
 * © Zoey Vo, Loc Nguyen, 2025
@@ -13,9 +13,9 @@ const { cacheWorks } = require('../redis/workCache');
 /**
  * Service class that handles fetching various types of data from the API
  */
-class FetchService {
+class FetchingService {
   /**
-   * Create a new FetchService
+   * Create a new FetchingService
    * @param {string} type - The entity type to fetch ('expert', 'grant', or 'work')
    * @param {number} batchSize - Number of pages to fetch in each batch
    * @param {number} maxPages - Maximum number of pages to fetch
@@ -178,4 +178,4 @@ class FetchService {
   }
 }
 
-module.exports = FetchService;
+module.exports = FetchingService;

@@ -8,8 +8,9 @@
 */
 
 const { getCachedExperts } = require('./redis/expertCache');
-const { matchWorks } = require('./works/matchWorks');
-const { matchGrants } = require('./grants/matchGrants');
+const { getCachedWorks } = require('./redis/workCache');
+const { getCachedGrants } = require('./redis/grantCache');
+const { matchItems } = require('./services/MatchingService');
 
 /**
  * Match cached works and grants to experts and optionally update Redis
@@ -30,34 +31,56 @@ async function matchFeatures(options = {}) {
       return { success: false, error: 'No experts found' };
     }
         
-    // Step 2: Match works to experts
-    console.log('\n2) Matching works to experts...');
-    const worksResult = await matchWorks({ saveToFile, experts });
-    
-    // Step 3: Match grants to experts
-    console.log('\n3) Matching grants to experts...');
-    const grantsResult = await matchGrants({ saveToFile, experts });
+    // Step 2: Get works and match to experts
+    console.log('\n2) Retrieving works and matching to experts...');
+    const works = await getCachedWorks();
+    const worksResult = await matchItems({
+      experts,
+      items: works,
+      config: {
+        itemIdField: 'id',
+        authorField: 'authors',
+        outputFile: 'expertMatchedWorks.json',
+        matchBy: 'authorName'
+      },
+      saveToFile
+    });
+
+    // Step 3: Get grants and match to experts
+    console.log('\n3) Retrieving grants and matching to experts...');
+    const grants = await getCachedGrants();
+    const grantsResult = await matchItems({
+      experts,
+      items: grants,
+      config: {
+        itemIdField: 'id',
+        expertField: 'inheresIn',
+        outputFile: 'expertMatchedGrants.json',
+        matchBy: 'expertId'
+      },
+      saveToFile
+    });
     
     // Step 4: Summarize results
     console.log('\n✅ Matching completed');
     console.log('Summary:');
     console.log(`- Experts: ${experts.length}`);
-    console.log(`- Works matched: ${worksResult.matchedWorks.length}/${worksResult.totalProcessed} works`);
-    console.log(`- Grants matched: ${grantsResult.matchedGrants.length}/${grantsResult.totalProcessed} grants`);
+    console.log(`- Works matched: ${worksResult.matchedItems.length}/${worksResult.totalProcessed} works`);
+    console.log(`- Grants matched: ${grantsResult.matchedItems.length}/${grantsResult.totalProcessed} grants`);
     
     return {
       success: true,
       stats: {
         experts: experts.length,
         works: {
-          matched: worksResult.matchedWorks.length,
+          matched: worksResult.matchedItems.length,
           total: worksResult.totalProcessed,
-          expertsWithWorks: worksResult.expertsWithWorks
+          expertsWithWorks: worksResult.expertsWithItems
         },
         grants: {
-          matched: grantsResult.matchedGrants.length,
+          matched: grantsResult.matchedItems.length,
           total: grantsResult.totalProcessed,
-          expertsWithGrants: grantsResult.expertsWithGrants
+          expertsWithGrants: grantsResult.expertsWithItems
         }
       }
     };

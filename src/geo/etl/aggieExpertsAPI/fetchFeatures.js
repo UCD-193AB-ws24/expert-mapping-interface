@@ -13,7 +13,7 @@
 * © Zoey Vo, 2025
 */
 
-const FetchService = require('./services/FetchService');
+const FetchingService = require('./services/FetchingService');
 
 /**
  * Fetches a specific type of data from the API and caches it
@@ -29,7 +29,7 @@ async function fetchEntityType(type, batchSize = 10, maxPages = Infinity) {
   
   try {
     console.log(`\n====== FETCHING ${type.toUpperCase()}S ======`);
-    const service = new FetchService(type, batchSize, maxPages);
+    const service = new FetchingService(type, batchSize, maxPages);
     return await service.fetch();
   } catch (error) {
     console.error(`Error fetching ${type}s:`, error);
