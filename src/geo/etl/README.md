@@ -11,43 +11,60 @@ Data Extraction → Expert Matching → Location Processing → GeoJSON Generati
 ## 📋 Components
 
 ### 1. Data Extraction (`/aggieExpertsAPI`)
-- **fetchExperts.js**: Retrieves expert profiles 
-- **fetchWorks.js**: Retrieves research works
-- **fetchGrants.js**: Retrieves grants
-- **fetchFeatures.js**: Runs the entire fetch process
+
+- **services/FetchService.js**: Core service that handles fetching from the Aggie Experts API
+- **fetchFeatures.js**: Unified entry point for fetching all data types (experts, works, grants)
+  - Can fetch all types at once or a specific type via command-line arguments (none for fetch all)
+  - Example: `node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js [expert | work | grant]`
 
 ### 2. Expert Matching (`/aggieExpertsAPI`)
 
 - **matchWorks.js**: Associates works with experts using name matching algorithms
 - **matchGrants.js**: Links grants to experts using expert URLs
-- **matchFeatures.js**: Manages the complete matching process
+- **matchFeatures.js**: Orchestrates the complete matching process
 
 ### 3. Location Processing (`/locationAssignment`)
 
 - **extractLocations.js**: Uses LLM (llama3.3) to identify geographic entities from text
 - **validateLocations.js**: Standardizes location names against ISO references
 - **geocodeLocations.js**: Converts locations to geographic coordinates
-- **processLocations.js**: Facilitates the complete location workflow
+- **processLocations.js**: Manages the complete location workflow
 
 ### 4. GeoJSON Generation (`/geojsonGeneration`)
 
 - **generateGeoJson.js**: Creates finalized GeoJSON files for the map interface
 - Output files:
-  - `generatedWorks.geojson`: Expert matched research work data with associated coordinates
-  - `generatedGrants.geojson`: Expert matched grant data with associated coordinates
+  - `generatedWorks.geojson`: Research work data with coordinates
+  - `generatedGrants.geojson`: Grant data with coordinates
 
 ## Data Storage
 
-- **Redis**: Caching of Aggie Expert API data
-- **GeoJSON files**: Output format for map visualization
+- **Redis**: Temporary caching of API data
+- **JSON files**: Intermediate data storage between pipeline stages
+- **GeoJSON files**: Final output for the map visualization component
 
 ## Usage
-Prerequisite: Backend Redis Server is Running
 
-Run the complete pipeline:
+### Fetching Data
+
+The fetch operations have been consolidated into a single interface:
 
 ```bash
-# 1. Fetch data from Aggie Experts API
+# Fetch all data types (experts, grants, works)
+node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js
+
+# Fetch a specific data type
+node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js expert
+node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js grant
+node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js work
+```
+
+### Complete Pipeline
+
+Run the complete ETL pipeline:
+
+```bash
+# 1. Fetch all data from Aggie Experts API
 node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js
 
 # 2. Match experts with works and grants

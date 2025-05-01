@@ -18,7 +18,7 @@ const { createRedisClient, sanitizeString } = require('./redisUtils');
 async function buildExistingRecordsMap(redisClient, entityType) {
   console.log(`[DEBUG] Building existing records map for ${entityType}...`);
   const existingKeys = await redisClient.keys(`${entityType}:*`);
-  console.log(`[DEBUG] Found ${existingKeys.length} total keys for ${entityType}`);
+  console.log(`[DEBUG] Found ${existingKeys.length} existing keys for ${entityType}`);
   
   const existingRecords = {};
   
