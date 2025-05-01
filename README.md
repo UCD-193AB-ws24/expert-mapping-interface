@@ -28,6 +28,7 @@ The **Expert Mapping Interface** displays research expert information using:
 
 ## System Architecture
 
+### Backend
 ![EMI System Architecture](src/assets/etl.png)
 
 ![EMI System Architecture](src/assets/postgis.png)
