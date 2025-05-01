@@ -18,7 +18,7 @@ class FetchingService {
    * @param {number} batchSize - Number of pages to fetch in each batch
    * @param {number} maxPages - Maximum number of pages to fetch
    */
-  constructor(type, batchSize = 10, maxPages) {
+  constructor(type, batchSize = 10, maxPages = 1) {
     this.type = type;
     this.batchSize = batchSize;
     this.maxPages = maxPages;
