@@ -11,11 +11,11 @@ Data Extraction → Expert Matching → Location Processing → GeoJSON Generati
 ## 📋 Components
 
 ### 1. Data Extraction (`/aggieExpertsAPI`)
-
-- **fetchExperts.js**: Retrieves expert profiles from Aggie Experts API
-- **fetchWorks.js**: Retrieves research publications and works
-- **fetchGrants.js**: Retrieves grant and funding information
-- **fetchFeatures.js**: Manages the entire fetch process
+- Fetched from Aggie Experts API:
+- **fetchExperts.js**: Retrieves expert profiles 
+- **fetchWorks.js**: Retrieves research works
+- **fetchGrants.js**: Retrieves grants
+- **fetchFeatures.js**: Runs the entire fetch process
 
 ### 2. Expert Matching (`/aggieExpertsAPI`)
 
@@ -28,7 +28,7 @@ Data Extraction → Expert Matching → Location Processing → GeoJSON Generati
 - **extractLocations.js**: Uses LLM (llama3.3) to identify geographic entities from text
 - **validateLocations.js**: Standardizes location names against ISO references
 - **geocodeLocations.js**: Converts locations to geographic coordinates
-- **processLocations.js**: Manages the complete location workflow
+- **processLocations.js**: Facilitates the complete location workflow
 
 ### 4. GeoJSON Generation (`/geojsonGeneration`)
 
@@ -39,9 +39,8 @@ Data Extraction → Expert Matching → Location Processing → GeoJSON Generati
 
 ## Data Storage
 
-- **Redis**: Temporary caching of API data
-- **JSON files**: Intermediate data storage between pipeline stages
-- **GeoJSON files**: Final output for the map visualization component
+- **Redis**: Caching of Aggie Expert API data
+- **GeoJSON files**: Output format for map visualization
 
 ## Usage
 Prerequisite: Backend Redis Server is Running
