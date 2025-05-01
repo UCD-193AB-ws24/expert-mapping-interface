@@ -91,7 +91,7 @@ async function matchItems({ experts, items, config, saveToFile = true }) {
 
   // Save results
   if (saveToFile && outputFile) {
-    const saveDir = path.join(__dirname, config.matchBy === 'authorName' ? '../works' : '../grants');
+    const saveDir = path.join(__dirname, '../matchedFeatures');
     if (!fs.existsSync(saveDir)) fs.mkdirSync(saveDir, { recursive: true });
     const outPath = path.join(saveDir, outputFile);
     fs.writeFileSync(outPath, JSON.stringify(matchedItems, null, 2));

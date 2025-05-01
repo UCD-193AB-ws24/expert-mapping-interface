@@ -5,10 +5,8 @@
 * © Zoey Vo, Loc Nguyen, 2025
 */
 
-const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
-const { cacheExperts } = require('../redis/expertCache');
-const { cacheGrants } = require('../redis/grantCache');
-const { cacheWorks } = require('../redis/workCache');
+const { logBatch, fetchFromApi, API_TOKEN } = require('../utils/fetchingUtils');
+const { cacheEntities } = require('../utils/cache/entityCache');
 
 /**
  * Service class that handles fetching various types of data from the API
@@ -20,7 +18,7 @@ class FetchingService {
    * @param {number} batchSize - Number of pages to fetch in each batch
    * @param {number} maxPages - Maximum number of pages to fetch
    */
-  constructor(type, batchSize = 10, maxPages = Infinity) {
+  constructor(type, batchSize = 10, maxPages) {
     this.type = type;
     this.batchSize = batchSize;
     this.maxPages = maxPages;
@@ -62,7 +60,7 @@ class FetchingService {
       
       // Cache to Redis
       console.log('\nCaching experts to Redis...');
-      const cacheResult = await cacheExperts(this.items);
+      const cacheResult = await cacheEntities('expert', this.items);
       
       return {
         experts: this.items,
@@ -93,7 +91,7 @@ class FetchingService {
       
       // Cache to Redis
       console.log('\nCaching grants to Redis...');
-      const cacheResult = await cacheGrants(this.items);
+      const cacheResult = await cacheEntities('grant', this.items);
       
       return {
         grants: this.items,
@@ -125,7 +123,7 @@ class FetchingService {
       
       // Cache to Redis
       console.log('\nCaching works to Redis...');
-      const cacheResult = await cacheWorks(this.items);
+      const cacheResult = await cacheEntities('work', this.items);
       
       return {
         works: this.items,

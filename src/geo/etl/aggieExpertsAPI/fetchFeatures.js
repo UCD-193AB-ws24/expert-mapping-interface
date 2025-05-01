@@ -22,7 +22,7 @@ const FetchingService = require('./services/FetchingService');
  * @param {number} maxPages - Maximum number of pages to fetch
  * @returns {Promise<Object>} Results of the fetching operation
  */
-async function fetchEntityType(type, batchSize = 10, maxPages = Infinity) {
+async function fetchEntityType(type, batchSize, maxPages) {
   if (!['expert', 'grant', 'work'].includes(type)) {
     throw new Error(`Invalid entity type: ${type}. Must be one of: expert, grant, work`);
   }
@@ -57,13 +57,8 @@ async function fetchFeatures(options = {}) {
   try {
     console.log('\n====== FETCHING ALL FEATURES ======');
     
-    console.log('\n1. Fetching experts...');
     const expertsResult = await fetchEntityType('expert', batchSize, expertsMaxPages);
-    
-    console.log('\n2. Fetching grants...');
     const grantsResult = await fetchEntityType('grant', batchSize, grantsMaxPages);
-    
-    console.log('\n3. Fetching works...');
     const worksResult = await fetchEntityType('work', batchSize, worksMaxPages);
     
     console.log('\n====== FETCH SUMMARY ======\n');
