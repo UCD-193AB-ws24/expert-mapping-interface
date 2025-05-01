@@ -70,10 +70,10 @@ const entityConfigs = {
       cached_at: new Date().toISOString()
     }),
     formatItemFromCache: (grantData) => {
-      let relatedExpert = null;
+      let relatedExperts = null;
       try {
         if (grantData.related_expert) {
-          relatedExpert = JSON.parse(grantData.related_expert);
+          relatedExperts = JSON.parse(grantData.related_experts);
         }
       } catch (e) {
         console.error(`Error parsing related expert for grant ${grantData.id}:`, e.message);
@@ -86,7 +86,7 @@ const entityConfigs = {
         endDate: grantData.end_date || '',
         inheresIn: grantData.inheres_in || '',
         url: grantData.url || '',
-        relatedExpert: relatedExpert
+        relatedExperts: relatedExperts
       };
     }
   },

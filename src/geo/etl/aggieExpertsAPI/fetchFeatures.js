@@ -55,7 +55,6 @@ async function fetchFeatures(options = {}) {
   } = options;
   
   try {
-    console.log('\n====== FETCHING ALL FEATURES ======');
     
     const expertsResult = await fetchEntityType('expert', batchSize, expertsMaxPages);
     const grantsResult = await fetchEntityType('grant', batchSize, grantsMaxPages);

@@ -15,18 +15,24 @@ Data Extraction → Expert Matching → Location Processing → GeoJSON Generati
 - **services/FetchingService.js**: Core service that handles fetching, mapping, and caching data from the Aggie Experts API (experts, works, grants) to Redis.
 - **fetchFeatures.js**: Unified entry point for fetching all data types (experts, works, grants).
   - Can fetch all types at once or a specific type via command-line arguments 
-  - No arguments to fetch experts, works, and grants
   - Example:
     ```bash
     node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js [expert|work|grant]
     ```
+  - No argument: fetch experts, works, and grants
   - Requires a `.env` file in the project root with `API_TOKEN=<your-api-token>` for authentication.
   - After fetching, a summary of new and updated records is printed.
 
 ### 2. Expert Matching (`/aggieExpertsAPI`)
 
-- **matchFeatures.js**: Orchestrates the complete matching process for works and grants to experts using the Redis cache. Outputs summary statistics.
-- **services/MatchingService.js**: Contains the logic for matching works (by author name) and grants (by expert URL) to expert name and url respectively.
+- **matchFeatures.js**: Orchestrates the matching process for works and grants to experts using the Redis cache.
+- **services/MatchingService.js**: Contains the logic for matching works (by author name) and grants (by expert ID/url) to experts. Supports multiple experts per grant.
+- Example:
+    ```bash
+    node ./src/geo/etl/aggieExpertsAPI/matchFeatures.js [work|grant]
+    ```
+    - No argument: match both works and grants
+    - Outputs summary statistics for each type matched.
 
 ### 3. Location Processing (`/locationAssignment`)
 
