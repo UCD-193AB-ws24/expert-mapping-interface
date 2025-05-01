@@ -1,14 +1,20 @@
-# 🗄️ PostGIS Database Integration
+# PostGIS Database Integration
 
-This directory contains the PostGIS database integration code for storing and retrieving geospatial data in the Expert Mapping Interface project.
+This directory contains the PostGIS database integration code for storing and retrieving geospatial expert-associated works and grants; data produced by [ETL pipeline](../etl/README.md)
 
-## 📋 Overview
+## Overview
 
-PostGIS extends PostgreSQL with geospatial capabilities, allowing efficient storage and querying of geographic data. This module handles the database operations for the expert mapping data.
+This module manages the storage and retrieval of geospatial data for the Expert Mapping Interface using PostGIS, an extension of PostgreSQL. It is responsible for:
+
+- Storing expert-associated works and grants as GeoJSON features with geometry types: Point & Polygon
+- Facilitating frontend data fetching for desired geospatial features.
+- Offering utility scripts for table creation, data upload, inspection, and debugging.
+
+The integration with PostGIS ensures that the system can handle large, complex geospatial datasets and deliver fast, interactive map-based exploration of UC Davis research activities worldwide.
 
 ---
 
-## 📁 Component Files
+## 📋 Components
 
 ### 1.  config.js
 - Sets database configuration parameters
@@ -32,4 +38,11 @@ PostGIS extends PostgreSQL with geospatial capabilities, allowing efficient stor
 
 ### 6.  fetchFeatures.js
 - Utilizes endpoints in server.js to retrieve grant and work features
-- Returns formatted GeoJSON for map rendering
+- Returns formatted GeoJSON's for map rendering
+- Output files:
+  - `workFeatures.geojson`:  Research work data with coordinates
+  - `grantFeatures.geojson`: Grant data with coordinates
+
+![ETL Pipeline Diagram](../../assets/postgis.png)
+
+* © Zoey Vo, Loc Nguyen, 2025
