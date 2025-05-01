@@ -10,7 +10,7 @@
 * © Zoey Vo, Loc Nguyen, 2025
 *
 * NOTES:
-*   - should expect ~ 63 grants
+*   ~ 63 grants (4/30/25)
 */
 
 const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
@@ -49,6 +49,7 @@ async function fetchGrants(batchSize = 10, maxPages = Infinity) {
             })));
             
             totalFetched += hits.length;
+            // Intermittent logging of batches
             if (page % batchSize === 0) logBatch('grants', page, false);
             page++;
         }
@@ -59,6 +60,7 @@ async function fetchGrants(batchSize = 10, maxPages = Infinity) {
         console.log('\nCaching grants to Redis...');
         const cacheResult = await cacheGrants(grants);
         
+        // Returns fetched grants and related cache metadata
         return {
             grants: grants,
             totalCount: grants.length,

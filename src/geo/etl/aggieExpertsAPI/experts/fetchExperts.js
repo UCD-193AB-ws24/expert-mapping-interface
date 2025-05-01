@@ -10,7 +10,7 @@
 * © Zoey Vo, Loc Nguyen, 2025
 *
 * NOTES: 
-*   - should expect ~ 2086 unique experts 
+*   ~ 2086 unique experts (4/30/25)
 */
 
 const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
@@ -46,16 +46,19 @@ async function fetchExperts(batchSize = 10, maxPages = Infinity) {
             })));
 
             totalFetched += hits.length;
-            if (page % batchSize === 0) logBatch('experts', page, false);
+            // Intermittent logging of batches
+            if (page % batchSize === 0) logBatch('experts', page, false); 
             page++;
         }
         
+        // Log the aggregate fetches
         logBatch('experts', page, true, totalFetched);
         
         // Cache to Redis
         console.log('\nCaching experts to Redis...');
         const cacheResult = await cacheExperts(experts);
         
+        // Returns fetched experts and related cache metadata
         return {
             experts: experts,
             totalCount: experts.length,

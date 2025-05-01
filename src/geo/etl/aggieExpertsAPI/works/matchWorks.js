@@ -336,8 +336,6 @@ function extractExpertIdFromUrl(url) {
 
 module.exports = {
   matchWorks,
-  createNameVariations,
-  extractExpertIdFromUrl
 };
 
 // Main execution

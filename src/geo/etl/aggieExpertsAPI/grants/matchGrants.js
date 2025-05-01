@@ -122,7 +122,8 @@ async function matchGrants(options = {}) {
   }
 }
 
-module.exports = { matchGrants, extractExpertIdFromUrl };
+if (require.main === module) {
+    matchGrants();
+}
 
-// Run directly if called as a script
-if (require.main === module) matchGrants();
+module.exports = { matchGrants };

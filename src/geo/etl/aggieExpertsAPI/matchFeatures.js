@@ -2,9 +2,7 @@
 * @file matchFeatures.js
 * @description Orchestrates matching of works and grants to experts using Redis cache
 * 
-* USAGE: 
-* - Import this module to match features
-* - Run directly with: node .\src\geo\etl\aggieExpertsAPI\matchFeatures.js
+* USAGE: node .\src\geo\etl\aggieExpertsAPI\matchFeatures.js
 *
 * © Zoey Vo, 2025
 */
@@ -69,7 +67,6 @@ async function matchFeatures(options = {}) {
   }
 }
 
-// Run directly if this is the main module
 if (require.main === module) {
   matchFeatures();
 }

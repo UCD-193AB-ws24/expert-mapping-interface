@@ -10,7 +10,7 @@
 * © Zoey Vo, Loc Nguyen, 2025
 *
 * NOTES:
-*   - should expect > 10,000 works
+*   ~ 170k works (4/30/25)
 */
 
 const { logBatch, fetchFromApi, API_TOKEN } = require('../apiUtils');
@@ -18,7 +18,7 @@ const { cacheWorks } = require('../redis/workCache');
 
 /**
 * @param {number} batchSize - Number of pages to fetch in each batch (default: 10)
-* @param {number} maxPages - Maximum number of pages to fetch (default: Infinity)
+* @param {number} maxPages - Maximum number of pages to fetch (default: 100)
 */
 async function fetchWorks(batchSize = 10, maxPages = 100) {
     let works = [];
@@ -46,6 +46,7 @@ async function fetchWorks(batchSize = 10, maxPages = 100) {
             })));
 
             totalFetched += hits.length;
+            // Intermittent logging of batches
             if (page % batchSize === 0) logBatch('works', page, false);
             page++;
         }
@@ -55,7 +56,8 @@ async function fetchWorks(batchSize = 10, maxPages = 100) {
         // Cache to Redis
         console.log('\nCaching works to Redis...');
         const cacheResult = await cacheWorks(works);
-        
+
+        // Returns fetched works and related cache metadata
         return {
             works: works,
             totalCount: works.length,

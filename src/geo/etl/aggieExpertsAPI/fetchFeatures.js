@@ -73,7 +73,6 @@ async function fetchFeatures() {
   }
 }
 
-// Run directly if this is the main module
 if (require.main === module) {
   fetchFeatures();
 }
