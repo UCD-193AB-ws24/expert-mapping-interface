@@ -109,6 +109,8 @@ async function populateRedis() {
         display_name: display_name || '',
         osm_type: osm_type || '',
         source: source || '',
+        place_rank: place_rank || '',
+        country: country || '',
         });
 
         console.log(`✅ Successfully stored work: ${featureID}`);
@@ -177,6 +179,8 @@ async function populateRedis() {
             display_name,
             id,
             source,
+            place_rank,
+            country,
           } = properties;
     
           
@@ -195,6 +199,8 @@ async function populateRedis() {
               display_name: display_name || '',
               osm_type: osm_type || '',
               source: source || '',
+              place_rank: place_rank || '',
+              country: country || '',
             });
     
             console.log(`✅ Successfully stored grant: ${featureID}`);

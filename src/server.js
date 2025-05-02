@@ -209,6 +209,8 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           place_rank: grantData.place_rank || '',
           osm_type: grantData.osm_type || '',
           source: grantData.source || '',
+          place_rank: grantData.place_rank || '',
+          country: grantData.country || '',
         },
       });
     }
