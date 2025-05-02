@@ -37,20 +37,20 @@ async function populateRedis() {
     await redisClient.connect();
 
     // Run fetchFeatures.js
-    await new Promise((resolve, reject) => {
-      exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
-          return reject(error);
-        }
-        if (stderr) {
-          console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
-          return reject(new Error(stderr));
-        }
-        // console.log(`✅ fetchFeatures.js output: ${stdout}`);
-        resolve();
-      });
-    });
+    // await new Promise((resolve, reject) => {
+    //   exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
+    //     if (error) {
+    //       console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
+    //       return reject(error);
+    //     }
+    //     if (stderr) {
+    //       console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
+    //       return reject(new Error(stderr));
+    //     }
+    //     // console.log(`✅ fetchFeatures.js output: ${stdout}`);
+    //     resolve();
+    //   });
+    // });
 
     // Purpose of different functions: workFeatures.json and grantFeatures.json have different entry structures.
     async function processWorkGeoJSON(filePath) {
@@ -70,6 +70,8 @@ async function populateRedis() {
         display_name,
         id,
         source,
+        place_rank,
+        country,
       } = properties;
 
       const workFeatureKey = `work:${id}`;
@@ -86,6 +88,8 @@ async function populateRedis() {
         osm_type: osm_type || '',
         display_name: display_name || '',
         source: source || '',
+        place_rank: place_rank || '',
+        country: country || '',
         });
 
         // console.log(`✅ Successfully stored work: ${id}`);
@@ -143,6 +147,8 @@ async function populateRedis() {
             display_name,
             id,
             source,
+            place_rank,
+            country,
           } = properties;
     
           
@@ -160,6 +166,8 @@ async function populateRedis() {
               osm_type: osm_type || '',
               display_name: display_name || '',
               source: source || '',
+              place_rank: place_rank || '',
+              country: country || '',
             });
     
             // console.log(`✅ Successfully stored grant: ${id}`);
@@ -208,10 +216,10 @@ async function populateRedis() {
     await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
     console.log('⌛ Processing data completed!');
     // Delete the GeoJSON files after processing (security measure)
-    await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
-    console.log('✅ Deleted workFeatures.geojson');
-    await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
-    console.log('✅ Deleted grantFeatures.geojson');
+    // await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
+    // console.log('✅ Deleted workFeatures.geojson');
+    // await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
+    // console.log('✅ Deleted grantFeatures.geojson');
 
     console.log('✅ Successfully populated Redis with GeoJSON data!');
   } catch (error) {
