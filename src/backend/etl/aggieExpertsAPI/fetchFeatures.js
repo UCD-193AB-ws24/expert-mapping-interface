@@ -51,7 +51,7 @@ async function fetchFeatures(options = {}) {
     batchSize = 10,
     expertsMaxPages = Infinity,
     grantsMaxPages = Infinity,
-    worksMaxPages = 100
+    worksMaxPages = 250
   } = options;
   
   try {
