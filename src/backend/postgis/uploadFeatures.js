@@ -13,8 +13,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Paths to the GeoJSON files (generated output)
-const WORKS_GEOJSON_PATH = path.join(__dirname, '../etl/geojsonGeneration/works/generatedWorks.geojson');
-const GRANTS_GEOJSON_PATH = path.join(__dirname, '../etl/geojsonGeneration/grants/generatedGrants.geojson');
+const WORKS_GEOJSON_PATH = path.join(__dirname, '../etl/geojsonGeneration/generatedFeatures/generatedWorks.geojson');
+const GRANTS_GEOJSON_PATH = path.join(__dirname, '../etl/geojsonGeneration/generatedFeatures/generatedGrants.geojson');
 
 function checkFileExists(filePath) {
   try {

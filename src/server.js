@@ -169,8 +169,8 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           end_date: entryData.end_date || '',
           start_date: entryData.start_date || '',
           confidence: entryData.confidence || '',
-          relatedExpert: entryData.related_expert
-            ? JSON.parse(entryData.related_expert)
+          relatedExperts: entryData.related_experts
+            ? JSON.parse(entryData.related_experts)
             : [],
         });
         let relatedExpert = [];
