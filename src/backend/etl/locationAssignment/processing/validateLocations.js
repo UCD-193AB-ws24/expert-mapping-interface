@@ -5,7 +5,7 @@
 *      
 * USAGE: node src/geo/etl/locationAssignment/processing/validateLocations.js
 *
-* © Loc Nguyen, 2025
+* Loc Nguyen, 2025
 */
 
 const axios = require('axios');

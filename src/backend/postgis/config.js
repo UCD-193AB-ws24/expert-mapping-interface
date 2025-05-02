@@ -3,7 +3,7 @@
 * @description Configuration for PostgreSQL connection
 * @module geo/postgis/config
 *
-* © Zoey Vo, 2025
+* Zoey Vo, 2025
 */
 
 const path = require('path');

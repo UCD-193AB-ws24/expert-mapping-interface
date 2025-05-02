@@ -2,7 +2,7 @@
  * @file matchingUtils.js
  * @description Utility functions for matching experts with works and grants
  * 
- * © Zoey Vo, 2025
+ * Zoey Vo, 2025
  */
 
 /**

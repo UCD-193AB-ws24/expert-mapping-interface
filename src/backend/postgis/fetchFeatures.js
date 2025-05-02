@@ -5,7 +5,7 @@
 *
 * USAGE: node src/geo/postgis/fetchFeatures.js
 *
-* © Zoey Vo, 2025
+* Zoey Vo, 2025
 */
 
 const fs = require('fs');

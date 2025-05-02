@@ -4,7 +4,7 @@
 *
 * USAGE: node ./src/geo/etl/geojsonGeneration/generateGeoJson.js 
 * 
-* © Zoey Vo, Loc Nguyen, 2025
+* Zoey Vo, Loc Nguyen, 2025
 */
 
 const fs = require("fs");

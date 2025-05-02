@@ -4,7 +4,7 @@
  *
  * USAGE: Import this module to cache or retrieve any entity type (expert, grant, work)
  *
- * © Zoey Vo, 2025
+ * Zoey Vo, 2025
  */
 
 const { sanitizeString, cacheItems, getCachedItems } = require('./redisUtils');

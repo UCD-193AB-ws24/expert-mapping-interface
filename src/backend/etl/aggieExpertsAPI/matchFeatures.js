@@ -4,7 +4,7 @@
 * 
 * USAGE: node .\src\geo\etl\aggieExpertsAPI\matchFeatures.js
 *
-* © Zoey Vo, 2025
+* Zoey Vo, 2025
 */
 
 const { getCachedEntities } = require('./utils/cache/entityCache');

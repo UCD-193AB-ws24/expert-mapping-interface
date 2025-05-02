@@ -5,7 +5,7 @@
 *
 * USAGE: node src/geo/postgis/viewTables.js [limit] [offset]
 *
-* © Zoey Vo, 2025
+* Zoey Vo, 2025
 */
 
 const { pool, tables } = require('./config');

@@ -4,6 +4,8 @@
 * This script runs the full pipeline for processing locations in works and grants.
 * It extracts locations of the fetched entries, validates them, and geocodes them 
 * to GeoJSON features.
+*
+* Zoey Vo, Loc Nguyen, 2025 
 */
 
 const { processAllWorks, processAllGrants } = require('./processing/extractLocations');

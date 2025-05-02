@@ -5,7 +5,7 @@
 *
 * USAGE: node src/geo/postgis/uploadFeatures.js
 *
-* © Zoey Vo, 2025
+* Zoey Vo, 2025
 */
 
 const { pool, tables } = require('./config');

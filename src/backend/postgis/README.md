@@ -45,4 +45,4 @@ The integration with PostGIS ensures that the system can handle large, complex g
 
 ![ETL Pipeline Diagram](../../assets/postgis.png)
 
-*© Zoey Vo, Loc Nguyen, 2025*
+*Zoey Vo, Loc Nguyen, 2025*

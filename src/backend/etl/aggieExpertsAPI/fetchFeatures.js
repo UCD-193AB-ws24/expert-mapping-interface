@@ -10,7 +10,7 @@
 * REQUIREMENTS: 
 * - A .env file in the project root with API_TOKEN=<your-api-token> for Aggie Experts API authentication
 *
-* © Zoey Vo, 2025
+* Zoey Vo, Loc Nguyen, 2025
 */
 
 const FetchingService = require('./services/FetchingService');

@@ -7,7 +7,7 @@
 * REQUIREMENTS: 
 * - A .env file with REDIS_HOST and REDIS_PORT environment variables
 *
-* © Zoey Vo, 2025
+* Zoey Vo, 2025
 */
 
 require('dotenv').config();
