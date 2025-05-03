@@ -82,15 +82,16 @@ export const createSingleExpertContent = (locationName, entries, isPopup = true)
           ${expertURL !== "#" ? "View Profile" : "No Profile Found"}
         </a>
       </div>
-    `;
-  } catch (e) {
-    console.error('Error in createSingleExpertContent:', e);
-    return `
-      <div style="color: red; font-size: 14px; padding: 15px;">
-        Error generating content: ${e.message}
+      <div style="margin-top: 5px; color: #333;">
+        <strong>Location:</strong> ${locationName || "Unknown"}
       </div>
-    `;
-  }
+      <a href="#" class="view-experts-btn"
+   style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
+  View Profile
+</a>
+
+    </div>
+  `;
 };
 
 
