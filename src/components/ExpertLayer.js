@@ -255,7 +255,7 @@ const ExpertLayer = ({
       if (!showWorks) return;
 
       // Generate a unique location ID
-      const locationID = location.toLowerCase().replace(/\s+/g, "_");
+      const locationID = feature.id;
 
       // Initialize locationMap entry if it doesn't exist
       if (!locationMap.has(locationID)) {
