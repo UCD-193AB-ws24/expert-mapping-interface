@@ -9,29 +9,19 @@ import { createMultiExpertContent } from "./Popups";
  * Helper function to prepare panel data.
  * Collects expert and work information for the side panel.
  */
-const preparePanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID) => {
+const preparePanelData = (expertIDs, workIDs, expertsMap, worksMap) => {
   return expertIDs.map((expertID) => {
     const expert = expertsMap.get(expertID);
     if (!expert) return null;
 
-    // Ensure the URL is a full URL
-    const fullUrl = expert.url.startsWith("http")
-      ? expert.url
-      : `https://experts.ucdavis.edu/${expert.url}`;
-
-    // Find works associated with this expert and the current location
+    // Find works associated with this expert
     const associatedWorks = workIDs
       .map((workID) => worksMap.get(workID))
-      .filter(
-        (work) =>
-          work &&
-          work.relatedExpertIDs.includes(expertID) && // Work is associated with this expert
-          work.locationID === locationID // Work matches the current location
-      );
+      .filter((work) => work && work.relatedExpertIDs.includes(expertID));
 
     return {
       name: expert.name || "Unknown",
-      url: fullUrl, // Use the full URL
+      url: expert.url || "#",
       works: associatedWorks.map((work) => ({
         title: work.title || "Untitled Work",
         issued: work.issued || "Unknown",
@@ -116,10 +106,8 @@ const renderPolygons = ({
         locationData.expertIDs,
         locationData.workIDs,
         expertsMap,
-        worksMap,
-        locationID // Pass the current locationID
+        worksMap
       );
-      console.log("Panel Data for Polygon:", panelData); // Debugging log
       setSelectedWorks(panelData); // Pass the prepared data to the panel
       setPanelType("works");
       setPanelOpen(true);
@@ -189,10 +177,8 @@ const renderPoints = ({
         locationData.expertIDs,
         locationData.workIDs,
         expertsMap,
-        worksMap,
-        locationID // Pass the current locationID
+        worksMap
       );
-      console.log("Panel Data for Marker:", panelData); // Debugging log
       setSelectedWorks(panelData); // Pass the prepared data to the panel
       setPanelType("works");
       setPanelOpen(true);
