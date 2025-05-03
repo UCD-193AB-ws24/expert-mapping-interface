@@ -15,7 +15,7 @@ import { createCombinedPolygonPopup, createMatchedCombinedPolygonPopup } from ".
  * - grantGeoJSON: GeoJSON object containing grant-related data.
  * - showWorks: Boolean indicating whether to display work polygons.
  * - showGrants: Boolean indicating whether to display grant polygons.
- * - setSelectedExperts: Function to update the selected experts for the side panel.
+ * - setSelectedWorks: Function to update the selected experts for the side panel.
  * - setSelectedGrants: Function to update the selected grants for the side panel.
  * - setPanelOpen: Function to control whether the side panel is open.
  * - setPanelType: Function to set the type of content displayed in the side panel.
@@ -61,7 +61,7 @@ const CombinedPolygonLayer = ({
   grantGeoJSON,
   showWorks,
   showGrants,
-  setSelectedExperts,
+  setSelectedWorks,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
@@ -222,7 +222,7 @@ const CombinedPolygonLayer = ({
                   const grantsEntries = grantsFeatures.flatMap(f => f.properties.entries || []);
 
                   // Update the state for the side panel
-                  setSelectedExperts(filteredWorksEntries);
+                  setSelectedWorks(filteredWorksEntries);
                   setSelectedGrants(filteredGrantsEntries);
                   setPanelType("combined-polygon");
                   setLocationName(locationName);
