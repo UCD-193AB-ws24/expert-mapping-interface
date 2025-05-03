@@ -15,7 +15,7 @@ import { createCombinedPolygonPopup, createMatchedCombinedPolygonPopup } from ".
  * - grantGeoJSON: GeoJSON object containing grant-related data.
  * - showWorks: Boolean indicating whether to display work polygons.
  * - showGrants: Boolean indicating whether to display grant polygons.
- * - setSelectedExperts: Function to update the selected experts for the side panel.
+ * - setSelectedWorks: Function to update the selected experts for the side panel.
  * - setSelectedGrants: Function to update the selected grants for the side panel.
  * - setPanelOpen: Function to control whether the side panel is open.
  * - setPanelType: Function to set the type of content displayed in the side panel.
@@ -54,14 +54,12 @@ const matchesKeyword = (keyword, feature, entry) => {
 };
 
 
-
-
 const CombinedPolygonLayer = ({
   workGeoJSON,
   grantGeoJSON,
   showWorks,
   showGrants,
-  setSelectedExperts,
+  setSelectedWorks,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
@@ -95,7 +93,7 @@ const CombinedPolygonLayer = ({
       // Collect work polygons by location
       workGeoJSON.features.forEach(feature => {
         if (feature.geometry.type === "Polygon") {
-          const location = (feature.properties.location || feature.properties.display_name || "").toLowerCase().trim();
+          const location = (feature.properties.location ||  "");
           if (!location) return;
           if (!workPolygons.has(location)) workPolygons.set(location, []);
           workPolygons.get(location).push(feature);
@@ -105,7 +103,7 @@ const CombinedPolygonLayer = ({
       // Collect grant polygons by location
       grantGeoJSON.features.forEach(feature => {
         if (feature.geometry.type === "Polygon") {
-          const location = (feature.properties.location || "").toLowerCase().trim();
+          const location = (feature.properties.location || "");
           if (!location) return;
           if (!grantPolygons.has(location)) grantPolygons.set(location, []);
           grantPolygons.get(location).push(feature);
@@ -117,6 +115,7 @@ const CombinedPolygonLayer = ({
       // Draw combined polygons for overlapping locations
       workPolygons.forEach((worksFeatures, location) => {
         if (grantPolygons.has(location)) {
+          console.log(`Overlapping location detected: ${location}`);
           overlappingLocations.push(location);
 
           const grantsFeatures = grantPolygons.get(location);
@@ -222,7 +221,7 @@ const CombinedPolygonLayer = ({
                   const grantsEntries = grantsFeatures.flatMap(f => f.properties.entries || []);
 
                   // Update the state for the side panel
-                  setSelectedExperts(filteredWorksEntries);
+                  setSelectedWorks(filteredWorksEntries);
                   setSelectedGrants(filteredGrantsEntries);
                   setPanelType("combined-polygon");
                   setLocationName(locationName);

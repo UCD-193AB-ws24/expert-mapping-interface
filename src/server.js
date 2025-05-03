@@ -116,6 +116,8 @@ app.get('/api/redis/worksQuery', async (req, res) => {
           osm_type: workData.osm_type || '',
           display_name: workData.display_name || '',
           source: workData.source || '',
+          place_rank: workData.place_rank || '',
+          country: workData.country || '',
         },
       });
     }
@@ -181,14 +183,6 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
             console.error('❌ Error parsing related_expert JSON:', error);
           }
         }
-        console.log('📋 Entry added:', {
-          title: entryData.title || '',
-          funder: entryData.funder || '',
-          end_date: entryData.end_date || '',
-          start_date: entryData.start_date || '',
-          confidence: entryData.confidence || '',
-          relatedExpert: relatedExpert,
-        });
       }
 
       features.push({
@@ -207,6 +201,8 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           osm_type: grantData.osm_type || '',
           display_name: grantData.display_name || '',
           source: grantData.source || '',
+          place_rank: grantData.place_rank || '',
+          country: grantData.country || '',
         },
       });
     }

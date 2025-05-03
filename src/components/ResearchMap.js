@@ -5,7 +5,7 @@ import MapWrapper from "./MapContainer";
 import ExpertLayer from "./ExpertLayer";
 import GrantLayer from "./GrantLayer";
 import CombinedLocationLayer from "./CombinedLocations";
-import { ExpertsPanel, GrantsPanel } from "./Panels";
+import { WorksPanel, GrantsPanel } from "./Panels";
 import { CombinedPanel } from "./CombinedPanel";
 import CombinedPolygonLayer from "./CombinedPolygonLayer";
 
@@ -34,8 +34,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
   const [geoData, setGeoData] = useState(null);
   const [grantGeoJSON, setGrantGeoJSON] = useState(null);
   const [workGeoJSON, setWorkGeoJSON] = useState(null);
-  const [selectedExperts, setSelectedExperts] = useState([]);
-  const [selectedPointExperts, setSelectedPointExperts] = useState([]);
+  const [selectedWorks, setSelectedWorks] = useState([]);
+  // const [selectedPointExperts, setSelectedPointExperts] = useState([]);
   const [selectedGrants, setSelectedGrants] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelType, setPanelType] = useState(null);
@@ -192,7 +192,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               showWorks={showWorks}
               showGrants={showGrants}
               searchKeyword={searchKeyword}
-              setSelectedPointExperts={setSelectedPointExperts}
+              setSelectedWorks={setSelectedWorks}
               setSelectedGrants={setSelectedGrants}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
@@ -204,7 +204,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             grantGeoJSON={filteredGrantGeoJSON}
             showWorks={showWorks}
             showGrants={showGrants}
-            setSelectedExperts={setSelectedExperts}
+            setSelectedWorks={setSelectedWorks}
             setSelectedGrants={setSelectedGrants}
             setPanelOpen={setPanelOpen}
             setPanelType={setPanelType}
@@ -220,8 +220,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               searchKeyword={searchKeyword}
-              setSelectedExperts={setSelectedExperts}
-              setSelectedPointExperts={setSelectedPointExperts}
+              setSelectedWorks={setSelectedWorks}
+              // setSelectedPointExperts={setSelectedPointExperts}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
@@ -303,17 +303,20 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
         <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} keyword={searchKeyword} />
       )}
 
-      {panelOpen && (panelType === "polygon" || panelType === "point") && (
-        <ExpertsPanel
-          experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
-          onClose={() => setPanelOpen(false)}
-          panelType={panelType}
-          keyword={searchKeyword}
-        />
+      {panelOpen && panelType === "works" && (
+        <>
+          {console.log("Selected Works Data:", selectedWorks)} {/* Debugging log */}
+          <WorksPanel
+            works={selectedWorks} // Pass the array of work objects
+            onClose={() => setPanelOpen(false)}
+            panelType={panelType}
+            keyword={searchKeyword}
+          />
+        </>
       )}
       {panelOpen && panelType === "combined-polygon" && (
         <CombinedPanel
-          works={selectedExperts}
+          works={selectedWorks}
           grants={selectedGrants}
           locationName={locationName}
           onClose={() => setPanelOpen(false)}
