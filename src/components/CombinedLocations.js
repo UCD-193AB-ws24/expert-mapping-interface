@@ -226,7 +226,7 @@ const CombinedLocationLayer = ({
                 activePopup.close();
                 activePopup = null;
               }
-            }, 500);
+            }, 100);
           });
 
           const viewBtn = popupElement.querySelector(".view-combined-btn");
@@ -253,7 +253,7 @@ const CombinedLocationLayer = ({
             activePopup.close();
             activePopup = null;
           }
-        }, 500);
+        }, 100);
       });
 
       marker.addTo(map); // Add marker to the map

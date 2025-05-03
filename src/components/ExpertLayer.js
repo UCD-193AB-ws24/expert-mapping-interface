@@ -85,12 +85,18 @@ const renderPolygons = ({
 
     let activePopup = null;
 
+    let closeTimeout = null;
+
     polygon.on("mouseover", () => {
+      if (closeTimeout) clearTimeout(closeTimeout);
+
       const content = createMultiExpertContent(
         locationData.expertIDs.length,
         locationData.name,
         locationData.workIDs.length
       );
+
+      if (activePopup) activePopup.remove();
 
       activePopup = L.popup({
         closeButton: false,
@@ -102,14 +108,60 @@ const renderPolygons = ({
         .setLatLng(polygon.getBounds().getCenter())
         .setContent(content)
         .openOn(map);
+
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        popupElement.addEventListener("mouseenter", () => {
+          clearTimeout(closeTimeout);
+        });
+
+        popupElement.addEventListener("mouseleave", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 100);
+        });
+
+        const viewExpertsBtn = popupElement.querySelector(".view-experts-btn");
+        if (viewExpertsBtn) {
+          viewExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const panelData = preparePanelData(
+              locationData.expertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID
+            );
+
+            setSelectedWorks(panelData);
+            setPanelType("works");
+            setPanelOpen(true);
+
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+        }
+      }
     });
 
     polygon.on("mouseout", () => {
-      if (activePopup) {
-        activePopup.close();
-        activePopup = null;
-      }
+      closeTimeout = setTimeout(() => {
+        if (activePopup) {
+          activePopup.close();
+          activePopup = null;
+        }
+      }, 100);
     });
+
 
     polygon.on("click", () => {
       const panelData = preparePanelData(

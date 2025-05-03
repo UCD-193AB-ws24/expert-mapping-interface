@@ -23,34 +23,34 @@ const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locat
 
     // Find grants associated with this expert and the current location
     const associatedGrants = grantIDs
-  .map((grantID) => {
-    const grant = grantsMap.get(grantID);
-    if (!grant) {
-      console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
-      return null;
-    }
-    return grant;
-  })
-  .filter((grant) => {
-    if (!grant) return false;
-    if (!grant.relatedExpert) {
-      console.warn(`Grant with ID ${grant.grantID} has no relatedExpert.`);
-      return false;
-    }
-    if (grant.relatedExpertID !== expertID) {
-      console.warn(
-        `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertID}, which does not match expertID ${expertID}.`
-      );
-      return false;
-    }
-    if (grant.locationID !== locationID) {
-      console.warn(
-        `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
-      );
-      return false;
-    }
-    return true;
-  });
+      .map((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (!grant) {
+          console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
+          return null;
+        }
+        return grant;
+      })
+      .filter((grant) => {
+        if (!grant) return false;
+        if (!grant.relatedExpert) {
+          console.warn(`Grant with ID ${grant.grantID} has no relatedExpert.`);
+          return false;
+        }
+        if (grant.relatedExpertID !== expertID) {
+          console.warn(
+            `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertID}, which does not match expertID ${expertID}.`
+          );
+          return false;
+        }
+        if (grant.locationID !== locationID) {
+          console.warn(
+            `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
+          );
+          return false;
+        }
+        return true;
+      });
 
     return {
       name: expert.name || "Unknown",
@@ -108,13 +108,21 @@ const renderPolygons = ({
 
     polygonLayers.push(polygon);
 
+
+    let activePopup = null;
+    let closeTimeout = null;
+
     polygon.on("mouseover", () => {
+      if (closeTimeout) clearTimeout(closeTimeout);
+
       const content = createMultiGrantPopup(
         locationData.grantIDs.length,
         locationData.name
       );
 
-      const popup = L.popup({
+      if (activePopup) activePopup.remove();
+
+      activePopup = L.popup({
         closeButton: false,
         autoClose: false,
         maxWidth: 300,
@@ -125,10 +133,55 @@ const renderPolygons = ({
         .setContent(content)
         .openOn(map);
 
-      polygon.on("mouseout", () => {
-        popup.close();
-      });
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        popupElement.addEventListener("mouseenter", () => clearTimeout(closeTimeout));
+        popupElement.addEventListener("mouseleave", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 100);
+        });
+
+        const viewGrantsBtn = popupElement.querySelector(".view-grants-btn");
+        if (viewGrantsBtn) {
+          viewGrantsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const panelData = prepareGrantPanelData(
+              locationData.expertIDs,
+              locationData.grantIDs,
+              grantsMap,
+              expertsMap,
+              locationID
+            );
+            setSelectedGrants(panelData);
+            setPanelType("grants");
+            setPanelOpen(true);
+
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+        }
+      }
     });
+
+    polygon.on("mouseout", () => {
+      closeTimeout = setTimeout(() => {
+        if (activePopup) {
+          activePopup.close();
+          activePopup = null;
+        }
+      }, 300);
+    });
+
 
     polygon.on("click", () => {
       const panelData = prepareGrantPanelData(
@@ -239,14 +292,14 @@ const GrantLayer = ({
 
     // Populate locationMap, grantsMap, and expertsMap
     grantGeoJSON.features.forEach((feature) => {
-    const geometry = feature.geometry;
-    const entries = feature.properties.entries || [];
-    const location = feature.properties.location || "Unknown";
+      const geometry = feature.geometry;
+      const entries = feature.properties.entries || [];
+      const location = feature.properties.location || "Unknown";
 
-    if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-      console.log(`GrantLayer - Skipping popup for overlapping location: ${location}`);
-      return;
-    }
+      if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
+        console.log(`GrantLayer - Skipping popup for overlapping location: ${location}`);
+        return;
+      }
       // Generate a unique location ID
       const locationID = feature.id;
 
@@ -299,9 +352,9 @@ const GrantLayer = ({
               grantIDs: [],
             });
           }
-          
-          
-          
+
+
+
           // Add expert ID to grantsMap
           grantsMap.get(grantID).relatedExpertID = expertID;
 
