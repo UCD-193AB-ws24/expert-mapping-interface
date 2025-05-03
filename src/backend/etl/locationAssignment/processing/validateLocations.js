@@ -169,57 +169,61 @@ async function validateLocation(location) {
   // - Run ISO through geocode instead of searching in dict?
   // - Else branch: iso_llama undefined - use Nominatim instead of N/A
 
-  // If codes are the same, location is good
-  if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
-    return {
-      name: location_info.name,
-      confidence: "High",
-      country: countries[iso_llama]
-    };
-    // Unable to use Nominatim, use ISO if exists
-  } else if (location_info === null) {
-    if (countries[iso_llama] === undefined) {
+  // Unable to use Nominatim, use ISO if exists
+  try {
+    if (location_info === null) {
+      if (countries[iso_llama] === undefined) {
+        return {
+          name: "N/A",
+          confidence: "",
+          country: "None"
+        };
+      } else {
+        return {
+          name: countries[iso_llama],
+          confidence: "Mid",
+          country: countries[iso_llama]
+        };
+      }
+      // If codes are the same, location is good
+    } else if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
       return {
-        name: "N/A",
-        confidence: "",
-        country: "None"
-      };
-    } else {
-      return {
-        name: countries[iso_llama],
-        confidence: "Mid",
+        name: location_info.name,
+        confidence: "High",
         country: countries[iso_llama]
       };
-    }
-    // Natural or international location without ISO
-  } else if (special_locations.includes(location_info.type)) {
-    return {
-      name: location_info.name,
-      confidence: "Kinda High",
-      country: "None"
-    };
-    // Unable to get ISO code, bad location
-  } else if (String(iso_llama).length > 2) {
-    return {
-      name: location,
-      confidence: "Low",
-      country: countries[String(iso_nominatim).toUpperCase()]
-    };
-    // Unmatch codes, priortize ISO
-  } else {
-    if (countries[iso_llama] === undefined) {
+      // Natural or international location without ISO
+    } else if (special_locations.includes(location_info.type)) {
       return {
-        name: "N/A",
-        confidence: "",
+        name: location_info.name,
+        confidence: "Kinda High",
         country: "None"
       };
-    } else {
+      // Unable to get ISO code, bad location
+    } else if (String(iso_llama).length > 2) {
       return {
-        name: countries[iso_llama],
-        confidence: "Mid",
-        country: countries[iso_llama]
+        name: location,
+        confidence: "Low",
+        country: countries[String(iso_nominatim).toUpperCase()]
       };
+      // Unmatch codes, priortize ISO
+    } else {
+      if (countries[iso_llama] === undefined) {
+        return {
+          name: "N/A",
+          confidence: "",
+          country: "None"
+        };
+      } else {
+        return {
+          name: countries[iso_llama],
+          confidence: "Mid",
+          country: countries[iso_llama]
+        };
+      }
     }
+  } catch (error) {
+    console.log("Fail to validate: " + location);
   }
 }
 
