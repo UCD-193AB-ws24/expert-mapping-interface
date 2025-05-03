@@ -118,7 +118,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       {/* Tab Navigation */}
       <div style={{ display: "flex", marginBottom: "15px", borderBottom: "1px solid #eaeaea" }}>
         {/* Works Tab Button */}
-        <button 
+        <button
           onClick={() => setActiveTab("works")}
           style={{
             flex: 1,
@@ -136,7 +136,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
         </button>
 
         {/* Grants Tab Button */}
-        <button 
+        <button
           onClick={() => setActiveTab("grants")}
           style={{
             flex: 1,
@@ -222,35 +222,42 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       {activeTab === "grants" && (
         <ul style={{ padding: 0, listStyle: 'none' }}>
           {filteredGrants.map((grant, index) => {
-            const rawTitle = grant.title || "";
-            const cleanTitle = rawTitle.split("§")[0].trim().replace(/^"+|"+$/g, "");
+            const confidenceStyle = getConfidenceStyle(grant.confidence);
             return (
-              <li key={index} style={{
-                position: "relative",
-                padding: "15px",
-                fontSize: "14px",
-                lineHeight: "1.5",
-                width: "100%",
-                border: "1px solid #ddd",
-                borderRadius: "5px",
-                marginBottom: "15px",
-                background: "#f9f9f9"
-              }}>
-                {/* Researcher Name */}
-                <div style={{ marginTop: "5px", color: "#333" }}>
-                  <strong>Researcher: </strong>{grant.relatedExpert.name || "Unknown"}
+              <li key={index}
+                style={{
+                  position: "relative",
+                  padding: "15px",
+                  fontSize: "14px",
+                  lineHeight: "1.5",
+                  width: "100%",
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  marginBottom: "15px",
+                  background: "#f9f9f9",
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    color: "#f59e0b",
+                  }}
+                >
+                  {grant.relatedExpert?.name || "Unknown Expert"}
                 </div>
-                {/* Grant Title */}
-                <div style={{ marginTop: "5px", color: "#333" }}>
-                  <strong>Grant: </strong>{cleanTitle || "Untitled Grant"}
+
+                <div style={{ marginTop: "10px", color: "#333" }}>
+                  <strong>Title:</strong> {grant.title || "Untitled Grant"} <br />
+                  <strong>Funder:</strong> {grant.funder || "Unknown"} <br />
+                  <strong>Start Date:</strong> {grant.startDate || "Unknown"} <br />
+                  <strong>End Date:</strong> {grant.endDate || "Unknown"} <br />
+                  <strong>Confidence:</strong>{" "}
+                  <span style={confidenceStyle.style}>{confidenceStyle.label}</span>
                 </div>
-                {/* Funder */}
-                <div style={{ marginTop: "5px", color: "#333" }}>
-                  <strong>Funder:</strong> {grant.funder || "Unknown"}
-                </div>
-                {/* Researcher Profile Link */}
+
                 <a
-                  href={grant.relatedExpert.url || "#"}
+                  href={grant.relatedExpert?.url || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -263,15 +270,16 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                     borderRadius: "5px",
                     textDecoration: "none",
                     fontWeight: "bold",
-                    opacity: grant.relatedExpert.url ? '1' : '0.6',
-                    cursor: grant.relatedExpert.url  ? 'pointer' : 'default'
+                    opacity: grant.relatedExpert?.url ? "1" : "0.6",
+                    cursor: grant.relatedExpert?.url ? "pointer" : "default",
                   }}
                 >
-                  {grant.relatedExpert.url ? "View Researcher Profile" : "No Profile Found"}
+                  {grant.relatedExpert?.url ? "View Profile" : "No Profile Found"}
                 </a>
               </li>
             );
           })}
+
         </ul>
       )}
     </div>
