@@ -25,7 +25,7 @@ const CombinedLocationLayer = ({
   showWorks,
   showGrants,
   searchKeyword,
-  setSelectedPointExperts,
+  setSelectedWorks,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
@@ -234,7 +234,7 @@ const CombinedLocationLayer = ({
             viewBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
-              setSelectedPointExperts(data.works);
+              setSelectedWorks(data.works);
               setSelectedGrants(data.grants);
               setPanelType("combined");
               setPanelOpen(true);
@@ -263,7 +263,7 @@ const CombinedLocationLayer = ({
     return () => {
       markers.forEach((marker) => map.removeLayer(marker));
     };
-  }, [map, geoData, grantGeoJSON, showWorks, showGrants, searchKeyword, setSelectedPointExperts, setSelectedGrants, setPanelOpen, setPanelType, setCombinedKeys]);
+  }, [map, geoData, grantGeoJSON, showWorks, showGrants, searchKeyword, setSelectedWorks, setSelectedGrants, setPanelOpen, setPanelType, setCombinedKeys]);
 
   return null;
 };

@@ -6,30 +6,10 @@ import { createMultiGrantPopup, createMatchedGrantPopup } from "./Popups";
 /**
  * Helper function to prepare panel data for grants.
  */
-// locationData.expertIDs,
-//         locationData.grantIDs,
-//         grantsMap,
-//         expertsMap,
-//         locationID
-const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID) => {
-  console.log("Preparing panel data...");
-  console.log("expertIDs:", expertIDs);
-  console.log("grantIDs:", grantIDs);
-  console.log("expertsMap:", expertsMap);
-  console.log("grantsMap:", grantsMap);
-  console.log("locationID:", locationID)
 
+const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID) => {
   // Process experts
   return expertIDs.map((expertID) => {
-    grantIDs.forEach((grantID) => {
-      console.log(`Grant ID: ${grantID}, Grant:`, grantsMap.get(grantID));
-    });
-    expertIDs.forEach((expertID) => {
-      console.log(`Expert ID: ${expertID}, Expert:`, expertsMap.get(expertID));
-    });
-    console.log("Are all grantIDs valid?", grantIDs.every((id) => id !== undefined && id !== null));
-    console.log("Are all expertIDs valid?", expertIDs.every((id) => id !== undefined && id !== null));
-    
     const expert = expertsMap.get(expertID);
     if (!expert) {
       console.warn(`Expert with ID ${expertID} not found in expertsMap.`);
@@ -235,10 +215,12 @@ const renderPoints = ({
  */
 const GrantLayer = ({
   grantGeoJSON,
+  showWorks,
   showGrants,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
+  combinedKeys,
 }) => {
   const map = useMap();
 
@@ -254,12 +236,17 @@ const GrantLayer = ({
     let grantIDCounter = 1;
     let expertIDCounter = 1;
 
+
     // Populate locationMap, grantsMap, and expertsMap
     grantGeoJSON.features.forEach((feature) => {
     const geometry = feature.geometry;
     const entries = feature.properties.entries || [];
     const location = feature.properties.location || "Unknown";
 
+    if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
+      console.log(`GrantLayer - Skipping popup for overlapping location: ${location}`);
+      return;
+    }
       // Generate a unique location ID
       const locationID = feature.id;
 

@@ -119,7 +119,7 @@ const renderPolygons = ({
         worksMap,
         locationID // Pass the current locationID
       );
-      console.log("Panel Data for Polygon:", panelData); // Debugging log
+      //console.log("Panel Data for Polygon:", panelData); // Debugging log
       setSelectedWorks(panelData); // Pass the prepared data to the panel
       setPanelType("works");
       setPanelOpen(true);
@@ -192,7 +192,7 @@ const renderPoints = ({
         worksMap,
         locationID // Pass the current locationID
       );
-      console.log("Panel Data for Marker:", panelData); // Debugging log
+      //console.log("Panel Data for Marker:", panelData); // Debugging log
       setSelectedWorks(panelData); // Pass the prepared data to the panel
       setPanelType("works");
       setPanelOpen(true);
@@ -214,6 +214,7 @@ const ExpertLayer = ({
   setSelectedWorks,
   setPanelOpen,
   setPanelType,
+  combinedKeys,
 }) => {
   const map = useMap();
 
@@ -236,6 +237,7 @@ const ExpertLayer = ({
         });
       },
     });
+    console.log("ExpertLayer - combinedKeys:", Array.from(combinedKeys));
 
     const locationMap = new Map();
     const worksMap = new Map();
@@ -253,7 +255,11 @@ const ExpertLayer = ({
 
       // Skip processing if showWorks is false
       if (!showWorks) return;
-
+      // Skip rendering if the location overlaps with combinedKeys
+      if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
+        console.log(`ExpertLayer - Skipping popup for overlapping location: ${location}`);
+        return;
+      }
       // Generate a unique location ID
       const locationID = feature.id;
 

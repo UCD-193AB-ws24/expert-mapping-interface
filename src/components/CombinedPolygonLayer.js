@@ -54,8 +54,6 @@ const matchesKeyword = (keyword, feature, entry) => {
 };
 
 
-
-
 const CombinedPolygonLayer = ({
   workGeoJSON,
   grantGeoJSON,
@@ -95,7 +93,7 @@ const CombinedPolygonLayer = ({
       // Collect work polygons by location
       workGeoJSON.features.forEach(feature => {
         if (feature.geometry.type === "Polygon") {
-          const location = (feature.properties.location || feature.properties.display_name || "").toLowerCase().trim();
+          const location = (feature.properties.location ||  "");
           if (!location) return;
           if (!workPolygons.has(location)) workPolygons.set(location, []);
           workPolygons.get(location).push(feature);
@@ -105,7 +103,7 @@ const CombinedPolygonLayer = ({
       // Collect grant polygons by location
       grantGeoJSON.features.forEach(feature => {
         if (feature.geometry.type === "Polygon") {
-          const location = (feature.properties.location || "").toLowerCase().trim();
+          const location = (feature.properties.location || "");
           if (!location) return;
           if (!grantPolygons.has(location)) grantPolygons.set(location, []);
           grantPolygons.get(location).push(feature);
@@ -117,6 +115,7 @@ const CombinedPolygonLayer = ({
       // Draw combined polygons for overlapping locations
       workPolygons.forEach((worksFeatures, location) => {
         if (grantPolygons.has(location)) {
+          console.log(`Overlapping location detected: ${location}`);
           overlappingLocations.push(location);
 
           const grantsFeatures = grantPolygons.get(location);
