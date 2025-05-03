@@ -13,84 +13,31 @@
  * @returns {string} HTML string for the popup content.
  */
 
-export const createSingleExpertContent = (locationName, entries, isPopup = true) => {
-  try {
-    // Ensure entries array is not empty
-    if (!entries || entries.length === 0) {
-      throw new Error("No entries available for this expert.");
-    }
+export const createSingleResearcherContent = (expertObj, locationName) => {
+  if (!expertObj) return "<div>No expert data available</div>";
 
-    // Extract the first entry
-    const entry = entries[0];
-
-    // Extract required fields from the entry
-    const title = entry?.title || "No Title Available";
-    const confidence = entry?.confidence || "Unknown";
-    const issueDate = entry?.issued || "Unknown";
-    const abstract = entry?.abstract || "No Abstract Available";
-
-    // Extract related expert details
-    const relatedExpert = entry?.relatedExperts?.[0];
-    const expertName = relatedExpert?.name || "Unknown Expert";
-    const expertURL = relatedExpert?.url || "#";
-
-    // Helper function to style the confidence level
-    const getConfidenceStyle = (confidenceValue) => {
-      if (!confidenceValue) return { label: '', style: {} };
-      if (confidenceValue.toLowerCase() === 'high') {
-        return {
-          label: 'High',
-          style: 'background-color: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 2px 5px; border-radius: 3px;',
-        };
-      } else if (confidenceValue.toLowerCase() === 'low') {
-        return {
-          label: 'Low',
-          style: 'background-color: #ffebee; color: #c62828; font-weight: bold; padding: 2px 5px; border-radius: 3px;',
-        };
-      } else {
-        return {
-          label: confidenceValue,
-          style: 'background-color: #f5f5f5; color: #757575; font-weight: bold; padding: 2px 5px; border-radius: 3px;',
-        };
-      }
-    };
-
-    const confidenceStyle = getConfidenceStyle(confidence);
-
-    // Generate the HTML content for the popup
-    return `
-      <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
-        <div style="font-weight: bold; font-size: 16px; color: #13639e;">
-          ${expertName}
-        </div>
-        <div style="font-size: 14px; color: #333; margin-top: 5px;">
-          <strong>Location:</strong> ${locationName || "Unknown"}
-        </div>
-        <div style="font-size: 14px; color: #333; margin-top: 5px;">
-          <strong>Confidence:</strong> <span style="${confidenceStyle.style}">${confidenceStyle.label}</span>
-        </div>
-        <div style="font-size: 14px; color: #333; margin-top: 5px;">
-          <strong>Title:</strong> ${title}
-        </div>
-        <div style="font-size: 14px; color: #333; margin-top: 5px;">
-          <strong>Issue Date:</strong> ${issueDate}
-        </div>
-        <a href='${expertURL}' 
-           target='_blank'
-           rel="noopener noreferrer"
-           style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold; opacity: ${expertURL !== "#" ? '1' : '0.6'}; cursor: ${expertURL !== "#" ? 'pointer' : 'default'}">
-          ${expertURL !== "#" ? "View Profile" : "No Profile Found"}
-        </a>
+  const confidenceLabel = expertObj.works?.[0]?.confidence || "Unknown";
+  const confidenceStyle =
+    confidenceLabel.toLowerCase() === "high"
+      ? "background: #e8f5e9; color: #2e7d32;"
+      : confidenceLabel.toLowerCase() === "low"
+        ? "background: #ffebee; color: #c62828;"
+        : "background: #f5f5f5; color: #757575;";
+  return `
+    <div style="position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px; background: white; border-radius: 8px;">
+      <div style="font-weight: bold; font-size: 16px; color: #13639e;">
+        ${expertObj.name || "Unknown Expert"}
       </div>
-    `;
-  } catch (e) {
-    console.error('Error in createSingleExpertContent:', e);
-    return `
-      <div style="color: red; font-size: 14px; padding: 15px;">
-        Error generating content: ${e.message}
+      <div style="margin-top: 5px; color: #333;">
+        <strong>Location:</strong> ${locationName || "Unknown"}
       </div>
-    `;
-  }
+      <a href="#" class="view-experts-btn"
+   style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
+  View Profile
+</a>
+
+    </div>
+  `;
 };
 
 

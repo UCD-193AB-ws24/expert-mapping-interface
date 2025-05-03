@@ -3,7 +3,7 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 
-import { createMultiExpertContent } from "./Popups";
+import { createMultiExpertContent, createSingleResearcherContent } from "./Popups";
 
 /**
  * Helper function to prepare panel data.
@@ -192,6 +192,7 @@ const renderPoints = ({
   expertsMap,
   worksMap,
 }) => {
+  let closeTimeout = null;
   locationMap.forEach((locationData, locationID) => {
     if (locationData.geometryType !== "Point" || locationData.expertIDs.length === 0) return; // Skip locations with 0 experts
 
@@ -211,11 +212,19 @@ const renderPoints = ({
     let activePopup = null;
 
     marker.on("mouseover", () => {
-      const content = createMultiExpertContent(
-        locationData.expertIDs.length,
-        locationData.name,
-        locationData.workIDs.length
-      );
+      const content =
+        locationData.expertIDs.length === 1
+          ? createSingleResearcherContent(
+            expertsMap.get(locationData.expertIDs[0]),
+            locationData.name
+          )
+          : createMultiExpertContent(
+            locationData.expertIDs.length,
+            locationData.name,
+            locationData.workIDs.length
+          );
+
+      if (activePopup) activePopup.remove();
 
       activePopup = L.popup({
         closeButton: false,
@@ -227,13 +236,61 @@ const renderPoints = ({
         .setLatLng(marker.getLatLng())
         .setContent(content)
         .openOn(map);
+
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        // Delay popup close when hovering over it
+        popupElement.addEventListener("mouseenter", () => {
+          clearTimeout(closeTimeout);
+        });
+
+        popupElement.addEventListener("mouseleave", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 150); // short delay
+        });
+
+        const viewBtn = popupElement.querySelector(".view-experts-btn");
+        if (viewBtn) {
+          viewBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const panelData = preparePanelData(
+              locationData.expertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID
+            );
+
+            setSelectedWorks(panelData);
+            setPanelType("works");
+            setPanelOpen(true);
+
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+        }
+      }
     });
 
+
+
     marker.on("mouseout", () => {
-      if (activePopup) {
-        activePopup.close();
-        activePopup = null;
-      }
+      closeTimeout = setTimeout(() => {
+        if (activePopup) {
+          activePopup.close();
+          activePopup = null;
+        }
+      }, 150); // match the delay above
     });
 
     marker.on("click", () => {
@@ -290,6 +347,8 @@ const ExpertLayer = ({
       },
     });
     console.log("ExpertLayer - combinedKeys:", Array.from(combinedKeys));
+
+
 
     const locationMap = new Map();
     const worksMap = new Map();
