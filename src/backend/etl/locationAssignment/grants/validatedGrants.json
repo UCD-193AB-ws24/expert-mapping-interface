@@ -1,321 +1,50 @@
 [
   {
-    "location": "N/A",
-    "country": "None",
-    "entries": [
-      {
-        "title": "\" RANDONIZED STUDY OF LAROTAXEL +CISPLATIN (LC) VS. GEMCITABINE + CISPLATIN (GC) IN THE FIRST LINE TREATMENT OF LOCALLY ADVANCED/METASTATIC UROTHELIAL TRACT OR BLADDER CANCER.\" ",
-        "funder": "Sanofi S.a.",
-        "startDate": "2008-10-09",
-        "endDate": "2011-08-01",
-        "relatedExpert": {
-          "name": "Primo N Lara",
-          "url": "expert/n5rxbrEQ"
-        },
-        "confidence": ""
-      },
-      {
-        "title": "\"Biting\" of human cells by Entamoeba histolytica ",
-        "funder": "National Inst Of Allergy And Infectious Diseases",
-        "startDate": "2014-12-01",
-        "endDate": "2016-11-30",
-        "relatedExpert": {
-          "name": "Katherine S Ralston",
-          "url": "expert/PHG0zOFl"
-        },
-        "confidence": ""
-      },
-      {
-        "title": "\"Do You Know\" Video Series ",
-        "funder": "West Agro, Inc.",
-        "startDate": "2015-08-01",
-        "endDate": "2020-01-31",
-        "relatedExpert": {
-          "name": "John A Angelos",
-          "url": "expert/OtgjK1vJ"
-        },
-        "confidence": ""
-      },
-      {
-        "title": "\"NUESTRA SALUD ES PRIMERO\" OUR HEALTH COMES FIRST ",
-        "funder": "California Health Benefit Exchange",
-        "startDate": "2013-05-01",
-        "endDate": "2015-02-28",
-        "relatedExpert": {
-          "name": "Sergio A Aguilar-Gaxiola",
-          "url": "expert/llsQZobR"
-        },
-        "confidence": ""
-      },
-      {
-        "title": "\"The International Symposium on Computer Architecture (ISCA) 2019 Travel Grant,\" ",
-        "funder": "National Science Foundation",
-        "startDate": "2019-06-15",
-        "endDate": "2019-11-30",
-        "relatedExpert": {
-          "name": "Jason Lowe-Power",
-          "url": "expert/hLqBLS2T"
-        },
-        "confidence": ""
-      }
-    ]
-  },
-  {
-    "location": "California",
-    "country": "United States",
-    "entries": [
-      {
-        "title": "\"CA Quits\" Tobacco Cessation Learning Collaborative ",
-        "funder": "California Department Of Public Health",
-        "startDate": "2017-03-24",
-        "endDate": "2018-03-30",
-        "relatedExpert": {
-          "name": "Elisa Tong",
-          "url": "expert/Xho5YrTe"
-        },
-        "confidence": "High"
-      },
-      {
-        "title": "\"WE ARE CALIFORNIA\" WORKSHOP SERIES ",
-        "funder": "California Humanities",
-        "startDate": "2009-01-01",
-        "endDate": "2012-12-31",
-        "relatedExpert": {
-          "name": "Nancy J Mctygue",
-          "url": "expert/JYXyl8Nd"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Plumas County",
-    "country": "United States",
-    "entries": [
-      {
-        "title": "\"EVALUATION SERVICES FOR PLUMAS COUNTY YOUTH VIOLENCE PREVENTION PLANING PROCESS ",
-        "funder": "Plumas Rural Services, Inc.",
-        "startDate": "2006-06-01",
-        "endDate": "2007-12-31",
-        "relatedExpert": {
-          "name": "Jonathan K London",
-          "url": "expert/tXsEWMqF"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "United States",
-    "country": "United States",
-    "entries": [
-      {
-        "title": "#SacYouthWorks Service Agreement: Summer Health Institute for Nursing Exploration and Success (SHINES) ",
-        "funder": "Pro Youth And Families, Inc.",
-        "startDate": "2022-07-01",
-        "endDate": "2022-09-05",
-        "relatedExpert": {
-          "name": "Piri Ackerman",
-          "url": "expert/2OUvD6E9"
-        },
-        "confidence": "Mid"
-      },
-      {
-        "title": "Did you know there's a tunnel under Ocean blvd",
-        "funder": "Unknown",
-        "endDate": "2015-02-28",
-        "startDate": "2013-05-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Lana Del Rey"
-        },
-        "confidence": "Mid"
-      }
-    ]
-  },
-  {
-    "location": "Canada",
-    "country": "Canada",
-    "entries": [
-      {
-        "title": "''FIRE-INDUCED CHANGES IN ALBEDO AND THE ASSOCIATE RADIATIVE FORCING: A COMPARISON OF BOREAL CANADA AND AUSTRALIA TROPICAL SAVANNAS'' I PROPOSE A 3-YEAR STUDY USING MODIS OBSERVATIONS AND AVAILABLE FIRE HISTORY DATA TO EXAMINE THE TEMPORAL EVOLUTION OF POST ",
-        "funder": "National Aeronautics and Space Administration",
-        "startDate": "2008-07-01",
-        "endDate": "2012-06-30",
-        "relatedExpert": {
-          "name": "Yufang Jin",
-          "url": "expert/Y6g2KpDY"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Stockton",
-    "country": "United States",
-    "entries": [
-      {
-        "title": "Stockton, CA is boring",
-        "funder": "Unknown",
-        "endDate": "2016-02-28",
-        "startDate": "2014-05-01",
-        "confidence": "High",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Kenny"
-        }
-      }
-    ]
-  },
-  {
-    "location": "Vietnam",
-    "country": "Vietnam",
-    "entries": [
-      {
-        "title": "Study about the cuisine of Vietnam",
-        "funder": "Unknown",
-        "endDate": "2015-03-28",
-        "startDate": "2013-07-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Loc"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Australia",
-    "country": "Australia",
-    "entries": [
-      {
-        "title": "Kangaroo in Australia",
-        "funder": "Unknown",
-        "endDate": "2015-10-28",
-        "startDate": "2013-05-08",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "An Australian"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Newport Beach",
-    "country": "United States",
-    "entries": [
-      {
-        "title": "Summer at Newport Beach",
-        "funder": "Unknown",
-        "endDate": "2021-02-28",
-        "startDate": "2020-05-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Cinnamon Girl"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Stoke-on-Trent",
-    "country": "United Kingdom",
-    "entries": [
-      {
-        "title": "A cold rainy night in Stoke",
-        "funder": "Unknown",
-        "endDate": "2014-02-28",
-        "startDate": "2010-05-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Messi"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Barcelona",
-    "country": "Spain",
-    "entries": [
-      {
-        "title": "Midnight in Barcelona",
-        "funder": "Unknown",
-        "endDate": "2014-08-28",
-        "startDate": "2010-06-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Messi"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Paris",
-    "country": "France",
-    "entries": [
-      {
-        "title": "Echoes from the Paris Underground",
-        "funder": "Unknown",
-        "endDate": "2017-08-28",
-        "startDate": "2013-06-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Vi Truong"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Tokyo",
+    "location": "Kyoto",
     "country": "Japan",
     "entries": [
       {
-        "title": "Beneath the Lights of Tokyo",
-        "funder": "Unknown",
-        "endDate": "2018-08-28",
-        "startDate": "2015-06-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Caitlyn"
-        },
+        "id": "g14",
+        "title": "Why Autumn in Kyoto Is a Photographer’s Dream",
+        "funder": "Texas A M University College Station",
+        "startDate": "2021-01-26",
+        "endDate": "2025-08-31",
+        "inheresIn": "expert/HHl7K2wb",
+        "url": "ark:/87287/d7c08j/grant/K339D21",
+        "relatedExperts": [
+          {
+            "id": "HHl7K2wb",
+            "firstName": "Farhad",
+            "lastName": "Assadian",
+            "fullName": "Farhad Assadian",
+            "url": "expert/HHl7K2wb"
+          }
+        ],
         "confidence": "High"
       }
     ]
   },
   {
-    "location": "Vermont",
-    "country": "United States",
+    "location": "Berlin",
+    "country": "Germany",
     "entries": [
       {
-        "title": "Snowfall in Vermont",
-        "funder": "Unknown",
-        "endDate": "2018-04-28",
-        "startDate": "2015-01-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Dua Lipa"
-        },
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Reykjavik",
-    "country": "Iceland",
-    "entries": [
-      {
-        "title": "The Girl from Reykjavik",
-        "funder": "Unknown",
-        "endDate": "2018-04-28",
-        "startDate": "2015-01-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Jett"
-        },
+        "id": "g21",
+        "title": "Exploring the Street Art Scene of Berlin",
+        "funder": "The Andrew W Mellon Foundation",
+        "startDate": "2024-03-01",
+        "endDate": "2026-02-28",
+        "inheresIn": "expert/HnCXc9yQ",
+        "url": "ark:/87287/d7c08j/grant/A243555",
+        "relatedExperts": [
+          {
+            "id": "HnCXc9yQ",
+            "firstName": "Hulleah",
+            "lastName": "Tsinhnahjinnie",
+            "fullName": "Hulleah Tsinhnahjinnie",
+            "url": "expert/HnCXc9yQ"
+          }
+        ],
         "confidence": "High"
       }
     ]
@@ -325,65 +54,1336 @@
     "country": "Thailand",
     "entries": [
       {
-        "title": "Lost in the Streets of Bangkok",
-        "funder": "Unknown",
-        "endDate": "2024-04-28",
-        "startDate": "2023-01-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Curry"
-        },
+        "id": "g42",
+        "title": "A Foodie's Guide to the Best Eats in Bangkok",
+        "funder": "Washington Tree Fruit Research Commission",
+        "startDate": "2014-05-01",
+        "endDate": "2015-04-30",
+        "inheresIn": "expert/4aAcNwlI",
+        "url": "ark:/87287/d7gt0q/grant/K387673-110423",
+        "relatedExperts": [
+          {
+            "id": "4aAcNwlI",
+            "firstName": "Joanna",
+            "lastName": "Chiu",
+            "fullName": "Joanna Chiu",
+            "url": "expert/4aAcNwlI"
+          }
+        ],
         "confidence": "High"
       }
     ]
   },
   {
-    "location": "Chicago",
+    "location": "Iceland",
+    "country": "Iceland",
+    "entries": [
+      {
+        "id": "g32",
+        "title": "How Iceland Became the Ultimate Destination for Nature Lovers",
+        "funder": "Marshfield Clinic Research Foundation",
+        "startDate": "2023-09-30",
+        "endDate": "2024-09-29",
+        "inheresIn": "expert/4w0Xkrlb",
+        "url": "ark:/87287/d7c08j/grant/A240852",
+        "relatedExperts": [
+          {
+            "id": "4w0Xkrlb",
+            "firstName": "Fadi",
+            "lastName": "Fathallah",
+            "fullName": "Fadi Fathallah",
+            "url": "expert/4w0Xkrlb"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Hà Nội",
+    "country": "Vietnam",
+    "entries": [
+      {
+        "id": "g25",
+        "title": "What It's Like to Celebrate Lunar New Year in Hanoi",
+        "funder": "Childrens Hospital Of Philadelphia",
+        "startDate": "2019-04-18",
+        "endDate": "2023-06-30",
+        "inheresIn": "expert/dyITrmLJ",
+        "url": "ark:/87287/d7c08j/grant/K334C28",
+        "relatedExperts": [
+          {
+            "id": "dyITrmLJ",
+            "firstName": "Marcio",
+            "lastName": "Malogolowkin",
+            "fullName": "Marcio Malogolowkin",
+            "url": "expert/dyITrmLJ"
+          }
+        ],
+        "confidence": "High"
+      },
+      {
+        "id": "g3",
+        "title": "From Rice Terraces to Rooftop Bars in Hanoi",
+        "funder": "Genetic Alliance Inc",
+        "startDate": "2014-01-01",
+        "endDate": "2015-06-30",
+        "inheresIn": "expert/VPkQitIe",
+        "url": "ark:/87287/d7gt0q/grant/K330383-111778",
+        "relatedExperts": [
+          {
+            "id": "VPkQitIe",
+            "firstName": "Nicholas",
+            "lastName": "Anderson",
+            "fullName": "Nicholas Anderson",
+            "url": "expert/VPkQitIe"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Sydney",
+    "country": "Australia",
+    "entries": [
+      {
+        "id": "g30",
+        "title": "A Local’s Guide to Weekend Markets in Sydney",
+        "funder": "Marshfield Clinic Research Foundation",
+        "startDate": "2020-09-30",
+        "endDate": "2021-09-29",
+        "inheresIn": "expert/0pW71mR8",
+        "url": "ark:/87287/d7c08j/grant/K333D93",
+        "relatedExperts": [
+          {
+            "id": "0pW71mR8",
+            "firstName": "Farzaneh",
+            "lastName": "Khorsandi Kouhanestani",
+            "fullName": "Farzaneh Khorsandi Kouhanestani",
+            "url": "expert/0pW71mR8"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Buenos Aires",
+    "country": "Argentina",
+    "entries": [
+      {
+        "id": "g17",
+        "title": "The Best Bookstores to Explore in Buenos Aires",
+        "funder": "California Governors Office Of Planning And Research",
+        "startDate": "2022-02-23",
+        "endDate": "2024-09-30",
+        "inheresIn": "expert/B5aFyHyV",
+        "url": "ark:/87287/d7c08j/grant/K389D91",
+        "relatedExperts": [
+          {
+            "id": "B5aFyHyV",
+            "firstName": "Pablo",
+            "lastName": "Reguerin",
+            "fullName": "Pablo Reguerin",
+            "url": "expert/B5aFyHyV"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "New Orleans",
     "country": "United States",
     "entries": [
       {
-        "title": "Last Train to Chicago",
-        "funder": "Unknown",
-        "endDate": "2019-04-15",
-        "startDate": "2017-01-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Hayley Williams"
-        },
+        "id": "g47",
+        "title": "Discovering Jazz Roots in the Heart of New Orleans",
+        "funder": "University Of Nebraska",
+        "startDate": "2009-07-01",
+        "endDate": "2012-05-31",
+        "inheresIn": "expert/VmnoD8Cc",
+        "url": "ark:/87287/d7gt0q/grant/K387944-15796",
+        "relatedExperts": [
+          {
+            "id": "VmnoD8Cc",
+            "firstName": "Gang-Yu",
+            "lastName": "Liu",
+            "fullName": "Gang-Yu Liu",
+            "url": "expert/VmnoD8Cc"
+          }
+        ],
         "confidence": "High"
       }
     ]
   },
   {
-    "location": "Puerto Rico",
-    "country": "Puerto Rico",
+    "location": "Tbilisi",
+    "country": "Georgia",
     "entries": [
       {
-        "title": "Love Letters from Puerto Rico",
-        "funder": "Unknown",
-        "endDate": "2019-12-15",
-        "startDate": "2017-07-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Marias"
-        },
-        "confidence": "Mid"
+        "id": "g7",
+        "title": "Why Solo Travelers Are Flocking to Tbilisi",
+        "funder": "California Governors Office Of Planning And Research",
+        "startDate": "2022-02-23",
+        "endDate": "2024-09-30",
+        "inheresIn": "expert/B5aFyHyV",
+        "url": "ark:/87287/d7c08j/grant/K389D91",
+        "relatedExperts": [
+          {
+            "id": "B5aFyHyV",
+            "firstName": "Pablo",
+            "lastName": "Reguerin",
+            "fullName": "Pablo Reguerin",
+            "url": "expert/B5aFyHyV"
+          }
+        ],
+        "confidence": "High"
       }
     ]
   },
   {
-    "location": "Chornobyl",
-    "country": "Ukraine",
+    "location": "Milan",
+    "country": "Italy",
     "entries": [
       {
-        "title": "The Children of Chernobyl",
-        "funder": "Unknown",
-        "endDate": "2019-5-15",
-        "startDate": "2017-12-01",
-        "relatedExpert": {
-          "url": "expert/llsQZobR",
-          "name": "Bo"
-        },
+        "id": "g61",
+        "title": "8 Hours of Food, Fashion, and Culture in Milan",
+        "funder": "Alcyone Therapeutics Inc",
+        "startDate": "2024-03-01",
+        "endDate": "2025-08-31",
+        "inheresIn": "expert/hRFBrD9e",
+        "url": "ark:/87287/d7c08j/grant/A243363",
+        "relatedExperts": [
+          {
+            "id": "hRFBrD9e",
+            "firstName": "Sanchita",
+            "lastName": "Bhatnagar",
+            "fullName": "Sanchita Bhatnagar",
+            "url": "expert/hRFBrD9e"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Mexico City",
+    "country": "Mexico",
+    "entries": [
+      {
+        "id": "g18",
+        "title": "Art, Revolution, and Resilience in Mexico City",
+        "funder": "Genetic Alliance Inc",
+        "startDate": "2016-04-28",
+        "endDate": "2018-07-31",
+        "inheresIn": "expert/VPkQitIe",
+        "url": "ark:/87287/d7gt0q/grant/K378A23-116048",
+        "relatedExperts": [
+          {
+            "id": "VPkQitIe",
+            "firstName": "Nicholas",
+            "lastName": "Anderson",
+            "fullName": "Nicholas Anderson",
+            "url": "expert/VPkQitIe"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Vietnam",
+    "country": "Vietnam",
+    "entries": [
+      {
+        "id": "g8",
+        "title": "A Taste of Tradition: Street Food in Vietnam",
+        "funder": "Genetic Alliance Inc",
+        "startDate": "2016-04-28",
+        "endDate": "2018-07-31",
+        "inheresIn": "expert/VPkQitIe",
+        "url": "ark:/87287/d7gt0q/grant/K378A23-116048",
+        "relatedExperts": [
+          {
+            "id": "VPkQitIe",
+            "firstName": "Nicholas",
+            "lastName": "Anderson",
+            "fullName": "Nicholas Anderson",
+            "url": "expert/VPkQitIe"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Istanbul",
+    "country": "Turkey",
+    "entries": [
+      {
+        "id": "g56",
+        "title": "Rooftop Views and Hidden Gems in Istanbul",
+        "funder": "California Department Of Food And Agriculture",
+        "startDate": "2015-01-01",
+        "endDate": "2015-12-31",
+        "inheresIn": "expert/f9geqbAx",
+        "url": "ark:/87287/d7gt0q/grant/KL83992-113409",
+        "relatedExperts": [
+          {
+            "id": "f9geqbAx",
+            "firstName": "Robert",
+            "lastName": "Gilbertson",
+            "fullName": "Robert Gilbertson",
+            "url": "expert/f9geqbAx"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Reykjavik",
+    "country": "Iceland",
+    "entries": [
+      {
+        "id": "g9",
+        "title": "The Nightlife You Didn’t Expect in Reykjavik",
+        "funder": "University Of Washington",
+        "startDate": "2023-09-01",
+        "endDate": "2024-08-31",
+        "inheresIn": "expert/BAaRRP1Y",
+        "url": "ark:/87287/d7c08j/grant/A241584",
+        "relatedExperts": [
+          {
+            "id": "BAaRRP1Y",
+            "firstName": "Edward",
+            "lastName": "Pugh Jr",
+            "fullName": "Edward Pugh Jr",
+            "url": "expert/BAaRRP1Y"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Cairo",
+    "country": "Egypt",
+    "entries": [
+      {
+        "id": "g49",
+        "title": "Surviving Summer in the Bustling Streets of Cairo",
+        "funder": "Yale University",
+        "startDate": "2024-09-24",
+        "endDate": "2025-04-30",
+        "inheresIn": "expert/uYN8iO5Y",
+        "url": "ark:/87287/d7c08j/grant/A253295",
+        "relatedExperts": [
+          {
+            "id": "uYN8iO5Y",
+            "firstName": "Alexander",
+            "lastName": "Borowsky",
+            "fullName": "Alexander Borowsky",
+            "url": "expert/uYN8iO5Y"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Havana",
+    "country": "Cuba",
+    "entries": [
+      {
+        "id": "g5",
+        "title": "Tracing the Footsteps of Hemingway in Havana",
+        "funder": "University Of Florida",
+        "startDate": "2022-07-01",
+        "endDate": "2024-08-31",
+        "inheresIn": "expert/llsQZobR",
+        "url": "ark:/87287/d7c08j/grant/K370F05",
+        "relatedExperts": [
+          {
+            "id": "llsQZobR",
+            "firstName": "Sergio",
+            "lastName": "Aguilar-Gaxiola",
+            "fullName": "Sergio Aguilar-Gaxiola",
+            "url": "expert/llsQZobR"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Bali",
+    "country": "Indonesia",
+    "entries": [
+      {
+        "id": "g40",
+        "title": "Why Locals Love the Rainy Season in Bali",
+        "funder": "Regents Of The University Of California San Diego",
+        "startDate": "2020-03-06",
+        "endDate": "2026-02-28",
+        "inheresIn": "expert/0qxJCUm7",
+        "url": "ark:/87287/d7c08j/grant/K387C63",
+        "relatedExperts": [
+          {
+            "id": "0qxJCUm7",
+            "firstName": "Tucker",
+            "lastName": "Jones",
+            "fullName": "Tucker Jones",
+            "url": "expert/0qxJCUm7"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Hollywood",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g46",
+        "title": "Climb up the H of the Hollywood sign",
+        "funder": "Alcyone Therapeutics Inc",
+        "startDate": "2021-09-15",
+        "endDate": "2023-08-31",
+        "inheresIn": "expert/hRFBrD9e",
+        "url": "ark:/87287/d7c08j/grant/K320F03",
+        "relatedExperts": [
+          {
+            "id": "hRFBrD9e",
+            "firstName": "Sanchita",
+            "lastName": "Bhatnagar",
+            "fullName": "Sanchita Bhatnagar",
+            "url": "expert/hRFBrD9e"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Quebec",
+    "country": "Canada",
+    "entries": [
+      {
+        "id": "g33",
+        "title": "Experiencing Winter Magic in Quebec City",
+        "funder": "San Diego State University",
+        "startDate": "2012-10-01",
+        "endDate": "2013-09-30",
+        "inheresIn": "expert/5W8bOHgR",
+        "url": "ark:/87287/d7gt0q/grant/K325544-107222",
+        "relatedExperts": [
+          {
+            "id": "5W8bOHgR",
+            "firstName": "Zhiliang",
+            "lastName": "Fan",
+            "fullName": "Zhiliang Fan",
+            "url": "expert/5W8bOHgR"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Lisbon",
+    "country": "Portugal",
+    "entries": [
+      {
+        "id": "g27",
+        "title": "Living Like a Local in the Backstreets of Lisbon",
+        "funder": "National Security Agency",
+        "startDate": "2019-06-20",
+        "endDate": "2025-06-30",
+        "inheresIn": "expert/83x5AQ8a",
+        "url": "ark:/87287/d7c08j/grant/K338C88",
+        "relatedExperts": [
+          {
+            "id": "83x5AQ8a",
+            "firstName": "Sung-Joo",
+            "lastName": "Yoo",
+            "fullName": "Sung-Joo Yoo",
+            "url": "expert/83x5AQ8a"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Singapore",
+    "country": "Singapore",
+    "entries": [
+      {
+        "id": "g34",
+        "title": "A Food Trail Through the Bustling Hawker Centres of Singapore",
+        "funder": "American Sociological Association (the)",
+        "startDate": "2005-10-01",
+        "endDate": "2007-09-30",
+        "inheresIn": "expert/TiQL8deA",
+        "url": "ark:/87287/d7gt0q/grant/K358411-8203",
+        "relatedExperts": [
+          {
+            "id": "TiQL8deA",
+            "firstName": "Ming-Cheng",
+            "lastName": "Lo",
+            "fullName": "Ming-Cheng Lo",
+            "url": "expert/TiQL8deA"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Norway",
+    "country": "Norway",
+    "entries": [
+      {
+        "id": "g50",
+        "title": "From Fjords to Fireplaces: A Winter Escape in Norway",
+        "funder": "Curemark Llc",
+        "startDate": "2015-11-04",
+        "endDate": "2019-01-03",
+        "inheresIn": "expert/U8wW2G0y",
+        "url": "ark:/87287/d7gt0q/grant/K334A76-114565",
+        "relatedExperts": [
+          {
+            "id": "U8wW2G0y",
+            "firstName": "Randi",
+            "lastName": "Hagerman",
+            "fullName": "Randi Hagerman",
+            "url": "expert/U8wW2G0y"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Stockholm",
+    "country": "Sweden",
+    "entries": [
+      {
+        "id": "g4",
+        "title": "Finding Minimalist Bliss in the Heart of Stockholm",
+        "funder": "TexAVA Automated Vehicles for Allas A M University College Station",
+        "startDate": "2021-01-26",
+        "endDate": "2025-08-31",
+        "inheresIn": "expert/HHl7K2wb",
+        "url": "ark:/87287/d7c08j/grant/K339D21",
+        "relatedExperts": [
+          {
+            "id": "HHl7K2wb",
+            "firstName": "Farhad",
+            "lastName": "Assadian",
+            "fullName": "Farhad Assadian",
+            "url": "expert/HHl7K2wb"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Austin",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g24",
+        "title": "The Best Food Trucks to Try in Austin, Texas",
+        "funder": "National Institute For Food And Agriculture",
+        "startDate": "2020-05-15",
+        "endDate": "2025-05-14",
+        "inheresIn": "expert/vNCq1LFP",
+        "url": "ark:/87287/d7c08j/grant/K388C38",
+        "relatedExperts": [
+          {
+            "id": "vNCq1LFP",
+            "firstName": "Russell",
+            "lastName": "Hovey",
+            "fullName": "Russell Hovey",
+            "url": "expert/vNCq1LFP"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Sri Lanka",
+    "country": "Sri Lanka",
+    "entries": [
+      {
+        "id": "g45",
+        "title": "The Art of Tea in the Mountains of Sri Lanka",
+        "funder": "Indo US Science And Technology Forum",
+        "startDate": "2018-06-01",
+        "endDate": "2021-12-31",
+        "inheresIn": "expert/ZXIRZDtk",
+        "url": "ark:/87287/d7c08j/grant/K387B49",
+        "relatedExperts": [
+          {
+            "id": "ZXIRZDtk",
+            "firstName": "Imran",
+            "lastName": "Khan",
+            "fullName": "Imran Khan",
+            "url": "expert/ZXIRZDtk"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Salvador",
+    "country": "Brazil",
+    "entries": [
+      {
+        "id": "g23",
+        "title": "Dancing All Night at Carnival in Salvador, Brazil",
+        "funder": "National Institute Of General Medical Science",
+        "startDate": "2003-07-01",
+        "endDate": "2009-05-31",
+        "inheresIn": "expert/DdmjXLH3",
+        "url": "ark:/87287/d7gt0q/grant/K329554-5215",
+        "relatedExperts": [
+          {
+            "id": "DdmjXLH3",
+            "firstName": "Yong",
+            "lastName": "Duan",
+            "fullName": "Yong Duan",
+            "url": "expert/DdmjXLH3"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Salt Lake City",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g43",
+        "title": "The Rising Tech Scene in Salt Lake City",
+        "funder": "Children's Hospital And Research Center Foundation",
+        "startDate": "2014-06-01",
+        "endDate": "2014-12-31",
+        "inheresIn": "expert/74Btyp8k",
+        "url": "ark:/87287/d7gt0q/grant/K328529-111097",
+        "relatedExperts": [
+          {
+            "id": "74Btyp8k",
+            "firstName": "Koen",
+            "lastName": "Van Rompay",
+            "fullName": "Koen Van Rompay",
+            "url": "expert/74Btyp8k"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "San Diego",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g59",
+        "title": "Exploring the Waterfront and Wine Bars of San Diego",
+        "funder": "National Institute Of Standards And Technology",
+        "startDate": "2023-05-01",
+        "endDate": "2024-09-30",
+        "inheresIn": "expert/l9NH557K",
+        "url": "ark:/87287/d7c08j/grant/K380F72",
+        "relatedExperts": [
+          {
+            "id": "l9NH557K",
+            "firstName": "Sabbie",
+            "lastName": "Miller",
+            "fullName": "Sabbie Miller",
+            "url": "expert/l9NH557K"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "California",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g57",
+        "title": "A Winter Escape to California",
+        "funder": "California Department Of Food And Agriculture",
+        "startDate": "2016-01-01",
+        "endDate": "2016-12-31",
+        "inheresIn": "expert/f9geqbAx",
+        "url": "ark:/87287/d7gt0q/grant/K338A18-114942",
+        "relatedExperts": [
+          {
+            "id": "f9geqbAx",
+            "firstName": "Robert",
+            "lastName": "Gilbertson",
+            "fullName": "Robert Gilbertson",
+            "url": "expert/f9geqbAx"
+          }
+        ],
+        "confidence": "High"
+      },
+      {
+        "id": "g62",
+        "title": "Chasing Wildflowers: Where to See California in Full Bloom",
+        "funder": "Italfarmaco S P A",
+        "startDate": "2019-07-09",
+        "endDate": "2028-06-30",
+        "inheresIn": "expert/Q33TsqxH",
+        "url": "ark:/87287/d7c08j/grant/K370C46",
+        "relatedExperts": [
+          {
+            "id": "Q33TsqxH",
+            "firstName": "Craig",
+            "lastName": "Mcdonald",
+            "fullName": "Craig Mcdonald",
+            "url": "expert/Q33TsqxH"
+          }
+        ],
+        "confidence": "High"
+      },
+      {
+        "id": "g63",
+        "title": "The Best Places to Camp Under the Stars in California",
+        "funder": "Kite Pharma Inc",
+        "startDate": "2016-09-15",
+        "endDate": "2032-06-30",
+        "inheresIn": "expert/Y6KtIDkT",
+        "url": "ark:/87287/d7c08j/grant/K372A51",
+        "relatedExperts": [
+          {
+            "id": "Y6KtIDkT",
+            "firstName": "Mehrdad",
+            "lastName": "Abedi",
+            "fullName": "Mehrdad Abedi",
+            "url": "expert/Y6KtIDkT"
+          }
+        ],
+        "confidence": "High"
+      },
+      {
+        "id": "g48",
+        "title": "Why California Is the Best Place to Experience Global Cuisine",
+        "funder": "Medtronic Inc",
+        "startDate": "2024-08-02",
+        "endDate": "2030-12-31",
+        "inheresIn": "expert/2pyuFDX5",
+        "url": "ark:/87287/d7c08j/grant/A243966",
+        "relatedExperts": [
+          {
+            "id": "2pyuFDX5",
+            "firstName": "Kee",
+            "lastName": "Kim",
+            "fullName": "Kee Kim",
+            "url": "expert/2pyuFDX5"
+          }
+        ],
+        "confidence": "High"
+      },
+      {
+        "id": "g38",
+        "title": "The Spirit of California’s Craft Beer Scene and Where to Try It",
+        "funder": "The Robert Wood Johnson Foundation",
+        "startDate": "2006-01-01",
+        "endDate": "2008-05-31",
+        "inheresIn": "expert/TiQL8deA",
+        "url": "ark:/87287/d7gt0q/grant/K357171-7018",
+        "relatedExperts": [
+          {
+            "id": "TiQL8deA",
+            "firstName": "Ming-Cheng",
+            "lastName": "Lo",
+            "fullName": "Ming-Cheng Lo",
+            "url": "expert/TiQL8deA"
+          }
+        ],
+        "confidence": "High"
+      },
+      {
+        "id": "g28",
+        "title": "The Best Small Towns in California for a Peaceful Weekend Escape",
+        "funder": "University Of Florida",
+        "startDate": "2024-09-01",
+        "endDate": "2025-08-31",
+        "inheresIn": "expert/llsQZobR",
+        "url": "ark:/87287/d7c08j/grant/A252961",
+        "relatedExperts": [
+          {
+            "id": "llsQZobR",
+            "firstName": "Sergio",
+            "lastName": "Aguilar-Gaxiola",
+            "fullName": "Sergio Aguilar-Gaxiola",
+            "url": "expert/llsQZobR"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Colorado",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g6",
+        "title": "10 Scenic Road Trips to Take Across Colorado",
+        "funder": "California Governors Office Of Planning And Research",
+        "startDate": "2022-04-26",
+        "endDate": "2024-09-30",
+        "inheresIn": "expert/B5aFyHyV",
+        "url": "ark:/87287/d7c08j/grant/K325F77",
+        "relatedExperts": [
+          {
+            "id": "B5aFyHyV",
+            "firstName": "Pablo",
+            "lastName": "Reguerin",
+            "fullName": "Pablo Reguerin",
+            "url": "expert/B5aFyHyV"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Montana",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g44",
+        "title": "The Unexpected Luxury Experiences in Montana",
+        "funder": "Cruise Llc",
+        "startDate": "2020-10-01",
+        "endDate": "2021-06-30",
+        "inheresIn": "expert/hiypvYMU",
+        "url": "ark:/87287/d7c08j/grant/K329D92",
+        "relatedExperts": [
+          {
+            "id": "hiypvYMU",
+            "firstName": "Alan",
+            "lastName": "Jenn",
+            "fullName": "Alan Jenn",
+            "url": "expert/hiypvYMU"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Oklahoma",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g54",
+        "title": "The Cultural Renaissance Taking Over Oklahoma",
+        "funder": "Genentech Inc",
+        "startDate": "2020-07-07",
+        "endDate": "2029-11-30",
+        "inheresIn": "expert/FqEo5pJk",
+        "url": "ark:/87287/d7c08j/grant/K325D78",
+        "relatedExperts": [
+          {
+            "id": "FqEo5pJk",
+            "firstName": "Michelle",
+            "lastName": "Apperson",
+            "fullName": "Michelle Apperson",
+            "url": "expert/FqEo5pJk"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Arkansas",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g37",
+        "title": "A Weekend Exploring the Art Scene of Arkansas",
+        "funder": "NASA Goddard Space Flight Center",
+        "startDate": "2022-09-01",
+        "endDate": "2025-08-31",
+        "inheresIn": "expert/EEpv4UNf",
+        "url": "ark:/87287/d7c08j/grant/K334F49",
+        "relatedExperts": [
+          {
+            "id": "EEpv4UNf",
+            "firstName": "Cynthia",
+            "lastName": "Passmore",
+            "fullName": "Cynthia Passmore",
+            "url": "expert/EEpv4UNf"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Nevada",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g36",
+        "title": "From Desert to Ski Slopes: A New Look at Nevada",
+        "funder": "Mt San Antonio College",
+        "startDate": "2020-07-09",
+        "endDate": "2024-01-02",
+        "inheresIn": "expert/2FnrsR9w",
+        "url": "ark:/87287/d7c08j/grant/K323D74",
+        "relatedExperts": [
+          {
+            "id": "2FnrsR9w",
+            "firstName": "Ozcan",
+            "lastName": "Gulacar",
+            "fullName": "Ozcan Gulacar",
+            "url": "expert/2FnrsR9w"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Los Angeles",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g15",
+        "title": "Urban Nature: Where to Hike Without Leaving Los Angeles",
+        "funder": "University Of Florida",
+        "startDate": "2022-07-01",
+        "endDate": "2024-08-31",
+        "inheresIn": "expert/llsQZobR",
+        "url": "ark:/87287/d7c08j/grant/K370F05",
+        "relatedExperts": [
+          {
+            "id": "llsQZobR",
+            "firstName": "Sergio",
+            "lastName": "Aguilar-Gaxiola",
+            "fullName": "Sergio Aguilar-Gaxiola",
+            "url": "expert/llsQZobR"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Machu Picchu",
+    "country": "Peru",
+    "entries": [
+      {
+        "id": "g13",
+        "title": "What You Should Know Before Visiting Machu Picchu in Peru",
+        "funder": "Genetic Alliance Inc",
+        "startDate": "2014-01-01",
+        "endDate": "2015-06-30",
+        "inheresIn": "expert/VPkQitIe",
+        "url": "ark:/87287/d7gt0q/grant/K330383-111778",
+        "relatedExperts": [
+          {
+            "id": "VPkQitIe",
+            "firstName": "Nicholas",
+            "lastName": "Anderson",
+            "fullName": "Nicholas Anderson",
+            "url": "expert/VPkQitIe"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Porto",
+    "country": "Portugal",
+    "entries": [
+      {
+        "id": "g1",
+        "title": "Why Porto Is the Best Place for Wine Lovers",
+        "funder": "Rockley Photonics, Inc.",
+        "startDate": "2019-06-01",
+        "endDate": "2021-12-31",
+        "inheresIn": "expert/83x5AQ8a",
+        "url": "ark:/87287/d7gt0q/grant/K338C35-124129",
+        "relatedExperts": [
+          {
+            "id": "83x5AQ8a",
+            "firstName": "Sung-Joo",
+            "lastName": "Yoo",
+            "fullName": "Sung-Joo Yoo",
+            "url": "expert/83x5AQ8a"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Scotland",
+    "country": "United Kingdom",
+    "entries": [
+      {
+        "id": "g11",
+        "title": "Finding Tranquility in the Highlands of Scotland",
+        "funder": "Rockley Photonics, Inc.",
+        "startDate": "2019-06-01",
+        "endDate": "2021-12-31",
+        "inheresIn": "expert/83x5AQ8a",
+        "url": "ark:/87287/d7gt0q/grant/K338C35-124129",
+        "relatedExperts": [
+          {
+            "id": "83x5AQ8a",
+            "firstName": "Sung-Joo",
+            "lastName": "Yoo",
+            "fullName": "Sung-Joo Yoo",
+            "url": "expert/83x5AQ8a"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Phuket Province",
+    "country": "Thailand",
+    "entries": [
+      {
+        "id": "g52",
+        "title": "The Best Hidden Beaches in Phuket, Thailand",
+        "funder": "Johns Hopkins All Children's Hospital Inc",
+        "startDate": "2018-01-01",
+        "endDate": "2021-06-30",
+        "inheresIn": "expert/zFAzhUvL",
+        "url": "ark:/87287/d7gt0q/grant/K383B80-121299",
+        "relatedExperts": [
+          {
+            "id": "zFAzhUvL",
+            "firstName": "Arun",
+            "lastName": "Panigrahi",
+            "fullName": "Arun Panigrahi",
+            "url": "expert/zFAzhUvL"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Costa Rica",
+    "country": "Costa Rica",
+    "entries": [
+      {
+        "id": "g55",
+        "title": "The Best Spas and Wellness Centers in Costa Rica",
+        "funder": "California Department Of Food And Agriculture",
+        "startDate": "2015-01-01",
+        "endDate": "2015-12-31",
+        "inheresIn": "expert/f9geqbAx",
+        "url": "ark:/87287/d7gt0q/grant/K383992-112530",
+        "relatedExperts": [
+          {
+            "id": "f9geqbAx",
+            "firstName": "Robert",
+            "lastName": "Gilbertson",
+            "fullName": "Robert Gilbertson",
+            "url": "expert/f9geqbAx"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "China",
+    "country": "China",
+    "entries": [
+      {
+        "id": "g26",
+        "title": "The History and Beauty of the Great Wall of China",
+        "funder": "Climateworks Foundation",
+        "startDate": "2021-09-01",
+        "endDate": "2022-08-31",
+        "inheresIn": "expert/qBgXnsS7",
+        "url": "ark:/87287/d7c08j/grant/K370D95",
+        "relatedExperts": [
+          {
+            "id": "qBgXnsS7",
+            "firstName": "Daniel",
+            "lastName": "Sperling",
+            "fullName": "Daniel Sperling",
+            "url": "expert/qBgXnsS7"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Barcelona",
+    "country": "Spain",
+    "entries": [
+      {
+        "id": "g53",
+        "title": "A Complete Guide to Barcelona’s Gothic Quarter",
+        "funder": "Orfalea Family Foundation",
+        "startDate": "2015-04-01",
+        "endDate": "2016-02-29",
+        "inheresIn": "expert/ohLILQTQ",
+        "url": "ark:/87287/d7gt0q/grant/KL21A81-112894",
+        "relatedExperts": [
+          {
+            "id": "ohLILQTQ",
+            "firstName": "Lorrene",
+            "lastName": "Ritchie",
+            "fullName": "Lorrene Ritchie",
+            "url": "expert/ohLILQTQ"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "New Zealand",
+    "country": "New Zealand",
+    "entries": [
+      {
+        "id": "g10",
+        "title": "Top Hiking Trails to Explore in New Zealand",
+        "funder": "Australian Research Council",
+        "startDate": "2023-06-30",
+        "endDate": "2026-06-30",
+        "inheresIn": "expert/1Y8s3IUC",
+        "url": "ark:/87287/d7c08j/grant/K377F18",
+        "relatedExperts": [
+          {
+            "id": "1Y8s3IUC",
+            "firstName": "Andrew",
+            "lastName": "Sih",
+            "fullName": "Andrew Sih",
+            "url": "expert/1Y8s3IUC"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Hạ Long Bay",
+    "country": "Vietnam",
+    "entries": [
+      {
+        "id": "g60",
+        "title": "Exploring Vietnam’s Majestic Halong Bay",
+        "funder": "Yale University",
+        "startDate": "2024-05-01",
+        "endDate": "2025-04-30",
+        "inheresIn": "expert/uYN8iO5Y",
+        "url": "ark:/87287/d7c08j/grant/A242761",
+        "relatedExperts": [
+          {
+            "id": "uYN8iO5Y",
+            "firstName": "Alexander",
+            "lastName": "Borowsky",
+            "fullName": "Alexander Borowsky",
+            "url": "expert/uYN8iO5Y"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Kenya",
+    "country": "Kenya",
+    "entries": [
+      {
+        "id": "g31",
+        "title": "The Ultimate Guide to Exploring Kenya’s Wildlife",
+        "funder": "Marshfield Clinic Research Foundation",
+        "startDate": "2024-09-01",
+        "endDate": "2025-09-29",
+        "inheresIn": "expert/0pW71mR8",
+        "url": "ark:/87287/d7c08j/grant/A251133",
+        "relatedExperts": [
+          {
+            "id": "0pW71mR8",
+            "firstName": "Farzaneh",
+            "lastName": "Khorsandi Kouhanestani",
+            "fullName": "Farzaneh Khorsandi Kouhanestani",
+            "url": "expert/0pW71mR8"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "United States",
+    "country": "United States",
+    "entries": [
+      {
+        "id": "g20",
+        "title": "The Best National Parks to Visit in the United States",
+        "funder": "Australian Research Council",
+        "startDate": "2023-06-30",
+        "endDate": "2026-06-30",
+        "inheresIn": "expert/1Y8s3IUC",
+        "url": "ark:/87287/d7c08j/grant/K377F18",
+        "relatedExperts": [
+          {
+            "id": "1Y8s3IUC",
+            "firstName": "Andrew",
+            "lastName": "Sih",
+            "fullName": "Andrew Sih",
+            "url": "expert/1Y8s3IUC"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Greece",
+    "country": "Greece",
+    "entries": [
+      {
+        "id": "g16",
+        "title": "A Local’s Guide to Experiencing the Best of Greece",
+        "funder": "California Governors Office Of Planning And Research",
+        "startDate": "2022-04-26",
+        "endDate": "2024-09-30",
+        "inheresIn": "expert/B5aFyHyV",
+        "url": "ark:/87287/d7c08j/grant/K325F77",
+        "relatedExperts": [
+          {
+            "id": "B5aFyHyV",
+            "firstName": "Pablo",
+            "lastName": "Reguerin",
+            "fullName": "Pablo Reguerin",
+            "url": "expert/B5aFyHyV"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Cambodia",
+    "country": "Cambodia",
+    "entries": [
+      {
+        "id": "g19",
+        "title": "A Journey Through the Temples and Markets of Cambodia",
+        "funder": "University Of Washington",
+        "startDate": "2023-09-01",
+        "endDate": "2024-08-31",
+        "inheresIn": "expert/BAaRRP1Y",
+        "url": "ark:/87287/d7c08j/grant/A241584",
+        "relatedExperts": [
+          {
+            "id": "BAaRRP1Y",
+            "firstName": "Edward",
+            "lastName": "Pugh Jr",
+            "fullName": "Edward Pugh Jr",
+            "url": "expert/BAaRRP1Y"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Portugal",
+    "country": "Portugal",
+    "entries": [
+      {
+        "id": "g39",
+        "title": "The Top 10 Hidden Gems in Portugal",
+        "funder": "National Science Foundation",
+        "startDate": "2010-09-01",
+        "endDate": "2014-08-31",
+        "inheresIn": "expert/dENeWBIE",
+        "url": "ark:/87287/d7gt0q/grant/K382032-100262",
+        "relatedExperts": [
+          {
+            "id": "dENeWBIE",
+            "firstName": "Debashis",
+            "lastName": "Paul",
+            "fullName": "Debashis Paul",
+            "url": "expert/dENeWBIE"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Indonesia",
+    "country": "Indonesia",
+    "entries": [
+      {
+        "id": "g58",
+        "title": "A Food Lover’s Guide to the Best Street Food in Indonesia",
+        "funder": "Dod/separate Misc Agencies",
+        "startDate": "2009-08-25",
+        "endDate": "2012-04-30",
+        "inheresIn": "expert/83x5AQ8a",
+        "url": "ark:/87287/d7gt0q/grant/K381318-12405",
+        "relatedExperts": [
+          {
+            "id": "83x5AQ8a",
+            "firstName": "Sung-Joo",
+            "lastName": "Yoo",
+            "fullName": "Sung-Joo Yoo",
+            "url": "expert/83x5AQ8a"
+          }
+        ],
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "location": "Spain",
+    "country": "Spain",
+    "entries": [
+      {
+        "id": "g22",
+        "title": "How to Experience the Best of Spain in 7 Days",
+        "funder": "City Of Sacramento",
+        "startDate": "2009-11-01",
+        "endDate": "2010-03-29",
+        "inheresIn": "expert/83x5AQ8a",
+        "url": "ark:/87287/d7gt0q/grant/K385963-14134",
+        "relatedExperts": [
+          {
+            "id": "83x5AQ8a",
+            "firstName": "Sung-Joo",
+            "lastName": "Yoo",
+            "fullName": "Sung-Joo Yoo",
+            "url": "expert/83x5AQ8a"
+          }
+        ],
         "confidence": "High"
       }
     ]
