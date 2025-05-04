@@ -13,6 +13,9 @@ const path = require('path');
 const fs = require("fs");
 const { default: ollama } = require('ollama');
 
+const Groq = require('groq-sdk');
+const groq = new Groq({ apiKey: "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" });
+
 const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
 const validWorksPath = path.join(__dirname, '../works', "validatedWorks.json");
@@ -87,16 +90,58 @@ async function getLocationInfo(location) {
  * @returns {String}          - Llama's response
  */
 async function getISOcode(location) {
-  const response = await ollama.chat({
-    model: 'llama3.1',
-    messages: [
+  // const response = await ollama.chat({
+  //   model: 'llama3.1',
+  //   messages: [
+  //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+  //     { "role": "user", "content": `Location: ${location}` }
+  //   ],
+  //   temperature: 0,
+  //   stream: false
+  // });
+  // return response.message.content;
+
+  const chatCompletion = await groq.chat.completions.create({
+    "messages": [
       { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
       { "role": "user", "content": `Location: ${location}` }
     ],
-    temperature: 0,
-    stream: false
+    "model": "llama-3.3-70b-versatile",
+    "temperature": 0,
+    "stream": false
   });
-  return response.message.content;
+
+  return chatCompletion.choices[0].message.content;
+}
+
+function findDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c * 0.6214;
+}
+
+async function calculateConfidence(location_info, iso_llama) {
+  const MAX_DIST = 12400;
+
+  const lat1 = Number(location_info.lat);
+  const lon1 = Number(location_info.lon);
+
+  const val_loc = await getLocationInfo(iso_llama);
+  const lat2 = Number(val_loc.lat);
+  const lon2 = Number(val_loc.lon);
+
+  const dist = findDistance(lat1, lon1, lat2, lon2);
+  const percentage = 100 - dist / MAX_DIST * 100;
+
+  return `${percentage.toFixed(1)}`;
 }
 
 /**
@@ -168,8 +213,6 @@ async function validateLocation(location) {
   // Considerations:
   // - Run ISO through geocode instead of searching in dict?
   // - Else branch: iso_llama undefined - use Nominatim instead of N/A
-
-  // Unable to use Nominatim, use ISO if exists
   try {
     if (location_info === null) {
       if (countries[iso_llama] === undefined) {
@@ -181,7 +224,7 @@ async function validateLocation(location) {
       } else {
         return {
           name: countries[iso_llama],
-          confidence: "Mid",
+          confidence: "Low",
           country: countries[iso_llama]
         };
       }
@@ -189,14 +232,14 @@ async function validateLocation(location) {
     } else if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
       return {
         name: location_info.name,
-        confidence: "High",
-        country: countries[iso_llama]
+        confidence: await calculateConfidence(location_info, iso_llama),
+        country: countries[iso_llama],
       };
-      // Natural or international location without ISO
+      // Unable to use Nominatim, use ISO if exists
     } else if (special_locations.includes(location_info.type)) {
       return {
         name: location_info.name,
-        confidence: "Kinda High",
+        confidence: "90",
         country: "None"
       };
       // Unable to get ISO code, bad location
@@ -210,14 +253,14 @@ async function validateLocation(location) {
     } else {
       if (countries[iso_llama] === undefined) {
         return {
-          name: "N/A",
-          confidence: "",
-          country: "None"
+          name: location,
+          confidence: "Low",
+          country: countries[String(iso_nominatim).toUpperCase()]
         };
       } else {
         return {
           name: countries[iso_llama],
-          confidence: "Mid",
+          confidence: await calculateConfidence(location_info, iso_llama),
           country: countries[iso_llama]
         };
       }
