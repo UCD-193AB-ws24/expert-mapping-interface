@@ -16,7 +16,7 @@ import React from "react";
 export const ExpertsPanel = ({ experts, onClose, panelType, keyword = "" }) => {
   const isFromProperties = panelType === "polygon";
   const lowerKeyword = (keyword || "").toLowerCase().trim();
-
+  console.log(`Experts type: ${Array.isArray(experts) ? 'Array' : typeof experts}`);
   const filteredEntries = experts.flatMap((feature) => {
     const entries = panelType === "polygon"
       ? feature.properties.entries || [] // already filtered upstream
@@ -30,7 +30,7 @@ export const ExpertsPanel = ({ experts, onClose, panelType, keyword = "" }) => {
         if (panelType === "polygon") return true;
   
         const authors = (entry.authors || []).join(" ").toLowerCase();
-        const expertNames = (entry.relatedExperts || []).map(e => e.name?.toLowerCase()).join(" ");
+        const expertNames = (entry.relatedExperts || []).map(e => e.fullName?.toLowerCase()).join(" ");
         const flat = [
           entry.title,
           entry.abstract,
@@ -131,7 +131,7 @@ export const ExpertsPanel = ({ experts, onClose, panelType, keyword = "" }) => {
           const relatedExperts = entry.relatedExperts || [];
 
           return relatedExperts.map((relExpert, relIndex) => {
-            const researcherName = relExpert.name || entry.authors?.join(", ") || "Unknown";
+            const researcherName = relExpert.fullName || entry.authors?.join(", ") || "Unknown";
             const researcherURL = relExpert.url ? `https://experts.ucdavis.edu/${relExpert.url}` : null;
             const confidenceStyle = getConfidenceStyle(entry.confidence);
 
@@ -203,6 +203,7 @@ export const ExpertsPanel = ({ experts, onClose, panelType, keyword = "" }) => {
  */
 export const GrantsPanel = ({ grants, onClose, keyword }) => {
   const grantEntries = grants.flatMap(g => g.properties.entries || []);
+  console.log(grantEntries);
   return (
     <div style={{
       position: "fixed",
@@ -254,13 +255,13 @@ export const GrantsPanel = ({ grants, onClose, keyword }) => {
               background: "#f9f9f9"
             }}>
               <div style={{ marginTop: "5px", color: "#333" }}>
-                <strong>Researcher:</strong> {entry.relatedExpert?.name || "Unknown"}<br />
+                <strong>Researcher:</strong> {entry.relatedExperts?.[0].fullName || "Unknown"}<br />
                 <strong>Location:</strong> {feature.properties.location || "Unknown"}<br />
                 <strong>Funder:</strong> {entry.funder || "Unknown"}<br />
                 <strong>Grant Title:</strong> {entry.title || "Untitled Grant"}<br />
               </div>
               <a
-                href={entry.relatedExpert?.url ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}` : "#"}
+                href={entry.relatedExperts?.[0].url ? `https://experts.ucdavis.edu/${entry.relatedExperts?.[0].url}` : "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -273,15 +274,16 @@ export const GrantsPanel = ({ grants, onClose, keyword }) => {
                   borderRadius: "5px",
                   textDecoration: "none",
                   fontWeight: "bold",
-                  opacity: entry.relatedExpert?.url ? '1' : '0.6',
-                  cursor: entry.relatedExpert?.url ? 'pointer' : 'default'
+                  opacity: entry.relatedExperts?.[0].url ? '1' : '0.6',
+                  cursor: entry.relatedExperts?.[0].url ? 'pointer' : 'default'
                 }}
               >
-                {entry.relatedExpert?.url ? "View Researcher Profile" : "No Profile Found"}
+                {entry.relatedExperts?.[0].url ? "View Researcher Profile" : "No Profile Found"}
               </a>
             </li>
           ))
-        ))}
+        )
+          )}
       </ul>
 
     </div>

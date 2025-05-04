@@ -130,7 +130,7 @@ const CombinedPolygonLayer = ({
 
           const filteredGrantsEntries = grantsFeatures.flatMap(f =>
             (f.properties.entries || []).filter(entry =>
-              entry.relatedExpert && Object.keys(entry.relatedExpert).length > 0 &&
+              entry.relatedExperts && Object.keys(entry.relatedExperts).length > 0 &&
               matchesKeyword(searchKeyword, f, entry)
             )
           );

@@ -92,12 +92,12 @@ app.get('/api/redis/worksQuery', async (req, res) => {
           title: entryData.title || '',
           fullTitle: entryData.fullTitle || '',
           issued: Array.isArray(entryData.issued)
-          ? JSON.stringify(entryData.issued) || '[]'
+          ? JSON.parse(entryData.issued) || '[]'
           : entryData.issued || '',
           authors: entryData.authors ? JSON.parse(entryData.authors) : '[]',
           abstract: entryData.abstract || '',
           confidence: entryData.confidence || '',
-          related_experts: entryData.related_experts
+          relatedExperts: entryData.related_experts
             ? JSON.parse(entryData.related_experts)
             : '[]',
         };
@@ -182,7 +182,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           start_date: entryData.start_date || '',
           end_date: entryData.end_date || '',
           confidence: entryData.confidence || '',
-          related_experts: entryData.related_experts
+          relatedExperts: entryData.related_experts
             ? JSON.parse(entryData.related_experts)
             : '[]',
         };

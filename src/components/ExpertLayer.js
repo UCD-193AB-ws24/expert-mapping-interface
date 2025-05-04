@@ -108,7 +108,7 @@ const ExpertLayer = ({
             // Collect matched entries with expert details
             const expert = entry.relatedExperts?.[0];
             popupEntries.push({
-              researcher_name: expert?.name || entry.authors?.join(", ") || "Unknown",
+              researcher_name: expert?.fullName || entry.authors?.join(", ") || "Unknown",
               researcher_url: expert?.url ? `https://experts.ucdavis.edu/${expert.url}` : null,
               location_name: location,
               work_titles: [entry.title],
