@@ -159,7 +159,9 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
         <ul style={{ padding: 0, listStyle: 'none' }}>
           {filteredWorks.map((entry, index) => {
             const relatedExpert = entry.relatedExperts?.[0] || {};
-            const researcherName = relatedExpert.name || entry.authors?.join(", ") || "Unknown";
+            console.log(relatedExpert);
+            const researcherName = relatedExpert.fullName || entry.authors?.join(", ") || "Unknown";
+            console.log(researcherName);
             const researcherURL = relatedExpert.url ? `https://experts.ucdavis.edu/${relatedExpert.url}` : null;
             const confidenceStyle = getConfidenceStyle(entry.confidence);
 
@@ -222,8 +224,12 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       {activeTab === "grants" && (
         <ul style={{ padding: 0, listStyle: 'none' }}>
           {filteredGrants.map((grant, index) => {
-            const rawTitle = grant.title || "";
-            const cleanTitle = rawTitle.split("§")[0].trim().replace(/^"+|"+$/g, "");
+            console.log(grant);
+            const relatedExpert = grant.relatedExperts?.[0] || {};
+            console.log(relatedExpert);
+            const expertName = relatedExpert.fullName || "Unknown";
+            console.log(expertName);
+            const expertURL = relatedExpert.url ? `https://experts.ucdavis.edu/${relatedExpert.url}` : null;
             return (
               <li key={index} style={{
                 position: "relative",
@@ -238,11 +244,11 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
               }}>
                 {/* Researcher Name */}
                 <div style={{ marginTop: "5px", color: "#333" }}>
-                  <strong>Researcher: </strong>{grant.relatedExpert.name || "Unknown"}
+                  <strong>Researcher: </strong>{expertName}
                 </div>
                 {/* Grant Title */}
                 <div style={{ marginTop: "5px", color: "#333" }}>
-                  <strong>Grant: </strong>{cleanTitle || "Untitled Grant"}
+                  <strong>Grant: </strong>{grant.title || "Untitled Grant"}
                 </div>
                 {/* Funder */}
                 <div style={{ marginTop: "5px", color: "#333" }}>
@@ -250,7 +256,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                 </div>
                 {/* Researcher Profile Link */}
                 <a
-                  href={grant.relatedExpert.url || "#"}
+                  href={expertURL || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -263,11 +269,11 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                     borderRadius: "5px",
                     textDecoration: "none",
                     fontWeight: "bold",
-                    opacity: grant.relatedExpert.url ? '1' : '0.6',
-                    cursor: grant.relatedExpert.url  ? 'pointer' : 'default'
+                    opacity: expertURL ? '1' : '0.6',
+                    cursor: expertURL  ? 'pointer' : 'default'
                   }}
                 >
-                  {grant.relatedExpert.url ? "View Researcher Profile" : "No Profile Found"}
+                  {expertURL ? "View Researcher Profile" : "No Profile Found"}
                 </a>
               </li>
             );

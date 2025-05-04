@@ -64,7 +64,7 @@ const GrantLayer = ({
         const terms = lowerKeyword.split(/\s+/); // split into words like ["elisa", "tong"]
 
         const entryText = JSON.stringify({ ...entry }).toLowerCase();
-        const expertName = entry.relatedExpert?.name?.toLowerCase() || "";
+        const expertName = entry.relatedExperts?.fullName?.toLowerCase() || "";
         const funder = entry.funder?.toLowerCase() || "";
 
         return terms.every(term =>

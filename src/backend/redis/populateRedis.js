@@ -12,7 +12,7 @@
 * `node src/server.js` to start the server, 
 * run entire pipeline up until fetchFeatures.js,
 * then run this script:
-* `node src/geo/redis/populateRedis.js`
+* `node src/backend/redis/populateRedis.js`
 *
 */
 require('dotenv').config();
@@ -52,52 +52,76 @@ async function populateRedis() {
       });
     });
 
+    async function checkTimestamp(key) {
+      // Check if Redis already has metadata keys and compare timestamps
+      const metadata = await redisClient.hGetAll(key);
+
+      if (metadata && metadata.timestamp) {
+        console.log(`🔍 Existing metadata found in Redis: ${key} has timestamp of ${metadata.timestamp}.`);
+      }
+      const timestamp = metadata.timestamp;
+      return {timestamp};
+    }
+
     // Purpose of different functions: workFeatures.json and grantFeatures.json have different entry structures.
     async function processWorkGeoJSON(filePath) {
       const workGeoData = await fs.readFile(filePath, 'utf8');
       const workGeoJson = JSON.parse(workGeoData);
-
+      const metadataKey = 'work:metadata'
+      const oldTimeStamp = await checkTimestamp(metadataKey);
+      const { count, timestamp } = workGeoJson.metadata;
+      if(oldTimeStamp && timestamp == oldTimeStamp)
+      {
+        console.log('No new data to update! Skipping this function!');
+        return;
+      }
+      
       for (const workFeature of workGeoJson.features) {
-      const { geometry, properties } = workFeature;
-      const { coordinates, type: geometryType } = geometry;
-      const {
-        name,
-        type,
-        class: featureClass,
-        entries,
-        location,
-        osm_type,
-        display_name,
-        id,
-        source,
-      } = properties;
+        const featureID = workFeature.id; // ID attached to each feature can be thought of as a location ID as each feature is a location with related works and experts
+        const { geometry, properties } = workFeature;
+        const { coordinates, type: geometryType } = geometry;
+        const {
+          name,
+          type,
+          class: featureClass,
+          country,
+          entries,
+          location,
+          osm_type,
+          place_rank,
+          display_name,
+          id,
+          source,
+        } = properties;
 
-      const workFeatureKey = `work:${id}`;
+      const workFeatureKey = `work:${featureID}`;
 
       try {
         await redisClient.hSet(workFeatureKey, {
-        id: id || '',
+        id: featureID || '',
         geometry_type: geometryType || '',
         coordinates: JSON.stringify(coordinates) || '[]',
-        name: name || '',
         type: type || '',
         class: featureClass || '',
         location: location || '',
-        osm_type: osm_type || '',
+        country: country || '',
+        place_rank: place_rank || '',
         display_name: display_name || '',
+        osm_type: osm_type || '',
         source: source || '',
         });
 
-        // console.log(`✅ Successfully stored work: ${id}`);
+        console.log(`✅ Successfully stored work: ${featureID}`);
 
         if (Array.isArray(entries)) {
         for (let i = 0; i < entries.length; i++) {
           const entry = entries[i];
-          const entryKey = `work:${id}:entry:${i + 1}`;
+          const entryKey = `work:${featureID}:entry:${i + 1}`;
 
           await redisClient.hSet(entryKey, {
-          name: sanitizeString(entry.name) || '',
+          id: entry.id || 'Unknown WorkID',
           title: sanitizeString(entry.title) || '',
+          fullTitle: sanitizeString(entry.name) || '',
           issued: Array.isArray(entry.issued)
                 ? JSON.stringify(entry.issued) || '[]'
                 : entry.issued || '',
@@ -109,96 +133,113 @@ async function populateRedis() {
             : '[]',
           });
 
-          // console.log(`✅ Successfully stored work entry: ${entryKey}`);
+          console.log(`✅ Successfully stored work entry: ${entryKey}`);
         }
         }
       } catch (error) {
-        console.error(`❌ Error storing work: ${id}`, error);
+        console.error(`❌ Error storing ${workFeatureKey}`, error);
       }
       }
 
-      const { count, timestamp } = workGeoJson.metadata;
       await redisClient.hSet(`work:metadata`, {
       count: count.toString(),
       timestamp,
       });
 
-      // console.log(`✅ Work metadata stored in Redis.`);
+      console.log(`✅ Work metadata stored in Redis.`);
     }
-    async function processGrantGeoJSON(filePath) {
-      try {
-        const grantGeoData = await fs.readFile(filePath, 'utf8');
-        const grantGeoJson = JSON.parse(grantGeoData);
     
+    async function processGrantGeoJSON(filePath) {
+      const grantGeoData = await fs.readFile(filePath, 'utf8');
+      const grantGeoJson = JSON.parse(grantGeoData);
+      const metadataKey = 'grant:metadata'
+      const oldTimeStamp = await checkTimestamp(metadataKey);
+      const { count, timestamp } = grantGeoJson.metadata;
+      if(oldTimeStamp && timestamp == oldTimeStamp)
+      {
+        console.log('No new data to update! Skipping this function!');
+        return;
+      }
+      try {
         for (const grantFeature of grantGeoJson.features) {
+          const featureID = grantFeature.id;
           const { geometry, properties } = grantFeature;
           const { coordinates, type: geometryType } = geometry;
           const {
             name,
             type,
             class: featureClass,
+            country,
             entries,
             location,
             osm_type,
+            place_rank,
             display_name,
             id,
             source,
           } = properties;
     
           
-          const grantFeatureKey = `grant:${id}`;
+          const grantFeatureKey = `grant:${featureID}`;
     
           try {
             await redisClient.hSet(grantFeatureKey, {
-              id: id || '',
+              id: featureID || '',
               geometry_type: geometryType || '',
               coordinates: JSON.stringify(coordinates) || '[]',
-              name: name || '',
               type: type || '',
               class: featureClass || '',
               location: location || '',
-              osm_type: osm_type || '',
+              country: country || '',
+              place_rank: place_rank || '',
               display_name: display_name || '',
+              osm_type: osm_type || '',
               source: source || '',
             });
     
-            // console.log(`✅ Successfully stored grant: ${id}`);
+            console.log(`✅ Successfully stored grant: ${featureID}`);
     
             if (Array.isArray(entries)) {
               for (let i = 0; i < entries.length; i++) {
                 const entry = entries[i];
-                const entryKey = `grant:${id}:entry:${i + 1}`;
+                const entryKey = `grant:${featureID}:entry:${i + 1}`;
     
+                const relatedExperts = Array.isArray(entry.relatedExperts)
+                  ? entry.relatedExperts
+                  : entry.relatedExperts
+                  ? [entry.relatedExperts]
+                  : [];
+
                 await redisClient.hSet(entryKey, {
+                  id: entry.id || 'Unknown WorkID',
+                  grant_URL: entry.url || '',
                   title: sanitizeString(entry.title) || '',
                   funder: entry.funder || '',
-                  end_date: entry.endDate || '',
                   start_date: entry.startDate || '',
+                  end_date: entry.endDate || '',
                   confidence: entry.confidence || '',
-                  related_expert: entry.relatedExpert
-                    ? JSON.stringify(entry.relatedExpert)
-                    : '[]',
+                  related_experts: JSON.stringify(relatedExperts),
                 });
     
-                // console.log(`✅ Successfully stored grant entry: ${entryKey}`);
+                console.log(`✅ Successfully stored grant entry: ${entryKey}`);
               }
             }
           } catch (error) {
-            console.error(`❌ Error storing grant: ${id}`, error);
+            console.error(`❌ Error storing grant: ${grantFeatureKey}`, error);
           }
         }
-    
-        const { count, timestamp } = grantGeoJson.metadata;
+
         await redisClient.hSet(`grant:metadata`, {
           count: count.toString(),
           timestamp,
         });
     
-        // console.log(`✅ Grant metadata stored in Redis.`);
+        console.log(`✅ Grant metadata stored in Redis.`);
       } catch (error) {
         console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
       }
     }
+
 
     // After fetchFeatures.js has run, the produced files will be located in `src/components/features/`.
     // This function will process the GeoJSON files and store the data in Redis.
@@ -209,9 +250,9 @@ async function populateRedis() {
     console.log('⌛ Processing data completed!');
     // Delete the GeoJSON files after processing (security measure)
     await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
-    console.log('✅ Deleted workFeatures.geojson');
+    // console.log('✅ Deleted workFeatures.geojson');
     await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
-    console.log('✅ Deleted grantFeatures.geojson');
+    // console.log('✅ Deleted grantFeatures.geojson');
 
     console.log('✅ Successfully populated Redis with GeoJSON data!');
   } catch (error) {
@@ -225,5 +266,5 @@ populateRedis()
   })
   .finally(() => {
     console.log('✅ Redis is fully populated.');
-    process.exit(0); // End the program without quitting Redis
+    process.exit(0); 
   });
