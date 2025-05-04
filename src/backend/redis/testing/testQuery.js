@@ -12,38 +12,33 @@ const fs = require('fs').promises;
 
 async function testQuery() {
   try {
-    // Fetch data from two different APIs concurrently
-    const [worksData, grantsData] = await Promise.all([
-      fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      }),
-      fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-  
-        }
-        return response.json();
-      }),
-    ]);
+    // Fetch data from the worksQuery API
+    const worksData = await fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    });
 
-    console.log("Grant Data fetched successfully.");
-    // console.log("Works Data:", worksData);
-    // console.log("Grants Data:", grantsData);
+    console.log("Works Data fetched successfully.");
     // Write works data to a file
-    // const worksFilename = 'src/components/features/worksFeature.json';
-    // await fs.writeFile(worksFilename, JSON.stringify(worksData, null, 2));
-    // console.log(`✅ Successfully wrote works data to ${worksFilename}`);
+    const worksFilename = 'src/backend/redis/testing/worksFeatures.json';
+    await fs.writeFile(worksFilename, JSON.stringify(worksData, null, 2));
+    console.log(`✅ Successfully wrote works data to ${worksFilename}`);
 
+    // Fetch data from the grantsQuery API
+    const grantsData = await fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    });
+
+    console.log("Grants Data fetched successfully.");
     // Write grants data to a file
-    const grantsFilename = 'src/geo/redis/testing/grantsFeature.json';
+    const grantsFilename = 'src/backend/redis/testing/grantsFeatures.json';
     await fs.writeFile(grantsFilename, JSON.stringify(grantsData, null, 2));
     console.log(`✅ Successfully wrote grants data to ${grantsFilename}`);
-
-    // console.log("Works Data:", worksData);
-    // console.log("Grants Data:", grantsData);
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error;

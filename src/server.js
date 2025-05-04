@@ -86,17 +86,23 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
-        entries.push({
-          name: entryData.name || '',
+        const entry = {
+          name: entryData.title || '',
+          id: entryData.id || 'Unknown WorkID',
           title: entryData.title || '',
-          issued: entryData.issued || '',
-          authors: entryData.authors ? JSON.parse(entryData.authors) : [],
+          fullTitle: entryData.name || '',
+          issued: Array.isArray(entryData.issued)
+          ? JSON.stringify(entryData.issued) || '[]'
+          : entryData.issued || '',
+          authors: entryData.authors ? JSON.stringify(entryData.authors) : '[]',
           abstract: entryData.abstract || '',
           confidence: entryData.confidence || '',
-          relatedExperts: entryData.related_experts
-            ? JSON.parse(entryData.related_experts)
-            : [],
-        });
+          related_experts: entryData.related_experts
+            ? JSON.stringify(entryData.related_experts)
+            : '[]',
+        };
+        console.log('📋 Entry added:', entry);
+        entries.push(entry);
         
       }
 
@@ -108,14 +114,18 @@ app.get('/api/redis/worksQuery', async (req, res) => {
           coordinates: JSON.parse(workData.coordinates),
         },
         properties: {
-          name: workData.name || '',
+          name: workData.location || '',
           type: workData.type || '',
           class: workData.class || '',
-          entries: entries,
+          entries: entries || '[]',
+          locationID: feature_id || '',
           location: workData.location || '',
-          osm_type: workData.osm_type || '',
+          country: workData.country || '',
           display_name: workData.display_name || '',
+          place_rank: workData.place_rank || '',
+          osm_type: workData.osm_type || '',
           source: workData.source || '',
+          entries,
         },
       });
     }
@@ -163,32 +173,21 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
         console.log(`Processing entry: ${entryKey}`);
-        entries.push({
+        const entry = {
+          name: entryData.title || '',
+          id: entryData.id || '',
+          grant_URL: entryData.grant_URL || '',
           title: entryData.title || '',
           funder: entryData.funder || '',
-          end_date: entryData.end_date || '',
           start_date: entryData.start_date || '',
-          confidence: entryData.confidence || '',
-          relatedExperts: entryData.related_experts
-            ? JSON.parse(entryData.related_experts)
-            : [],
-        });
-        let relatedExpert = [];
-        if (entryData.related_expert) {
-          try {
-            relatedExpert = JSON.parse(entryData.related_expert);
-          } catch (error) {
-            console.error('❌ Error parsing related_expert JSON:', error);
-          }
-        }
-        console.log('📋 Entry added:', {
-          title: entryData.title || '',
-          funder: entryData.funder || '',
           end_date: entryData.end_date || '',
-          start_date: entryData.start_date || '',
           confidence: entryData.confidence || '',
-          relatedExpert: relatedExpert,
-        });
+          related_experts: entryData.related_experts
+            ? JSON.stringify(entryData.related_experts)
+            : '[]',
+        };
+        console.log('📋 Entry being added:', entry);
+        entries.push(entry);
       }
 
       features.push({
@@ -199,13 +198,16 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           coordinates: JSON.parse(grantData.coordinates),
         },
         properties: {
-          name: grantData.name || '',
+          name: grantData.location || '',
           type: grantData.type || '',
           class: grantData.class || '',
-          entries: entries,
+          entries: entries || '[]',
+          locationID: feature_id || '',
           location: grantData.location || '',
-          osm_type: grantData.osm_type || '',
+          country: grantData.country || '',
           display_name: grantData.display_name || '',
+          place_rank: grantData.place_rank || '',
+          osm_type: grantData.osm_type || '',
           source: grantData.source || '',
         },
       });
