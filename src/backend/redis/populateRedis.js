@@ -52,39 +52,61 @@ async function populateRedis() {
       });
     });
 
+    async function checkTimestamp(key) {
+      // Check if Redis already has metadata keys and compare timestamps
+      const metadata = await redisClient.hGetAll(key);
+
+      if (metadata && metadata.timestamp) {
+        console.log(`🔍 Existing metadata found in Redis: ${key} has timestamp of ${metadata.timestamp}.`);
+      }
+      const oldTimeStamp = metadata.timestamp;
+      return {};
+    }
+
+    // Call the function where needed
+    const { oldWorkMetadata, oldGrantMetadata } = await checkForNewData();
+
+
     // Purpose of different functions: workFeatures.json and grantFeatures.json have different entry structures.
     async function processWorkGeoJSON(filePath) {
       const workGeoData = await fs.readFile(filePath, 'utf8');
       const workGeoJson = JSON.parse(workGeoData);
 
       for (const workFeature of workGeoJson.features) {
+        // Call the function where needed
+        const { oldWorkMetadata, oldGrantMetadata } = await checkForNewData();
+        const { count, timestamp } = workGeoJson.metadata;
+        if(timestamp )
+        {
+          break;
+        }
+      const locationID = workFeature.id; // ID attached to each feature can be thought of as a location ID as each feature is a location with related works and experts
       const { geometry, properties } = workFeature;
       const { coordinates, type: geometryType } = geometry;
       const {
-        name,
         type,
         class: featureClass,
+        country,
         entries,
         location,
         osm_type,
         display_name,
-        id,
         source,
       } = properties;
 
-      const workFeatureKey = `work:${id}`;
+      const workFeatureKey = `work:${featureID}`;
 
       try {
         await redisClient.hSet(workFeatureKey, {
-        id: id || '',
+        id: featureID || '',
         geometry_type: geometryType || '',
         coordinates: JSON.stringify(coordinates) || '[]',
-        name: name || '',
         type: type || '',
         class: featureClass || '',
         location: location || '',
-        osm_type: osm_type || '',
+        country: country || '',
         display_name: display_name || '',
+        osm_type: osm_type || '',
         source: source || '',
         });
 
@@ -96,8 +118,9 @@ async function populateRedis() {
           const entryKey = `work:${id}:entry:${i + 1}`;
 
           await redisClient.hSet(entryKey, {
-          name: sanitizeString(entry.name) || '',
+          id: entry.id || 'Unknown WorkID',
           title: sanitizeString(entry.title) || '',
+          fullTitle: sanitizeString(entry.name) || '',
           issued: Array.isArray(entry.issued)
                 ? JSON.stringify(entry.issued) || '[]'
                 : entry.issued || '',
@@ -109,11 +132,11 @@ async function populateRedis() {
             : '[]',
           });
 
-          // console.log(`✅ Successfully stored work entry: ${entryKey}`);
+          console.log(`✅ Successfully stored work entry: ${entryKey}`);
         }
         }
       } catch (error) {
-        console.error(`❌ Error storing work: ${id}`, error);
+        console.error(`❌ Error storing ${workFeatureKey}`, error);
       }
       }
 
@@ -123,8 +146,9 @@ async function populateRedis() {
       timestamp,
       });
 
-      // console.log(`✅ Work metadata stored in Redis.`);
+      console.log(`✅ Work metadata stored in Redis.`);
     }
+    
     async function processGrantGeoJSON(filePath) {
       try {
         const grantGeoData = await fs.readFile(filePath, 'utf8');
@@ -199,6 +223,7 @@ async function populateRedis() {
         console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
       }
     }
+
 
     // After fetchFeatures.js has run, the produced files will be located in `src/components/features/`.
     // This function will process the GeoJSON files and store the data in Redis.
