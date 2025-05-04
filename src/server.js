@@ -90,15 +90,15 @@ app.get('/api/redis/worksQuery', async (req, res) => {
           name: entryData.title || '',
           id: entryData.id || 'Unknown WorkID',
           title: entryData.title || '',
-          fullTitle: entryData.name || '',
+          fullTitle: entryData.fullTitle || '',
           issued: Array.isArray(entryData.issued)
           ? JSON.stringify(entryData.issued) || '[]'
           : entryData.issued || '',
-          authors: entryData.authors ? JSON.stringify(entryData.authors) : '[]',
+          authors: entryData.authors ? JSON.parse(entryData.authors) : '[]',
           abstract: entryData.abstract || '',
           confidence: entryData.confidence || '',
           related_experts: entryData.related_experts
-            ? JSON.stringify(entryData.related_experts)
+            ? JSON.parse(entryData.related_experts)
             : '[]',
         };
         console.log('📋 Entry added:', entry);
@@ -183,7 +183,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           end_date: entryData.end_date || '',
           confidence: entryData.confidence || '',
           related_experts: entryData.related_experts
-            ? JSON.stringify(entryData.related_experts)
+            ? JSON.parse(entryData.related_experts)
             : '[]',
         };
         console.log('📋 Entry being added:', entry);

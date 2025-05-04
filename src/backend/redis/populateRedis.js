@@ -37,20 +37,20 @@ async function populateRedis() {
     await redisClient.connect();
 
     // Run fetchFeatures.js
-    // await new Promise((resolve, reject) => {
-    //   exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-    //     if (error) {
-    //       console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
-    //       return reject(error);
-    //     }
-    //     if (stderr) {
-    //       console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
-    //       return reject(new Error(stderr));
-    //     }
-    //     // console.log(`✅ fetchFeatures.js output: ${stdout}`);
-    //     resolve();
-    //   });
-    // });
+    await new Promise((resolve, reject) => {
+      exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
+          return reject(error);
+        }
+        if (stderr) {
+          console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
+          return reject(new Error(stderr));
+        }
+        // console.log(`✅ fetchFeatures.js output: ${stdout}`);
+        resolve();
+      });
+    });
 
     async function checkTimestamp(key) {
       // Check if Redis already has metadata keys and compare timestamps
@@ -249,9 +249,9 @@ async function populateRedis() {
     await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
     console.log('⌛ Processing data completed!');
     // Delete the GeoJSON files after processing (security measure)
-    // await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
+    await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
     // console.log('✅ Deleted workFeatures.geojson');
-    // await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
+    await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
     // console.log('✅ Deleted grantFeatures.geojson');
 
     console.log('✅ Successfully populated Redis with GeoJSON data!');
@@ -266,5 +266,5 @@ populateRedis()
   })
   .finally(() => {
     console.log('✅ Redis is fully populated.');
-    process.exit(0); // End the program without quitting Redis
+    process.exit(0); 
   });
