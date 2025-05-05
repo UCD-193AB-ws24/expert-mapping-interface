@@ -116,7 +116,7 @@ export const createMultiExpertContent = (expertCount, locationName, totalWorks) 
       <strong>Related Works:</strong> ${totalWorks}
     </div>
     <a href='#'
-       class="view-experts-btn"
+       class="view-w-experts-btn"
        style="display: block; margin-top: 12px; padding: 8px 10px; background: #13639e; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
       View Experts
     </a>
@@ -195,7 +195,7 @@ export const createMultiGrantPopup = (grantCount, locationName) => `
       <strong>Location:</strong> ${locationName || "Unknown"}
     </div>
     <a href='#'
-       class='view-grants-btn'
+       class='view-g-experts-btn'
        style='display: block; margin-top: 12px; padding: 8px 10px; background: #f59e0b; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
       View Grants
     </a>

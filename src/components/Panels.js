@@ -195,6 +195,7 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
                 </>
               )}
             </div>
+            {/* View Experts Button */}
             <a
               href={expert.url || "#"}
               target="_blank"
@@ -307,7 +308,7 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
               style={{
                 fontWeight: "bold",
                 fontSize: "16px",
-                color: "#13639e",
+                color: "#f59e0b",
               }}
             >
               {expert.name || "Unknown Expert"}
@@ -373,7 +374,7 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
                 display: "block",
                 marginTop: "12px",
                 padding: "8px 10px",
-                background: "#13639e",
+                background: "#f59e0b",
                 color: "white",
                 textAlign: "center",
                 borderRadius: "5px",
@@ -391,3 +392,4 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
     </div>
   );
 };
+
