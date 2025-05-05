@@ -101,8 +101,8 @@ const renderPolygons = ({
     );
 
     const polygon = L.polygon(flippedCoordinates, {
-      color: "orange",
-      fillColor: "gold",
+      color: "#DCB151",
+      fillColor: "#EEC254",
       fillOpacity: 0.5,
       weight: 2,
     }).addTo(map);
@@ -116,7 +116,7 @@ const renderPolygons = ({
     const marker = L.marker(polygonCenter, {
         icon: L.divIcon({
             html: `<div style='
-              background: #f59e0b;
+              background: #D59F2A;
               color: white;
               border-radius: 50%;
               width: 30px;
@@ -232,7 +232,7 @@ const renderPoints = ({
 
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #f59e0b; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
+        html: `<div style='background: #D59F2A; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
@@ -319,8 +319,8 @@ const renderPoints = ({
 /**
  * grantLayer Component
  */
-const grantLayer = ({
-  grantGeoJSON,
+const GrantLayer = ({
+  nonOverlappingGrants,
   showWorks,
   showGrants,
   setSelectedGrants,
@@ -331,7 +331,10 @@ const grantLayer = ({
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !grantGeoJSON || !showGrants) return;
+    if (!map || !nonOverlappingGrants) {
+      console.error('Error: No grants found!');
+      return;
+    }
 
     const locationMap = new Map();
     const grantsMap = new Map();
@@ -347,12 +350,13 @@ const grantLayer = ({
               .reduce((sum, marker) => sum + marker.options.expertCount, 0);
     
             return L.divIcon({
-              html: `<div style="background: #f59e0b; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
+              html: `<div style="background: #D59F2A; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
               className: "custom-cluster-icon",
               iconSize: L.point(40, 40),
             });
           },
-        });
+    });
+
     const polygonLayers = [];
     const polygonMarkers = [];
 
@@ -361,94 +365,103 @@ const grantLayer = ({
 
 
     // Populate locationMap, grantsMap, and expertsMap
-    grantGeoJSON.features.forEach((feature) => {
-    const geometry = feature.geometry;
-    const entries = feature.properties.entries || [];
-    const location = feature.properties.location || "Unknown";
+    console.log('Entering Grant Processing...');
+    nonOverlappingGrants.forEach((grantLocation) => {
+      const { location, grantsFeatures } = grantLocation; // Destructure the object
+      console.log(`Location: ${location}`);
+      console.log(`Works Features:`, grantsFeatures);
+      
+      // Iterate over worksFeatures if needed
+      grantsFeatures.forEach((grantFeature) => {
+        console.log(`Work Feature:`, grantFeature);
+        const geometry = grantFeature.geometry;
+        const entries = grantFeature.properties.entries || [];
+        const location = grantFeature.properties.location || "Unknown";
+        if(!showGrants) return;
+        if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
+          console.log(`grantLayer - Skipping popup for overlapping location: ${location}`);
+          return;
+        }
+          // Generate a unique location ID
+          const locationID = grantFeature.id;
 
-    if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-      console.log(`grantLayer - Skipping popup for overlapping location: ${location}`);
-      return;
-    }
-      // Generate a unique location ID
-      const locationID = feature.id;
-
-      // Initialize locationMap entry if it doesn't exist
-      if (!locationMap.has(locationID)) {
-        locationMap.set(locationID, {
-          name: location, // Store the name of the location
-          display_name: feature.properties.display_name,
-          country: feature.properties.country,
-          place_rank: feature.properties.place_rank,
-          geometryType: geometry.type,
-          coordinates: geometry.coordinates,
-          grantIDs: [],
-          expertIDs: [],
-        });
-      }
-
-      // Process each grant entry
-      entries.forEach((entry) => {
-        // Generate a unique grant ID
-        const grantID = `grant_${entry.id}`;
-        console.log(`Now storing ${grantID}`);
-        // Add grant to grantsMap
-        grantsMap.set(grantID, {
-          id: entry.id || 'Unknown grantID',
-          title: entry.title || "Untitled Grant",
-          funder: entry.funder || "Unknown",
-          startDate: entry.start_date || "Unknown",
-          endDate: entry.end_date || "Unknown",
-          confidence: entry.confidence || "Unknown",
-          locationID,
-          relatedExperts: entry.relatedExperts || null,
-        });
-
-        // Add grant ID to locationMap
-        locationMap.get(locationID).grantIDs.push(grantID);
-
-        // Process related expert
-        if (entry.relatedExperts) {
-          entry.relatedExperts.forEach((relatedExpert) => {
-            const expertName = relatedExpert.fullName;
-            const expertURL = relatedExpert.url;
-
-            // Generate a unique expert ID if the expert doesn't already exist
-            let expertID = Array.from(expertsMap.entries()).find(
-              ([, value]) => value.name === expertName
-            )?.[0];
-
-            if (!expertID) {
-              expertID = `expert_${relatedExpert.id}`;
-              expertsMap.set(expertID, {
-              id: relatedExpert.id || 'Unknown ID',
-              name: expertName || "Unknown",
-              url: expertURL || "#",
-              locationIDs: [],
+          // Initialize locationMap entry if it doesn't exist
+          if (!locationMap.has(locationID)) {
+            locationMap.set(locationID, {
+              name: location, // Store the name of the location
+              display_name: grantFeature.properties.display_name,
+              country: grantFeature.properties.country,
+              place_rank: grantFeature.properties.place_rank,
+              geometryType: geometry.type,
+              coordinates: geometry.coordinates,
               grantIDs: [],
-              });
-            }
+              expertIDs: [],
+            });
+          }
 
-            // Add expert ID to grantsMap
-            grantsMap.get(grantID).relatedExpertID = expertID;
+          // Process each grant entry
+          entries.forEach((entry) => {
+            // Generate a unique grant ID
+            const grantID = `grant_${entry.id}`;
+            console.log(`Now storing ${grantID}`);
+            // Add grant to grantsMap
+            grantsMap.set(grantID, {
+              id: entry.id || 'Unknown grantID',
+              title: entry.title || "Untitled Grant",
+              funder: entry.funder || "Unknown",
+              startDate: entry.start_date || "Unknown",
+              endDate: entry.end_date || "Unknown",
+              confidence: entry.confidence || "Unknown",
+              locationID,
+              relatedExperts: entry.relatedExperts || null,
+            });
 
-            // Add location ID and grant ID to expertsMap
-            const expertEntry = expertsMap.get(expertID);
-            if (!expertEntry.locationIDs.includes(locationID)) {
-              expertEntry.locationIDs.push(locationID);
-            }
-            if (!expertEntry.grantIDs.includes(grantID)) {
-              expertEntry.grantIDs.push(grantID);
-            }
+            // Add grant ID to locationMap
+            locationMap.get(locationID).grantIDs.push(grantID);
 
-            // Add expert ID to locationMap
-            if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
-              locationMap.get(locationID).expertIDs.push(expertID);
-            }
+            // Process related expert
+            if (entry.relatedExperts) {
+              entry.relatedExperts.forEach((relatedExpert) => {
+                const expertName = relatedExpert.fullName;
+                const expertURL = relatedExpert.url;
+
+                // Generate a unique expert ID if the expert doesn't already exist
+                let expertID = Array.from(expertsMap.entries()).find(
+                  ([, value]) => value.name === expertName
+                )?.[0];
+
+                if (!expertID) {
+                  expertID = `expert_${relatedExpert.id}`;
+                  expertsMap.set(expertID, {
+                  id: relatedExpert.id || 'Unknown ID',
+                  name: expertName || "Unknown",
+                  url: expertURL || "#",
+                  locationIDs: [],
+                  grantIDs: [],
+                  });
+                }
+
+                // Add expert ID to grantsMap
+                grantsMap.get(grantID).relatedExpertID = expertID;
+
+                // Add location ID and grant ID to expertsMap
+                const expertEntry = expertsMap.get(expertID);
+                if (!expertEntry.locationIDs.includes(locationID)) {
+                  expertEntry.locationIDs.push(locationID);
+                }
+                if (!expertEntry.grantIDs.includes(grantID)) {
+                  expertEntry.grantIDs.push(grantID);
+                }
+
+                // Add expert ID to locationMap
+                if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
+                  locationMap.get(locationID).expertIDs.push(expertID);
+                }
+                
           });
         }
-    });
-
+          });
+        });
     });
     // Render polygons
     renderPolygons({
@@ -481,12 +494,12 @@ const grantLayer = ({
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
     };
-  }, [map, grantGeoJSON, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
+  }, [map, nonOverlappingGrants, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
 
   return null;
 };
 
-export default grantLayer;
+export default GrantLayer;
 
 
 

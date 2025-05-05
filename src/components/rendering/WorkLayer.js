@@ -76,8 +76,8 @@ const renderPolygons = ({
     );
 
     const polygon = L.polygon(flippedCoordinates, {
-      color: "blue",
-      fillColor: "#dbeafe",
+      color: "#517CDC",
+      fillColor: "#547fee",
       fillOpacity: 0.6,
       weight: 2,
     }).addTo(map);
@@ -91,7 +91,7 @@ const renderPolygons = ({
     const marker = L.marker(polygonCenter, {
       icon: L.divIcon({
         html: `<div style='
-          background: #13639e;
+          background: #2a60d5;
           color: white;
           border-radius: 50%;
           width: 30px;
@@ -211,7 +211,7 @@ const renderPoints = ({
 
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #13639e; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.expertIDs.length}</div>`,
+        html: `<div style='background: #2a60d5; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.expertIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
@@ -304,7 +304,7 @@ const renderPoints = ({
  * WorkLayer Component
  */
 const WorkLayer = ({
-  geoData,
+  nonOverlappingWorks = [],
   showWorks,
   showGrants,
   setSelectedWorks,
@@ -315,7 +315,10 @@ const WorkLayer = ({
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !geoData) return;
+    if (!map || !nonOverlappingWorks || !nonOverlappingWorks.length) {
+      console.error('Error: No works found!');
+      return;
+    } 
 
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
@@ -327,12 +330,13 @@ const WorkLayer = ({
           .reduce((sum, marker) => sum + marker.options.expertCount, 0);
 
         return L.divIcon({
-          html: `<div style="background: #13639e; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
+          html: `<div style="background: #2a60d5; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
           className: "custom-cluster-icon",
           iconSize: L.point(40, 40),
         });
       },
     });
+
     console.log("WorkLayer - combinedKeys:", Array.from(combinedKeys));
 
     const locationMap = new Map();
@@ -344,92 +348,98 @@ const WorkLayer = ({
     // let workIDCounter = 1;
     // let expertIDCounter = 1;
 
-    // Populate locationMap, worksMap, and expertsMap
-    geoData.features.forEach((feature) => {
-      const geometry = feature.geometry;
-      const entries = feature.properties.entries || [];
-      const location = feature.properties.location || "Unknown";
+    nonOverlappingWorks.forEach((workLocation) => {
+      const { location, worksFeatures } = workLocation; // Destructure the object
+      console.log(`Location: ${location}`);
+      console.log(`Works Features:`, worksFeatures);
+    
+      // Iterate over worksFeatures if needed
+      worksFeatures.forEach((workFeature) => {
+        console.log(`Work Feature:`, workFeature);
+        // Add any additional processing logic here
+        const geometry = workFeature.geometry;
+        const entries = workFeature.properties.entries || [];
+        const location = workFeature.properties.location || "Unknown";
 
-      // Skip processing if showWorks is false
-      if (!showWorks) return;
-      // Skip rendering if the location overlaps with combinedKeys
-      if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-        console.log(`WorkLayer - Skipping popup for overlapping location: ${location}`);
-        return;
-      }
-      // Generate a unique location ID
-      const locationID = feature.properties.locationID;
+        if(!showWorks) return;
+        // Skip rendering if the location overlaps with combinedKeys
+        if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
+          console.log(`WorkLayer - Skipping popup for overlapping location: ${location}`);
+          return;
+        }
+        // Generate a unique location ID
+        const locationID = workFeature.properties.locationID;
 
-      // Initialize locationMap entry if it doesn't exist
-      if (!locationMap.has(locationID)) {
-        locationMap.set(locationID, {
-          name: location, // Store the name of the location
-          display_name: feature.properties.display_name || 'Unknown Name',
-          country: feature.properties.country || 'Unknown Country',
-          place_rank: feature.properties.place_rank || 'Unknown Rank',
-          geometryType: geometry.type,
-          coordinates: geometry.coordinates,
-          workIDs: [],
-          expertIDs: [],
+        // Initialize locationMap entry if it doesn't exist
+        if (!locationMap.has(locationID)) {
+          locationMap.set(locationID, {
+            name: location, // Store the name of the location
+            display_name: workFeature.properties.display_name || 'Unknown Name',
+            country: workFeature.properties.country || 'Unknown Country',
+            place_rank: workFeature.properties.place_rank || 'Unknown Rank',
+            geometryType: geometry.type,
+            coordinates: geometry.coordinates,
+            workIDs: [],
+            expertIDs: [],
+          });
+        }
+
+        // Process each work entry
+        entries.forEach((entry) => {
+          // Generate a unique work ID
+          const workID = `work_${entry.id}`;
+
+          // Add work to worksMap
+          worksMap.set(workID, {
+            title: entry.title || "No Title",
+            abstract: entry.abstract || "No Abstract",
+            issued: entry.issued || "Unknown",
+            confidence: entry.confidence || "Unknown",
+            locationID,
+            relatedExpertIDs: [],
+          });
+
+          // Add work ID to locationMap
+          locationMap.get(locationID).workIDs.push(workID);
+
+          // Process related experts
+          (entry.relatedExperts || []).forEach((expert) => {
+            // Generate a unique expert ID if the expert doesn't already exist
+            let expertID = Array.from(expertsMap.entries()).find(
+              ([, value]) => value.fullName === expert.fullName
+            )?.[0];
+
+            if (!expertID) {
+              expertID = `expert_${expert.id}`;
+              expertsMap.set(expertID, {
+                id: expert.id,
+                name: expert.fullName || "Unknown",
+                url: expert.url || "#",
+                locationIDs: [],
+                workIDs: [],
+              });
+            }
+
+            // Add expert ID to worksMap
+            worksMap.get(workID).relatedExpertIDs.push(expertID);
+
+            // Add location ID and work ID to expertsMap
+            const expertEntry = expertsMap.get(expertID);
+            if (!expertEntry.locationIDs.includes(locationID)) {
+              expertEntry.locationIDs.push(locationID);
+            }
+            if (!expertEntry.workIDs.includes(workID)) {
+              expertEntry.workIDs.push(workID);
+            }
+
+            // Add expert ID to locationMap
+            if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
+              locationMap.get(locationID).expertIDs.push(expertID);
+            }
         });
-      }
-
-      // Process each work entry
-      entries.forEach((entry) => {
-        // Generate a unique work ID
-        const workID = `work_${entry.id}`;
-
-        // Add work to worksMap
-        worksMap.set(workID, {
-          title: entry.title || "No Title",
-          abstract: entry.abstract || "No Abstract",
-          issued: entry.issued || "Unknown",
-          confidence: entry.confidence || "Unknown",
-          locationID,
-          relatedExpertIDs: [],
-        });
-
-        // Add work ID to locationMap
-        locationMap.get(locationID).workIDs.push(workID);
-
-        // Process related experts
-        (entry.relatedExperts || []).forEach((expert) => {
-          // Generate a unique expert ID if the expert doesn't already exist
-          let expertID = Array.from(expertsMap.entries()).find(
-            ([, value]) => value.fullName === expert.fullName
-          )?.[0];
-
-          if (!expertID) {
-            expertID = `expert_${expert.id}`;
-            expertsMap.set(expertID, {
-              id: expert.id,
-              name: expert.fullName || "Unknown",
-              url: expert.url || "#",
-              locationIDs: [],
-              workIDs: [],
-            });
-          }
-
-          // Add expert ID to worksMap
-          worksMap.get(workID).relatedExpertIDs.push(expertID);
-
-          // Add location ID and work ID to expertsMap
-          const expertEntry = expertsMap.get(expertID);
-          if (!expertEntry.locationIDs.includes(locationID)) {
-            expertEntry.locationIDs.push(locationID);
-          }
-          if (!expertEntry.workIDs.includes(workID)) {
-            expertEntry.workIDs.push(workID);
-          }
-
-          // Add expert ID to locationMap
-          if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
-            locationMap.get(locationID).expertIDs.push(expertID);
-          }
         });
       });
     });
-
     // Render polygons
     renderPolygons({
       locationMap,
@@ -463,14 +473,12 @@ const WorkLayer = ({
     };
   }, [
     map,
-    geoData,
+    nonOverlappingWorks,
     showWorks,
     showGrants,
     setSelectedWorks,
     setPanelOpen,
-    setPanelType,
-  ]);
-
+    setPanelType,]);
   return null;
 };
 

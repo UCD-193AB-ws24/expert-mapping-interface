@@ -5,9 +5,9 @@ import MapWrapper from "./MapContainer";
 import processGeoJSONData from "./rendering/ProcessGeoJSON";
 import WorkLayer from "./rendering/WorkLayer";
 import GrantLayer from "./rendering/GrantLayer";
-import CombinedLayer from "./rendering/CombinedLayer";
+// import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel } from "./rendering/Panels";
-import { CombinedPanel } from "./rendering/CombinedPanel";
+// import { CombinedPanel } from "./rendering/CombinedPanel";
 
 /**
  * ResearchMap Component
@@ -181,19 +181,29 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     : null;
   ;
 
-  const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
-    dateFilteredWorkGeoJSON,
-    dateFilteredGrantGeoJSON,
-    showWorks,
-    showGrants
-);
+    // Validate filtered GeoJSON data before passing to processGeoJSONData
+    const validWorkGeoJSON = dateFilteredWorkGeoJSON || { type: "FeatureCollection", features: [] };
+    const validGrantGeoJSON = dateFilteredGrantGeoJSON || { type: "FeatureCollection", features: [] };
 
+    // Debugging logs to check the structure of the filtered data
+    console.log("Filtered Work GeoJSON:", validWorkGeoJSON);
+    console.log("Filtered Grant GeoJSON:", validGrantGeoJSON);
+
+    // Call processGeoJSONData with validated inputs
+    const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
+        validWorkGeoJSON,
+        validGrantGeoJSON,
+        showWorks,
+        showGrants
+    );
+    console.log("Non-overlapping work features:",  nonOverlappingWorks);
+    console.log("Non-overlapping grant features:",  nonOverlappingGrants);
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
           {/* Combined location layer must come first to handle overlaps */}
-          {showWorks && showGrants && (
+          {/* {showWorks && showGrants && (
             <CombinedLayer
               overlappingLocations={overlappingLocations}
               showWorks={showWorks}
@@ -205,8 +215,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               setPanelType={setPanelType}
               setCombinedKeys={setCombinedKeys}
             />
-          )}
-          <CombinedPolygonLayer
+          )} */}
+          {/* <CombinedPolygonLayer
             workGeoJSON={dateFilteredWorkGeoJSON}
             grantGeoJSON={dateFilteredGrantGeoJSON}
             showWorks={showWorks}
@@ -219,11 +229,11 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             combinedKeys={combinedKeys}
             setLocationName={setLocationName}
             searchKeyword={searchKeyword}
-          />
+          /> */}
           {/* Regular works layer */}
           {(showWorks || searchKeyword) && (
             <WorkLayer
-              geoData={nonOverlappingWorks}
+              nonOverlappingWorks={nonOverlappingWorks}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               searchKeyword={searchKeyword}
@@ -237,7 +247,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           {/* Regular grants layer */}
           {(showGrants || searchKeyword) && (
             <GrantLayer
-              grantGeoJSON={nonOverlappingGrants}
+              nonOverlappingGrants={nonOverlappingGrants}
               showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               searchKeyword={searchKeyword}

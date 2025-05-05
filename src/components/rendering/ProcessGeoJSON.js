@@ -17,6 +17,16 @@
  */
 
 const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) => {
+    // Validate inputs and provide default values
+    if (!workGeoJSON || !workGeoJSON.features) {
+        console.warn("Invalid or missing workGeoJSON. Defaulting to an empty GeoJSON object.");
+        workGeoJSON = { features: [] };
+    }
+    if (!grantGeoJSON || !grantGeoJSON.features) {
+        console.warn("Invalid or missing grantGeoJSON. Defaulting to an empty GeoJSON object.");
+        grantGeoJSON = { features: [] };
+    }
+    
     const workPolygons = new Map();
     const grantPolygons = new Map();
     const overlappingLocations = [];

@@ -235,7 +235,7 @@ export const createCombinedPolygonPopup = (worksCount, grantsCount, locationName
       </div>
     </div>
     <a href='#'
-      class='view-combined-polygon-btn'
+      class='view-combined-btn'
       style='display: block; margin-top: 12px; padding: 8px 10px; background: #6CCA98; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
       Open Panel
     </a>

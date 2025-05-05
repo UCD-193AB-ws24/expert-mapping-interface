@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { createCombinedPolygonPopup, createMatchedCombinedPolygonPopup } from "./Popups";
-
+import { prepareGrantPanelData } from "./GrantLayer";
+import { preparePanelData } from "./WorkLayer";
 /**
  * CombinedPolygonLayer Component
  * 
@@ -24,39 +25,342 @@ import { createCombinedPolygonPopup, createMatchedCombinedPolygonPopup } from ".
  * - setLocationName: Function to set the name of the location for the side panel.
  */
 
-//helper function for keyword search
-const matchesKeyword = (keyword, feature, entry) => {
-  // Must have at least one related expert
-  const relatedExperts = entry.relatedExperts || (entry.relatedExpert ? [entry.relatedExpert] : []);
-  if (!relatedExperts.length) return false;
 
-  // If no keyword, allow the entry as long as it has experts
-  if (!keyword?.trim()) return true;
 
-  const lowerKeyword = keyword.toLowerCase();
-  const quoteMatch = keyword.match(/^"(.*)"$/);
-  const terms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
+const renderPoints = ({
+  locationMap,
+  worksMap,
+  grantsMap,
+  expertsMap,
+  map,
+  comboMarkerGroup,
+  setSelectedGrants,
+  setSelectedWorks,
+  setPanelOpen,
+  setPanelType,
+}) => {
+  locationMap.forEach((locationData, locationID) => {
+    if (locationData.geometryType !== "Point" || locationData.grantIDs.length === 0 || locationData.worksIDs.length === 0) return;
 
-  // Fields to include in match (exclude authors[])
-  const searchable = [
-    entry.title,
-    entry.abstract,
-    entry.issued,
-    entry.funder,
-    entry.confidence,
-    ...relatedExperts.map(e => e.name)
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+    const [lng, lat] = locationData.coordinates;
+    const flippedCoordinates = [lat, lng];
 
-  return terms.every(term => searchable.includes(term));
+    const marker = L.marker(flippedCoordinates, {
+      icon: L.divIcon({
+        html: `<div style='background: #659c39; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
+        className: "custom-marker-icon",
+        iconSize: [30, 30],
+      }),
+    });
+
+    // Get expert count for each work and grant per location
+    // Count experts from workIDs
+    workIDs.forEach((workID) => {
+      const work = worksMap.get(workID);
+      if (!work) {
+        console.warn(`Work with ID ${workID} not found in worksMap.`);
+        return;
+      }
+
+      (work.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          workExpertSet.add(expertID);
+        }
+      });
+    });
+    // Count experts from grantIDs
+    grantIDs.forEach((grantID) => {
+      const grant = grantsMap.get(grantID);
+      if (!grant) {
+        console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
+        return;
+      }
+
+      (grant.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          grantExpertSet.add(expertID);
+        }
+      });
+    });
+
+    const work2expertCount = workExpertSet.size;
+    const grant2expertCount = grantExpertSet.size;
+
+    let activePointPopup = null;
+    let closePointTimeout = null; // CT = closetimeout
+
+    marker.on("mouseover", () => {
+      if (closePointTimeout) clearTimeout(closePointTimeout);
+      const content = createCombinedPolygonPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.name
+      );
+      if (activePointPopup) activePointPopup.remove();
+      activePointPopup = L.popup({
+        closeButton: false,
+        autoClose: false,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: false,
+      })
+        .setLatLng(marker.getLatLng())
+        .setContent(content)
+        .openOn(map);
+        const popupElement = activePointPopup.getElement();
+        if (popupElement) {
+          popupElement.style.pointerEvents = "auto";
+  
+          popupElement.addEventListener("mouseenter", () => {
+            clearTimeout(closePointTimeout);
+          });
+  
+          popupElement.addEventListener("mouseleave", () => {
+            closePointTimeout = setTimeout(() => {
+              if (activePointPopup) {
+                activePointPopup.close();
+                activePointPopup = null;
+              }
+            }, 100);
+          });
+  
+          const viewCombinedExpertsBtn = popupElement.querySelector(".view-combined-btn");
+          if (viewCombinedExpertsBtn) {
+            // console.log('View Experts was pushed on a point!');
+            viewCombinedExpertsBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+  
+              const grantPanelData = prepareGrantPanelData(
+                locationData.expertIDs,
+                locationData.grantIDs,
+                grantsMap,
+                expertsMap,
+                locationID
+              );
+              const workPanelData = preparePanelData(
+                locationData.expertIDs,
+                locationData.workIDs,
+                expertsMap,
+                worksMap,
+                locationID
+              );
+              setSelectedGrants(grantPanelData);
+              setSelectedWorks(workPanelData);
+              setPanelType("combined");
+              setPanelOpen(true);
+  
+              if (activePointPopup) {
+                activePointPopup.close();
+                activePointPopup = null;
+              }
+            });
+          }
+        }  
+    });
+
+    marker.on("mouseout", () => {
+      closePointTimeout = setTimeout(() => {
+        if (activePointPopup) {
+          activePointPopup.close();
+          activePointPopup = null;
+        }
+      }, 100);
+    });
+
+    comboMarkerGroup.addLayer(marker);
+  });
+  map.addLayer(comboMarkerGroup);
 };
 
+const renderPolygons = ({
+  locationMap,
+  worksMap,
+  grantsMap,
+  expertsMap,
+  map,
+  setSelectedGrants,
+  setSelectedWorks,
+  setPanelOpen,
+  setPanelType,
+  comboLayers,
+  comboPolyMarkers,
+}) => {
+  const sortedPolygons = Array.from(locationMap.entries())
+    .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
+    .sort(([, a], [, b]) => {
+      const area = (geometry) => {
+        const bounds = L.polygon(
+          geometry.coordinates[0].map(([lng, lat]) => [lat, lng])
+        ).getBounds();
+        return (
+          (bounds.getEast() - bounds.getWest()) *
+          (bounds.getNorth() - bounds.getSouth())
+        );
+      };
+      return area(b) - area(a); // Sort largest to smallest
+    });
+
+  sortedPolygons.forEach(([locationID, locationData]) => {
+    const flippedCoordinates = locationData.coordinates.map((ring) =>
+      ring.map(([lng, lat]) => [lat, lng])
+    );
+
+    // Get expert count for each work and grant per location
+    // Count experts from workIDs
+    workIDs.forEach((workID) => {
+      const work = worksMap.get(workID);
+      if (!work) {
+        console.warn(`Work with ID ${workID} not found in worksMap.`);
+        return;
+      }
+
+      (work.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          workExpertSet.add(expertID);
+        }
+      });
+    });
+    // Count experts from grantIDs
+    grantIDs.forEach((grantID) => {
+      const grant = grantsMap.get(grantID);
+      if (!grant) {
+        console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
+        return;
+      }
+
+      (grant.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          grantExpertSet.add(expertID);
+        }
+      });
+    });
+
+    const work2expertCount = workExpertSet.size;
+    const grant2expertCount = grantExpertSet.size;
+
+    const polygon = L.polygon(flippedCoordinates, {
+      color: "#659c39",
+      fillColor: "#96ca6e",
+      fillOpacity: 0.5,
+      weight: 2,
+    }).addTo(map);
+
+    comboLayers.push(polygon);
+
+    // Calculate the center of the polygon
+    const polygonCenter = polygon.getBounds().getCenter();
+    
+    // Create a marker at the center of the polygon
+    const marker = L.marker(polygonCenter, {
+        icon: L.divIcon({
+            html: `<div style='
+              background: #659c39;
+              color: white;
+              border-radius: 50%;
+              width: 30px;
+              height: 30px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: bold;
+            '>${locationData.expertIDs.length}</div>`,
+            className: "polygon-center-marker",
+            iconSize: [30, 30],
+          }),
+      }).addTo(map);
+    
+        // Track the marker for cleanup
+    comboPolyMarkers.push(marker);
+
+    let activePopup = null;
+    let closeTimeout = null;
+
+    marker.on("mouseover", () => {
+      if (closeTimeout) clearTimeout(closeTimeout);
+      const content = createCombinedPolygonPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.name
+      );
+
+      if (activePopup) activePopup.remove();
+
+      activePopup = L.popup({
+        closeButton: false,
+        autoClose: false,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: false,
+      })
+        .setLatLng(polygon.getBounds().getCenter())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        popupElement.addEventListener("mouseenter", () => {
+          clearTimeout(closeTimeout);
+        });
+
+        popupElement.addEventListener("mouseleave", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 100);
+        });
+
+        const viewPointComboExpertsBtn = popupElement.querySelector(".view-combined-btn");
+        if (viewPointComboExpertsBtn) {
+          viewPointComboExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const grantPanelData = prepareGrantPanelData(
+              locationData.expertIDs,
+              locationData.grantIDs,
+              grantsMap,
+              expertsMap,
+              locationID
+            );
+            const workPanelData = preparePanelData(
+              locationData.expertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID
+            );
+            setSelectedGrants(grantPanelData);
+            setSelectedWorks(workPanelData);
+            setPanelType("combined");
+            setPanelOpen(true);
+
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+        }
+      }
+    });
+
+    marker.on("mouseout", () => {
+      closeTimeout = setTimeout(() => {
+        if (activePopup) {
+          activePopup.close();
+          activePopup = null;
+        }
+      }, 100);
+    });
+  });
+};
 
 const CombinedPolygonLayer = ({
-  workGeoJSON,
-  grantGeoJSON,
+  overlappingLocations,
   showWorks,
   showGrants,
   setSelectedWorks,
@@ -73,197 +377,177 @@ const CombinedPolygonLayer = ({
   const map = useMap();
 
   // Ref to store the polygon layers added to the map
-  const polygonLayersRef = useRef([]);
+  // const polygonLayersRef = useRef([]);
 
   useEffect(() => {
     // Exit early if map, workGeoJSON, or grantGeoJSON is not available
-    if (!map || !workGeoJSON || !grantGeoJSON) return;
+    if (!map || !overlappingLocations) return;
 
-    // Clear previous polygons from the map
-    polygonLayersRef.current.forEach(p => map.removeLayer(p));
-    polygonLayersRef.current = [];
+    const locationMap = new Map();
+    const grantsMap = new Map();
+    const expertsMap = new Map();
+    const worksMap = new Map();
 
-    // Only proceed if both works and grants are to be displayed
-    if (showWorks && showGrants) {
-      const workPolygons = new Map(); // Map to store work polygons by location
-      const grantPolygons = new Map(); // Map to store grant polygons by location
-      let activePopup = null; // Variable to store the currently active popup
-      let closeTimeout = null; // Timeout for closing popups on mouseout
+    const comboMarkerGroup = L.markerClusterGroup({
+          showCoverageOnHover: false,
+          maxClusterRadius: 40,
+          spiderfyOnMaxZoom: false,
+          iconCreateFunction: (cluster) => {
+            const totalExperts = cluster
+              .getAllChildMarkers()
+              .reduce((sum, marker) => sum + marker.options.expertCount, 0);
+    
+            return L.divIcon({
+              html: `<div style="background: #659c39; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
+              className: "custom-cluster-icon",
+              iconSize: L.point(40, 40),
+            });
+          },
+    });
 
-      // Collect work polygons by location
-      workGeoJSON.features.forEach(feature => {
-        if (feature.geometry.type === "Polygon") {
-          const location = (feature.properties.location ||  "");
-          if (!location) return;
-          if (!workPolygons.has(location)) workPolygons.set(location, []);
-          workPolygons.get(location).push(feature);
+    const comboLayers = [];
+    const comboPolyMarkers = [];
+
+    nonOverlappingWorks.forEach((workLocation) => {
+      const { location, worksFeatures } = workLocation; // Destructure the object
+      console.log(`Location: ${location}`);
+      console.log(`Works Features:`, worksFeatures);
+    
+      // Iterate over worksFeatures if needed
+      worksFeatures.forEach((workFeature) => {
+        console.log(`Work Feature:`, workFeature);
+        // Add any additional processing logic here
+        const geometry = workFeature.geometry;
+        const entries = workFeature.properties.entries || [];
+        const location = workFeature.properties.location || "Unknown";
+
+        if(!showWorks) return;
+        // Skip rendering if the location overlaps with combinedKeys
+        if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
+          console.log(`WorkLayer - Skipping popup for overlapping location: ${location}`);
+          return;
         }
-      });
+        // Generate a unique location ID
+        const locationID = workFeature.properties.locationID;
 
-      // Collect grant polygons by location
-      grantGeoJSON.features.forEach(feature => {
-        if (feature.geometry.type === "Polygon") {
-          const location = (feature.properties.location || "");
-          if (!location) return;
-          if (!grantPolygons.has(location)) grantPolygons.set(location, []);
-          grantPolygons.get(location).push(feature);
+        // Initialize locationMap entry if it doesn't exist
+        if (!locationMap.has(locationID)) {
+          locationMap.set(locationID, {
+            name: location, // Store the name of the location
+            display_name: workFeature.properties.display_name || 'Unknown Name',
+            country: workFeature.properties.country || 'Unknown Country',
+            place_rank: workFeature.properties.place_rank || 'Unknown Rank',
+            geometryType: geometry.type,
+            coordinates: geometry.coordinates,
+            workIDs: [],
+            expertIDs: [],
+          });
         }
-      });
 
-      const overlappingLocations = []; // Array to store locations with overlaps
+        // Process each work entry
+        entries.forEach((entry) => {
+          // Generate a unique work ID
+          const workID = `work_${entry.id}`;
 
-      // Draw combined polygons for overlapping locations
-      workPolygons.forEach((worksFeatures, location) => {
-        if (grantPolygons.has(location)) {
-          console.log(`Overlapping location detected: ${location}`);
-          overlappingLocations.push(location);
+          // Add work to worksMap
+          worksMap.set(workID, {
+            title: entry.title || "No Title",
+            abstract: entry.abstract || "No Abstract",
+            issued: entry.issued || "Unknown",
+            confidence: entry.confidence || "Unknown",
+            locationID,
+            relatedExpertIDs: [],
+          });
 
-          const grantsFeatures = grantPolygons.get(location);
+          // Add work ID to locationMap
+          locationMap.get(locationID).workIDs.push(workID);
 
-          const filteredWorksEntries = worksFeatures.flatMap(f =>
-            (f.properties.entries || []).filter(entry =>
-              entry.relatedExperts && entry.relatedExperts.length > 0 &&
-              matchesKeyword(searchKeyword, f, entry)
-            )
-          );
+          // Process related experts
+          (entry.relatedExperts || []).forEach((expert) => {
+            // Generate a unique expert ID if the expert doesn't already exist
+            let expertID = Array.from(expertsMap.entries()).find(
+              ([, value]) => value.fullName === expert.fullName
+            )?.[0];
 
-          const filteredGrantsEntries = grantsFeatures.flatMap(f =>
-            (f.properties.entries || []).filter(entry =>
-              entry.relatedExperts && Object.keys(entry.relatedExperts).length > 0 &&
-              matchesKeyword(searchKeyword, f, entry)
-            )
-          );
-
-
-          // Only render if there's at least one matching entry
-          if (filteredWorksEntries.length === 0 && filteredGrantsEntries.length === 0) return;
-
-          // Calculate counts based on filtered entries
-          const worksCount = filteredWorksEntries.length;
-          const grantsCount = filteredGrantsEntries.length;
-
-          // Use the geometry of the first work feature for the polygon
-          const geometry = worksFeatures[0].geometry;
-          const flippedCoordinates = geometry.coordinates.map(ring =>
-            ring.map(([lng, lat]) => [lat, lng])
-          );
-
-          // Determine the location name
-          const locationName =
-            worksFeatures[0]?.properties?.display_name ||
-            worksFeatures[0]?.properties?.location ||
-            grantsFeatures[0]?.properties?.location ||
-            "Unknown";
-
-          // Create a Leaflet polygon with dashed styling
-          const polygon = L.polygon(flippedCoordinates, {
-            color: "#6c2376",
-            fillColor: "#76236C",
-            fillOpacity: 0.7,
-            weight: 3
-          }).addTo(map);
-
-          // Add the polygon to the list of layers
-          polygonLayersRef.current.push(polygon);
-          polygon.bringToFront();
-
-          // Add event listeners for interactivity
-          polygon.on("mouseover", () => {
-            if (closeTimeout) clearTimeout(closeTimeout);
-
-            const keyword = searchKeyword?.toLowerCase().trim();
-            // Create popup content for the combined polygon
-            const content = keyword?.trim()
-              ? createMatchedCombinedPolygonPopup(worksCount, grantsCount, locationName)
-              : createCombinedPolygonPopup(worksCount, grantsCount, locationName);
-
-
-            // Close the currently active popup if it exists
-            if (activePopup) activePopup.close();
-
-            // Create and open a new popup
-            activePopup = L.popup({
-              closeButton: false,
-              autoClose: false,
-              maxWidth: 300,
-              className: 'hoverable-popup',
-              autoPan: false,
-              keepInView: false,
-              interactive: true
-            })
-              .setLatLng(polygon.getBounds().getCenter())
-              .setContent(content)
-              .openOn(map);
-
-            // Add event listeners to the popup for mouse interactions
-            const popupElement = activePopup.getElement();
-            if (popupElement) {
-              popupElement.style.pointerEvents = 'auto';
-              popupElement.addEventListener('mouseenter', () => clearTimeout(closeTimeout));
-              popupElement.addEventListener('mouseleave', () => {
-                closeTimeout = setTimeout(() => {
-                  if (activePopup) {
-                    activePopup.close();
-                    activePopup = null;
-                  }
-                }, 300);
+            if (!expertID) {
+              expertID = `expert_${expert.id}`;
+              expertsMap.set(expertID, {
+                id: expert.id,
+                name: expert.fullName || "Unknown",
+                url: expert.url || "#",
+                locationIDs: [],
+                workIDs: [],
               });
-
-              // Add a click event listener to the "View Combined Polygon" button in the popup
-              const viewBtn = popupElement.querySelector(".view-combined-polygon-btn");
-              if (viewBtn) {
-                viewBtn.addEventListener("click", (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-
-                  // Collect entries for works and grants at the location
-                  const worksEntries = worksFeatures.flatMap(f => f.properties.entries || []);
-                  const grantsEntries = grantsFeatures.flatMap(f => f.properties.entries || []);
-
-                  // Update the state for the side panel
-                  setSelectedWorks(filteredWorksEntries);
-                  setSelectedGrants(filteredGrantsEntries);
-                  setPanelType("combined");
-                  setLocationName(locationName);
-                  setPanelOpen(true);
-
-
-                  // Close the active popup
-                  if (activePopup) {
-                    activePopup.close();
-                    activePopup = null;
-                  }
-                });
-              }
             }
-          });
 
-          // Close the popup on mouseout with a delay
-          polygon.on("mouseout", () => {
-            closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            }, 300);
-          });
-        }
+            // Add expert ID to worksMap
+            worksMap.get(workID).relatedExpertIDs.push(expertID);
+
+            // Add location ID and work ID to expertsMap
+            const expertEntry = expertsMap.get(expertID);
+            if (!expertEntry.locationIDs.includes(locationID)) {
+              expertEntry.locationIDs.push(locationID);
+            }
+            if (!expertEntry.workIDs.includes(workID)) {
+              expertEntry.workIDs.push(workID);
+            }
+
+            // Add expert ID to locationMap
+            if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
+              locationMap.get(locationID).expertIDs.push(expertID);
+            }
+        });
+        });
       });
+    });
+    // Render polygons
+    renderPolygons({
+      locationMap,
+      worksMap,
+      grantsMap,
+      expertsMap,
+      map,
+      setSelectedGrants,
+      setSelectedWorks,
+      setPanelOpen,
+      setPanelType,
+      comboLayers,
+      comboPolyMarkers,
+    });
 
-      // Update the combinedKeys state if overlapping locations have changed
-      const newCombinedKeys = new Set(overlappingLocations);
-      const currentKeysString = JSON.stringify(Array.from(newCombinedKeys));
-      const existingKeysString = JSON.stringify(Array.from(combinedKeys));
+    // Render points
+    renderPoints({
+      locationMap,
+      worksMap,
+      grantsMap,
+      expertsMap,
+      map,
+      comboMarkerGroup,
+      setSelectedGrants,
+      setSelectedWorks,
+      setPanelOpen,
+      setPanelType,
+    });
 
-      if (currentKeysString !== existingKeysString) {
+    // Update the combinedKeys state if overlapping locations have changed
+    const newCombinedKeys = new Set(overlappingLocations);
+    const currentKeysString = JSON.stringify(Array.from(newCombinedKeys));
+    const existingKeysString = JSON.stringify(Array.from(combinedKeys));
+
+    if (currentKeysString !== existingKeysString) {
         console.log("Updating combinedKeys:", overlappingLocations);
         setCombinedKeys(newCombinedKeys);
-      } else {
+    } else {
         console.log("combinedKeys unchanged.");
-      }
     }
-  }, [map, workGeoJSON, grantGeoJSON, showWorks, showGrants, searchKeyword, setCombinedKeys, combinedKeys]);
-
+    // Cleanup function
+    return () => {
+      map.removeLayer(comboMarkerGroup);
+      comboLayers.forEach((p) => map.removeLayer(p));
+      comboPolyMarkers.forEach((m) => map.removeLayer(m));
+    };
+  }, [map, overlappingLocations, showWorks, showGrants, setCombinedKeys, combinedKeys]);
+  
   // This component does not render any JSX
   return null;
 };
