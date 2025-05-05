@@ -128,13 +128,13 @@ function findDistance(lat1, lon1, lat2, lon2) {
   return R * c * 0.6214;
 }
 
-async function calculateConfidence(location_info, iso_llama) {
+async function calculateConfidence(location_info, iso_location) {
   const MAX_DIST = 12400;
 
   const lat1 = Number(location_info.lat);
   const lon1 = Number(location_info.lon);
 
-  const val_loc = await getLocationInfo(iso_llama);
+  const val_loc = await getLocationInfo(iso_location);
   const lat2 = Number(val_loc.lat);
   const lon2 = Number(val_loc.lon);
 
@@ -232,7 +232,7 @@ async function validateLocation(location) {
     } else if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
       return {
         name: location_info.name,
-        confidence: await calculateConfidence(location_info, iso_llama),
+        confidence: await calculateConfidence(location_info, countries[iso_llama]),
         country: countries[iso_llama],
       };
       // Unable to use Nominatim, use ISO if exists
@@ -260,13 +260,18 @@ async function validateLocation(location) {
       } else {
         return {
           name: countries[iso_llama],
-          confidence: await calculateConfidence(location_info, iso_llama),
+          confidence: await calculateConfidence(location_info, countries[iso_llama]),
           country: countries[iso_llama]
         };
       }
     }
   } catch (error) {
     console.log("Fail to validate: " + location);
+    return {
+      name: "N/A",
+      confidence: "",
+      country: "None"
+    };
   }
 }
 
