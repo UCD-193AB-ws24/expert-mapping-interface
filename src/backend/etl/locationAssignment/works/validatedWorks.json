@@ -4257,27 +4257,6 @@
         "confidence": ""
       },
       {
-        "id": "w2271",
-        "title": "Of pNGB quitessence",
-        "name": "Of pNGB quitessence Published article-journal 2006-04-01 Kaloper N. Sorbo L. Journal of Cosmology and Astroparticle Physics 1475-7516 10.10881475-7516200604007",
-        "issued": "2006-04-01",
-        "abstract": "We review the pNGB quintessence models and point out that the reason why the large decay constants are really needed is to tame a tachyonic instability present for a wide range of initial vevs. Starting very close to potential maxima does not help because quantum fluctuations during early inflation at a scale H I perturb the quintessence vev displacing it from the maxima. This issue is quite interesting for pNGB dark energy in light of the recently discussed difficulties with embedding models with f aM Pl in fundamental theory. A possible way around is provided by models with several ultralight pNGBs which can drive a short burst of very late inflation together even if all of their decay constants obey f aM Pl. Starting with their vevf a the pNGBs will hold each other up on the potential for a longer time period. Their effective dynamics is captured by a collective mode containing admixtures of all of the rolling pNGBs which behaves as an ultralight field with f eff M Pl. We point out that there may be potentially observable large scale disturbances in the sea of dark energy in such models. 2006 IOP Publishing Ltd and SISSA.",
-        "authors": [
-          "Nemanja Kaloper",
-          "Lorenzo Sorbo"
-        ],
-        "relatedExperts": [
-          {
-            "id": "CtDHIFMe",
-            "firstName": "Nemanja",
-            "lastName": "Kaloper",
-            "fullName": "Nemanja Kaloper",
-            "url": "expert/CtDHIFMe"
-          }
-        ],
-        "confidence": ""
-      },
-      {
         "id": "w822",
         "title": "Network growth with feedback",
         "name": "Network growth with feedback Published article-journal 2008-10 DSouza R. Roy S. Physical Review E 1550-2376 10.1103physreve.78.045101",
@@ -4617,6 +4596,28 @@
             "lastName": "Srinivasan",
             "fullName": "Vivek Srinivasan",
             "url": "expert/egGMr9LS"
+          }
+        ],
+        "confidence": ""
+      },
+      {
+        "id": "w735",
+        "title": "Large herbivores facilitate the persistence of rare taxa under tundra warming",
+        "name": "Large herbivores facilitate the persistence of rare taxa under tundra warming Published online article-journal 2022-01-25 Post E. Watts D. et al. Scientific Reports 2045-2322 10.1038s41598-022-05388-4",
+        "issued": "2022-01-25",
+        "abstract": "Ecological rarity characterized by low abundance or limited distribution is typical of most species yet our understanding of what factors contribute to the persistence of rare species remains limited. Consequently little is also known about whether rare species might respond differently than common species to direct e.g. abiotic and indirect e.g. biotic effects of climate change. We investigated the effects of warming and exclusion of large herbivores on 14 tundra taxa three of which were common and 11 of which were rare at an inland low-arctic study site near Kangerlussuaq Greenland. Across all taxa pooled commonness was reduced by experimental warming and more strongly under herbivore exclusion than under herbivory. However taxon-specific analyses revealed that although warming elicited variable effects on commonness herbivore exclusion disproportionately reduced the commonness of rare taxa. Over the 15-year duration of the experiment we also observed trends in commonness and rarity under all treatments through time. Sitewide commonness increased for two common taxa the deciduous shrubs Betula nana and Salix glauca and declined in six other taxa all of which were rare. Rates of increase or decline in commonness i.e. temporal trends over the duration of the experiment were strongly related to baseline commonness of taxa early in the experiment under all treatments except warming with grazing. Hence commonness itself may be a strong predictor of species responses to climate change in the arctic tundra biome but large herbivores may mediate such responses in rare taxa perhaps facilitating their persistence.",
+        "authors": [
+          "Eric Post",
+          "Christian Pedersen",
+          "David A Watts"
+        ],
+        "relatedExperts": [
+          {
+            "id": "W8Wqzimf",
+            "firstName": "Eric",
+            "lastName": "Post",
+            "fullName": "Eric Post",
+            "url": "expert/W8Wqzimf"
           }
         ],
         "confidence": ""
@@ -5614,30 +5615,6 @@
             "lastName": "Fathallah",
             "fullName": "Fadi Fathallah",
             "url": "expert/4w0Xkrlb"
-          }
-        ],
-        "confidence": ""
-      },
-      {
-        "id": "w853",
-        "title": "Quantification of Water-Soluble Metabolites in Medicinal Mushrooms Using Proton NMR Spectroscopy",
-        "name": "Quantification of Water-Soluble Metabolites in Medicinal Mushrooms Using Proton NMR Spectroscopy Published article-journal 2016 Lo Y. Mau J. et al. International Journal of Medicinal Mushrooms 1940-4344 10.1615intjmedmushrooms.v18.i5.50",
-        "issued": "2016",
-        "abstract": "The water-soluble metabolites in 5 mushrooms were identified and quantified using proton nuclear magnetic resonance NMR spectroscopy and software for targeted metabolite detection and quantification. In total 35 compounds were found in Agaricus brasiliensis 25 in Taiwanofungus camphoratus 23 in Ganoderma lucidum Taiwan and Lentinus edodes and 16 in G. lucidum China. Total amounts of all identified metabolites in A. brasiliensis T. camphoratus G. lucidum G. lucidum China and L. edodes were 149950.51 12834.18 9549.09 2788.41 and 111726.51 mgkg dry weight respectively. These metabolites were categorized into 4 groups free amino acids and derivatives carbohydrates carboxylic acids and nucleosides. Carbohydrates were the most abundant metabolites among all 4 groups with mannitol having the highest concentration among all analyzed metabolites 848-94104 mgkg dry weight. Principal components analysis PCA showed obvious distinction among the metabolites of the 5 different kinds of mushrooms analyzed in this study. Thus PCA could provide an optional analytical way of identifying and recognizing the compositions of flavor products. Furthermore the results of this study demonstrate that NMRbased metabolomics is a powerful tool for differentiating between various medicinal mushrooms.",
-        "authors": [
-          "Yu-Chang Lo",
-          "Shih-Chang Chien",
-          "Darya O Mishchuk",
-          "Carolyn M Slupsky",
-          "Jeng-Leun Mau"
-        ],
-        "relatedExperts": [
-          {
-            "id": "nhxmvUN2",
-            "firstName": "Carolyn",
-            "lastName": "Slupsky",
-            "fullName": "Carolyn Slupsky",
-            "url": "expert/nhxmvUN2"
           }
         ],
         "confidence": ""
@@ -30626,31 +30603,6 @@
         "confidence": ""
       },
       {
-        "id": "w2182",
-        "title": "Pre-introductory risk assessment studies of Gonatocerus ashmeadi Hymenoptera Mymaridae for use as a classical biological control agent against Homalodisca vitripennis Hemiptera Cicadellidae in the Society Islands of French Polynesia",
-        "name": "Pre-introductory risk assessment studies of Gonatocerus ashmeadi Hymenoptera Mymaridae for use as a classical biological control agent against Homalodisca vitripennis Hemiptera Cicadellidae in the Society Islands of French Polynesia Published article-journal 2007-09 Grandgirard J. Davies N. et al. Biocontrol Science and Technology 1360-0478 10.108009583150701527573",
-        "issued": "2007-09",
-        "abstract": "Homalodisca vitripennis Germar H. coagulata Say Hemiptera Cicadellidae invaded French Polynesia in 1999. A classical biological control program against H. vitripennis was initiated in 2004 aiming to introduce the exotic egg parasitoid Gonatocerus ashmeadi Girault Hymenoptera Mymaridae to the Society Islands archipelago. Prior to any release two risks were assessed a continued uncontrolled H. vitripennis spread and proliferation in French Polynesia and b non-target impacts by G. ashmeadi on indigenous French Polynesian cicadellids. The primary risk of H. vitripennis is its potential to vector the lethal plant bacterium Xylella fastidiosa. While the presence of X. fastidiosa in French Polynesia has not yet been demonstrated the presence of uncontrolled H. vitripennis greatly elevates the risk of a disease outbreak and thus represents a major threat for numerous plant species. Assessing the risk of G. ashmeadi introduction for native cicadellids first required an inventory of the Cicadellidae of the Society Islands resulting in at least 14 cicadellid species nine not previously recorded. The risk to these species of attack by G. ashmeadi was assessed using four criteria 1 their phylogenetic relationships to known hosts of G. ashmeadi and their similarity in 2 body size 3 egg laying biology and 4 ecology. All indigenous cicadellid species found were considered to be at low risk of attack because they differed greatly from all known hosts for G. ashmeadi 1 none of the indigenous species are in the tribe Proconiini 2 all were very small and when possible to determine 3 lay tiny single eggs which 4 are deposited on the undersides of leaves of trees. These results persuaded the French Polynesian Government that the benefits of establishing G. ashmeadi for H. vitripennis control outweighed the serious potential risks associated with either delaying release or not releasing G. ashmeadi in French Polynesia. Releases of G. ashmeadi in Tahiti began in May 2005. 2007 Taylor Francis.",
-        "authors": [
-          "Julie Grandgirard",
-          "Mark S Hoddle",
-          "Jerome N Petit",
-          "Diana M Percy",
-          "George K Roderick",
-          "Neil Davies"
-        ],
-        "relatedExperts": [
-          {
-            "id": "YfiTQOjP",
-            "firstName": "Mark",
-            "lastName": "Hoddle",
-            "fullName": "Mark Hoddle",
-            "url": "expert/YfiTQOjP"
-          }
-        ],
-        "confidence": ""
-      },
-      {
         "id": "w2452",
         "title": "Expression of molecular markers in blood of neonatal foals with sepsis.",
         "name": "Expression of molecular markers in blood of neonatal foals with sepsis. Published article-journal 2006-06 Pusterla N. Leutenegger C. et al. American Journal of Veterinary Research 1943-5681 10.2460ajvr.67.6.1045",
@@ -31613,7 +31565,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1287",
@@ -31641,7 +31593,7 @@
             "url": "expert/d1hzRHJt"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1361",
@@ -31678,7 +31630,7 @@
             "url": "expert/PFfnJVxC"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1894",
@@ -31749,7 +31701,7 @@
             "url": "expert/Plf9e1wd"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1186",
@@ -31778,7 +31730,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w996",
@@ -31808,7 +31760,7 @@
             "url": "expert/ECBjZ5ky"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w803",
@@ -31830,7 +31782,7 @@
             "url": "expert/soDQ6VEh"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2198",
@@ -31864,7 +31816,7 @@
             "url": "expert/wm8lEmby"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2172",
@@ -31887,7 +31839,7 @@
             "url": "expert/HySUAyz9"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1559",
@@ -31918,7 +31870,7 @@
             "url": "expert/5bN6NlWQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w575",
@@ -31945,7 +31897,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w457",
@@ -31974,7 +31926,7 @@
             "url": "expert/Rpnu9yrG"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w514",
@@ -32023,7 +31975,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1278",
@@ -32059,7 +32011,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w380",
@@ -32086,7 +32038,7 @@
             "url": "expert/f9geqbAx"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w390",
@@ -32134,7 +32086,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w723",
@@ -32160,7 +32112,7 @@
             "url": "expert/FZbifpUX"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1048",
@@ -32186,7 +32138,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w357",
@@ -32211,7 +32163,7 @@
             "url": "expert/ohLILQTQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1402",
@@ -32234,7 +32186,7 @@
             "url": "expert/fGozsANo"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2254",
@@ -32256,7 +32208,7 @@
             "url": "expert/8fb5vTyE"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1956",
@@ -32277,7 +32229,7 @@
             "url": "expert/nNOejrMH"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w124",
@@ -32302,7 +32254,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w995",
@@ -32328,7 +32280,7 @@
             "url": "expert/nuzTTJKR"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2408",
@@ -32350,7 +32302,7 @@
             "url": "expert/fGozsANo"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w574",
@@ -32380,7 +32332,7 @@
             "url": "expert/WxgQ3TGh"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1491",
@@ -32429,7 +32381,7 @@
             "url": "expert/KSWR5fKP"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2200",
@@ -32451,7 +32403,7 @@
             "url": "expert/MP6B81wh"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w413",
@@ -32482,7 +32434,7 @@
             "url": "expert/BXd30L6D"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1097",
@@ -32507,7 +32459,7 @@
             "url": "expert/uiP2J96c"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w187",
@@ -32540,7 +32492,7 @@
             "url": "expert/JVI10fLi"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w558",
@@ -32564,7 +32516,7 @@
             "url": "expert/NiK8OHmS"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1047",
@@ -32588,7 +32540,7 @@
             "url": "expert/uFG2Bkod"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w835",
@@ -32619,7 +32571,7 @@
             "url": "expert/KOHZSK3u"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w829",
@@ -32647,7 +32599,7 @@
             "url": "expert/BPXI0qEj"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w397",
@@ -32678,7 +32630,7 @@
             "url": "expert/BXd30L6D"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1890",
@@ -32701,7 +32653,7 @@
             "url": "expert/Ewg9Kcro"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w811",
@@ -32723,7 +32675,7 @@
             "url": "expert/wKLqy3zk"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w335",
@@ -32762,7 +32714,7 @@
             "url": "expert/YPsanxOu"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1790",
@@ -32787,7 +32739,7 @@
             "url": "expert/AOgLSwWL"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1742",
@@ -32810,7 +32762,7 @@
             "url": "expert/CtGb1qY4"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2201",
@@ -32832,7 +32784,7 @@
             "url": "expert/nuzTTJKR"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w604",
@@ -32854,7 +32806,7 @@
             "url": "expert/BcSP7ucB"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1324",
@@ -32885,7 +32837,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2336",
@@ -32908,7 +32860,7 @@
             "url": "expert/BXd30L6D"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1191",
@@ -32936,7 +32888,7 @@
             "url": "expert/cjZxkMOH"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w778",
@@ -32969,7 +32921,7 @@
             "url": "expert/oTf5l6Tt"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2053",
@@ -33003,7 +32955,7 @@
             "url": "expert/ffzlkuay"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w632",
@@ -33029,7 +32981,7 @@
             "url": "expert/mqgrwoc3"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2369",
@@ -33062,7 +33014,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w450",
@@ -33118,7 +33070,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1963",
@@ -33148,7 +33100,7 @@
             "url": "expert/18lcpdWN"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1221",
@@ -33170,7 +33122,7 @@
             "url": "expert/ZPeLhRRr"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2022",
@@ -33195,7 +33147,7 @@
             "url": "expert/ohLILQTQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w718",
@@ -33222,7 +33174,7 @@
             "url": "expert/cjZxkMOH"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w473",
@@ -33246,7 +33198,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1827",
@@ -33280,7 +33232,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2114",
@@ -33305,7 +33257,7 @@
             "url": "expert/nIF3ir59"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w328",
@@ -33328,7 +33280,7 @@
             "url": "expert/mMs142Ol"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1534",
@@ -33353,7 +33305,7 @@
             "url": "expert/tpYa6x5D"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2160",
@@ -33379,7 +33331,7 @@
             "url": "expert/Tf8NoDL9"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w752",
@@ -33413,7 +33365,7 @@
             "url": "expert/9iH9TgOE"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1172",
@@ -33434,7 +33386,7 @@
             "url": "expert/oTf5l6Tt"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1565",
@@ -33457,7 +33409,7 @@
             "url": "expert/oTf5l6Tt"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1283",
@@ -33480,7 +33432,7 @@
             "url": "expert/H6um8jDm"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1182",
@@ -33506,7 +33458,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w749",
@@ -33548,7 +33500,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1308",
@@ -33574,7 +33526,7 @@
             "url": "expert/AOgLSwWL"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2334",
@@ -33600,7 +33552,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1437",
@@ -33623,7 +33575,7 @@
             "url": "expert/ieIsrU91"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w547",
@@ -33669,7 +33621,7 @@
             "url": "expert/x9F3o96N"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w355",
@@ -33709,7 +33661,7 @@
             "url": "expert/dyITrmLJ"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2145",
@@ -33746,7 +33698,7 @@
             "url": "expert/BCVvKQdr"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1533",
@@ -33767,7 +33719,7 @@
             "url": "expert/OtgjK1vJ"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w985",
@@ -33794,7 +33746,7 @@
             "url": "expert/vFcQ9RGM"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2417",
@@ -33816,7 +33768,7 @@
             "url": "expert/v97WHfws"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w896",
@@ -33838,7 +33790,7 @@
             "url": "expert/NVaQ8NbT"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w690",
@@ -33868,7 +33820,7 @@
             "url": "expert/yd18Q0Gr"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w211",
@@ -33894,7 +33846,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1791",
@@ -33920,7 +33872,7 @@
             "url": "expert/XUnWDM4x"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1587",
@@ -33953,7 +33905,7 @@
             "url": "expert/AOgLSwWL"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1656",
@@ -33976,7 +33928,7 @@
             "url": "expert/LIx7u6CR"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w404",
@@ -34008,7 +33960,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w426",
@@ -34031,7 +33983,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w802",
@@ -34056,7 +34008,7 @@
             "url": "expert/iF6ZAxeh"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2484",
@@ -34106,7 +34058,7 @@
             "url": "expert/S3UjWie1"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1777",
@@ -34133,7 +34085,7 @@
             "url": "expert/chafMLtC"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1595",
@@ -34158,7 +34110,7 @@
             "url": "expert/2HDU8nQb"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1537",
@@ -34185,7 +34137,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w233",
@@ -34215,7 +34167,7 @@
             "url": "expert/HlxLA1vN"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1148",
@@ -34236,7 +34188,7 @@
             "url": "expert/VG9T2zFI"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w837",
@@ -34261,7 +34213,7 @@
             "url": "expert/xly1SnpF"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w638",
@@ -34283,7 +34235,7 @@
             "url": "expert/yUO7FY5q"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w324",
@@ -34329,7 +34281,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1618",
@@ -34368,7 +34320,7 @@
             "url": "expert/HryJAduk"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1257",
@@ -34408,7 +34360,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w2115",
@@ -34446,7 +34398,7 @@
             "url": "expert/MJwrChlk"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1613",
@@ -34479,7 +34431,7 @@
             "url": "expert/FZbifpUX"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1311",
@@ -34501,7 +34453,7 @@
             "url": "expert/BCVvKQdr"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1563",
@@ -34539,7 +34491,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w205",
@@ -34560,7 +34512,7 @@
             "url": "expert/WxgQ3TGh"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w239",
@@ -34587,7 +34539,7 @@
             "url": "expert/ohLILQTQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w873",
@@ -34611,7 +34563,7 @@
             "url": "expert/ieIsrU91"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1553",
@@ -34650,7 +34602,7 @@
             "url": "expert/Ay5YM1nD"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w518",
@@ -34677,7 +34629,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1620",
@@ -34726,7 +34678,7 @@
             "url": "expert/1YXADZah"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w1594",
@@ -34750,7 +34702,7 @@
             "url": "expert/psTXap7P"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w789",
@@ -34775,7 +34727,7 @@
             "url": "expert/iF6ZAxeh"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       },
       {
         "id": "w451",
@@ -34799,7 +34751,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.8"
       }
     ]
   },
@@ -34828,7 +34780,7 @@
             "url": "expert/W8Wqzimf"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w1991",
@@ -34884,7 +34836,7 @@
             "url": "expert/W8Wqzimf"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -34922,7 +34874,7 @@
             "url": "expert/56vpfkdz"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.0"
       }
     ]
   },
@@ -34969,7 +34921,7 @@
             "url": "expert/IzLYrrYI"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -35012,7 +34964,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w222",
@@ -35035,7 +34987,7 @@
             "url": "expert/mMs142Ol"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w1206",
@@ -35083,7 +35035,7 @@
             "url": "expert/nIF3ir59"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w1844",
@@ -35123,7 +35075,7 @@
             "url": "expert/xeG4W5MX"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w2124",
@@ -35150,7 +35102,7 @@
             "url": "expert/n8O1fn25"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w329",
@@ -35196,7 +35148,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w369",
@@ -35220,7 +35172,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w356",
@@ -35251,7 +35203,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w1051",
@@ -35275,7 +35227,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w1746",
@@ -35299,7 +35251,7 @@
             "url": "expert/18xqVR5s"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w1695",
@@ -35321,7 +35273,7 @@
             "url": "expert/KtluYFPs"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       }
     ]
   },
@@ -35351,7 +35303,7 @@
             "url": "expert/bFEd9N0f"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2155",
@@ -35376,7 +35328,7 @@
             "url": "expert/Y6g2KpDY"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1131",
@@ -35404,7 +35356,7 @@
             "url": "expert/YPsanxOu"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2118",
@@ -35434,7 +35386,7 @@
             "url": "expert/3zZRk6Wh"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "91.4"
       }
     ]
   },
@@ -35461,7 +35413,7 @@
             "url": "expert/rPltAtKp"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2184",
@@ -35493,7 +35445,7 @@
             "url": "expert/81IrvQg0"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1368",
@@ -35514,7 +35466,7 @@
             "url": "expert/AUnUZFRr"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       }
     ]
   },
@@ -35549,7 +35501,7 @@
             "url": "expert/umYoffoE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1702",
@@ -35609,7 +35561,7 @@
             "url": "expert/8w1dyAsS"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w959",
@@ -35630,7 +35582,7 @@
             "url": "expert/c2WpvMGE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1898",
@@ -35654,7 +35606,7 @@
             "url": "expert/OP4rrw6U"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2235",
@@ -35675,7 +35627,7 @@
             "url": "expert/gwTHHvbY"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "59.5"
       },
       {
         "id": "w1780",
@@ -35700,7 +35652,7 @@
             "url": "expert/W5kyERbj"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w510",
@@ -35724,7 +35676,7 @@
             "url": "expert/VmOM8ENT"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w965",
@@ -35744,7 +35696,7 @@
             "url": "expert/vGKHgfss"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w182",
@@ -35765,7 +35717,7 @@
             "url": "expert/cedbrEnB"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1929",
@@ -35791,7 +35743,7 @@
             "url": "expert/BMzQpOvc"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w548",
@@ -35818,7 +35770,7 @@
             "url": "expert/ohLILQTQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w665",
@@ -35855,7 +35807,7 @@
             "url": "expert/d2YUOAPr"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w114",
@@ -35880,7 +35832,7 @@
             "url": "expert/JRIiFuip"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w734",
@@ -35902,7 +35854,7 @@
             "url": "expert/VCNFgw53"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w859",
@@ -35927,7 +35879,7 @@
             "url": "expert/ZB497mcb"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w386",
@@ -35951,7 +35903,7 @@
             "url": "expert/rF2GABC3"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w639",
@@ -35985,7 +35937,7 @@
             "url": "expert/Ibjre9m0"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1114",
@@ -36013,7 +35965,7 @@
             "url": "expert/ewOyjoQC"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1655",
@@ -36041,7 +35993,7 @@
             "url": "expert/baMwNVNd"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1345",
@@ -36067,7 +36019,7 @@
             "url": "expert/QSj1WEWy"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2231",
@@ -36090,7 +36042,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w791",
@@ -36115,7 +36067,7 @@
             "url": "expert/c2WpvMGE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2313",
@@ -36136,7 +36088,7 @@
             "url": "expert/uF1yrB39"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w126",
@@ -36158,7 +36110,7 @@
             "url": "expert/4w0Xkrlb"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w935",
@@ -36181,7 +36133,7 @@
             "url": "expert/9iH9TgOE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1256",
@@ -36202,7 +36154,7 @@
             "url": "expert/nNOejrMH"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w306",
@@ -36226,7 +36178,7 @@
             "url": "expert/nyMNjwnB"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2466",
@@ -36250,7 +36202,7 @@
             "url": "expert/HryJAduk"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1401",
@@ -36271,7 +36223,7 @@
             "url": "expert/C8heYPDU"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w855",
@@ -36293,7 +36245,7 @@
             "url": "expert/HsJbBXmE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2006",
@@ -36323,7 +36275,7 @@
             "url": "expert/Jh1ewA76"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1058",
@@ -36349,7 +36301,7 @@
             "url": "expert/7kJbhzLU"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "59.9"
       },
       {
         "id": "w316",
@@ -36381,7 +36333,7 @@
             "url": "expert/hBpScIhS"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2176",
@@ -36408,7 +36360,7 @@
             "url": "expert/nyMNjwnB"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w396",
@@ -36435,7 +36387,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w694",
@@ -36469,7 +36421,7 @@
             "url": "expert/PFfnJVxC"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2170",
@@ -36493,7 +36445,7 @@
             "url": "expert/p2ZrsUDw"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1845",
@@ -36522,7 +36474,7 @@
             "url": "expert/zUpntavz"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w1637",
@@ -36546,7 +36498,7 @@
             "url": "expert/b493DZPR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2134",
@@ -36578,7 +36530,7 @@
             "url": "expert/KtluYFPs"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w330",
@@ -36611,7 +36563,7 @@
             "url": "expert/aJzHjuCi"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "58.7"
       },
       {
         "id": "w2191",
@@ -36642,7 +36594,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2317",
@@ -36663,7 +36615,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2133",
@@ -36687,7 +36639,7 @@
             "url": "expert/sgNIa9Dn"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w56",
@@ -36708,7 +36660,7 @@
             "url": "expert/PFfnJVxC"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2193",
@@ -36739,7 +36691,7 @@
             "url": "expert/oOLuaS3z"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w303",
@@ -36760,7 +36712,7 @@
             "url": "expert/B6IzGJXZ"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1425",
@@ -36784,7 +36736,7 @@
             "url": "expert/oTf5l6Tt"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w401",
@@ -36816,7 +36768,7 @@
             "url": "expert/5FxFjWYR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2278",
@@ -36848,7 +36800,7 @@
             "url": "expert/CfAjK1Xn"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w43",
@@ -36868,7 +36820,7 @@
             "url": "expert/7Ov827OH"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w269",
@@ -36935,7 +36887,7 @@
             "url": "expert/ajfzj5QE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1312",
@@ -36959,7 +36911,7 @@
             "url": "expert/9wdJP555"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "39.6"
       },
       {
         "id": "w1004",
@@ -36988,7 +36940,7 @@
             "url": "expert/ewOyjoQC"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w317",
@@ -37028,7 +36980,7 @@
             "url": "expert/s3O9QUmr"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w596",
@@ -37075,7 +37027,7 @@
             "url": "expert/Qn8V0Aj5"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w74",
@@ -37095,7 +37047,7 @@
             "url": "expert/92HA6JpM"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w889",
@@ -37139,7 +37091,7 @@
             "url": "expert/YA3MSdzk"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2415",
@@ -37162,7 +37114,7 @@
             "url": "expert/Sgy4eqDk"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w606",
@@ -37191,7 +37143,7 @@
             "url": "expert/4WBfvTst"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1231",
@@ -37216,7 +37168,7 @@
             "url": "expert/vppzuJxC"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w1126",
@@ -37237,7 +37189,7 @@
             "url": "expert/qBgXnsS7"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2431",
@@ -37260,7 +37212,7 @@
             "url": "expert/R0nV87mi"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w1192",
@@ -37292,7 +37244,7 @@
             "url": "expert/YA3MSdzk"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w486",
@@ -37314,7 +37266,7 @@
             "url": "expert/j1IR0Lt2"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w861",
@@ -37346,7 +37298,7 @@
             "url": "expert/9wdJP555"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1917",
@@ -37402,7 +37354,7 @@
             "url": "expert/kGPkHyjy"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w418",
@@ -37436,7 +37388,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w406",
@@ -37470,7 +37422,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1909",
@@ -37491,7 +37443,7 @@
             "url": "expert/zXC8EkaO"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w813",
@@ -37512,7 +37464,7 @@
             "url": "expert/qBgXnsS7"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1433",
@@ -37537,7 +37489,7 @@
             "url": "expert/uNKOySLf"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2135",
@@ -37560,7 +37512,7 @@
             "url": "expert/1pMbkLGi"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1740",
@@ -37591,7 +37543,7 @@
             "url": "expert/ScuZ2cd7"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1583",
@@ -37617,7 +37569,7 @@
             "url": "expert/wjtMoWWg"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w886",
@@ -37648,7 +37600,7 @@
             "url": "expert/iF6ZAxeh"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w629",
@@ -37669,7 +37621,7 @@
             "url": "expert/cfNXkghf"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2298",
@@ -37700,7 +37652,7 @@
             "url": "expert/SaLVJRhW"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w331",
@@ -37746,7 +37698,7 @@
             "url": "expert/gxECnxun"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w2498",
@@ -37769,7 +37721,7 @@
             "url": "expert/yKQnYaPo"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1006",
@@ -37794,7 +37746,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w286",
@@ -37824,7 +37776,7 @@
             "url": "expert/oOLuaS3z"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1391",
@@ -37856,7 +37808,7 @@
             "url": "expert/1KvLC4Ot"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2465",
@@ -37877,7 +37829,7 @@
             "url": "expert/6d24HgzE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2026",
@@ -37903,7 +37855,7 @@
             "url": "expert/2HDU8nQb"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1196",
@@ -37930,7 +37882,7 @@
             "url": "expert/BMzQpOvc"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1815",
@@ -37962,7 +37914,7 @@
             "url": "expert/LBDhWCyv"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1286",
@@ -38003,7 +37955,7 @@
             "url": "expert/0PZhvmVA"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w500",
@@ -38028,7 +37980,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2499",
@@ -38052,7 +38004,7 @@
             "url": "expert/rF2GABC3"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "59.5"
       },
       {
         "id": "w827",
@@ -38080,7 +38032,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1452",
@@ -38101,7 +38053,7 @@
             "url": "expert/ZTMHPTKH"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w994",
@@ -38127,7 +38079,7 @@
             "url": "expert/wSOYiGKh"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w894",
@@ -38157,7 +38109,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2209",
@@ -38179,7 +38131,7 @@
             "url": "expert/hSWV6Dur"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1919",
@@ -38206,7 +38158,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1209",
@@ -38229,7 +38181,7 @@
             "url": "expert/NEvgJgjO"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w771",
@@ -38253,7 +38205,7 @@
             "url": "expert/1V7zAZCm"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2436",
@@ -38275,7 +38227,7 @@
             "url": "expert/fWPq7W8Z"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1895",
@@ -38299,7 +38251,7 @@
             "url": "expert/9M7mU3y1"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w174",
@@ -38334,7 +38286,7 @@
             "url": "expert/LpZfXuxw"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1838",
@@ -38375,7 +38327,7 @@
             "url": "expert/oxiu2qEb"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w223",
@@ -38395,7 +38347,7 @@
             "url": "expert/l2OL79lS"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1636",
@@ -38427,7 +38379,7 @@
             "url": "expert/JMvvsIGI"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w304",
@@ -38448,7 +38400,7 @@
             "url": "expert/B6IzGJXZ"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w845",
@@ -38482,7 +38434,7 @@
             "url": "expert/AyTHnXuB"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w704",
@@ -38512,7 +38464,7 @@
             "url": "expert/ocKHdBty"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1779",
@@ -38535,7 +38487,7 @@
             "url": "expert/anpgH78V"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w313",
@@ -38565,7 +38517,7 @@
             "url": "expert/IhN6qvqY"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "59.5"
       },
       {
         "id": "w2427",
@@ -38587,7 +38539,7 @@
             "url": "expert/3zZRk6Wh"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1044",
@@ -38611,7 +38563,7 @@
             "url": "expert/diXMWUQy"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1889",
@@ -38648,7 +38600,7 @@
             "url": "expert/diXMWUQy"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1623",
@@ -38668,7 +38620,7 @@
             "url": "expert/qBgXnsS7"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w287",
@@ -38693,7 +38645,7 @@
             "url": "expert/qO3kQPkr"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1241",
@@ -38713,7 +38665,7 @@
             "url": "expert/zK5WpogK"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w289",
@@ -38739,7 +38691,7 @@
             "url": "expert/11PDFRmz"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w948",
@@ -38759,7 +38711,7 @@
             "url": "expert/2QpwavXS"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1988",
@@ -38781,7 +38733,7 @@
             "url": "expert/wQdfDSG8"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w209",
@@ -38803,7 +38755,7 @@
             "url": "expert/GJpD3hVC"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2262",
@@ -38842,7 +38794,7 @@
             "url": "expert/lYDrJbcH"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w817",
@@ -38863,7 +38815,7 @@
             "url": "expert/bTryLGVH"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w157",
@@ -38890,7 +38842,7 @@
             "url": "expert/0PZhvmVA"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2060",
@@ -38912,7 +38864,7 @@
             "url": "expert/0hvgMXwc"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2246",
@@ -38934,7 +38886,7 @@
             "url": "expert/fWPq7W8Z"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1001",
@@ -38959,7 +38911,7 @@
             "url": "expert/BMzQpOvc"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w71",
@@ -38979,7 +38931,7 @@
             "url": "expert/5KYIQp0y"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2074",
@@ -39014,7 +38966,7 @@
             "url": "expert/4Um3kt3i"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w857",
@@ -39041,7 +38993,7 @@
             "url": "expert/60zJ4gVD"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1443",
@@ -39063,7 +39015,7 @@
             "url": "expert/ALVJXxaw"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w447",
@@ -39093,7 +39045,7 @@
             "url": "expert/ilKndQWZ"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1031",
@@ -39117,7 +39069,7 @@
             "url": "expert/cedbrEnB"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w421",
@@ -39142,7 +39094,7 @@
             "url": "expert/VCNFgw53"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1841",
@@ -39172,7 +39124,7 @@
             "url": "expert/4WBfvTst"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1246",
@@ -39196,7 +39148,7 @@
             "url": "expert/ksYHfgeM"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w513",
@@ -39230,7 +39182,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2161",
@@ -39253,7 +39205,7 @@
             "url": "expert/HDaN2trW"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w882",
@@ -39287,7 +39239,7 @@
             "url": "expert/TOoRiDUO"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w972",
@@ -39312,7 +39264,7 @@
             "url": "expert/Q1giNc9T"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2322",
@@ -39339,7 +39291,7 @@
             "url": "expert/hnPgqfzl"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1255",
@@ -39362,7 +39314,7 @@
             "url": "expert/dWxIQ7xg"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1628",
@@ -39395,7 +39347,7 @@
             "url": "expert/ohLILQTQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w327",
@@ -39427,7 +39379,7 @@
             "url": "expert/5FxFjWYR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2496",
@@ -39453,7 +39405,7 @@
             "url": "expert/JMvvsIGI"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1864",
@@ -39494,7 +39446,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2136",
@@ -39519,7 +39471,7 @@
             "url": "expert/BMzQpOvc"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1880",
@@ -39545,7 +39497,7 @@
             "url": "expert/TJAPduat"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -39571,7 +39523,7 @@
             "url": "expert/GIGCp3mX"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w1112",
@@ -39603,7 +39555,7 @@
             "url": "expert/FCTsNdpg"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w1899",
@@ -39627,7 +39579,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w1819",
@@ -39659,7 +39611,7 @@
             "url": "expert/pOwQFwj2"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w360",
@@ -39680,7 +39632,7 @@
             "url": "expert/3HBIFVql"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w1669",
@@ -39701,7 +39653,7 @@
             "url": "expert/qjWR88QX"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -39732,7 +39684,7 @@
             "url": "expert/IhdDyXJQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.6"
       }
     ]
   },
@@ -39760,7 +39712,7 @@
             "url": "expert/SaLVJRhW"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.1"
       }
     ]
   },
@@ -39804,7 +39756,7 @@
             "url": "expert/jtln3XiR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w633",
@@ -39833,7 +39785,7 @@
             "url": "expert/jtln3XiR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w567",
@@ -39862,7 +39814,7 @@
             "url": "expert/jtln3XiR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2025",
@@ -39893,7 +39845,7 @@
             "url": "expert/jtln3XiR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2002",
@@ -39919,7 +39871,7 @@
             "url": "expert/v1SkgGAf"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1510",
@@ -39950,7 +39902,7 @@
             "url": "expert/jtln3XiR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -39981,7 +39933,7 @@
             "url": "expert/RpqnXTUH"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       }
     ]
   },
@@ -40010,7 +39962,7 @@
             "url": "expert/aZ4WJBbw"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w1091",
@@ -40035,7 +39987,7 @@
             "url": "expert/ECBjZ5ky"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2105",
@@ -40061,7 +40013,7 @@
             "url": "expert/BCVvKQdr"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2364",
@@ -40083,7 +40035,7 @@
             "url": "expert/GkkeiOtX"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2030",
@@ -40106,7 +40058,7 @@
             "url": "expert/blV5fdGL"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w839",
@@ -40132,7 +40084,7 @@
             "url": "expert/KKCiEGxn"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -40189,7 +40141,7 @@
             "url": "expert/TCzoIoIO"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -40219,7 +40171,7 @@
             "url": "expert/nUkAlxJ6"
           }
         ],
-        "confidence": "High"
+        "confidence": "89.6"
       },
       {
         "id": "w1913",
@@ -40242,7 +40194,7 @@
             "url": "expert/AOgLSwWL"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.8"
       },
       {
         "id": "w2440",
@@ -40262,7 +40214,7 @@
             "url": "expert/zJpqYjFu"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.8"
       }
     ]
   },
@@ -40327,7 +40279,7 @@
             "url": "expert/F1LUrhJB"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "92.7"
       },
       {
         "id": "w899",
@@ -40354,7 +40306,7 @@
             "url": "expert/U8wW2G0y"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "92.7"
       }
     ]
   },
@@ -40388,7 +40340,7 @@
             "url": "expert/YA3MSdzk"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -40414,7 +40366,7 @@
             "url": "expert/qBgXnsS7"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w732",
@@ -40458,7 +40410,7 @@
             "url": "expert/ZxhtHWPL"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1775",
@@ -40518,7 +40470,7 @@
             "url": "expert/wHyof6W4"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w942",
@@ -40545,7 +40497,7 @@
             "url": "expert/Xvh18729"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2447",
@@ -40570,7 +40522,7 @@
             "url": "expert/bnEl1scO"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w618",
@@ -40597,7 +40549,7 @@
             "url": "expert/GXeltcDg"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1971",
@@ -40619,7 +40571,7 @@
             "url": "expert/cfNXkghf"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2113",
@@ -40650,7 +40602,7 @@
             "url": "expert/1a33MjNo"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w1829",
@@ -40675,7 +40627,7 @@
             "url": "expert/hNeT1TE2"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -40715,7 +40667,7 @@
             "url": "expert/cJWUwYPL"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.7"
       }
     ]
   },
@@ -40742,7 +40694,7 @@
             "url": "expert/U2tbrdwU"
           }
         ],
-        "confidence": "High"
+        "confidence": "97.3"
       }
     ]
   },
@@ -40770,7 +40722,7 @@
             "url": "expert/KtluYFPs"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1624",
@@ -40799,7 +40751,7 @@
             "url": "expert/s3O9QUmr"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2186",
@@ -40834,7 +40786,7 @@
             "url": "expert/ECBjZ5ky"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -40865,7 +40817,7 @@
             "url": "expert/JrqVD14L"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w569",
@@ -40886,7 +40838,7 @@
             "url": "expert/fWPq7W8Z"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -40927,7 +40879,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       },
       {
         "id": "w185",
@@ -40947,7 +40899,7 @@
             "url": "expert/B6IzGJXZ"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       },
       {
         "id": "w2005",
@@ -40969,7 +40921,7 @@
             "url": "expert/B6IzGJXZ"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       }
     ]
   },
@@ -41011,7 +40963,7 @@
             "url": "expert/sDDiZC2P"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.8"
       }
     ]
   },
@@ -41040,7 +40992,7 @@
             "url": "expert/6oKPe1F5"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -41080,7 +41032,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.9"
       }
     ]
   },
@@ -41111,7 +41063,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "92.6"
       }
     ]
   },
@@ -41146,7 +41098,7 @@
             "url": "expert/5bN6NlWQ"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "17.8"
       },
       {
         "id": "w1749",
@@ -41171,7 +41123,7 @@
             "url": "expert/xly1SnpF"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1351",
@@ -41192,7 +41144,7 @@
             "url": "expert/b0u15wX9"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1876",
@@ -41213,7 +41165,7 @@
             "url": "expert/G4WTEuHS"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1966",
@@ -41237,7 +41189,7 @@
             "url": "expert/7JljOUC6"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w2164",
@@ -41264,7 +41216,7 @@
             "url": "expert/xly1SnpF"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -41293,7 +41245,7 @@
             "url": "expert/tQhaeBsS"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.2"
       },
       {
         "id": "w1135",
@@ -41317,7 +41269,7 @@
             "url": "expert/PFfnJVxC"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.2"
       },
       {
         "id": "w1788",
@@ -41340,7 +41292,7 @@
             "url": "expert/tQhaeBsS"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.2"
       },
       {
         "id": "w1314",
@@ -41370,7 +41322,7 @@
             "url": "expert/yFclGnpi"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.6"
       }
     ]
   },
@@ -41403,7 +41355,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "92.8"
       }
     ]
   },
@@ -41431,7 +41383,7 @@
             "url": "expert/YqnxUTr7"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.2"
       },
       {
         "id": "w123",
@@ -41453,7 +41405,7 @@
             "url": "expert/mMs142Ol"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -41485,7 +41437,7 @@
             "url": "expert/FrbJkzci"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.2"
       },
       {
         "id": "w1660",
@@ -41507,7 +41459,7 @@
             "url": "expert/NrBUaBaa"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.2"
       }
     ]
   },
@@ -41533,7 +41485,7 @@
             "url": "expert/lgdnDCXJ"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.1"
       }
     ]
   },
@@ -41562,7 +41514,7 @@
             "url": "expert/tgyqljwd"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.5"
       }
     ]
   },
@@ -41592,7 +41544,7 @@
             "url": "expert/b0u15wX9"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1560",
@@ -41615,7 +41567,7 @@
             "url": "expert/7kJbhzLU"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -41674,7 +41626,7 @@
             "url": "expert/H3uLtXce"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.0"
       }
     ]
   },
@@ -41750,7 +41702,7 @@
             "url": "expert/x9F3o96N"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
       },
       {
         "id": "w2116",
@@ -41792,7 +41744,7 @@
             "url": "expert/W18GagzG"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
       },
       {
         "id": "w2039",
@@ -41878,7 +41830,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
       },
       {
         "id": "w1922",
@@ -41903,7 +41855,7 @@
             "url": "expert/60zJ4gVD"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
       },
       {
         "id": "w1183",
@@ -41926,7 +41878,7 @@
             "url": "expert/erJXuOa0"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
       },
       {
         "id": "w1965",
@@ -41947,7 +41899,7 @@
             "url": "expert/11PDFRmz"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
       }
     ]
   },
@@ -41978,7 +41930,7 @@
             "url": "expert/leAgBBYb"
           }
         ],
-        "confidence": "High"
+        "confidence": "79.1"
       },
       {
         "id": "w159",
@@ -42026,7 +41978,7 @@
             "url": "expert/nIF3ir59"
           }
         ],
-        "confidence": "High"
+        "confidence": "79.1"
       }
     ]
   },
@@ -42053,7 +42005,34 @@
             "url": "expert/k0H7FUsw"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
+      }
+    ]
+  },
+  {
+    "location": "IOP",
+    "country": "United Kingdom",
+    "entries": [
+      {
+        "id": "w2271",
+        "title": "Of pNGB quitessence",
+        "name": "Of pNGB quitessence Published article-journal 2006-04-01 Kaloper N. Sorbo L. Journal of Cosmology and Astroparticle Physics 1475-7516 10.10881475-7516200604007",
+        "issued": "2006-04-01",
+        "abstract": "We review the pNGB quintessence models and point out that the reason why the large decay constants are really needed is to tame a tachyonic instability present for a wide range of initial vevs. Starting very close to potential maxima does not help because quantum fluctuations during early inflation at a scale H I perturb the quintessence vev displacing it from the maxima. This issue is quite interesting for pNGB dark energy in light of the recently discussed difficulties with embedding models with f aM Pl in fundamental theory. A possible way around is provided by models with several ultralight pNGBs which can drive a short burst of very late inflation together even if all of their decay constants obey f aM Pl. Starting with their vevf a the pNGBs will hold each other up on the potential for a longer time period. Their effective dynamics is captured by a collective mode containing admixtures of all of the rolling pNGBs which behaves as an ultralight field with f eff M Pl. We point out that there may be potentially observable large scale disturbances in the sea of dark energy in such models. 2006 IOP Publishing Ltd and SISSA.",
+        "authors": [
+          "Nemanja Kaloper",
+          "Lorenzo Sorbo"
+        ],
+        "relatedExperts": [
+          {
+            "id": "CtDHIFMe",
+            "firstName": "Nemanja",
+            "lastName": "Kaloper",
+            "fullName": "Nemanja Kaloper",
+            "url": "expert/CtDHIFMe"
+          }
+        ],
+        "confidence": "Low"
       }
     ]
   },
@@ -42089,7 +42068,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.8"
       },
       {
         "id": "w1821",
@@ -42118,7 +42097,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.8"
       },
       {
         "id": "w1513",
@@ -42147,34 +42126,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
-      }
-    ]
-  },
-  {
-    "location": "Kangerlussuaq Fjord",
-    "entries": [
-      {
-        "id": "w735",
-        "title": "Large herbivores facilitate the persistence of rare taxa under tundra warming",
-        "name": "Large herbivores facilitate the persistence of rare taxa under tundra warming Published online article-journal 2022-01-25 Post E. Watts D. et al. Scientific Reports 2045-2322 10.1038s41598-022-05388-4",
-        "issued": "2022-01-25",
-        "abstract": "Ecological rarity characterized by low abundance or limited distribution is typical of most species yet our understanding of what factors contribute to the persistence of rare species remains limited. Consequently little is also known about whether rare species might respond differently than common species to direct e.g. abiotic and indirect e.g. biotic effects of climate change. We investigated the effects of warming and exclusion of large herbivores on 14 tundra taxa three of which were common and 11 of which were rare at an inland low-arctic study site near Kangerlussuaq Greenland. Across all taxa pooled commonness was reduced by experimental warming and more strongly under herbivore exclusion than under herbivory. However taxon-specific analyses revealed that although warming elicited variable effects on commonness herbivore exclusion disproportionately reduced the commonness of rare taxa. Over the 15-year duration of the experiment we also observed trends in commonness and rarity under all treatments through time. Sitewide commonness increased for two common taxa the deciduous shrubs Betula nana and Salix glauca and declined in six other taxa all of which were rare. Rates of increase or decline in commonness i.e. temporal trends over the duration of the experiment were strongly related to baseline commonness of taxa early in the experiment under all treatments except warming with grazing. Hence commonness itself may be a strong predictor of species responses to climate change in the arctic tundra biome but large herbivores may mediate such responses in rare taxa perhaps facilitating their persistence.",
-        "authors": [
-          "Eric Post",
-          "Christian Pedersen",
-          "David A Watts"
-        ],
-        "relatedExperts": [
-          {
-            "id": "W8Wqzimf",
-            "firstName": "Eric",
-            "lastName": "Post",
-            "fullName": "Eric Post",
-            "url": "expert/W8Wqzimf"
-          }
-        ],
-        "confidence": "High"
+        "confidence": "87.8"
       }
     ]
   },
@@ -42200,7 +42152,7 @@
             "url": "expert/1HUSFZr9"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.6"
       },
       {
         "id": "w2093",
@@ -42221,7 +42173,7 @@
             "url": "expert/1HUSFZr9"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.6"
       },
       {
         "id": "w1771",
@@ -42241,7 +42193,7 @@
             "url": "expert/G0YdjMyq"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.6"
       },
       {
         "id": "w2092",
@@ -42262,7 +42214,7 @@
             "url": "expert/1HUSFZr9"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.6"
       },
       {
         "id": "w1393",
@@ -42287,7 +42239,7 @@
             "url": "expert/HepbtG2c"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.6"
       }
     ]
   },
@@ -42371,7 +42323,7 @@
             "url": "expert/cjZxkMOH"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.9"
       },
       {
         "id": "w975",
@@ -42405,7 +42357,7 @@
             "url": "expert/6fWvIVWU"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.9"
       },
       {
         "id": "w1403",
@@ -42441,7 +42393,37 @@
             "url": "expert/VJ3E6EZg"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.9"
+      }
+    ]
+  },
+  {
+    "location": "Taiwan, China",
+    "country": "China",
+    "entries": [
+      {
+        "id": "w853",
+        "title": "Quantification of Water-Soluble Metabolites in Medicinal Mushrooms Using Proton NMR Spectroscopy",
+        "name": "Quantification of Water-Soluble Metabolites in Medicinal Mushrooms Using Proton NMR Spectroscopy Published article-journal 2016 Lo Y. Mau J. et al. International Journal of Medicinal Mushrooms 1940-4344 10.1615intjmedmushrooms.v18.i5.50",
+        "issued": "2016",
+        "abstract": "The water-soluble metabolites in 5 mushrooms were identified and quantified using proton nuclear magnetic resonance NMR spectroscopy and software for targeted metabolite detection and quantification. In total 35 compounds were found in Agaricus brasiliensis 25 in Taiwanofungus camphoratus 23 in Ganoderma lucidum Taiwan and Lentinus edodes and 16 in G. lucidum China. Total amounts of all identified metabolites in A. brasiliensis T. camphoratus G. lucidum G. lucidum China and L. edodes were 149950.51 12834.18 9549.09 2788.41 and 111726.51 mgkg dry weight respectively. These metabolites were categorized into 4 groups free amino acids and derivatives carbohydrates carboxylic acids and nucleosides. Carbohydrates were the most abundant metabolites among all 4 groups with mannitol having the highest concentration among all analyzed metabolites 848-94104 mgkg dry weight. Principal components analysis PCA showed obvious distinction among the metabolites of the 5 different kinds of mushrooms analyzed in this study. Thus PCA could provide an optional analytical way of identifying and recognizing the compositions of flavor products. Furthermore the results of this study demonstrate that NMRbased metabolomics is a powerful tool for differentiating between various medicinal mushrooms.",
+        "authors": [
+          "Yu-Chang Lo",
+          "Shih-Chang Chien",
+          "Darya O Mishchuk",
+          "Carolyn M Slupsky",
+          "Jeng-Leun Mau"
+        ],
+        "relatedExperts": [
+          {
+            "id": "nhxmvUN2",
+            "firstName": "Carolyn",
+            "lastName": "Slupsky",
+            "fullName": "Carolyn Slupsky",
+            "url": "expert/nhxmvUN2"
+          }
+        ],
+        "confidence": "Low"
       }
     ]
   },
@@ -42470,7 +42452,7 @@
             "url": "expert/zLkkUU9e"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.4"
       },
       {
         "id": "w2481",
@@ -42494,7 +42476,7 @@
             "url": "expert/0hvgMXwc"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.4"
       }
     ]
   },
@@ -42523,7 +42505,7 @@
             "url": "expert/iatTWqQs"
           }
         ],
-        "confidence": "High"
+        "confidence": "97.4"
       }
     ]
   },
@@ -42552,7 +42534,7 @@
             "url": "expert/fC33uEO4"
           }
         ],
-        "confidence": "High"
+        "confidence": "89.0"
       }
     ]
   },
@@ -42598,7 +42580,7 @@
             "url": "expert/uYN8iO5Y"
           }
         ],
-        "confidence": "High"
+        "confidence": "99.1"
       }
     ]
   },
@@ -42626,7 +42608,7 @@
             "url": "expert/CqUgvBrA"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1754",
@@ -42646,7 +42628,7 @@
             "url": "expert/PXjdK9fI"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -42677,7 +42659,7 @@
             "url": "expert/YKthlWhO"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.6"
       }
     ]
   },
@@ -42820,7 +42802,7 @@
             "url": "expert/frldzkiN"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       },
       {
         "id": "w1259",
@@ -42846,7 +42828,7 @@
             "url": "expert/tS08LnIf"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w660",
@@ -42869,7 +42851,7 @@
             "url": "expert/nUkAlxJ6"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -42908,7 +42890,7 @@
             "url": "expert/RpqnXTUH"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w301",
@@ -42930,7 +42912,7 @@
             "url": "expert/1515wzBb"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -42965,7 +42947,7 @@
             "url": "expert/KtluYFPs"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       }
     ]
   },
@@ -43007,7 +42989,7 @@
             "url": "expert/hBpScIhS"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.3"
       }
     ]
   },
@@ -43035,7 +43017,7 @@
             "url": "expert/9iH9TgOE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -43066,7 +43048,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.1"
       }
     ]
   },
@@ -43132,7 +43114,7 @@
             "url": "expert/U6EjTeRx"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.2"
       }
     ]
   },
@@ -43163,7 +43145,7 @@
             "url": "expert/U8wW2G0y"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.1"
       }
     ]
   },
@@ -43190,7 +43172,7 @@
             "url": "expert/oR3lbGlu"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.8"
       },
       {
         "id": "w4",
@@ -43211,7 +43193,7 @@
             "url": "expert/oR3lbGlu"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.8"
       }
     ]
   },
@@ -43256,7 +43238,7 @@
             "url": "expert/7AaONF8z"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.9"
       }
     ]
   },
@@ -43282,7 +43264,7 @@
             "url": "expert/bTryLGVH"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.8"
       }
     ]
   },
@@ -43323,7 +43305,7 @@
             "url": "expert/U4H5hQ23"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.3"
       }
     ]
   },
@@ -43357,7 +43339,7 @@
             "url": "expert/n8O1fn25"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.3"
       }
     ]
   },
@@ -43389,7 +43371,7 @@
             "url": "expert/soDQ6VEh"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.8"
       }
     ]
   },
@@ -43415,7 +43397,7 @@
             "url": "expert/lgdnDCXJ"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -43442,7 +43424,7 @@
             "url": "expert/54KxKwol"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.5"
       }
     ]
   },
@@ -43481,7 +43463,7 @@
             "url": "expert/cIR4KzOR"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "100.0"
       }
     ]
   },
@@ -43557,7 +43539,7 @@
             "url": "expert/WoqYQrQp"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -43587,7 +43569,7 @@
             "url": "expert/sD6UWrqU"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "Low"
       }
     ]
   },
@@ -43618,7 +43600,7 @@
             "url": "expert/U8wW2G0y"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -43672,7 +43654,7 @@
             "url": "expert/t2vbfLz0"
           }
         ],
-        "confidence": "High"
+        "confidence": "89.5"
       }
     ]
   },
@@ -43698,7 +43680,7 @@
             "url": "expert/oQUywLRQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.4"
       }
     ]
   },
@@ -43735,7 +43717,7 @@
             "url": "expert/vYqGp11C"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.8"
       }
     ]
   },
@@ -43762,7 +43744,7 @@
             "url": "expert/Fa68hlA8"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.3"
       }
     ]
   },
@@ -43797,7 +43779,7 @@
             "url": "expert/taSpTtgz"
           }
         ],
-        "confidence": "High"
+        "confidence": "89.9"
       }
     ]
   },
@@ -43827,7 +43809,7 @@
             "url": "expert/OtZpo5kr"
           }
         ],
-        "confidence": "High"
+        "confidence": "89.2"
       }
     ]
   },
@@ -43863,7 +43845,7 @@
             "url": "expert/jiCXAQzo"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2324",
@@ -43885,7 +43867,7 @@
             "url": "expert/ALVJXxaw"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -43928,7 +43910,7 @@
             "url": "expert/xly1SnpF"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -43968,7 +43950,7 @@
             "url": "expert/pnIg7TQn"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -43998,7 +43980,7 @@
             "url": "expert/mkL4ET2y"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -44031,7 +44013,7 @@
             "url": "expert/kEiS7iHV"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.0"
       }
     ]
   },
@@ -44059,7 +44041,7 @@
             "url": "expert/1uumCzeJ"
           }
         ],
-        "confidence": "High"
+        "confidence": "99.5"
       }
     ]
   },
@@ -44099,7 +44081,7 @@
             "url": "expert/xly1SnpF"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -44135,7 +44117,7 @@
             "url": "expert/ZbUc79pY"
           }
         ],
-        "confidence": "High"
+        "confidence": "93.1"
       }
     ]
   },
@@ -44171,7 +44153,7 @@
             "url": "expert/Z3UMpO23"
           }
         ],
-        "confidence": "High"
+        "confidence": "99.3"
       }
     ]
   },
@@ -44198,7 +44180,7 @@
             "url": "expert/fGozsANo"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.5"
       }
     ]
   },
@@ -44227,7 +44209,7 @@
             "url": "expert/U6EjTeRx"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.7"
       },
       {
         "id": "w1799",
@@ -44247,7 +44229,7 @@
             "url": "expert/1HUSFZr9"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.7"
       },
       {
         "id": "w21",
@@ -44268,7 +44250,7 @@
             "url": "expert/byMHLFeq"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.7"
       }
     ]
   },
@@ -44300,7 +44282,7 @@
             "url": "expert/TX1Iq4ak"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.9"
       }
     ]
   },
@@ -44331,7 +44313,7 @@
             "url": "expert/mnNvi5fg"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w516",
@@ -44354,7 +44336,7 @@
             "url": "expert/GfUz4VIM"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       },
       {
         "id": "w532",
@@ -44377,7 +44359,7 @@
             "url": "expert/z9VCcQrs"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       }
     ]
   },
@@ -44409,7 +44391,7 @@
             "url": "expert/Ewg9Kcro"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -44442,7 +44424,7 @@
             "url": "expert/IhdDyXJQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.9"
       }
     ]
   },
@@ -44480,7 +44462,7 @@
             "url": "expert/HybI49CM"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1970",
@@ -44508,7 +44490,7 @@
             "url": "expert/0atLvttS"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -44538,7 +44520,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "97.7"
       }
     ]
   },
@@ -44568,7 +44550,7 @@
             "url": "expert/ucR20ZS3"
           }
         ],
-        "confidence": "High"
+        "confidence": "94.6"
       }
     ]
   },
@@ -44597,7 +44579,7 @@
             "url": "expert/soDQ6VEh"
           }
         ],
-        "confidence": "High"
+        "confidence": "99.3"
       }
     ]
   },
@@ -44632,7 +44614,7 @@
             "url": "expert/lYDrJbcH"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       },
       {
         "id": "w1385",
@@ -44661,7 +44643,7 @@
             "url": "expert/lYDrJbcH"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       },
       {
         "id": "w1238",
@@ -44685,7 +44667,7 @@
             "url": "expert/0CaVAgMo"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       }
     ]
   },
@@ -44713,7 +44695,7 @@
             "url": "expert/oWOjlsEf"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -44746,7 +44728,7 @@
             "url": "expert/PFfnJVxC"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.8"
       }
     ]
   },
@@ -44775,7 +44757,7 @@
             "url": "expert/JsYAbolW"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.9"
       }
     ]
   },
@@ -44807,7 +44789,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
+        "confidence": "94.5"
       },
       {
         "id": "w1492",
@@ -44829,7 +44811,7 @@
             "url": "expert/IV4vm03X"
           }
         ],
-        "confidence": "High"
+        "confidence": "94.5"
       }
     ]
   },
@@ -44886,7 +44868,7 @@
             "url": "expert/0GGdHMdZ"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       },
       {
         "id": "w1698",
@@ -44922,7 +44904,7 @@
             "url": "expert/4XPZqvAv"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -44959,7 +44941,7 @@
             "url": "expert/Y38u7QKN"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.7"
       }
     ]
   },
@@ -44996,7 +44978,7 @@
             "url": "expert/R0WLAfuO"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "46.6"
       }
     ]
   },
@@ -45024,7 +45006,7 @@
             "url": "expert/oHJ2uIKd"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45057,7 +45039,7 @@
             "url": "expert/mVIoP8Zj"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2366",
@@ -45080,7 +45062,7 @@
             "url": "expert/MooX63xR"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45142,7 +45124,7 @@
             "url": "expert/DC8FiFG4"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2485",
@@ -45164,7 +45146,7 @@
             "url": "expert/DC8FiFG4"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45195,7 +45177,7 @@
             "url": "expert/kh08y8pa"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45221,7 +45203,7 @@
             "url": "expert/CtGb1qY4"
           }
         ],
-        "confidence": "High"
+        "confidence": "92.1"
       }
     ]
   },
@@ -45266,7 +45248,7 @@
             "url": "expert/HryJAduk"
           }
         ],
-        "confidence": "High"
+        "confidence": "93.7"
       }
     ]
   },
@@ -45297,7 +45279,7 @@
             "url": "expert/FxrM2v2t"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.5"
       }
     ]
   },
@@ -45324,7 +45306,7 @@
             "url": "expert/bJHU99n3"
           }
         ],
-        "confidence": "High"
+        "confidence": "83.2"
       }
     ]
   },
@@ -45360,7 +45342,7 @@
             "url": "expert/b7TxuJHP"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45392,7 +45374,7 @@
             "url": "expert/f9geqbAx"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w2411",
@@ -45416,7 +45398,7 @@
             "url": "expert/VpfXdCQB"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "3.6"
       },
       {
         "id": "w437",
@@ -45443,7 +45425,7 @@
             "url": "expert/PFfnJVxC"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45469,7 +45451,7 @@
             "url": "expert/JnvbQyuk"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       },
       {
         "id": "w1294",
@@ -45495,31 +45477,7 @@
             "url": "expert/H3uLtXce"
           }
         ],
-        "confidence": "High"
-      },
-      {
-        "id": "w1555",
-        "title": "Global trends in dietary micronutrient supplies and estimated prevalence of inadequate intakes",
-        "name": "Global trends in dietary micronutrient supplies and estimated prevalence of inadequate intakes Published online article-journal 2017 Beal T. Hijmans R. et al. PLOS ONE 1932-6203 10.1371journal.pone.0175554",
-        "issued": "2017",
-        "abstract": "Understanding dietary patterns is vital to reducing the number of people experiencing hunger about 795 million micronutrient deficiencies 2 billion and overweight or obesity 2.1 billion. We characterize global trends in dietary quality by estimating micronutrient density of the food supply prevalence of inadequate intake of 14 micronutrients and average prevalence of inadequate intake of these micronutrients for all countries between 1961 and 2011. Over this 50-year period the estimated prevalence of inadequate intakes of micronutrients has declined in all regions due to increased total production of food andor micronutrient density. This decline has been particularly strong in East and Southeast Asia and weaker in South Asia and sub-Saharan Africa. Sub-Saharan Africa is the only region where dietary micronutrient density has declined over this 50-year period. At the global level micronutrients with the lowest levels of adequate estimated intake are calcium iron vitamin A and zinc but there are strong differences between countries and regions. Fortification has reduced the estimated prevalence of inadequate micronutrient intakes in all low-income regions except South Asia. The food supply in many countries is still far below energy requirements which suggests a need to increase the availability and accessibility of nutritious foods. Countries where the food energy supply is adequate show a very large variation in dietary quality and in many of these countries people would benefit from more diverse diets with a greater proportion of micronutrient-dense foods. Dietary quality can be improved through fortification biofortification and agricultural diversification as well as efforts to improve access to and use of micronutrient-dense foods and nutritional knowledge. Reducing poverty and increasing education especially of women are integral to sustainably addressing malnutrition.",
-        "authors": [
-          "Ty Beal",
-          "Eric Massiot",
-          "Joanne E Arsenault",
-          "Matthew R Smith",
-          "Robert J Hijmans"
-        ],
-        "relatedExperts": [
-          {
-            "id": "Uzws3em4",
-            "firstName": "Robert",
-            "lastName": "Hijmans",
-            "fullName": "Robert Hijmans",
-            "url": "expert/Uzws3em4"
-          }
-        ],
-        "confidence": "Mid"
+        "confidence": "100.0"
       },
       {
         "id": "w1786",
@@ -45541,7 +45499,7 @@
             "url": "expert/niMPcBvi"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45573,7 +45531,7 @@
             "url": "expert/Mj4sE3CD"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.5"
       },
       {
         "id": "w1434",
@@ -45594,13 +45552,13 @@
             "url": "expert/ZTMHPTKH"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.5"
       }
     ]
   },
   {
-    "location": "Trinidad and Tobago",
-    "country": "Trinidad and Tobago",
+    "location": "Cuba",
+    "country": "Cuba",
     "entries": [
       {
         "id": "w992",
@@ -45629,7 +45587,7 @@
             "url": "expert/qmGwX1V8"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "96.0"
       }
     ]
   },
@@ -45659,7 +45617,7 @@
             "url": "expert/RXYo6azP"
           }
         ],
-        "confidence": "High"
+        "confidence": "94.2"
       }
     ]
   },
@@ -45686,7 +45644,7 @@
             "url": "expert/oXuNrfnv"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.2"
       }
     ]
   },
@@ -45717,7 +45675,7 @@
             "url": "expert/0oXKohs6"
           }
         ],
-        "confidence": "High"
+        "confidence": "94.5"
       }
     ]
   },
@@ -45769,7 +45727,7 @@
             "url": "expert/oOLuaS3z"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.1"
       }
     ]
   },
@@ -45798,7 +45756,7 @@
             "url": "expert/Z9C7JwE4"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.1"
       }
     ]
   },
@@ -45835,7 +45793,7 @@
             "url": "expert/qhj9HfsE"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45865,7 +45823,7 @@
             "url": "expert/6fWvIVWU"
           }
         ],
-        "confidence": "High"
+        "confidence": "89.8"
       }
     ]
   },
@@ -45896,7 +45854,7 @@
             "url": "expert/BCVvKQdr"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45931,7 +45889,7 @@
             "url": "expert/PFfnJVxC"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -45964,7 +45922,7 @@
             "url": "expert/ucR20ZS3"
           }
         ],
-        "confidence": "High"
+        "confidence": "94.2"
       }
     ]
   },
@@ -45996,7 +45954,7 @@
             "url": "expert/b7TxuJHP"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -46023,7 +45981,7 @@
             "url": "expert/54KxKwol"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.2"
       }
     ]
   },
@@ -46064,7 +46022,7 @@
             "url": "expert/nUkAlxJ6"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.3"
       }
     ]
   },
@@ -46094,7 +46052,7 @@
             "url": "expert/soDQ6VEh"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.3"
       },
       {
         "id": "w1400",
@@ -46123,7 +46081,7 @@
             "url": "expert/pmbsK81V"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.8"
       }
     ]
   },
@@ -46157,7 +46115,7 @@
             "url": "expert/3HBIFVql"
           }
         ],
-        "confidence": "High"
+        "confidence": "93.7"
       }
     ]
   },
@@ -46192,7 +46150,7 @@
             "url": "expert/eMEoYaUn"
           }
         ],
-        "confidence": "High"
+        "confidence": "88.9"
       }
     ]
   },
@@ -46222,7 +46180,7 @@
             "url": "expert/ehposZZ1"
           }
         ],
-        "confidence": "High"
+        "confidence": "99.2"
       }
     ]
   },
@@ -46253,7 +46211,7 @@
             "url": "expert/Un0HCxJN"
           }
         ],
-        "confidence": "High"
+        "confidence": "93.1"
       }
     ]
   },
@@ -46284,7 +46242,7 @@
             "url": "expert/nWcuvcBQ"
           }
         ],
-        "confidence": "High"
+        "confidence": "92.0"
       }
     ]
   },
@@ -46315,7 +46273,7 @@
             "url": "expert/R784hK30"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.4"
       }
     ]
   },
@@ -46352,7 +46310,7 @@
             "url": "expert/nUkAlxJ6"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.5"
       }
     ]
   },
@@ -46379,7 +46337,7 @@
             "url": "expert/KdUiBQMw"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -46422,7 +46380,7 @@
             "url": "expert/ZBarPQTy"
           }
         ],
-        "confidence": "High"
+        "confidence": "94.1"
       }
     ]
   },
@@ -46448,7 +46406,7 @@
             "url": "expert/k0H7FUsw"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -46579,7 +46537,7 @@
             "url": "expert/nSG9l5JL"
           }
         ],
-        "confidence": "High"
+        "confidence": "86.5"
       }
     ]
   },
@@ -46632,7 +46590,7 @@
             "url": "expert/wjtMoWWg"
           }
         ],
-        "confidence": "High"
+        "confidence": "97.2"
       }
     ]
   },
@@ -46662,7 +46620,7 @@
             "url": "expert/erHFdqId"
           }
         ],
-        "confidence": "High"
+        "confidence": "98.2"
       }
     ]
   },
@@ -46691,7 +46649,7 @@
             "url": "expert/mkL4ET2y"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.7"
       }
     ]
   },
@@ -46748,7 +46706,7 @@
             "url": "expert/WVkU9DJ1"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -46778,7 +46736,7 @@
             "url": "expert/nyMNjwnB"
           }
         ],
-        "confidence": "High"
+        "confidence": "87.8"
       }
     ]
   },
@@ -46855,7 +46813,7 @@
             "url": "expert/x9F3o96N"
           }
         ],
-        "confidence": "High"
+        "confidence": "93.9"
       }
     ]
   },
@@ -46884,7 +46842,7 @@
             "url": "expert/ehposZZ1"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.2"
       }
     ]
   },
@@ -46931,7 +46889,7 @@
             "url": "expert/qhj9HfsE"
           }
         ],
-        "confidence": "High"
+        "confidence": "90.9"
       }
     ]
   },
@@ -46972,7 +46930,7 @@
             "url": "expert/wHyof6W4"
           }
         ],
-        "confidence": "High"
+        "confidence": "91.5"
       }
     ]
   },
@@ -47004,7 +46962,7 @@
             "url": "expert/pwbVJo38"
           }
         ],
-        "confidence": "High"
+        "confidence": "99.5"
       }
     ]
   },
@@ -47035,7 +46993,7 @@
             "url": "expert/OtZpo5kr"
           }
         ],
-        "confidence": "High"
+        "confidence": "93.7"
       }
     ]
   },
@@ -47065,7 +47023,7 @@
             "url": "expert/C03ktcJ3"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -47096,7 +47054,7 @@
             "url": "expert/KtluYFPs"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -47135,7 +47093,7 @@
             "url": "expert/NoxMhHpp"
           }
         ],
-        "confidence": "High"
+        "confidence": "96.0"
       }
     ]
   },
@@ -47164,7 +47122,7 @@
             "url": "expert/tmv41lkG"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -47198,7 +47156,7 @@
             "url": "expert/CjOSRSk4"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -47260,7 +47218,7 @@
             "url": "expert/t9wiwsUt"
           }
         ],
-        "confidence": "High"
+        "confidence": "97.0"
       }
     ]
   },
@@ -47295,7 +47253,7 @@
             "url": "expert/hUV6lk93"
           }
         ],
-        "confidence": "Mid"
+        "confidence": "48.5"
       }
     ]
   },
@@ -47336,7 +47294,7 @@
             "url": "expert/HXwtuyjt"
           }
         ],
-        "confidence": "High"
+        "confidence": "95.5"
       }
     ]
   },
@@ -47364,7 +47322,7 @@
             "url": "expert/KtluYFPs"
           }
         ],
-        "confidence": "High"
+        "confidence": "100.0"
       }
     ]
   },
@@ -47393,7 +47351,68 @@
             "url": "expert/2HDU8nQb"
           }
         ],
-        "confidence": "High"
+        "confidence": "89.4"
+      }
+    ]
+  },
+  {
+    "location": "Nepal",
+    "country": "Nepal",
+    "entries": [
+      {
+        "id": "w1555",
+        "title": "Global trends in dietary micronutrient supplies and estimated prevalence of inadequate intakes",
+        "name": "Global trends in dietary micronutrient supplies and estimated prevalence of inadequate intakes Published online article-journal 2017 Beal T. Hijmans R. et al. PLOS ONE 1932-6203 10.1371journal.pone.0175554",
+        "issued": "2017",
+        "abstract": "Understanding dietary patterns is vital to reducing the number of people experiencing hunger about 795 million micronutrient deficiencies 2 billion and overweight or obesity 2.1 billion. We characterize global trends in dietary quality by estimating micronutrient density of the food supply prevalence of inadequate intake of 14 micronutrients and average prevalence of inadequate intake of these micronutrients for all countries between 1961 and 2011. Over this 50-year period the estimated prevalence of inadequate intakes of micronutrients has declined in all regions due to increased total production of food andor micronutrient density. This decline has been particularly strong in East and Southeast Asia and weaker in South Asia and sub-Saharan Africa. Sub-Saharan Africa is the only region where dietary micronutrient density has declined over this 50-year period. At the global level micronutrients with the lowest levels of adequate estimated intake are calcium iron vitamin A and zinc but there are strong differences between countries and regions. Fortification has reduced the estimated prevalence of inadequate micronutrient intakes in all low-income regions except South Asia. The food supply in many countries is still far below energy requirements which suggests a need to increase the availability and accessibility of nutritious foods. Countries where the food energy supply is adequate show a very large variation in dietary quality and in many of these countries people would benefit from more diverse diets with a greater proportion of micronutrient-dense foods. Dietary quality can be improved through fortification biofortification and agricultural diversification as well as efforts to improve access to and use of micronutrient-dense foods and nutritional knowledge. Reducing poverty and increasing education especially of women are integral to sustainably addressing malnutrition.",
+        "authors": [
+          "Ty Beal",
+          "Eric Massiot",
+          "Joanne E Arsenault",
+          "Matthew R Smith",
+          "Robert J Hijmans"
+        ],
+        "relatedExperts": [
+          {
+            "id": "Uzws3em4",
+            "firstName": "Robert",
+            "lastName": "Hijmans",
+            "fullName": "Robert Hijmans",
+            "url": "expert/Uzws3em4"
+          }
+        ],
+        "confidence": "81.6"
+      }
+    ]
+  },
+  {
+    "location": "French Polynesia",
+    "country": "France",
+    "entries": [
+      {
+        "id": "w2182",
+        "title": "Pre-introductory risk assessment studies of Gonatocerus ashmeadi Hymenoptera Mymaridae for use as a classical biological control agent against Homalodisca vitripennis Hemiptera Cicadellidae in the Society Islands of French Polynesia",
+        "name": "Pre-introductory risk assessment studies of Gonatocerus ashmeadi Hymenoptera Mymaridae for use as a classical biological control agent against Homalodisca vitripennis Hemiptera Cicadellidae in the Society Islands of French Polynesia Published article-journal 2007-09 Grandgirard J. Davies N. et al. Biocontrol Science and Technology 1360-0478 10.108009583150701527573",
+        "issued": "2007-09",
+        "abstract": "Homalodisca vitripennis Germar H. coagulata Say Hemiptera Cicadellidae invaded French Polynesia in 1999. A classical biological control program against H. vitripennis was initiated in 2004 aiming to introduce the exotic egg parasitoid Gonatocerus ashmeadi Girault Hymenoptera Mymaridae to the Society Islands archipelago. Prior to any release two risks were assessed a continued uncontrolled H. vitripennis spread and proliferation in French Polynesia and b non-target impacts by G. ashmeadi on indigenous French Polynesian cicadellids. The primary risk of H. vitripennis is its potential to vector the lethal plant bacterium Xylella fastidiosa. While the presence of X. fastidiosa in French Polynesia has not yet been demonstrated the presence of uncontrolled H. vitripennis greatly elevates the risk of a disease outbreak and thus represents a major threat for numerous plant species. Assessing the risk of G. ashmeadi introduction for native cicadellids first required an inventory of the Cicadellidae of the Society Islands resulting in at least 14 cicadellid species nine not previously recorded. The risk to these species of attack by G. ashmeadi was assessed using four criteria 1 their phylogenetic relationships to known hosts of G. ashmeadi and their similarity in 2 body size 3 egg laying biology and 4 ecology. All indigenous cicadellid species found were considered to be at low risk of attack because they differed greatly from all known hosts for G. ashmeadi 1 none of the indigenous species are in the tribe Proconiini 2 all were very small and when possible to determine 3 lay tiny single eggs which 4 are deposited on the undersides of leaves of trees. These results persuaded the French Polynesian Government that the benefits of establishing G. ashmeadi for H. vitripennis control outweighed the serious potential risks associated with either delaying release or not releasing G. ashmeadi in French Polynesia. Releases of G. ashmeadi in Tahiti began in May 2005. 2007 Taylor Francis.",
+        "authors": [
+          "Julie Grandgirard",
+          "Mark S Hoddle",
+          "Jerome N Petit",
+          "Diana M Percy",
+          "George K Roderick",
+          "Neil Davies"
+        ],
+        "relatedExperts": [
+          {
+            "id": "YfiTQOjP",
+            "firstName": "Mark",
+            "lastName": "Hoddle",
+            "fullName": "Mark Hoddle",
+            "url": "expert/YfiTQOjP"
+          }
+        ],
+        "confidence": "Low"
       }
     ]
   },
@@ -47446,7 +47465,7 @@
             "url": "expert/jtln3XiR"
           }
         ],
-        "confidence": "Kinda High"
+        "confidence": "90"
       }
     ]
   },
@@ -47479,7 +47498,7 @@
             "url": "expert/3DPjwmKT"
           }
         ],
-        "confidence": "High"
+        "confidence": "96.5"
       }
     ]
   },
