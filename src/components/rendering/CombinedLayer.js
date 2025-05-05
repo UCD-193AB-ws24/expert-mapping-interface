@@ -1,12 +1,12 @@
 /**
- * CombinedLocationLayer Component
+ * CombinedLayer Component
  * 
  * This component is a React Leaflet layer that processes and displays combined locations
  * (works and grants) on a map. It handles filtering, rendering markers, and creating popups
  * for locations where works and grants overlap.
  * 
- * @file CombinedLocationLayer.js
- * @module CombinedLocationLayer
+ * @file CombinedLayer.js
+ * @module CombinedLayer
  */
 
 import { useEffect } from "react";
@@ -19,9 +19,8 @@ import L from "leaflet";
  * the number of works and grants at the location and allows users to open a panel with more details.
  */
 
-const CombinedLocationLayer = ({
-  geoData,
-  grantGeoJSON,
+const CombinedLayer = ({
+  overlappingLocations,
   showWorks,
   showGrants,
   searchKeyword,
@@ -37,12 +36,6 @@ const CombinedLocationLayer = ({
     // Exit early if required data or map is not available
     if (!map || !geoData || !grantGeoJSON) return;
     if (!showWorks && !showGrants) return;
-
-    // Initialize variables
-    const keyword = searchKeyword?.toLowerCase() || "";
-    const markers = [];
-    let activePopup = null;
-    let closeTimeout = null;
 
     const worksLocationMap = new Map();
     const grantsLocationMap = new Map();
@@ -153,7 +146,7 @@ const CombinedLocationLayer = ({
       const marker = L.marker([lat, lng], {
         icon: L.divIcon({
           html: `<div style='
-            background-color: #10b981;
+            background-color: #6CCA98;
             color: white;
             font-weight: bold;
             width: 40px;
@@ -180,7 +173,7 @@ const CombinedLocationLayer = ({
       // Create popup content for the marker
       const createCombinedPopupContent = (worksCount, grantsCount, locationName) => `
         <div style='padding: 15px; font-size: 14px; width: 250px;'>
-          <div style='font-weight: bold; font-size: 16px; color: #10b981;'>Combined Location</div>
+          <div style='font-weight: bold; font-size: 16px; color: #6CCA98;'>Combined Location</div>
           <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
           <div style='margin-top: 5px;'>
             <div style='color: #13639e; display: inline-block; margin-right: 10px;'>
@@ -192,7 +185,7 @@ const CombinedLocationLayer = ({
           </div>
           <a href='#'
             class='view-combined-btn'
-            style='display: block; margin-top: 12px; padding: 8px 10px; background: #10b981; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+            style='display: block; margin-top: 12px; padding: 8px 10px; background: #6CCA98; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
             Open Panel
           </a>
         </div>
@@ -268,5 +261,5 @@ const CombinedLocationLayer = ({
   return null;
 };
 
-export default CombinedLocationLayer;
+export default CombinedLayer;
 

@@ -224,7 +224,7 @@ export const noGrantContent = (locationName) => `
 
 export const createCombinedPolygonPopup = (worksCount, grantsCount, locationName) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
-    <div style='font-weight: bold; font-size: 16px; color: #10b981;'>Combined Polygon</div>
+    <div style='font-weight: bold; font-size: 16px; color: #6CCA98;'>Combined Polygon</div>
     <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
     <div style='margin-top: 5px;'>
       <div style='color: #13639e; display: inline-block; margin-right: 10px;'>
@@ -236,7 +236,7 @@ export const createCombinedPolygonPopup = (worksCount, grantsCount, locationName
     </div>
     <a href='#'
       class='view-combined-polygon-btn'
-      style='display: block; margin-top: 12px; padding: 8px 10px; background: #10b981; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+      style='display: block; margin-top: 12px; padding: 8px 10px; background: #6CCA98; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
       Open Panel
     </a>
   </div>
@@ -272,12 +272,12 @@ export const createMatchedExpertPopup = (expertCount, locationName, totalWorks) 
 
 export const createMatchedCombinedPolygonPopup = (worksCount, grantsCount, locationName) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
-    <div style='font-weight: bold; font-size: 16px; color: #10b981;'>Combined Polygon</div>
+    <div style='font-weight: bold; font-size: 16px; color: #6CCA98;'>Combined Polygon</div>
     <div style='margin-top: 5px; color: green;'>🔍 Match found</div> 
     <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
     <a href='#'
       class='view-combined-polygon-btn'
-      style='display: block; margin-top: 12px; padding: 8px 10px; background: #10b981; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+      style='display: block; margin-top: 12px; padding: 8px 10px; background: #6CCA98; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
       Open Panel
     </a>
   </div>

@@ -111,8 +111,8 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       </button>
 
       {/* Location Header */}
-      <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#10b981" }}>
-        Location: {locationName}
+      <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#6CCA98" }}>
+        <strong>Location: {locationName}</strong>
       </h2>
 
       {/* Tab Navigation */}

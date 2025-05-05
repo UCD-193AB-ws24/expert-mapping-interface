@@ -2,12 +2,12 @@ import React, { useRef, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import MapWrapper from "./MapContainer";
-import ExpertLayer from "./ExpertLayer";
-import GrantLayer from "./GrantLayer";
-import CombinedLocationLayer from "./CombinedLocations";
-import { WorksPanel, GrantsPanel } from "./Panels";
-import { CombinedPanel } from "./CombinedPanel";
-import CombinedPolygonLayer from "./CombinedPolygonLayer";
+import processGeoJSONData from "./rendering/ProcessGeoJSON";
+import WorkLayer from "./rendering/WorkLayer";
+import GrantLayer from "./rendering/GrantLayer";
+import CombinedLayer from "./rendering/CombinedLayer";
+import { WorksPanel, GrantsPanel } from "./rendering/Panels";
+import { CombinedPanel } from "./rendering/CombinedPanel";
 
 /**
  * ResearchMap Component
@@ -142,7 +142,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     );
   };
   // Filter workGeoJSON by date
-  const filteredWorkGeoJSON = workGeoJSON
+  const dateFilteredWorkGeoJSON = workGeoJSON
     ? {
       ...workGeoJSON,
       features: workGeoJSON.features
@@ -161,7 +161,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     : null;
 
   // Filter grantGeoJSON by date
-  const filteredGrantGeoJSON = grantGeoJSON
+  const dateFilteredGrantGeoJSON = grantGeoJSON
     ? {
       ...grantGeoJSON,
       features: grantGeoJSON.features
@@ -180,15 +180,22 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     }
     : null;
   ;
+
+  const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
+    dateFilteredWorkGeoJSON,
+    dateFilteredGrantGeoJSON,
+    showWorks,
+    showGrants
+);
+
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
           {/* Combined location layer must come first to handle overlaps */}
           {showWorks && showGrants && (
-            <CombinedLocationLayer
-              geoData={geoData}
-              grantGeoJSON={filteredGrantGeoJSON}
+            <CombinedLayer
+              overlappingLocations={overlappingLocations}
               showWorks={showWorks}
               showGrants={showGrants}
               searchKeyword={searchKeyword}
@@ -200,8 +207,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             />
           )}
           <CombinedPolygonLayer
-            workGeoJSON={filteredWorkGeoJSON}
-            grantGeoJSON={filteredGrantGeoJSON}
+            workGeoJSON={dateFilteredWorkGeoJSON}
+            grantGeoJSON={dateFilteredGrantGeoJSON}
             showWorks={showWorks}
             showGrants={showGrants}
             setSelectedWorks={setSelectedWorks}
@@ -215,13 +222,12 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           />
           {/* Regular works layer */}
           {(showWorks || searchKeyword) && (
-            <ExpertLayer
-              geoData={filteredWorkGeoJSON}
+            <WorkLayer
+              geoData={nonOverlappingWorks}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               searchKeyword={searchKeyword}
               setSelectedWorks={setSelectedWorks}
-              // setSelectedPointExperts={setSelectedPointExperts}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
@@ -231,14 +237,14 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           {/* Regular grants layer */}
           {(showGrants || searchKeyword) && (
             <GrantLayer
-              grantGeoJSON={filteredGrantGeoJSON}
+              grantGeoJSON={nonOverlappingGrants}
+              showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               searchKeyword={searchKeyword}
               setSelectedGrants={setSelectedGrants}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
-              showWorks={showWorks}
             />
           )}
         </MapWrapper>
@@ -314,7 +320,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           />
         </>
       )}
-      {panelOpen && panelType === "combined-polygon" && (
+      {panelOpen && panelType === "combined" && (
         <CombinedPanel
           works={selectedWorks}
           grants={selectedGrants}

@@ -1,4 +1,4 @@
 node_modules
 dump.rdb
 .env
-./src/components/features
+src/components/depreceated

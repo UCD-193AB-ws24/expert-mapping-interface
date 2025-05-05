@@ -317,9 +317,9 @@ const renderPoints = ({
 };
 
 /**
- * GrantLayer Component
+ * grantLayer Component
  */
-const GrantLayer = ({
+const grantLayer = ({
   grantGeoJSON,
   showWorks,
   showGrants,
@@ -367,7 +367,7 @@ const GrantLayer = ({
     const location = feature.properties.location || "Unknown";
 
     if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-      console.log(`GrantLayer - Skipping popup for overlapping location: ${location}`);
+      console.log(`grantLayer - Skipping popup for overlapping location: ${location}`);
       return;
     }
       // Generate a unique location ID
@@ -486,7 +486,7 @@ const GrantLayer = ({
   return null;
 };
 
-export default GrantLayer;
+export default grantLayer;
 
 
 

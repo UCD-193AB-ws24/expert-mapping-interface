@@ -157,8 +157,8 @@ const CombinedPolygonLayer = ({
 
           // Create a Leaflet polygon with dashed styling
           const polygon = L.polygon(flippedCoordinates, {
-            color: "#10b981",
-            fillColor: "#d1fae5",
+            color: "#6c2376",
+            fillColor: "#76236C",
             fillOpacity: 0.7,
             weight: 3
           }).addTo(map);
@@ -223,7 +223,7 @@ const CombinedPolygonLayer = ({
                   // Update the state for the side panel
                   setSelectedWorks(filteredWorksEntries);
                   setSelectedGrants(filteredGrantsEntries);
-                  setPanelType("combined-polygon");
+                  setPanelType("combined");
                   setLocationName(locationName);
                   setPanelOpen(true);
 
