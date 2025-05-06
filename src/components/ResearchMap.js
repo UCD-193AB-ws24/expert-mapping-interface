@@ -2,12 +2,12 @@ import React, { useRef, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import MapWrapper from "./MapContainer";
-import ExpertLayer from "./ExpertLayer";
-import GrantLayer from "./GrantLayer";
-import CombinedLocationLayer from "./CombinedLocations";
-import { ExpertsPanel, GrantsPanel } from "./Panels";
-import { CombinedPanel } from "./CombinedPanel";
-import CombinedPolygonLayer from "./CombinedPolygonLayer";
+import processGeoJSONData from "./rendering/ProcessGeoJSON";
+import WorkLayer from "./rendering/WorkLayer";
+import GrantLayer from "./rendering/GrantLayer";
+import CombinedLayer from "./rendering/CombinedLayer";
+import { WorksPanel, GrantsPanel } from "./rendering/Panels";
+import { CombinedPanel } from "./rendering/CombinedPanel";
 
 /**
  * ResearchMap Component
@@ -34,8 +34,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
   const [geoData, setGeoData] = useState(null);
   const [grantGeoJSON, setGrantGeoJSON] = useState(null);
   const [workGeoJSON, setWorkGeoJSON] = useState(null);
-  const [selectedExperts, setSelectedExperts] = useState([]);
-  const [selectedPointExperts, setSelectedPointExperts] = useState([]);
+  const [selectedWorks, setSelectedWorks] = useState([]);
+  // const [selectedPointExperts, setSelectedPointExperts] = useState([]);
   const [selectedGrants, setSelectedGrants] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelType, setPanelType] = useState(null);
@@ -72,7 +72,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           }),
         ])
           .then(([worksData, grantsData]) => {
-            console.log("Converting data to GeoJSON format...");
+            // console.log("Converting data to GeoJSON format...");
             // Process works data into GeoJSON format.
             const processedWorksData = {
               type: "FeatureCollection",
@@ -142,7 +142,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     );
   };
   // Filter workGeoJSON by date
-  const filteredWorkGeoJSON = workGeoJSON
+  const dateFilteredWorkGeoJSON = workGeoJSON
     ? {
       ...workGeoJSON,
       features: workGeoJSON.features
@@ -161,7 +161,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     : null;
 
   // Filter grantGeoJSON by date
-  const filteredGrantGeoJSON = grantGeoJSON
+  const dateFilteredGrantGeoJSON = grantGeoJSON
     ? {
       ...grantGeoJSON,
       features: grantGeoJSON.features
@@ -180,31 +180,36 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     }
     : null;
   ;
+
+    // Validate filtered GeoJSON data before passing to processGeoJSONData
+    const validWorkGeoJSON = dateFilteredWorkGeoJSON || { type: "FeatureCollection", features: [] };
+    const validGrantGeoJSON = dateFilteredGrantGeoJSON || { type: "FeatureCollection", features: [] };
+
+    // Debugging logs to check the structure of the filtered data
+    // console.log("Filtered Work GeoJSON:", validWorkGeoJSON);
+    // console.log("Filtered Grant GeoJSON:", validGrantGeoJSON);
+
+    // Call processGeoJSONData with validated inputs
+    const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
+        validWorkGeoJSON,
+        validGrantGeoJSON,
+        showWorks,
+        showGrants
+    );
+    // console.log("Non-overlapping work features:",  nonOverlappingWorks);
+    // console.log("Non-overlapping grant features:",  nonOverlappingGrants);
+    console.log('Overlapping Locations:', overlappingLocations);
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
           {/* Combined location layer must come first to handle overlaps */}
           {showWorks && showGrants && (
-            <CombinedLocationLayer
-              geoData={geoData}
-              grantGeoJSON={filteredGrantGeoJSON}
-              showWorks={showWorks}
-              showGrants={showGrants}
-              searchKeyword={searchKeyword}
-              setSelectedPointExperts={setSelectedPointExperts}
-              setSelectedGrants={setSelectedGrants}
-              setPanelOpen={setPanelOpen}
-              setPanelType={setPanelType}
-              setCombinedKeys={setCombinedKeys}
-            />
-          )}
-          <CombinedPolygonLayer
-            workGeoJSON={filteredWorkGeoJSON}
-            grantGeoJSON={filteredGrantGeoJSON}
+            <CombinedLayer
+            overlappingLocations={overlappingLocations}
             showWorks={showWorks}
             showGrants={showGrants}
-            setSelectedExperts={setSelectedExperts}
+            setSelectedWorks={setSelectedWorks}
             setSelectedGrants={setSelectedGrants}
             setPanelOpen={setPanelOpen}
             setPanelType={setPanelType}
@@ -212,16 +217,30 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             combinedKeys={combinedKeys}
             setLocationName={setLocationName}
             searchKeyword={searchKeyword}
-          />
+            />
+          )}
+          {/* <CombinedLayer
+            workGeoJSON={dateFilteredWorkGeoJSON}
+            grantGeoJSON={dateFilteredGrantGeoJSON}
+            showWorks={showWorks}
+            showGrants={showGrants}
+            setSelectedWorks={setSelectedWorks}
+            setSelectedGrants={setSelectedGrants}
+            setPanelOpen={setPanelOpen}
+            setPanelType={setPanelType}
+            setCombinedKeys={setCombinedKeys}
+            combinedKeys={combinedKeys}
+            setLocationName={setLocationName}
+            searchKeyword={searchKeyword}
+          /> */}
           {/* Regular works layer */}
           {(showWorks || searchKeyword) && (
-            <ExpertLayer
-              geoData={filteredWorkGeoJSON}
+            <WorkLayer
+              nonOverlappingWorks={nonOverlappingWorks}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               searchKeyword={searchKeyword}
-              setSelectedExperts={setSelectedExperts}
-              setSelectedPointExperts={setSelectedPointExperts}
+              setSelectedWorks={setSelectedWorks}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
@@ -231,14 +250,14 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           {/* Regular grants layer */}
           {(showGrants || searchKeyword) && (
             <GrantLayer
-              grantGeoJSON={filteredGrantGeoJSON}
+              nonOverlappingGrants={nonOverlappingGrants}
+              showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               searchKeyword={searchKeyword}
               setSelectedGrants={setSelectedGrants}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
-              showWorks={showWorks}
             />
           )}
         </MapWrapper>
@@ -268,7 +287,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               width: "40px",
               height: "40px",
               border: "4px solid #f3f3f3",
-              borderTop: "4px solid #13639e",
+              borderTop: "4px solid #3879C7",
               borderRadius: "50%",
               animation: "spin 1s linear infinite",
             }}
@@ -303,17 +322,20 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
         <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} keyword={searchKeyword} />
       )}
 
-      {panelOpen && (panelType === "polygon" || panelType === "point") && (
-        <ExpertsPanel
-          experts={panelType === "polygon" ? selectedExperts : selectedPointExperts}
-          onClose={() => setPanelOpen(false)}
-          panelType={panelType}
-          keyword={searchKeyword}
-        />
+      {panelOpen && panelType === "works" && (
+        <>
+          {/* {console.log("Selected Works Data:", selectedWorks)} Debugging log */}
+          <WorksPanel
+            works={selectedWorks} // Pass the array of work objects
+            onClose={() => setPanelOpen(false)}
+            panelType={panelType}
+            keyword={searchKeyword}
+          />
+        </>
       )}
-      {panelOpen && panelType === "combined-polygon" && (
+      {panelOpen && panelType === "combined" && (
         <CombinedPanel
-          works={selectedExperts}
+          works={selectedWorks}
           grants={selectedGrants}
           locationName={locationName}
           onClose={() => setPanelOpen(false)}

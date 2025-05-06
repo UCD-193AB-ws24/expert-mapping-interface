@@ -75,7 +75,7 @@ async function populateRedis() {
         console.log('No new data to update! Skipping this function!');
         return;
       }
-      
+      console.log(`💾 New data found with timestamp: ${timestamp}. Continuing with populating Redis...`)
       for (const workFeature of workGeoJson.features) {
         const featureID = workFeature.id; // ID attached to each feature can be thought of as a location ID as each feature is a location with related works and experts
         const { geometry, properties } = workFeature;
@@ -169,14 +169,14 @@ async function populateRedis() {
             name,
             type,
             class: featureClass,
-            country,
             entries,
             location,
             osm_type,
-            place_rank,
             display_name,
             id,
             source,
+            place_rank,
+            country,
           } = properties;
     
           
@@ -249,9 +249,9 @@ async function populateRedis() {
     await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
     console.log('⌛ Processing data completed!');
     // Delete the GeoJSON files after processing (security measure)
-    await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
+    // await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
     // console.log('✅ Deleted workFeatures.geojson');
-    await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
+    // await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
     // console.log('✅ Deleted grantFeatures.geojson');
 
     console.log('✅ Successfully populated Redis with GeoJSON data!');
