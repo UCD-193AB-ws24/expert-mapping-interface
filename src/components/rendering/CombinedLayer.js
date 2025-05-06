@@ -1,265 +1,682 @@
+import { useEffect, useRef } from "react";
+import { useMap } from "react-leaflet";
+import L from "leaflet";
+import { createCombinedPopup, createMatchedCombinedPolygonPopup } from "./Popups";
+import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
 /**
  * CombinedLayer Component
  * 
- * This component is a React Leaflet layer that processes and displays combined locations
- * (works and grants) on a map. It handles filtering, rendering markers, and creating popups
- * for locations where works and grants overlap.
+ * This component renders combined polygons on a Leaflet map where there is an overlap
+ * between works and grants for specific locations. It handles interactive popups and
+ * updates the state for selected experts, grants, and the side panel.
  * 
- * @file CombinedLayer.js
- * @module CombinedLayer
+ * Props:
+ * - workGeoJSON: GeoJSON object containing work-related data.
+ * - grantGeoJSON: GeoJSON object containing grant-related data.
+ * - showWorks: Boolean indicating whether to display work polygons.
+ * - showGrants: Boolean indicating whether to display grant polygons.
+ * - setSelectedWorks: Function to update the selected experts for the side panel.
+ * - setSelectedGrants: Function to update the selected grants for the side panel.
+ * - setPanelOpen: Function to control whether the side panel is open.
+ * - setPanelType: Function to set the type of content displayed in the side panel.
+ * - setCombinedKeys: Function to update the set of overlapping locations.
+ * - combinedKeys: Set of currently overlapping locations.
+ * - setLocationName: Function to set the name of the location for the side panel.
  */
 
-import { useEffect } from "react";
-import { useMap } from "react-leaflet";
-import L from "leaflet";
 
-/* This component renders markers for combined locations (works and grants) on a Leaflet map.
- * It processes geoJSON data for works and grants, identifies overlapping locations, and displays
- * a combined marker with a popup for each overlapping location. The popup provides details about
- * the number of works and grants at the location and allows users to open a panel with more details.
- */
+
+const renderPolygons = ({
+  locationMap,
+  worksMap,
+  grantsMap,
+  expertsMap,
+  map,
+  setSelectedGrants,
+  setSelectedWorks,
+  setLocationName,
+  setPanelOpen,
+  setPanelType,
+  comboLayers,
+  comboPolyMarkers,
+}) => {
+  const sortedPolygons = Array.from(locationMap.entries())
+    .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
+    .sort(([, a], [, b]) => {
+      const area = (geometry) => {
+        const bounds = L.polygon(
+          geometry.coordinates[0].map(([lng, lat]) => [lat, lng])
+        ).getBounds();
+        return (
+          (bounds.getEast() - bounds.getWest()) *
+          (bounds.getNorth() - bounds.getSouth())
+        );
+      };
+      return area(b) - area(a); // Sort largest to smallest
+    });
+
+  sortedPolygons.forEach(([locationID, locationData]) => {
+    console.log("Processing locationData:", locationData);
+    const flippedCoordinates = locationData.coordinates.map((ring) =>
+      ring.map(([lng, lat]) => [lat, lng])
+    );
+
+    setLocationName(locationID);
+    // Initialize sets to count unique experts
+    const workExpertSet = new Set();
+    const grantExpertSet = new Set();
+
+    // Count experts from workIDs
+    locationData.workIDs.forEach((workID) => {
+      const work = worksMap.get(workID);
+      if (!work) {
+        console.warn(`Work with ID ${workID} not found in worksMap.`);
+        return;
+      }
+
+      (work.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          workExpertSet.add(expertID);
+        }
+      });
+    });
+
+    // Count experts from grantIDs
+    locationData.grantIDs.forEach((grantID) => {
+      const grant = grantsMap.get(grantID);
+      if (!grant) {
+        console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
+        return;
+      }
+
+      (grant.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          grantExpertSet.add(expertID);
+        }
+      });
+    });
+
+    const work2expertCount = workExpertSet.size;
+    const grant2expertCount = grantExpertSet.size;
+
+    if ((locationData.workExpertIDs.length + locationData.grantExpertIDs.length) !== (work2expertCount + grant2expertCount)) {
+      console.log('Num of experts w/ works:', locationData.workExpertIDs.length);
+      console.log('Num of experts w/ grants:', locationData.grantExpertIDs.length);
+      console.log('workExpertSet:', work2expertCount);
+      console.log('grantExpertSet:', grant2expertCount);
+      console.warn(`Error in data consistency for locationID: ${locationID}`);
+      return;
+    }
+    
+    if(work2expertCount === 0 && grant2expertCount === 0 || locationData.workExpertIDs.length === 0 && locationData.grantExpertIDs.length === 0) {
+      console.warn(`No experts found for locationID: ${locationID}`);
+      return;
+    }
+
+    const totalExpertCount = work2expertCount + grant2expertCount;
+
+    const polygon = L.polygon(flippedCoordinates, {
+      color: "#659c39",
+      fillColor: "#96ca6e",
+      fillOpacity: 0.5,
+      weight: 2,
+    }).addTo(map);
+
+    comboLayers.push(polygon);
+
+    // Calculate the center of the polygon
+    const polygonCenter = polygon.getBounds().getCenter();
+
+    // Create a marker at the center of the polygon
+    const marker = L.marker(polygonCenter, {
+      icon: L.divIcon({
+        html: `<div style='
+          background: #659c39;
+          color: white;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+        '>${totalExpertCount}</div>`,
+        className: "polygon-center-marker",
+        iconSize: [30, 30],
+      }),
+    }).addTo(map);
+
+    // Track the marker for cleanup
+    comboPolyMarkers.push(marker);
+
+    let activePopup = null;
+    let closeTimeout = null;
+
+    marker.on("mouseover", () => {
+      if (closeTimeout) clearTimeout(closeTimeout);
+      const content = createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.display_name
+      );
+
+      if (activePopup) activePopup.remove();
+
+      activePopup = L.popup({
+        closeButton: false,
+        autoClose: false,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: false,
+      })
+        .setLatLng(polygon.getBounds().getCenter())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        popupElement.addEventListener("mouseenter", () => {
+          clearTimeout(closeTimeout);
+        });
+
+        popupElement.addEventListener("mouseleave", () => {
+          closeTimeout = setTimeout(() => {
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          }, 100);
+        });
+
+        const viewPointComboExpertsBtn = popupElement.querySelector(".view-combined-btn");
+        if (viewPointComboExpertsBtn) {
+          viewPointComboExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const grantPanelData = prepareGrantPanelData(
+              locationData.grantExpertIDs,
+              locationData.grantIDs,
+              grantsMap,
+              expertsMap,
+              locationID
+            );
+            const workPanelData = prepareWorkPanelData(
+              locationData.workExpertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID
+            );
+            setSelectedGrants(grantPanelData);
+            console.log('Grant panel data:', grantPanelData);
+            setSelectedWorks(workPanelData);
+            console.log('Work panel data:', workPanelData);
+            setPanelType("combined");
+            setPanelOpen(true);
+
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+        }
+      }
+    });
+
+    marker.on("mouseout", () => {
+      closeTimeout = setTimeout(() => {
+        if (activePopup) {
+          activePopup.close();
+          activePopup = null;
+        }
+      }, 100);
+    });
+  });
+};
+
+const renderPoints = ({
+  locationMap,
+  worksMap,
+  grantsMap,
+  expertsMap,
+  map,
+  comboMarkerGroup,
+  setSelectedGrants,
+  setSelectedWorks,
+  setLocationName,
+  setPanelOpen,
+  setPanelType,
+}) => {
+  locationMap.forEach((locationData, locationID) => {
+    if (locationData.geometryType !== "Point" || locationData.grantIDs.length === 0 || locationData.worksIDs.length === 0) return;
+
+    const [lng, lat] = locationData.coordinates;
+    const flippedCoordinates = [lat, lng];
+
+    setLocationName(locationID);
+    
+    // Get expert count for each work and grant per location
+    // Count experts from workIDs
+    workIDs.forEach((workID) => {
+      const work = worksMap.get(workID);
+      if (!work) {
+        console.warn(`Work with ID ${workID} not found in worksMap.`);
+        return;
+      }
+
+      (work.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          workExpertSet.add(expertID);
+        }
+      });
+    });
+    // Count experts from grantIDs
+    grantIDs.forEach((grantID) => {
+      const grant = grantsMap.get(grantID);
+      if (!grant) {
+        console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
+        return;
+      }
+
+      (grant.relatedExpertIDs || []).forEach((expertID) => {
+        if (expertsMap.has(expertID)) {
+          grantExpertSet.add(expertID);
+        }
+      });
+    });
+
+    const work2expertCount = workExpertSet.size;
+    const grant2expertCount = grantExpertSet.size;
+    const totalExpertCount = work2expertCount + grant2expertCount;
+
+    const marker = L.marker(flippedCoordinates, {
+      icon: L.divIcon({
+        html: `<div style='background: #659c39; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${totalExpertCount}</div>`,
+        className: "custom-marker-icon",
+        iconSize: [30, 30],
+      }),
+    });
+
+    let activePointPopup = null;
+    let closePointTimeout = null; // CT = closetimeout
+
+    marker.on("mouseover", () => {
+      if (closePointTimeout) clearTimeout(closePointTimeout);
+      const content = createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.display_name
+      );
+      if (activePointPopup) activePointPopup.remove();
+      activePointPopup = L.popup({
+        closeButton: false,
+        autoClose: false,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: false,
+      })
+        .setLatLng(marker.getLatLng())
+        .setContent(content)
+        .openOn(map);
+        const popupElement = activePointPopup.getElement();
+        if (popupElement) {
+          popupElement.style.pointerEvents = "auto";
+  
+          popupElement.addEventListener("mouseenter", () => {
+            clearTimeout(closePointTimeout);
+          });
+  
+          popupElement.addEventListener("mouseleave", () => {
+            closePointTimeout = setTimeout(() => {
+              if (activePointPopup) {
+                activePointPopup.close();
+                activePointPopup = null;
+              }
+            }, 100);
+          });
+  
+          const viewCombinedExpertsBtn = popupElement.querySelector(".view-combined-btn");
+          if (viewCombinedExpertsBtn) {
+            // console.log('View Experts was pushed on a point!');
+            viewCombinedExpertsBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+  
+              const grantPanelData = prepareGrantPanelData(
+                locationData.grantExpertIDs,
+                locationData.grantIDs,
+                grantsMap,
+                expertsMap,
+                locationID
+              );
+              const workPanelData = prepareWorkPanelData(
+                locationData.workExpertIDs,
+                locationData.workIDs,
+                expertsMap,
+                worksMap,
+                locationID
+              );
+              setSelectedGrants(grantPanelData);
+              setSelectedWorks(workPanelData);
+              setPanelType("combined");
+              setPanelOpen(true);
+  
+              if (activePointPopup) {
+                activePointPopup.close();
+                activePointPopup = null;
+              }
+            });
+          }
+        }  
+    });
+
+    marker.on("mouseout", () => {
+      closePointTimeout = setTimeout(() => {
+        if (activePointPopup) {
+          activePointPopup.close();
+          activePointPopup = null;
+        }
+      }, 100);
+    });
+
+    comboMarkerGroup.addLayer(marker);
+  });
+  map.addLayer(comboMarkerGroup);
+};
 
 const CombinedLayer = ({
   overlappingLocations,
   showWorks,
   showGrants,
-  searchKeyword,
   setSelectedWorks,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
-  setCombinedKeys 
+  setCombinedKeys,
+  combinedKeys,
+  searchKeyword,
+  setLocationName,
+
 }) => {
+  // Access the Leaflet map instance from react-leaflet's useMap hook
   const map = useMap();
 
+  // Ref to store the polygon layers added to the map
+  // const polygonLayersRef = useRef([]);
+
   useEffect(() => {
-    // Exit early if required data or map is not available
-    if (!map || !geoData || !grantGeoJSON) return;
-    if (!showWorks && !showGrants) return;
+    // Exit early if map or overlappingLocations is not available
+    if (!map || !overlappingLocations) return;
+    console.log('Entering the CombinedLayer...');
+    // Update the combinedKeys state if overlapping locations have changed
+    const newCombinedKeys = new Set(overlappingLocations);
+    const currentKeysString = JSON.stringify(Array.from(newCombinedKeys));
+    const existingKeysString = JSON.stringify(Array.from(combinedKeys));
 
-    const worksLocationMap = new Map();
-    const grantsLocationMap = new Map();
+    if (currentKeysString !== existingKeysString) {
+      console.log("Updating combinedKeys:", overlappingLocations);
+      setCombinedKeys(newCombinedKeys);
+    } else {
+      console.log("combinedKeys unchanged.");
+    }
 
-    // Process works data 
-    if (showWorks) {
-      // Filter works based on the search keyword
-      const filteredFeatures = geoData.features.filter((f) => {
-        const isExpert = !f.properties?.type || f.properties?.type === "work"; // Ensure it's a work type
-        if (!isExpert) return false;
-        const props = JSON.stringify(f.properties || {}).toLowerCase();  // Convert properties to lowercase for comparison
-        return keyword === "" || props.includes(keyword); // Match keyword
-      });
+    const locationMap = new Map();
+    const grantsMap = new Map();
+    const expertsMap = new Map();
+    const worksMap = new Map();
+  
+    const comboMarkerGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      maxClusterRadius: 40,
+      spiderfyOnMaxZoom: false,
+      iconCreateFunction: (cluster) => {
+        const totalExperts = cluster
+          .getAllChildMarkers()
+          .reduce((sum, marker) => sum + marker.options.expertCount, 0);
+  
+        return L.divIcon({
+          html: `<div style="background: #659c39; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
+          className: "custom-cluster-icon",
+          iconSize: L.point(40, 40),
+        });
+      },
+    });
+  
+    const comboLayers = [];
+    const comboPolyMarkers = [];
+  
+    if (showWorks && showGrants) {
+      // Render overlapping locations
+      overlappingLocations.forEach((locationData) => {
+        const { location, worksFeatures, grantsFeatures } = locationData;
+        const locationID = location;
+        console.log('Processing locationID: ', locationID, '...');
+        
+        // Check if workFeatures and grantFeatures are defined and not empty
+        if (!worksFeatures || worksFeatures.length === 0) {
+          console.warn(`No workFeatures found for locationID: ${locationID}`);
+          return;
+        }
+        if (!grantsFeatures || grantsFeatures.length === 0) {
+          console.warn(`No grantFeatures found for locationID: ${locationID}`);
+          return;
+        }
 
-      // Iterate over filtered works and map them to their locations
-      filteredFeatures.forEach((feature) => {
-        if (!feature.properties || !feature.geometry) return;
-        const geometry = feature.geometry;
-        const entries = feature.properties.entries || [];
+        if(!locationMap.has(locationID)) {
+          locationMap.set(locationID, {
+            geometryType:  worksFeatures[0].geometry.type,
+            coordinates: worksFeatures[0].geometry.coordinates,
+            locationID: worksFeatures[0].properties.locationID,
+            location: locationID,
+            display_name: worksFeatures[0].properties.display_name,
+            country: worksFeatures[0].properties.country,
+            place_rank: worksFeatures[0].properties.place_rank,
+            workIDs: [],
+            grantIDs: [],
+            grantExpertIDs: [],
+            workExpertIDs: [],
+          });
+        }
+        
+        worksFeatures.forEach((workFeature) => {
+          const entries = workFeature.properties.entries || [];
+  
+          if(!showWorks || !showGrants) return;
 
-        if (geometry.type === "Point" || geometry.type === "MultiPoint") {
-          const coordsList = geometry.type === "Point" ? [geometry.coordinates] : geometry.coordinates;
+          // Process each work entry
+          entries.forEach((entry) => {
+            // Generate a unique work ID
+            const workID = `work_${entry.id}`;
+  
+            // Add work to worksMap
+            worksMap.set(workID, {
+              workID: entry.id,
+              title: entry.title || "No Title",
+              abstract: entry.abstract || "No Abstract",
+              issued: entry.issued || "Unknown",
+              confidence: entry.confidence || "Unknown",
+              locationID,
+              relatedExpertIDs: [],
+            });
+  
+            // Add work ID to locationMap
+            locationMap.get(locationID).workIDs.push(workID);
+  
+            // Process related experts
+            (entry.relatedExperts || []).forEach((expert) => {
+              // Generate a unique expert ID if the expert doesn't already exist
+              let expertID = Array.from(expertsMap.entries()).find(
+                ([, value]) => value.fullName === expert.fullName
+              )?.[0];
+  
+              if (!expertID) {
+                expertID = `expert_${expert.id}`;
+                expertsMap.set(expertID, {
+                  id: expert.id,
+                  name: expert.fullName || "Unknown",
+                  url: expert.url || "#",
+                  locationIDs: [],
+                  workIDs: [],
+                  grantIDs: [],
+                });
+              }
+  
+              // Add expert ID to worksMap
+              worksMap.get(workID).relatedExpertIDs.push(expertID);
+  
+              // Add location ID and work ID to expertsMap
+              const expertEntry = expertsMap.get(expertID);
+              if (!expertEntry.locationIDs.includes(locationID)) {
+                expertEntry.locationIDs.push(locationID);
+              }
+              if (!expertEntry.workIDs.includes(workID)) {
+                expertEntry.workIDs.push(workID);
+              }
+  
+              // Add expert ID to locationMap
+              if (!locationMap.get(locationID).workExpertIDs.includes(expertID)) {
+                locationMap.get(locationID).workExpertIDs.push(expertID);
+              }
+          });
+          });
+        });
 
-          coordsList.forEach(([lng, lat]) => {
-            const key = `${lat},${lng}`; // Create a unique key for the location
-            if (!worksLocationMap.has(key)) worksLocationMap.set(key, []); // Initialize location if not present
+        grantsFeatures.forEach((grantFeature) => {
+          const entries = grantFeature.properties.entries || [];
 
-            // Add each entry to the location
+          if(!showWorks || !showGrants) return;
+  
+            // Process each grant entry
             entries.forEach((entry) => {
-              const entryStr = JSON.stringify(entry).toLowerCase();
-              if (keyword && !entryStr.includes(keyword)) return;
-
-              const researcher = entry.relatedExperts?.[0] || {};  // Get the first related expert
-
-              worksLocationMap.get(key).push({
-                researcher_name: researcher.name || "Unknown",
-                researcher_url: researcher.url ? `https://experts.ucdavis.edu/${researcher.url}` : null,
-                location_name: feature.properties.location || "Unknown",
-                work_titles: [entry.title],
-                work_count: 1,
+              // Generate a unique grant ID
+              const grantID = `grant_${entry.id}`;
+              // console.log(`Now storing ${grantID}`);
+              // Add grant to grantsMap
+              grantsMap.set(grantID, {
+                grantID: entry.id || 'Unknown grantID',
+                title: entry.title || "Untitled Grant",
+                funder: entry.funder || "Unknown",
+                startDate: entry.start_date || "Unknown",
+                endDate: entry.end_date || "Unknown",
                 confidence: entry.confidence || "Unknown",
-                type: "expert"
+                locationID,
+                relatedExpertIDs: [],
               });
-            });
-          });
-        }
-      });
-    }
-
-    // Process grants data
-    if (showGrants && grantGeoJSON) {
-      grantGeoJSON.features.forEach((feature) => {
-        if (!feature.geometry || feature.geometry.type !== "Point") return; // Skip invalid features
-        const coords = feature.geometry.coordinates;
-        if (!Array.isArray(coords) || coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) return;
-
-        const [lng, lat] = coords;
-        const key = `${lat},${lng}`; // Create a unique key for the location
-        if (!grantsLocationMap.has(key)) grantsLocationMap.set(key, []);
-
-        const entries = feature.properties.entries || [];  // Get entries for the feature
-
-        // Add each entry to the location
-        entries.forEach((entry) => {
-          const entryStr = JSON.stringify(entry).toLowerCase();
-          if (keyword && !entryStr.includes(keyword)) return;
-
-          entry.location_name = feature.properties.location;
-          entry.researcher_name = entry.relatedExpert?.name || "Unknown";
-          entry.researcher_url = entry.relatedExpert?.url
-            ? `https://experts.ucdavis.edu/${entry.relatedExpert.url}`
-            : null;
-          entry.type = "grant";
-
-          grantsLocationMap.get(key).push(entry);
-        });
-      });
-    }
-
-    // Combine Works and Grants
-    const combinedLocations = new Map();
-
-     // Find overlapping locations and combine works and grants
-    worksLocationMap.forEach((works, locationKey) => {
-      if (grantsLocationMap.has(locationKey) && grantsLocationMap.get(locationKey).length > 0) {
-        combinedLocations.set(locationKey, {
-          works: works,
-          grants: grantsLocationMap.get(locationKey)
-        });
-        grantsLocationMap.delete(locationKey); // Remove from grants map to avoid duplication
-      }
-    });
-
-    // Send combined keys to parent component
-    if (setCombinedKeys) {
-      setCombinedKeys(new Set(combinedLocations.keys()));
-    }
-
-    // Render combined markers
-    combinedLocations.forEach((data, key) => {
-      const [lat, lng] = key.split(",").map(Number); // Parse latitude and longitude
-      const worksCount = data.works.length;
-      const grantsCount = data.grants.length;
-      const totalCount = worksCount + grantsCount;
-      const locationName = data.works[0]?.location_name || data.grants[0]?.location_name || "Unknown";
-
-      // Create a marker for the combined location
-      const marker = L.marker([lat, lng], {
-        icon: L.divIcon({
-          html: `<div style='
-            background-color: #6CCA98;
-            color: white;
-            font-weight: bold;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 4px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease-in-out;
-          '>${totalCount}</div>`,
-          className: "",
-          iconSize: [40, 40]
-        }),
-        works: data.works,
-        grants: data.grants,
-        locationData: {
-          worksCount,
-          grantsCount,
-          locationName
-        }
-      });
-
-      // Create popup content for the marker
-      const createCombinedPopupContent = (worksCount, grantsCount, locationName) => `
-        <div style='padding: 15px; font-size: 14px; width: 250px;'>
-          <div style='font-weight: bold; font-size: 16px; color: #6CCA98;'>Combined Location</div>
-          <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
-          <div style='margin-top: 5px;'>
-            <div style='color: #13639e; display: inline-block; margin-right: 10px;'>
-              <strong>${worksCount}</strong> Works
-            </div>
-            <div style='color: #f59e0b; display: inline-block;'>
-              <strong>${grantsCount}</strong> Grants
-            </div>
-          </div>
-          <a href='#'
-            class='view-combined-btn'
-            style='display: block; margin-top: 12px; padding: 8px 10px; background: #6CCA98; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
-            Open Panel
-          </a>
-        </div>
-      `;
-
-      const popup = L.popup({
-        closeButton: false,
-        autoClose: false,
-        maxWidth: 250,
-        className: 'hoverable-popup',
-        autoPan: false,
-        keepInView: false,
-        interactive: true
-      });
-
-      // Add event listeners for the marker
-      marker.on("mouseover", () => {
-        if (closeTimeout) clearTimeout(closeTimeout);
-        popup.setLatLng(marker.getLatLng())
-          .setContent(createCombinedPopupContent(worksCount, grantsCount, locationName))
-          .openOn(map);
-        activePopup = popup;
-
-        const popupElement = popup.getElement();
-        if (popupElement) {
-          popupElement.style.pointerEvents = 'auto';
-          popupElement.addEventListener("mouseenter", () => clearTimeout(closeTimeout));
-          popupElement.addEventListener("mouseleave", () => {
-            closeTimeout = setTimeout(() => {
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
-            }, 500);
-          });
-
-          const viewBtn = popupElement.querySelector(".view-combined-btn");
-          if (viewBtn) {
-            viewBtn.addEventListener("click", (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSelectedWorks(data.works);
-              setSelectedGrants(data.grants);
-              setPanelType("combined");
-              setPanelOpen(true);
-              if (activePopup) {
-                activePopup.close();
-                activePopup = null;
-              }
+  
+              // Add grant ID to locationMap
+              locationMap.get(locationID).grantIDs.push(grantID);
+  
+              // Process related expert
+              if (entry.relatedExperts) {
+                entry.relatedExperts.forEach((expert) => {
+                  const expertName = expert.fullName;
+                  const expertURL = expert.url;
+  
+                  // Generate a unique expert ID if the expert doesn't already exist
+                  let expertID = Array.from(expertsMap.entries()).find(
+                    ([, value]) => value.name === expertName
+                  )?.[0];
+  
+                  if (!expertID) {
+                    expertID = `expert_${expert.id}`;
+                    expertsMap.set(expertID, {
+                    id: expert.id || 'Unknown ID',
+                    name: expertName || "Unknown",
+                    url: expertURL || "#",
+                    locationIDs: [],
+                    grantIDs: [],
+                    });
+                  }
+  
+                  // Add expert ID to grantsMap
+                  if (!grantsMap.get(grantID).relatedExpertIDs.includes(expertID)) {
+                    grantsMap.get(grantID).relatedExpertIDs.push(expertID);
+                  }
+                  // Add location ID and grant ID to expertsMap
+                  const expertEntry = expertsMap.get(expertID);
+                  if (!expertEntry.locationIDs.includes(locationID)) {
+                    expertEntry.locationIDs.push(locationID);
+                  }
+                  if (!expertEntry.grantIDs.includes(grantID)) {
+                    expertEntry.grantIDs.push(grantID);
+                  }
+  
+                  // Add expert ID to locationMap
+                  if (!locationMap.get(locationID).grantExpertIDs.includes(expertID)) {
+                    locationMap.get(locationID).grantExpertIDs.push(expertID);
+                  }
+                  
             });
           }
-        }
+            });
+          });
+
+      });
+      
+      renderPolygons({
+        locationMap,
+        worksMap,
+        grantsMap,
+        expertsMap,
+        map,
+        setSelectedGrants,
+        setSelectedWorks,
+        setLocationName,
+        setPanelOpen,
+        setPanelType,
+        comboLayers,
+        comboPolyMarkers,
       });
 
-      marker.on("mouseout", () => {
-        closeTimeout = setTimeout(() => {
-          if (activePopup) {
-            activePopup.close();
-            activePopup = null;
-          }
-        }, 500);
+      renderPoints({
+        locationMap,
+        worksMap,
+        grantsMap,
+        expertsMap,
+        map,
+        comboMarkerGroup,
+        setSelectedGrants,
+        setSelectedWorks,
+        setLocationName,
+        setPanelOpen,
+        setPanelType,
       });
 
-      marker.addTo(map); // Add marker to the map
-      markers.push(marker);  // Store marker for cleanup
-    });
-
+      
+      //   locationMap,
+      //   worksMap,
+      //   grantsMap,
+      //   expertsMap,
+      //   map,
+      //   comboMarkerGroup,
+      //   setSelectedGrants,
+      //   setSelectedWorks,
+      //   setPanelOpen,
+      //   setPanelType,
+      // });
+    }
+    
+    // Cleanup function to remove layers and markers
     return () => {
-      markers.forEach((marker) => map.removeLayer(marker));
+      map.removeLayer(comboMarkerGroup);
+      comboLayers.forEach((layer) => map.removeLayer(layer));
+      comboPolyMarkers.forEach((marker) => map.removeLayer(marker));
     };
-  }, [map, geoData, grantGeoJSON, showWorks, showGrants, searchKeyword, setSelectedWorks, setSelectedGrants, setPanelOpen, setPanelType, setCombinedKeys]);
-
+  }, [
+    map,
+    overlappingLocations,
+    showWorks,
+    showGrants,
+    setCombinedKeys,
+    combinedKeys,
+    setLocationName,
+  ]);
+  
+  // This component does not render any JSX
   return null;
 };
 
 export default CombinedLayer;
-

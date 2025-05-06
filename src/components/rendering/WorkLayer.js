@@ -76,8 +76,8 @@ const renderPolygons = ({
     );
 
     const polygon = L.polygon(flippedCoordinates, {
-      color: "#517CDC",
-      fillColor: "#547fee",
+      color: "#3879C7",
+      fillColor: "#4783CB",
       fillOpacity: 0.6,
       weight: 2,
     }).addTo(map);
@@ -91,7 +91,7 @@ const renderPolygons = ({
     const marker = L.marker(polygonCenter, {
       icon: L.divIcon({
         html: `<div style='
-          background: #2a60d5;
+          background: #3879C7;
           color: white;
           border-radius: 50%;
           width: 30px;
@@ -151,7 +151,7 @@ const renderPolygons = ({
 
         const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
         if (viewWPolyExpertsBtn) {
-          // console.log('View Experts was pushed on a polygon!');
+          // // console.log('View Experts was pushed on a polygon!');
           viewWPolyExpertsBtn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -163,7 +163,7 @@ const renderPolygons = ({
               worksMap,
               locationID // Pass the current locationID
             );
-            console.log("Panel Data for Polygon:", panelData); // Debugging log
+            // console.log("Panel Data for Polygon:", panelData); // Debugging log
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
             setPanelOpen(true);
@@ -211,7 +211,7 @@ const renderPoints = ({
 
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #2a60d5; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.expertIDs.length}</div>`,
+        html: `<div style='background: #3879C7; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.expertIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
@@ -259,7 +259,7 @@ const renderPoints = ({
   
           const viewWPointExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
           if (viewWPointExpertsBtn) {
-            // console.log('View Experts was pushed on a point!');
+            // // console.log('View Experts was pushed on a point!');
             viewWPointExpertsBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -271,7 +271,7 @@ const renderPoints = ({
                 worksMap,
                 locationID // Pass the current locationID
               );
-              console.log("Panel Data for Marker:", panelData); // Debugging log
+              // console.log("Panel Data for Marker:", panelData); // Debugging log
               setSelectedWorks(panelData); // Pass the prepared data to the panel
               setPanelType("works");
               setPanelOpen(true);
@@ -330,14 +330,14 @@ const WorkLayer = ({
           .reduce((sum, marker) => sum + marker.options.expertCount, 0);
 
         return L.divIcon({
-          html: `<div style="background: #2a60d5; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
+          html: `<div style="background: #3879C7; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
           className: "custom-cluster-icon",
           iconSize: L.point(40, 40),
         });
       },
     });
 
-    console.log("WorkLayer - combinedKeys:", Array.from(combinedKeys));
+    // console.log("WorkLayer - combinedKeys:", Array.from(combinedKeys));
 
     const locationMap = new Map();
     const worksMap = new Map();
@@ -350,12 +350,12 @@ const WorkLayer = ({
 
     nonOverlappingWorks.forEach((workLocation) => {
       const { location, worksFeatures } = workLocation; // Destructure the object
-      console.log(`Location: ${location}`);
-      console.log(`Works Features:`, worksFeatures);
+      // console.log(`Location: ${location}`);
+      // console.log(`Works Features:`, worksFeatures);
     
       // Iterate over worksFeatures if needed
       worksFeatures.forEach((workFeature) => {
-        console.log(`Work Feature:`, workFeature);
+        // console.log(`Work Feature:`, workFeature);
         // Add any additional processing logic here
         const geometry = workFeature.geometry;
         const entries = workFeature.properties.entries || [];
@@ -364,7 +364,7 @@ const WorkLayer = ({
         if(!showWorks) return;
         // Skip rendering if the location overlaps with combinedKeys
         if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-          console.log(`WorkLayer - Skipping popup for overlapping location: ${location}`);
+          // console.log(`WorkLayer - Skipping popup for overlapping location: ${location}`);
           return;
         }
         // Generate a unique location ID
@@ -391,6 +391,7 @@ const WorkLayer = ({
 
           // Add work to worksMap
           worksMap.set(workID, {
+            workID: entry.id,
             title: entry.title || "No Title",
             abstract: entry.abstract || "No Abstract",
             issued: entry.issued || "Unknown",

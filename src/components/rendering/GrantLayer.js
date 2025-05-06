@@ -33,17 +33,17 @@ const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locat
   })
   .filter((grant) => {
     if (!grant) return false;
-    if (!grant.relatedExperts) {
-      console.warn(`Grant with ID ${grant.grantID} has no relatedExperts.`);
+    if (!grant.relatedExpertIDs) {
+      console.warn(`Grant with ID ${grant.grantID} has no relatedExpertIDs.`);
       return false;
     }
-    if (grant.relatedExpertID !== expertID) {
+    if (!grant.relatedExpertIDs.includes(expertID)) {
       console.warn(
-        `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertID}, which does not match expertID ${expertID}.`
+        `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertIDs}, which does not match expertID ${expertID}.`
       );
       return false;
     }
-    if (grant.locationID !== locationID) {
+    if (!grant.locationID.includes(locationID)) {
       console.warn(
         `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
       );
@@ -101,8 +101,8 @@ const renderPolygons = ({
     );
 
     const polygon = L.polygon(flippedCoordinates, {
-      color: "#DCB151",
-      fillColor: "#EEC254",
+      color: "#eda012",
+      fillColor: "#efa927",
       fillOpacity: 0.5,
       weight: 2,
     }).addTo(map);
@@ -116,7 +116,7 @@ const renderPolygons = ({
     const marker = L.marker(polygonCenter, {
         icon: L.divIcon({
             html: `<div style='
-              background: #D59F2A;
+              background: #eda012;
               color: white;
               border-radius: 50%;
               width: 30px;
@@ -140,6 +140,7 @@ const renderPolygons = ({
     marker.on("mouseover", () => {
       if (closeTimeout) clearTimeout(closeTimeout);
       const content = createMultiGrantPopup(
+        locationData.expertIDs.length,
         locationData.grantIDs.length,
         locationData.name
       );
@@ -232,7 +233,7 @@ const renderPoints = ({
 
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #D59F2A; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
+        html: `<div style='background: #eda012; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
@@ -277,7 +278,7 @@ const renderPoints = ({
   
           const viewWPointExpertsBtn = popupElement.querySelector(".view-g-experts-btn");
           if (viewWPointExpertsBtn) {
-            // console.log('View Experts was pushed on a point!');
+            // // console.log('View Experts was pushed on a point!');
             viewWPointExpertsBtn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -350,7 +351,7 @@ const GrantLayer = ({
               .reduce((sum, marker) => sum + marker.options.expertCount, 0);
     
             return L.divIcon({
-              html: `<div style="background: #D59F2A; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
+              html: `<div style="background: #eda012; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
               className: "custom-cluster-icon",
               iconSize: L.point(40, 40),
             });
@@ -365,21 +366,21 @@ const GrantLayer = ({
 
 
     // Populate locationMap, grantsMap, and expertsMap
-    console.log('Entering Grant Processing...');
+    // console.log('Entering Grant Processing...');
     nonOverlappingGrants.forEach((grantLocation) => {
       const { location, grantsFeatures } = grantLocation; // Destructure the object
-      console.log(`Location: ${location}`);
-      console.log(`Works Features:`, grantsFeatures);
+      // console.log(`Location: ${location}`);
+      // console.log(`Works Features:`, grantsFeatures);
       
       // Iterate over worksFeatures if needed
       grantsFeatures.forEach((grantFeature) => {
-        console.log(`Work Feature:`, grantFeature);
+        // console.log(`Work Feature:`, grantFeature);
         const geometry = grantFeature.geometry;
         const entries = grantFeature.properties.entries || [];
         const location = grantFeature.properties.location || "Unknown";
         if(!showGrants) return;
         if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-          console.log(`grantLayer - Skipping popup for overlapping location: ${location}`);
+          // console.log(`grantLayer - Skipping popup for overlapping location: ${location}`);
           return;
         }
           // Generate a unique location ID
@@ -403,17 +404,17 @@ const GrantLayer = ({
           entries.forEach((entry) => {
             // Generate a unique grant ID
             const grantID = `grant_${entry.id}`;
-            console.log(`Now storing ${grantID}`);
+            // console.log(`Now storing ${grantID}`);
             // Add grant to grantsMap
             grantsMap.set(grantID, {
-              id: entry.id || 'Unknown grantID',
+              grantID: entry.id || 'Unknown grantID',
               title: entry.title || "Untitled Grant",
               funder: entry.funder || "Unknown",
               startDate: entry.start_date || "Unknown",
               endDate: entry.end_date || "Unknown",
               confidence: entry.confidence || "Unknown",
               locationID,
-              relatedExperts: entry.relatedExperts || null,
+              relatedExpertIDs: [],
             });
 
             // Add grant ID to locationMap
@@ -421,9 +422,9 @@ const GrantLayer = ({
 
             // Process related expert
             if (entry.relatedExperts) {
-              entry.relatedExperts.forEach((relatedExpert) => {
-                const expertName = relatedExpert.fullName;
-                const expertURL = relatedExpert.url;
+              entry.relatedExperts.forEach((expert) => {
+                const expertName = expert.fullName;
+                const expertURL = expert.url;
 
                 // Generate a unique expert ID if the expert doesn't already exist
                 let expertID = Array.from(expertsMap.entries()).find(
@@ -431,9 +432,9 @@ const GrantLayer = ({
                 )?.[0];
 
                 if (!expertID) {
-                  expertID = `expert_${relatedExpert.id}`;
+                  expertID = `expert_${expert.id}`;
                   expertsMap.set(expertID, {
-                  id: relatedExpert.id || 'Unknown ID',
+                  id: expert.id || 'Unknown ID',
                   name: expertName || "Unknown",
                   url: expertURL || "#",
                   locationIDs: [],
@@ -442,8 +443,9 @@ const GrantLayer = ({
                 }
 
                 // Add expert ID to grantsMap
-                grantsMap.get(grantID).relatedExpertID = expertID;
-
+                if (!grantsMap.get(grantID).relatedExpertIDs.includes(expertID)) {
+                  grantsMap.get(grantID).relatedExpertIDs.push(expertID);
+                }
                 // Add location ID and grant ID to expertsMap
                 const expertEntry = expertsMap.get(expertID);
                 if (!expertEntry.locationIDs.includes(locationID)) {

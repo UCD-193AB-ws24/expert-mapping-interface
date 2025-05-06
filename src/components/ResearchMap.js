@@ -5,9 +5,9 @@ import MapWrapper from "./MapContainer";
 import processGeoJSONData from "./rendering/ProcessGeoJSON";
 import WorkLayer from "./rendering/WorkLayer";
 import GrantLayer from "./rendering/GrantLayer";
-// import CombinedLayer from "./rendering/CombinedLayer";
+import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel } from "./rendering/Panels";
-// import { CombinedPanel } from "./rendering/CombinedPanel";
+import { CombinedPanel } from "./rendering/CombinedPanel";
 
 /**
  * ResearchMap Component
@@ -72,7 +72,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           }),
         ])
           .then(([worksData, grantsData]) => {
-            console.log("Converting data to GeoJSON format...");
+            // console.log("Converting data to GeoJSON format...");
             // Process works data into GeoJSON format.
             const processedWorksData = {
               type: "FeatureCollection",
@@ -186,8 +186,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     const validGrantGeoJSON = dateFilteredGrantGeoJSON || { type: "FeatureCollection", features: [] };
 
     // Debugging logs to check the structure of the filtered data
-    console.log("Filtered Work GeoJSON:", validWorkGeoJSON);
-    console.log("Filtered Grant GeoJSON:", validGrantGeoJSON);
+    // console.log("Filtered Work GeoJSON:", validWorkGeoJSON);
+    // console.log("Filtered Grant GeoJSON:", validGrantGeoJSON);
 
     // Call processGeoJSONData with validated inputs
     const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
@@ -196,27 +196,30 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
         showWorks,
         showGrants
     );
-    console.log("Non-overlapping work features:",  nonOverlappingWorks);
-    console.log("Non-overlapping grant features:",  nonOverlappingGrants);
+    // console.log("Non-overlapping work features:",  nonOverlappingWorks);
+    // console.log("Non-overlapping grant features:",  nonOverlappingGrants);
+    console.log('Overlapping Locations:', overlappingLocations);
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
           {/* Combined location layer must come first to handle overlaps */}
-          {/* {showWorks && showGrants && (
+          {showWorks && showGrants && (
             <CombinedLayer
-              overlappingLocations={overlappingLocations}
-              showWorks={showWorks}
-              showGrants={showGrants}
-              searchKeyword={searchKeyword}
-              setSelectedWorks={setSelectedWorks}
-              setSelectedGrants={setSelectedGrants}
-              setPanelOpen={setPanelOpen}
-              setPanelType={setPanelType}
-              setCombinedKeys={setCombinedKeys}
+            overlappingLocations={overlappingLocations}
+            showWorks={showWorks}
+            showGrants={showGrants}
+            setSelectedWorks={setSelectedWorks}
+            setSelectedGrants={setSelectedGrants}
+            setPanelOpen={setPanelOpen}
+            setPanelType={setPanelType}
+            setCombinedKeys={setCombinedKeys}
+            combinedKeys={combinedKeys}
+            setLocationName={setLocationName}
+            searchKeyword={searchKeyword}
             />
-          )} */}
-          {/* <CombinedPolygonLayer
+          )}
+          {/* <CombinedLayer
             workGeoJSON={dateFilteredWorkGeoJSON}
             grantGeoJSON={dateFilteredGrantGeoJSON}
             showWorks={showWorks}
@@ -284,7 +287,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               width: "40px",
               height: "40px",
               border: "4px solid #f3f3f3",
-              borderTop: "4px solid #13639e",
+              borderTop: "4px solid #3879C7",
               borderRadius: "50%",
               animation: "spin 1s linear infinite",
             }}
@@ -321,7 +324,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
 
       {panelOpen && panelType === "works" && (
         <>
-          {console.log("Selected Works Data:", selectedWorks)} {/* Debugging log */}
+          {/* {console.log("Selected Works Data:", selectedWorks)} Debugging log */}
           <WorksPanel
             works={selectedWorks} // Pass the array of work objects
             onClose={() => setPanelOpen(false)}
