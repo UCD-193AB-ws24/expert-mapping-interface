@@ -58,13 +58,13 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
       try {
         // Fetch data from two different APIs concurrently
         Promise.all([
-          fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
+          fetch(`${process.env.PUBLIC_URL}/features/worksFeatures.json`).then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
           }),
-          fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
+          fetch(`${process.env.PUBLIC_URL}/features/grantsFeatures.json`).then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -72,27 +72,26 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           }),
         ])
           .then(([worksData, grantsData]) => {
-            // console.log("Converting data to GeoJSON format...");
             // Process works data into GeoJSON format.
             const processedWorksData = {
               type: "FeatureCollection",
               features: worksData.features.map((feature) => ({
-                ...feature,
-                properties: {
-                  ...feature.properties,
-                  entries: feature.properties.entries || [],
-                },
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: feature.properties.entries || [],
+          },
               })),
             };
             // Process grants data into GeoJSON format.
             const processedGrantsData = {
               type: "FeatureCollection",
               features: grantsData.features.map((feature) => ({
-                ...feature,
-                properties: {
-                  ...feature.properties,
-                  entries: feature.properties.entries || [],
-                },
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: feature.properties.entries || [],
+          },
               })),
             };
             setWorkGeoJSON(processedWorksData);
@@ -102,7 +101,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           .catch((error) => {
             console.error("Error fetching data:", error);
             setIsLoading(false);
-            setError("Failed to load map data. Please ensure the API server is running on port 3001.");
+            setError("Failed to load map data. Please ensure the files exist in the public/features folder.");
           });
       } catch (err) {
         console.error(" Error loading geojson:", err);
@@ -198,7 +197,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     );
     // console.log("Non-overlapping work features:",  nonOverlappingWorks);
     // console.log("Non-overlapping grant features:",  nonOverlappingGrants);
-    console.log('Overlapping Locations:', overlappingLocations);
+    // console.log('Overlapping Locations:', overlappingLocations);
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
