@@ -56,7 +56,7 @@ const renderPolygons = ({
     });
 
   sortedPolygons.forEach(([locationID, locationData]) => {
-    console.log("Processing locationData:", locationData);
+    // console.log("Processing locationData:", locationData);
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
@@ -211,9 +211,7 @@ const renderPolygons = ({
               locationID
             );
             setSelectedGrants(grantPanelData);
-            console.log('Grant panel data:', grantPanelData);
             setSelectedWorks(workPanelData);
-            console.log('Work panel data:', workPanelData);
             setPanelType("combined");
             setPanelOpen(true);
 
@@ -410,7 +408,7 @@ const CombinedLayer = ({
   useEffect(() => {
     // Exit early if map or overlappingLocations is not available
     if (!map || !overlappingLocations) return;
-    console.log('Entering the CombinedLayer...');
+    // console.log('Entering the CombinedLayer...');
     // Update the combinedKeys state if overlapping locations have changed
     const newCombinedKeys = new Set(overlappingLocations);
     const currentKeysString = JSON.stringify(Array.from(newCombinedKeys));
@@ -420,7 +418,7 @@ const CombinedLayer = ({
       console.log("Updating combinedKeys:", overlappingLocations);
       setCombinedKeys(newCombinedKeys);
     } else {
-      console.log("combinedKeys unchanged.");
+      console.log("CombinedKeys unchanged.");
     }
 
     const locationMap = new Map();
@@ -453,7 +451,7 @@ const CombinedLayer = ({
       overlappingLocations.forEach((locationData) => {
         const { location, worksFeatures, grantsFeatures } = locationData;
         const locationID = location;
-        console.log('Processing locationID: ', locationID, '...');
+        // console.log('Processing locationID: ', locationID, '...');
         
         // Check if workFeatures and grantFeatures are defined and not empty
         if (!worksFeatures || worksFeatures.length === 0) {
