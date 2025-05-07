@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { createCombinedPopup, createMatchedCombinedPolygonPopup } from "./Popups";
 import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
+import { filterOverlappingLocationsByZoom } from "./filters/zoomFilter";
 /**
  * CombinedLayer Component
  * 
@@ -401,13 +402,49 @@ const CombinedLayer = ({
 }) => {
   // Access the Leaflet map instance from react-leaflet's useMap hook
   const map = useMap();
+  const [filteredOverlappingLocations, setFilteredOverlappingLocations] = useState(overlappingLocations);
 
-  // Ref to store the polygon layers added to the map
-  // const polygonLayersRef = useRef([]);
+  // Define handleZoomEnd outside the useEffect
+  const handleZoomEnd = () => {
+    const zoomLevel = map.getZoom();
+    console.log("Zoom level in GrantLayer:", zoomLevel);
+
+    const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
+    console.log("Zoom Filtered Works:", zoomFilteredFeatures);
+
+    setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
+  };
+
+  useEffect(() => {
+    if (!map || !overlappingLocations) {
+      console.error("Error: No Works found!");
+      return;
+    }
+
+    const handleZoomEnd = () => {
+      const zoomLevel = map.getZoom();
+      console.log("Zoom level in GrantLayer:", zoomLevel);
+
+      const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
+      console.log("Zoom Filtered Works:", zoomFilteredFeatures);
+
+      setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
+    };
+    
+    map.on("zoomend", handleZoomEnd);
+
+    // Apply the filter initially
+    handleZoomEnd();
+
+    return () => {
+      map.off("zoomend", handleZoomEnd);
+    };
+  }, [map, overlappingLocations]);
+
 
   useEffect(() => {
     // Exit early if map or overlappingLocations is not available
-    if (!map || !overlappingLocations) return;
+    if (!map || !filteredOverlappingLocations) return;
     // console.log('Entering the CombinedLayer...');
     // Update the combinedKeys state if overlapping locations have changed
     const newCombinedKeys = new Set(overlappingLocations);
@@ -448,7 +485,7 @@ const CombinedLayer = ({
   
     if (showWorks && showGrants) {
       // Render overlapping locations
-      overlappingLocations.forEach((locationData) => {
+      filteredOverlappingLocations.forEach((locationData) => {
         const { location, worksFeatures, grantsFeatures } = locationData;
         const locationID = location;
         // console.log('Processing locationID: ', locationID, '...');
@@ -662,10 +699,11 @@ const CombinedLayer = ({
       map.removeLayer(comboMarkerGroup);
       comboLayers.forEach((layer) => map.removeLayer(layer));
       comboPolyMarkers.forEach((marker) => map.removeLayer(marker));
+      map.off("zoomend", handleZoomEnd);
     };
   }, [
     map,
-    overlappingLocations,
+    filteredOverlappingLocations,
     showWorks,
     showGrants,
     setCombinedKeys,

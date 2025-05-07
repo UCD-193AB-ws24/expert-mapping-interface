@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
-
 import { createMultiExpertContent } from "./Popups";
+import { filterFeaturesByZoom } from "./filters/zoomFilter";
 
 /**
  * Helper function to prepare panel data.
@@ -313,16 +313,56 @@ const WorkLayer = ({
   combinedKeys,
 }) => {
   const map = useMap();
+  const [filteredWorks, setFilteredWorks] = useState(nonOverlappingWorks);
+    
+    // Define handleZoomEnd outside the useEffect
+    const handleZoomEnd = () => {
+      if (!map || !nonOverlappingWorks) return;
+  
+      const zoomLevel = map.getZoom();
+      console.log("Zoom level in WorkLayer:", zoomLevel);
+  
+      const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
+      console.log("Zoom Filtered Works:", zoomFilteredWorks);
+  
+      setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
+    };
+
+    useEffect(() => {
+      if (!map || !nonOverlappingWorks) {
+        console.error("Error: No Works found!");
+        return;
+      }
+  
+      const handleZoomEnd = () => {
+        const zoomLevel = map.getZoom();
+        console.log("Zoom level in GrantLayer:", zoomLevel);
+  
+        const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
+        console.log("Zoom Filtered Works:", zoomFilteredWorks);
+  
+        setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
+      };
+
+      map.on("zoomend", handleZoomEnd);
+  
+      // Apply the filter initially
+      handleZoomEnd();
+  
+      return () => {
+        map.off("zoomend", handleZoomEnd);
+      };
+    }, [map, nonOverlappingWorks]);
 
   useEffect(() => {
-    if (!map || !nonOverlappingWorks || !nonOverlappingWorks.length) {
+    if (!map || !filteredWorks || !filteredWorks.length) {
       console.error('Error: No works found!');
       return;
     } 
 
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
-      maxClusterRadius: 40,
+      maxClusterRadius: 100,
       spiderfyOnMaxZoom: false,
       iconCreateFunction: (cluster) => {
         const totalExperts = cluster
@@ -348,7 +388,7 @@ const WorkLayer = ({
     // let workIDCounter = 1;
     // let expertIDCounter = 1;
 
-    nonOverlappingWorks.forEach((workLocation) => {
+    filteredWorks.forEach((workLocation) => {
       const { location, worksFeatures } = workLocation; // Destructure the object
       // console.log(`Location: ${location}`);
       // console.log(`Works Features:`, worksFeatures);
@@ -471,10 +511,11 @@ const WorkLayer = ({
       map.removeLayer(markerClusterGroup);
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
+      map.off("zoomend", handleZoomEnd);
     };
   }, [
     map,
-    nonOverlappingWorks,
+    filteredWorks,
     showWorks,
     showGrants,
     setSelectedWorks,

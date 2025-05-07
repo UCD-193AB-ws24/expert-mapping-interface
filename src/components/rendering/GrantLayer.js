@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { createMultiGrantPopup, createMatchedGrantPopup } from "./Popups";
-
+import  { filterFeaturesByZoom } from "./filters/zoomFilter";
 /**
  * Helper function to prepare panel data for grants.
  */
@@ -330,13 +330,53 @@ const GrantLayer = ({
   combinedKeys,
 }) => {
   const map = useMap();
+  const [filteredGrants, setFilteredGrants] = useState(nonOverlappingGrants);
+  
+  // Define handleZoomEnd outside the useEffect
+  const handleZoomEnd = () => {
+    if (!map || !nonOverlappingGrants) return;
+
+    const zoomLevel = map.getZoom();
+    console.log("Zoom level in GrantLayer:", zoomLevel);
+
+    const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
+    console.log("Zoom Filtered Grants:", zoomFilteredGrants);
+
+    setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
+  };
 
   useEffect(() => {
     if (!map || !nonOverlappingGrants) {
-      console.error('Error: No grants found!');
+      console.error("Error: No grants found!");
       return;
     }
 
+    const handleZoomEnd = () => {
+      const zoomLevel = map.getZoom();
+      // console.log("Zoom level in GrantLayer:", zoomLevel);
+
+      const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
+      // console.log("Zoom Filtered Grants:", zoomFilteredGrants);
+
+      setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
+    };
+
+    map.on("zoomend", handleZoomEnd);
+
+    // Apply the filter initially
+    handleZoomEnd();
+
+    return () => {
+      map.off("zoomend", handleZoomEnd);
+    };
+  }, [map, nonOverlappingGrants]);
+
+  useEffect(() => {
+    if (!map || !filteredGrants) {
+      console.error("Error: No filtered grants found!");
+      return;
+    }
+    
     const locationMap = new Map();
     const grantsMap = new Map();
     const expertsMap = new Map();
@@ -364,10 +404,10 @@ const GrantLayer = ({
     // let grantIDCounter = 1;
     // let expertIDCounter = 1;
 
-
+    // console.log('Before entering loop, here is the filtered grants:',filteredGrants);
     // Populate locationMap, grantsMap, and expertsMap
     // console.log('Entering Grant Processing...');
-    nonOverlappingGrants.forEach((grantLocation) => {
+    filteredGrants.forEach((grantLocation) => {
       const { location, grantsFeatures } = grantLocation; // Destructure the object
       // console.log(`Location: ${location}`);
       // console.log(`Works Features:`, grantsFeatures);
@@ -495,8 +535,9 @@ const GrantLayer = ({
       map.removeLayer(grantMarkerGroup);
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
+      map.off("zoomend", handleZoomEnd);
     };
-  }, [map, nonOverlappingGrants, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
+  }, [map, filteredGrants, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
 
   return null;
 };
