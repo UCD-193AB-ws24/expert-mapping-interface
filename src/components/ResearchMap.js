@@ -8,6 +8,7 @@ import GrantLayer from "./rendering/GrantLayer";
 import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel } from "./rendering/Panels";
 import { CombinedPanel } from "./rendering/CombinedPanel";
+import { matchesKeyword } from "./filters/searchFilter";
 
 /**
  * ResearchMap Component
@@ -72,26 +73,27 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           }),
         ])
           .then(([worksData, grantsData]) => {
+            // console.log("Converting data to GeoJSON format...");
             // Process works data into GeoJSON format.
             const processedWorksData = {
               type: "FeatureCollection",
               features: worksData.features.map((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            entries: feature.properties.entries || [],
-          },
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: feature.properties.entries || [],
+                },
               })),
             };
             // Process grants data into GeoJSON format.
             const processedGrantsData = {
               type: "FeatureCollection",
               features: grantsData.features.map((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            entries: feature.properties.entries || [],
-          },
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: feature.properties.entries || [],
+                },
               })),
             };
             setWorkGeoJSON(processedWorksData);
@@ -101,7 +103,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           .catch((error) => {
             console.error("Error fetching data:", error);
             setIsLoading(false);
-            setError("Failed to load map data. Please ensure the files exist in the public/features folder.");
+            setError("Failed to load map data. Please ensure the API server is running on port 3001.");
           });
       } catch (err) {
         console.error(" Error loading geojson:", err);
@@ -123,7 +125,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     const issuedYear = parseInt(entry.issued, 10);
     return issuedYear >= selectedDateRange[0] && issuedYear <= selectedDateRange[1];
   };
-  
+
   /**
    * Helper function to filter grants by start or end date.
    * 
@@ -140,6 +142,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
       (!isNaN(end) && end >= minYear && end <= maxYear)
     );
   };
+
   // Filter workGeoJSON by date
   const dateFilteredWorkGeoJSON = workGeoJSON
     ? {
@@ -155,7 +158,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             },
           };
         })
-        .filter((f) => f.properties.entries.length > 0),
+        .filter((f) => f.properties.entries.length > 0)
     }
     : null;
 
@@ -180,58 +183,98 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     : null;
   ;
 
-    // Validate filtered GeoJSON data before passing to processGeoJSONData
-    const validWorkGeoJSON = dateFilteredWorkGeoJSON || { type: "FeatureCollection", features: [] };
-    const validGrantGeoJSON = dateFilteredGrantGeoJSON || { type: "FeatureCollection", features: [] };
+  // Apply keyword filter on top of date filter
+  const keywordFilteredWorkGeoJSON = dateFilteredWorkGeoJSON
+    ? {
+      ...dateFilteredWorkGeoJSON,
+      features: dateFilteredWorkGeoJSON.features
+        .map((feature) => {
+          const filteredEntries = (feature.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, entry));
+          return {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              entries: filteredEntries,
+            },
+          };
+        })
+        .filter((f) => f.properties.entries.length > 0)
+    }
+    : null;
 
-    // Debugging logs to check the structure of the filtered data
-    // console.log("Filtered Work GeoJSON:", validWorkGeoJSON);
-    // console.log("Filtered Grant GeoJSON:", validGrantGeoJSON);
+  // Apply keyword filter on top of date filter
+  const keywordFilteredGrantGeoJSON = dateFilteredGrantGeoJSON
+    ? {
+      ...dateFilteredGrantGeoJSON,
+      features: dateFilteredGrantGeoJSON.features
+        .map((feature) => {
+          // pass isGrantInDate directly
+          const filteredEntries = (feature.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, entry));
+          return {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              entries: filteredEntries,
+            },
+          };
+        })
+        .filter(f => f.properties.entries && f.properties.entries.length > 0)
+    }
+    : null;
+  ;
 
-    // Call processGeoJSONData with validated inputs
-    const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
-        validWorkGeoJSON,
-        validGrantGeoJSON,
-        showWorks,
-        showGrants
-    );
-    // console.log("Non-overlapping work features:",  nonOverlappingWorks);
-    // console.log("Non-overlapping grant features:",  nonOverlappingGrants);
-    // console.log('Overlapping Locations:', overlappingLocations);
+  // Validate filtered GeoJSON data before passing to processGeoJSONData
+  const validWorkGeoJSON = keywordFilteredWorkGeoJSON || { type: "FeatureCollection", features: [] };
+  const validGrantGeoJSON = keywordFilteredGrantGeoJSON || { type: "FeatureCollection", features: [] };
+
+  // Debugging logs to check the structure of the filtered data
+  // console.log("Filtered Work GeoJSON:", validWorkGeoJSON);
+  // console.log("Filtered Grant GeoJSON:", validGrantGeoJSON);
+
+  // Call processGeoJSONData with validated inputs
+  const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
+    validWorkGeoJSON,
+    validGrantGeoJSON,
+    showWorks,
+    showGrants
+  );
+  // console.log("Non-overlapping work features:", nonOverlappingWorks);
+  // console.log("Non-overlapping grant features:", nonOverlappingGrants);
+  // console.log('Overlapping Locations:', overlappingLocations);
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
           {/* Combined location layer must come first to handle overlaps */}
-          {showWorks && showGrants && (
+          {((showWorks && showGrants) || searchKeyword) && (
             <CombinedLayer
-            overlappingLocations={overlappingLocations}
-            showWorks={showWorks}
-            showGrants={showGrants}
-            setSelectedWorks={setSelectedWorks}
-            setSelectedGrants={setSelectedGrants}
-            setPanelOpen={setPanelOpen}
-            setPanelType={setPanelType}
-            setCombinedKeys={setCombinedKeys}
-            combinedKeys={combinedKeys}
-            setLocationName={setLocationName}
-            searchKeyword={searchKeyword}
+              overlappingLocations={overlappingLocations}
+              showWorks={showWorks}
+              showGrants={showGrants}
+              setSelectedWorks={setSelectedWorks}
+              setSelectedGrants={setSelectedGrants}
+              setPanelOpen={setPanelOpen}
+              setPanelType={setPanelType}
+              setCombinedKeys={setCombinedKeys}
+              combinedKeys={combinedKeys}
+              setLocationName={setLocationName}
+              searchKeyword={searchKeyword}
             />
           )}
           {/* <CombinedLayer
-            workGeoJSON={dateFilteredWorkGeoJSON}
-            grantGeoJSON={dateFilteredGrantGeoJSON}
-            showWorks={showWorks}
-            showGrants={showGrants}
-            setSelectedWorks={setSelectedWorks}
-            setSelectedGrants={setSelectedGrants}
-            setPanelOpen={setPanelOpen}
-            setPanelType={setPanelType}
-            setCombinedKeys={setCombinedKeys}
-            combinedKeys={combinedKeys}
-            setLocationName={setLocationName}
-            searchKeyword={searchKeyword}
-          /> */}
+          workGeoJSON={dateFilteredWorkGeoJSON}
+          grantGeoJSON={dateFilteredGrantGeoJSON}
+          showWorks={showWorks}
+          showGrants={showGrants}
+          setSelectedWorks={setSelectedWorks}
+          setSelectedGrants={setSelectedGrants}
+          setPanelOpen={setPanelOpen}
+          setPanelType={setPanelType}
+          setCombinedKeys={setCombinedKeys}
+          combinedKeys={combinedKeys}
+          setLocationName={setLocationName}
+          searchKeyword={searchKeyword}
+        /> */}
           {/* Regular works layer */}
           {(showWorks || searchKeyword) && (
             <WorkLayer
@@ -243,7 +286,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
-              
+
             />
           )}
           {/* Regular grants layer */}
@@ -316,9 +359,18 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
         </div>
       )}
 
+      {/* Bug: Panels not display experts when keyword is in a hidden data field
+           - Temp fix: pass in keyword = null (selectedWorks/selectedGrants already got filtered ?)
+           - Need: Add more to searchableText in filteredExperts in Panels.js ?
+      */}
+
       {/* Panels */}
       {panelOpen && (panelType === "grants" || panelType === "grant-polygon") && (
-        <GrantsPanel grants={selectedGrants} onClose={() => setPanelOpen(false)} keyword={searchKeyword} />
+        <GrantsPanel
+          grants={selectedGrants}
+          onClose={() => setPanelOpen(false)}
+          keyword={null}
+        />
       )}
 
       {panelOpen && panelType === "works" && (
@@ -328,7 +380,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             works={selectedWorks} // Pass the array of work objects
             onClose={() => setPanelOpen(false)}
             panelType={panelType}
-            keyword={searchKeyword}
+            keyword={null}
           />
         </>
       )}
@@ -338,7 +390,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           grants={selectedGrants}
           locationName={locationName}
           onClose={() => setPanelOpen(false)}
-          keyword={searchKeyword}
+          keyword={null}
         />
       )}
     </div>
