@@ -14,23 +14,25 @@ Data Fetching → Location Processing → GeoJSON Generation
 
 ### 1. Data Extraction (`/aggieExpertsAPI`)
 
-- **persistExpertProfiles.js**: Main file for fetching and persisting expert profiles with their works and grants.
-- **services/fetchAllExpertProfiles.js**: Retrieves all expert profiles from the Aggie Experts API.
-- **services/fetchProfile.js**: Processes and formats expert profile data including works and grants.
-- **services/fetchExpert.js**: Retireves all expert id's via Aggie Experts API.
-- **utils/formatFeatures.js**: Formats expert profiles into work-centric and grant-centric JSON files.
+- **persistExpertProfiles.js**: Main controller for fetching and persisting expert profiles with works and grants to both file storage and Redis cache.
+- **getExpertFeatures.js**: Retrieves cached expert profiles and generates formatted work and grant feature collections, supporting both recent-only (default) and full dataset retrieval.
+- **services/fetchExpertID.js**: Handles the retrieval of all expert IDs from the Aggie Experts API.
+- **services/fetchProfileByID.js**: Fetches detailed information for a specific expert profile, including associated works and grants, with support for paginated data retrieval.
+- **services/expertProfileCache.js**: Oversees the caching and retrieval of expert profiles in Redis, utilizing session-based storage to monitor updates and changes over time.
+- **utils/formatFeatures.js**: Converts expert profiles into structured formats focused on works and grants, establishing relationship mappings between them.
   - Example:
     ```bash
-    node ./src/geo/etl/aggieExpertsAPI/persistExpertProfiles.js
+    node ./src/backend/etl/aggieExpertsAPI/persistExpertProfiles.js [numExperts=1] [worksLimit=5] [grantsLimit=5]
+    node ./src/backend/etl/aggieExpertsAPI/getExpertFeatures.js [--all]
     ```
 - Output files:
-  - `expertProfiles.json`: Contains all expert profiles with their associated works and grants
-  - `worksFeatures.json`: Work-centric data with related expert information
-  - `grantsFeatures.json`: Grant-centric data with related expert information
-- Redis caching:
-  - Redis containing expert profile data
-  - Accessible via KEYS:
-    - expert:*
+  - `expertProfiles.json`: Complete expert profiles with associated works and grants, including metadata like timestamps and session IDs
+  - `worksFeatures.json`: Work-centric data with related expert information and bibliographic metadata
+  - `grantsFeatures.json`: Grant-centric data with related expert information and funding details
+- Redis caching structure:
+  - Expert profiles stored with key pattern: `expert:{expertId}`
+  - Session-based tracking for detecting changes
+  - Metadata stored as `expert:metadata` with statistics and timestamps
 
 ### 2. Location Processing (`/locationAssignment`)
 

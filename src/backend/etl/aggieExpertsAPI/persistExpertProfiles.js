@@ -8,12 +8,28 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { cacheEntities } = require('./services/expertProfileCache');
-const { fetchAllExpertProfiles } = require('./services/fetchAllExpertProfiles');
+const { fetchExpertProfiles } = require('./services/fetchExpertProfiles');
 
 // Configuration
 const CONFIG = {
-  expertProfilesPath: path.join(__dirname, 'matchedFeatures/expertProfiles.json')
+  expertProfilesPath: path.join(__dirname, 'formattedFeatures/expertProfiles.json')
 };
+
+/**
+ * Ensures that a directory exists, creating it if necessary
+ * @param {string} dirPath - Path to the directory to ensure exists
+ * @returns {Promise<void>}
+ */
+async function ensureDirectoryExists(dirPath) {
+  try {
+    await fs.mkdir(dirPath, { recursive: true });
+    console.log(`✅ Ensured directory exists: ${dirPath}`);
+  } catch (error) {
+    if (error.code !== 'EEXIST') {
+      throw error;
+    }
+  }
+}
 
 /**
  * Main function to persist expert profiles to file and Redis
@@ -22,6 +38,10 @@ const CONFIG = {
  */
 async function persistExpertProfiles(expertProfiles) {
   try {
+    // Ensure the directory exists before writing the file
+    const directory = path.dirname(CONFIG.expertProfilesPath);
+    await ensureDirectoryExists(directory);
+
     // Step 1: Save the original expert profiles to file
     await fs.writeFile(
       CONFIG.expertProfilesPath,
@@ -57,10 +77,10 @@ async function persistExpertProfiles(expertProfiles) {
 /**
  * Main function to fetch and persist expert profiles
  */
-async function fetchAndPersistExpertProfiles() {
+async function fetchAndPersistExpertProfiles(numExperts=1, worksLimit=5, grantsLimit=5) {
   try {
     // Step 1: Fetch expert profiles
-    const expertProfiles = await fetchAllExpertProfiles();
+    const expertProfiles = await fetchExpertProfiles(numExperts, worksLimit, grantsLimit);
     
     // Check if profiles were returned
     if (!expertProfiles || !Array.isArray(expertProfiles)) {
