@@ -36,10 +36,360 @@ function validateGeometry(geometry) {
   return geometry;
 }
 
+// Helper function to check if objects are deeply equal
+function isDeepEqual(obj1, obj2) {
+  // Handle primitive types and null
+  if (obj1 === obj2) return true;
+  if (obj1 === null || obj2 === null) return false;
+  if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return false;
+  
+  // Handle arrays
+  if (Array.isArray(obj1) && Array.isArray(obj2)) {
+    if (obj1.length !== obj2.length) return false;
+    
+    // If arrays contain objects with IDs, compare by matching IDs
+    if (obj1.length > 0 && typeof obj1[0] === 'object' && obj1[0] !== null && 'id' in obj1[0]) {
+      // Create maps of entries by ID
+      const map1 = new Map(obj1.map(item => [item.id, item]));
+      const map2 = new Map(obj2.map(item => [item.id, item]));
+      
+      // Check if all IDs exist in both arrays and values are equal
+      if (map1.size !== map2.size) return false;
+      
+      for (const [id, item1] of map1.entries()) {
+        if (!map2.has(id) || !isDeepEqual(item1, map2.get(id))) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    // Regular array comparison
+    return obj1.every((val, idx) => isDeepEqual(val, obj2[idx]));
+  }
+  
+  // Handle objects
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  
+  if (keys1.length !== keys2.length) return false;
+  
+  return keys1.every(key => 
+    keys2.includes(key) && isDeepEqual(obj1[key], obj2[key])
+  );
+}
+
+// Helper function to merge properties
+function mergeProperties(existingProperties, newProperties) {
+  // Create a deep copy of existing properties
+  const merged = {...existingProperties};
+  let hasChanges = false;
+  
+  // Special handling for entries array to match by ID
+  if (Array.isArray(newProperties.entries) && Array.isArray(existingProperties.entries)) {
+    // Create a map of existing entries by ID
+    const existingEntriesMap = new Map();
+    existingProperties.entries.forEach(entry => {
+      if (entry.id) {
+        existingEntriesMap.set(entry.id, entry);
+      }
+    });
+    
+    // Create maps for location-based matching
+    const existingLocationMap = new Map();
+    existingProperties.entries.forEach(entry => {
+      if (entry.location) {
+        if (!existingLocationMap.has(entry.location)) {
+          existingLocationMap.set(entry.location, []);
+        }
+        existingLocationMap.get(entry.location).push(entry);
+      }
+    });
+    
+    // Process each new entry
+    const mergedEntries = [...existingProperties.entries];
+    let entriesChanged = false;
+    
+    newProperties.entries.forEach(newEntry => {
+      // First check for ID matches
+      if (newEntry.id) {
+        // Check if this entry ID already exists
+        const existingEntryIndex = mergedEntries.findIndex(e => e.id === newEntry.id);
+        
+        if (existingEntryIndex >= 0) {
+          const existingEntry = mergedEntries[existingEntryIndex];
+          // Only update if there are actual differences
+          if (!isDeepEqual(existingEntry, newEntry)) {
+            // Update existing entry with new data
+            mergedEntries[existingEntryIndex] = {
+              ...existingEntry,
+              ...newEntry
+            };
+            entriesChanged = true;
+          }
+        } else {
+          // New entry with ID - check for location conflicts
+          if (newEntry.location && existingLocationMap.has(newEntry.location)) {
+            const locationMatches = existingLocationMap.get(newEntry.location);
+            let conflictResolved = false;
+            
+            // Check each existing entry with same location for conflicts
+            for (const existingEntry of locationMatches) {
+              // Define what makes entries conflicting - e.g., same expert ID
+              const isConflicting = existingEntry.expertId && newEntry.expertId && 
+                                   existingEntry.expertId === newEntry.expertId;
+              
+              if (isConflicting) {
+                // Update the conflicting entry with merged data if different
+                const conflictIndex = mergedEntries.findIndex(e => e === existingEntry);
+                if (conflictIndex >= 0 && !isDeepEqual(mergedEntries[conflictIndex], newEntry)) {
+                  // Prefer new data where properties overlap
+                  mergedEntries[conflictIndex] = {
+                    ...existingEntry,
+                    ...newEntry,
+                    // Add conflict resolution metadata
+                    lastUpdated: new Date().toISOString(),
+                    mergeCount: (existingEntry.mergeCount || 0) + 1,
+                  };
+                  conflictResolved = true;
+                  entriesChanged = true;
+                  break;
+                }
+              }
+            }
+            
+            // If no conflict or no conflict resolution happened, add as new entry
+            if (!conflictResolved) {
+              // Add as new entry
+              mergedEntries.push(newEntry);
+              entriesChanged = true;
+            }
+          } else {
+            // No location conflict - add as new entry
+            mergedEntries.push(newEntry);
+            entriesChanged = true;
+          }
+        }
+      } else if (newEntry.location) {
+        // No ID, but has location - check for location conflicts
+        if (existingLocationMap.has(newEntry.location)) {
+          const locationMatches = existingLocationMap.get(newEntry.location);
+          let conflictResolved = false;
+          
+          // Check each existing entry with same location
+          for (const existingEntry of locationMatches) {
+            // Define what makes entries similar - e.g., similar properties
+            const isSimilar = existingEntry.type === newEntry.type || 
+                             existingEntry.expertId === newEntry.expertId;
+            
+            if (isSimilar) {
+              // Update the similar entry with merged data if different
+              const similarIndex = mergedEntries.findIndex(e => e === existingEntry);
+              if (similarIndex >= 0) {
+                const mergedEntry = {
+                  ...existingEntry,
+                  ...newEntry,
+                  // If no ID, generate a unique composite ID
+                  id: newEntry.id || existingEntry.id || `${newEntry.location}-${Date.now()}`,
+                  lastUpdated: new Date().toISOString()
+                };
+                
+                if (!isDeepEqual(mergedEntries[similarIndex], mergedEntry)) {
+                  mergedEntries[similarIndex] = mergedEntry;
+                  conflictResolved = true;
+                  entriesChanged = true;
+                  break;
+                }
+              }
+            }
+          }
+          
+          // If no conflict resolution happened, add as new entry
+          if (!conflictResolved) {
+            // Add as new entry with generated ID if missing
+            mergedEntries.push({
+              ...newEntry,
+              id: newEntry.id || `${newEntry.location}-${Date.now()}`
+            });
+            entriesChanged = true;
+          }
+        } else {
+          // No location conflict - add as new entry with generated ID if missing
+          mergedEntries.push({
+            ...newEntry,
+            id: newEntry.id || `${newEntry.location}-${Date.now()}`
+          });
+          entriesChanged = true;
+        }
+      } else {
+        // No ID or location, just add as new entry
+        mergedEntries.push(newEntry);
+        entriesChanged = true;
+      }
+    });
+    
+    // Replace entries array with merged version only if changed
+    if (entriesChanged) {
+      merged.entries = mergedEntries;
+      hasChanges = true;
+    }
+  } else if (Array.isArray(newProperties.entries)) {
+    // If existing doesn't have entries but new one does, just use the new entries
+    merged.entries = newProperties.entries;
+    hasChanges = true;
+  }
+  
+  // For all other properties, check if they're different before updating
+  Object.keys(newProperties).forEach(key => {
+    if (key !== 'entries') {
+      if (!isDeepEqual(existingProperties[key], newProperties[key])) {
+        merged[key] = newProperties[key];
+        hasChanges = true;
+      }
+    }
+  });
+  
+  return { merged, hasChanges };
+}
+
+// Function to find matching features using more flexible criteria
+async function findMatchingFeature(client, tableName, feature) {
+  const { geometry, properties } = feature;
+  
+  // First attempt to match by feature properties.id if available
+  if (properties.id) {
+    const idResult = await client.query(`
+      SELECT id, properties FROM ${tableName}
+      WHERE properties->>'id' = $1
+    `, [properties.id]);
+    
+    if (idResult.rowCount > 0) {
+      return idResult.rows[0];
+    }
+  }
+  
+  // Second, check if we can match by entries array
+  if (Array.isArray(properties.entries) && properties.entries.length > 0) {
+    // Get all entry IDs from the new feature
+    const entryIds = properties.entries
+      .filter(entry => entry.id)
+      .map(entry => entry.id);
+    
+    if (entryIds.length > 0) {
+      // Look for features that contain any of these entry IDs
+      // This requires a JSON path query to search within the entries array
+      const params = entryIds;
+      const placeholders = params.map((_, idx) => `$${idx + 1}`).join(',');
+      
+      const entryQuery = `
+        SELECT id, properties FROM ${tableName}
+        WHERE EXISTS (
+          SELECT 1 FROM jsonb_array_elements(properties->'entries') as entry
+          WHERE entry->>'id' IN (${placeholders})
+        )
+        LIMIT 1;
+      `;
+      
+      const entryResult = await client.query(entryQuery, params);
+      
+      if (entryResult.rowCount > 0) {
+        return entryResult.rows[0];
+      }
+    }
+  }
+  
+  // Third, try to match by location name if available
+  if (properties.name || properties.location) {
+    const locationName = properties.name || properties.location;
+    const nameResult = await client.query(`
+      SELECT id, properties FROM ${tableName}
+      WHERE properties->>'name' = $1 OR properties->>'location' = $1
+    `, [locationName]);
+    
+    if (nameResult.rowCount > 0) {
+      return nameResult.rows[0];
+    }
+  }
+  
+  // Finally, try to match by geometry (with tolerance for points)
+  const geoJson = JSON.stringify(geometry);
+  let geoResult;
+  
+  if (geometry.type === 'Point' || geometry.type === 'MultiPoint') {
+    // For points, find features within ~10 meters
+    geoResult = await client.query(`
+      SELECT id, properties FROM ${tableName}
+      WHERE ST_DWithin(
+        geom,
+        ST_SetSRID(ST_GeomFromGeoJSON($1), 4326),
+        0.0001
+      )
+    `, [geoJson]);
+  } else {
+    // For non-point geometries, use exact matching
+    geoResult = await client.query(`
+      SELECT id, properties FROM ${tableName}
+      WHERE ST_Equals(
+        geom,
+        ST_SetSRID(ST_GeomFromGeoJSON($1), 4326)
+      )
+    `, [geoJson]);
+  }
+  
+  if (geoResult.rowCount > 0) {
+    return geoResult.rows[0];
+  }
+  
+  // No match found
+  return null;
+}
+
+// Function to find matching features by name and geometry only
+async function findMatchingFeatureByNameAndGeometry(client, tableName, feature) {
+  const { geometry, properties } = feature;
+  const name = (properties.name || properties.location || '').trim().toLowerCase();
+  if (!name) return null;
+  const geoJson = JSON.stringify(geometry);
+  let geoResult;
+  if (geometry.type === 'Point' || geometry.type === 'MultiPoint') {
+    // For points, find features with same name and within ~10 meters
+    geoResult = await client.query(`
+      SELECT id, properties FROM ${tableName}
+      WHERE LOWER(TRIM(properties->>'name')) = $1
+        AND ST_DWithin(
+          geom,
+          ST_SetSRID(ST_GeomFromGeoJSON($2), 4326),
+          0.0001
+        )
+      LIMIT 1;
+    `, [name, geoJson]);
+  } else {
+    // For polygons, require exact geometry match and same name
+    geoResult = await client.query(`
+      SELECT id, properties FROM ${tableName}
+      WHERE LOWER(TRIM(properties->>'name')) = $1
+        AND ST_Equals(
+          geom,
+          ST_SetSRID(ST_GeomFromGeoJSON($2), 4326)
+        )
+      LIMIT 1;
+    `, [name, geoJson]);
+  }
+  if (geoResult.rowCount > 0) {
+    return geoResult.rows[0];
+  }
+  return null;
+}
+
 async function loadGeoJsonData() {
   const client = await pool.connect();
-  let worksCount = 0;
-  let grantsCount = 0;
+  let worksInserted = 0;
+  let worksUpdated = 0;
+  let worksSkipped = 0;
+  let grantsInserted = 0;
+  let grantsUpdated = 0;
+  let grantsSkipped = 0;
   let pointCount = 0;
   let polygonCount = 0;
   let otherGeometryCount = 0;
@@ -47,10 +397,6 @@ async function loadGeoJsonData() {
   try {
     // Start transaction
     await client.query('BEGIN');
-
-    // Clear existing data
-    console.log('🧹 Clearing existing data...');
-    await client.query(`TRUNCATE ${tables.works}, ${tables.grants} CASCADE`);
     
     // Process works data
     if (!checkFileExists(WORKS_GEOJSON_PATH)) {
@@ -62,11 +408,7 @@ async function loadGeoJsonData() {
     console.log('🔄 Processing works features...');
     for (const feature of worksData.features) {
       const { geometry, properties } = feature;
-      
-      // Validate geometry format
       const validatedGeometry = validateGeometry(geometry);
-      
-      // Track geometry types
       if (validatedGeometry.type === 'Point' || validatedGeometry.type === 'MultiPoint') {
         pointCount++;
       } else if (validatedGeometry.type === 'Polygon' || validatedGeometry.type === 'MultiPolygon') {
@@ -74,15 +416,47 @@ async function loadGeoJsonData() {
       } else {
         otherGeometryCount++;
       }
-      
       const { name = 'Unnamed work' } = properties;
-      
-      // Store with the original geometry type - no need to add feature_type
-      await client.query(`
-        INSERT INTO ${tables.works} (name, geom, properties)
-        VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
-      `, [name, JSON.stringify(validatedGeometry), properties]);
-      worksCount++;
+      // Use new matching: name+geometry
+      const existingFeature = await findMatchingFeatureByNameAndGeometry(client, tables.works, { geometry: validatedGeometry, properties });
+      if (existingFeature) {
+        const existingId = existingFeature.id;
+        const existingProperties = existingFeature.properties;
+        // Only update entries array if changed
+        const oldEntries = existingProperties.entries || [];
+        const newEntries = properties.entries || [];
+        let entriesChanged = false;
+        // Merge entries by id
+        const mergedEntriesMap = new Map();
+        oldEntries.forEach(e => e.id && mergedEntriesMap.set(e.id, e));
+        newEntries.forEach(e => {
+          if (!e.id) return;
+          if (!mergedEntriesMap.has(e.id) || !isDeepEqual(mergedEntriesMap.get(e.id), e)) {
+            mergedEntriesMap.set(e.id, e);
+            entriesChanged = true;
+          }
+        });
+        // Remove entries that are not in newEntries? (optional, here we keep all)
+        const mergedEntries = Array.from(mergedEntriesMap.values());
+        if (entriesChanged) {
+          const updatedProperties = { ...existingProperties, entries: mergedEntries };
+          console.log(`📝 Updating entries for work: id=${existingId}, name='${name}'`);
+          await client.query(`
+            UPDATE ${tables.works}
+            SET properties = $1
+            WHERE id = $2
+          `, [updatedProperties, existingId]);
+          worksUpdated++;
+        } else {
+          worksSkipped++;
+        }
+      } else {
+        await client.query(`
+          INSERT INTO ${tables.works} (name, geom, properties)
+          VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
+        `, [name, JSON.stringify(validatedGeometry), properties]);
+        worksInserted++;
+      }
     }
     
     // Process grants data
@@ -96,11 +470,7 @@ async function loadGeoJsonData() {
       console.log('🔄 Processing grants features...');
       for (const feature of grantsData.features) {
         const { geometry, properties } = feature;
-        
-        // Validate geometry format
         const validatedGeometry = validateGeometry(geometry);
-        
-        // Track geometry types
         if (validatedGeometry.type === 'Point' || validatedGeometry.type === 'MultiPoint') {
           pointCount++;
         } else if (validatedGeometry.type === 'Polygon' || validatedGeometry.type === 'MultiPolygon') {
@@ -108,15 +478,43 @@ async function loadGeoJsonData() {
         } else {
           otherGeometryCount++;
         }
-        
         const { name = 'Unnamed grant' } = properties;
-        
-        // Store with the original geometry type - no need to add feature_type
-        await client.query(`
-          INSERT INTO ${tables.grants} (name, geom, properties)
-          VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
-        `, [name, JSON.stringify(validatedGeometry), properties]);
-        grantsCount++;
+        const existingFeature = await findMatchingFeatureByNameAndGeometry(client, tables.grants, { geometry: validatedGeometry, properties });
+        if (existingFeature) {
+          const existingId = existingFeature.id;
+          const existingProperties = existingFeature.properties;
+          const oldEntries = existingProperties.entries || [];
+          const newEntries = properties.entries || [];
+          let entriesChanged = false;
+          const mergedEntriesMap = new Map();
+          oldEntries.forEach(e => e.id && mergedEntriesMap.set(e.id, e));
+          newEntries.forEach(e => {
+            if (!e.id) return;
+            if (!mergedEntriesMap.has(e.id) || !isDeepEqual(mergedEntriesMap.get(e.id), e)) {
+              mergedEntriesMap.set(e.id, e);
+              entriesChanged = true;
+            }
+          });
+          const mergedEntries = Array.from(mergedEntriesMap.values());
+          if (entriesChanged) {
+            const updatedProperties = { ...existingProperties, entries: mergedEntries };
+            console.log(`📝 Updating entries for grant: id=${existingId}, name='${name}'`);
+            await client.query(`
+              UPDATE ${tables.grants}
+              SET properties = $1
+              WHERE id = $2
+            `, [updatedProperties, existingId]);
+            grantsUpdated++;
+          } else {
+            grantsSkipped++;
+          }
+        } else {
+          await client.query(`
+            INSERT INTO ${tables.grants} (name, geom, properties)
+            VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
+          `, [name, JSON.stringify(validatedGeometry), properties]);
+          grantsInserted++;
+        }
       }
     } catch (error) {
       console.warn('⚠️ Could not load grants data:', error.message);
@@ -126,9 +524,9 @@ async function loadGeoJsonData() {
     
     // Log statistics
     console.log('\n📊 Import Statistics:');
-    console.log(`📚 Works loaded: ${worksCount}`);
-    console.log(`💰 Grants loaded: ${grantsCount}`);
-    console.log(`🔢 Total features: ${worksCount + grantsCount}`);
+    console.log(`📚 Works: ${worksInserted} inserted, ${worksUpdated} updated, ${worksSkipped} unchanged`);
+    console.log(`💰 Grants: ${grantsInserted} inserted, ${grantsUpdated} updated, ${grantsSkipped} unchanged`);
+    console.log(`🔢 Total features: ${worksInserted + worksUpdated + worksSkipped + grantsInserted + grantsUpdated + grantsSkipped}`);
     console.log(`📍 Point geometries: ${pointCount}`);
     console.log(`🔷 Polygon geometries: ${polygonCount}`);
     console.log(`📐 Other geometry types: ${otherGeometryCount}`);
