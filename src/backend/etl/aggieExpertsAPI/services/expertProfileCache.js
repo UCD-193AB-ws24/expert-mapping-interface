@@ -5,12 +5,12 @@
  * Zoey Vo, 2025
  */
 
-const { cacheItems, getItems, createRedisClient } = require('../utils/redisUtils');
+const { cacheItems, getCachedItems, createRedisClient } = require('../utils/redisUtils');
 
 // Expert Profile Cache Configuration
 const expertConfig = {
   getItemId: (expert, index) => {
-    const id = expert.url ? expert.url.split('/').pop() : index.toString();
+    const id = expert.url ? expert.url.split('/').pop() : expert.expertId || index.toString();
     return id;
   },
   isItemUnchanged: (expert, existingExpert) => {
@@ -39,54 +39,80 @@ const expertConfig = {
 
     return currentContent === existingContent;
   },
-  formatItemForCache: (expert, sessionId) => ({
-    id: expert.url.split('/').pop() || '',
-    first_name: expert.firstName || '',
-    middle_name: expert.middleName || '',
-    last_name: expert.lastName || '',
-    full_name: `${expert.firstName} ${expert.middleName ? expert.middleName + ' ' : ''}${expert.lastName}`.trim(),
-    title: expert.title || '',
-    organization_unit: expert.organizationUnit || '',
-    url: expert.url || '',
-    works: Array.isArray(expert.works) ? expert.works.map(work => ({
-      ...work,
-      type: work.type ? work.type.replace(/([A-Z])/g, ' $1').trim() : work.type
-    })) : [],
-    grants: Array.isArray(expert.grants) ? expert.grants.map(grant => ({
-      ...grant,
-      grantRole: grant.grantRole ? 
-        (typeof grant.grantRole === 'string' ? 
-          grant.grantRole.replace(/([A-Z])/g, ' $1').trim() : 
-          grant.grantRole) : 
-        grant.grantRole
-    })) : [],
-    last_modified: expert.lastModified || new Date().toISOString(),
-    cache_session: sessionId,
-    cached_at: new Date().toISOString()
-  }),
-  formatItemFromCache: (cachedExpert) => ({
-    expertId: cachedExpert.id || '',
-    firstName: cachedExpert.first_name || '',
-    middleName: cachedExpert.middle_name || '',
-    lastName: cachedExpert.last_name || '',
-    fullName: cachedExpert.full_name || '',
-    title: cachedExpert.title || '',
-    organizationUnit: cachedExpert.organization_unit || '',
-    url: cachedExpert.url || '',
-    works: Array.isArray(cachedExpert.works) ? 
+  formatItemForCache: (expert, sessionId) => {
+    // Get the ID from URL or expertId property
+    const id = expert.url ? expert.url.split('/').pop() : expert.expertId || '';
+    
+    // Ensure firstName and lastName are always populated with at least empty strings
+    const firstName = expert.firstName || '';
+    const lastName = expert.lastName || '';
+    
+    // Create fullName, defaulting to expertId if both firstName and lastName are empty
+    const fullName = expert.fullName || 
+                    `${firstName} ${expert.middleName ? expert.middleName + ' ' : ''}${lastName}`.trim() || 
+                    `Expert ${id}`;
+    
+    return {
+      id: id || '',
+      first_name: firstName,
+      middle_name: expert.middleName || '',
+      last_name: lastName,
+      full_name: fullName,
+      title: expert.title || '',
+      organization_unit: expert.organizationUnit || '',
+      url: expert.url || '',
+      works: Array.isArray(expert.works) ? expert.works.map(work => ({
+        ...work,
+        type: work.type ? work.type.replace(/([A-Z])/g, ' $1').trim() : work.type
+      })) : [],
+      grants: Array.isArray(expert.grants) ? expert.grants.map(grant => ({
+        ...grant,
+        grantRole: grant.grantRole ? 
+          (typeof grant.grantRole === 'string' ? 
+            grant.grantRole.replace(/([A-Z])/g, ' $1').trim() : 
+            grant.grantRole) : 
+          grant.grantRole
+      })) : [],
+      last_modified: expert.lastModified || new Date().toISOString(),
+      cache_session: sessionId,
+      cached_at: new Date().toISOString()
+    };
+  },
+  formatItemFromCache: (cachedExpert) => {
+    // Ensure the ID is extracted from the URL if it's available
+    const expertId = cachedExpert.id || (cachedExpert.url ? cachedExpert.url.split('/').pop() : '');
+    // Process works and grants, handling both array and string formats
+    const works = Array.isArray(cachedExpert.works) ? 
       cachedExpert.works : 
       (typeof cachedExpert.works === 'string' ? 
         JSON.parse(cachedExpert.works || '[]') : 
-        []),
-    grants: Array.isArray(cachedExpert.grants) ? 
+        []);
+    
+    const grants = Array.isArray(cachedExpert.grants) ? 
       cachedExpert.grants : 
       (typeof cachedExpert.grants === 'string' ? 
         JSON.parse(cachedExpert.grants || '[]') : 
-        []),
-    lastModified: cachedExpert.last_modified || '',
-    cache_session: cachedExpert.cache_session || '',
-    cachedAt: cachedExpert.cached_at || ''
-  })
+        []);
+    console.log('FROMExpert:', cachedExpert.first_name);
+    const formattedExpert = {
+      expertId,
+      firstName: cachedExpert.first_name,
+      middleName: cachedExpert.middle_name,
+      lastName: cachedExpert.last_name,
+      fullName: cachedExpert.full_name,
+      title: cachedExpert.title || '',
+      organizationUnit: cachedExpert.organization_unit || '',
+      url: cachedExpert.url || '',
+      works,
+      grants,
+      lastModified: cachedExpert.last_modified || '',
+      cache_session: cachedExpert.cache_session || '',
+      cachedAt: cachedExpert.cached_at || ''
+    };
+
+    console.log('Formatted Expert:', formattedExpert.firstName);
+    return formattedExpert;
+  }
 };
 
 async function cacheEntities(entityType, items) {
@@ -112,7 +138,7 @@ async function getCachedEntities(ids = null, options = {}) {
   const entityType = 'expert';
   
   try {
-    const cachedItems = await getItems(ids, { ...expertConfig, entityType, ...options });
+    const cachedItems = await getCachedItems(ids, { ...expertConfig, entityType, ...options });
     
     return {
       success: true,
@@ -158,24 +184,51 @@ async function getRecentCachedEntities(options = {}) {
     
     console.log(`📊 Found latest session ID: ${latestSessionId}`);
     
-    // Step 2: Get all entities using the existing function
-    const allEntities = await getCachedEntities(null, options);
+    // Step 2: Get all entity keys from Redis (excluding metadata)
+    const keys = await redisClient.keys(`${entityType}:*`);
+    const entityKeys = keys.filter(key => key !== `${entityType}:metadata` && !key.includes(':entry:'));
     
-    if (!allEntities.success) {
-      return allEntities; // Return error if fetching failed
+    console.log(`Found ${entityKeys.length} ${entityType}s in Redis`);
+    
+    // Get data for each entity
+    const items = [];
+    for (const key of entityKeys) {
+      const rawData = await redisClient.hGetAll(key);
+      
+      // Skip empty results
+      if (!rawData || Object.keys(rawData).length === 0) {
+        console.warn(`Empty data for key ${key}, skipping`);
+        continue;
+      }
+      
+      // Parse any JSON strings back to objects/arrays
+      const parsedData = {};
+      for (const [field, value] of Object.entries(rawData)) {
+        if (value && (value.startsWith('[') || value.startsWith('{'))) {
+          try {
+            parsedData[field] = JSON.parse(value);
+          } catch (error) {
+            parsedData[field] = value;
+          }
+        } else {
+          parsedData[field] = value;
+        }
+      }
+      
+      const formattedItem = expertConfig.formatItemFromCache(parsedData);
+      
+      // Only include items from the latest session
+      if (formattedItem.cache_session === latestSessionId) {
+        items.push(formattedItem);
+      }
     }
     
-    // Step 3: Filter entities by session ID
-    const sessionItems = allEntities.items.filter(item => 
-      item.cache_session === latestSessionId
-    );
-    
-    console.log(`✅ Retrieved ${sessionItems.length} experts from session ${latestSessionId}`);
+    console.log(`✅ Retrieved ${items.length} experts from session ${latestSessionId}`);
     
     return {
       success: true,
-      items: sessionItems,
-      count: sessionItems.length,
+      items: items,
+      count: items.length,
       sessionId: latestSessionId
     };
   } catch (error) {

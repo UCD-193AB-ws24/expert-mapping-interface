@@ -254,28 +254,46 @@ async function cacheItems(items, options) {
 
 /**
  * Generic function to retrieve cached items
+ * @param {string[]|null} ids - Array of item IDs to retrieve or null for all items
  * @param {Object} options - Retrieval options
  * @param {string} options.entityType - The type of entity (expert, grant, work)
  * @param {Function} options.formatItemFromCache - Function to format Redis data to item object
  * @returns {Promise<Array>} Array of retrieved items
  */
-async function getCachedItems(options) {
+async function getCachedItems(ids = null, options) {
+  if (!options || !options.entityType) {
+    throw new Error('Entity type is required in options');
+  }
+  
   const { entityType, formatItemFromCache } = options;
   const redisClient = createRedisClient();
   
   try {
     await redisClient.connect();
     
-    // Get all entity keys (excluding metadata)
-    const keys = await redisClient.keys(`${entityType}:*`);
-    const entityKeys = keys.filter(key => key !== `${entityType}:metadata` && !key.includes(':entry:'));
-    
-    console.log(`Found ${entityKeys.length} ${entityType}s in Redis`);
+    // Get all entity keys or specific keys if ids provided
+    let entityKeys;
+    if (ids && Array.isArray(ids) && ids.length > 0) {
+      // Get specific keys by IDs
+      entityKeys = ids.map(id => `${entityType}:${id}`);
+      console.log(`Retrieving ${entityKeys.length} specific ${entityType}s from Redis`);
+    } else {
+      // Get all keys of this entity type
+      const keys = await redisClient.keys(`${entityType}:*`);
+      entityKeys = keys.filter(key => key !== `${entityType}:metadata` && !key.includes(':entry:'));
+      console.log(`Found ${entityKeys.length} ${entityType}s in Redis`);
+    }
     
     // Get data for each entity
     const items = [];
     for (const key of entityKeys) {
       const rawData = await redisClient.hGetAll(key);
+      
+      // Skip empty results
+      if (!rawData || Object.keys(rawData).length === 0) {
+        console.warn(`Empty data for key ${key}, skipping`);
+        continue;
+      }
       
       // Parse any JSON strings back to objects/arrays
       const parsedData = {};

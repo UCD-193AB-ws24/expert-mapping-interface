@@ -9,13 +9,10 @@ const fs = require('fs').promises;
 const path = require('path');
 const { cacheEntities } = require('./services/expertProfileCache');
 const { fetchAllExpertProfiles } = require('./services/fetchAllExpertProfiles');
-const { formatFeatures } = require('./utils/formatFeatures');
 
 // Configuration
 const CONFIG = {
-  expertProfilesPath: path.join(__dirname, 'matchedFeatures/expertProfiles.json'),
-  worksOutputPath: path.join(__dirname, 'matchedFeatures/worksFeatures.json'),
-  grantsOutputPath: path.join(__dirname, 'matchedFeatures/grantsFeatures.json'),
+  expertProfilesPath: path.join(__dirname, 'matchedFeatures/expertProfiles.json')
 };
 
 /**
@@ -34,26 +31,7 @@ async function persistExpertProfiles(expertProfiles) {
 
     console.log('\nSaving expert profiles to file...');
     console.log(`✅ Saved ${expertProfiles.length} expert profiles to ${CONFIG.expertProfilesPath}`);
-    
-    // Step 2: Format expert profiles into work-centric and grant-centric JSONs
-    const { works, grants } = formatFeatures(expertProfiles);
-    
-    // Step 3: Save formatted works to file
-    await fs.writeFile(
-      CONFIG.worksOutputPath,
-      JSON.stringify(works, null, 2),
-      'utf8'
-    );
-    console.log(`✅ Saved ${works.length} works with their related experts to ${CONFIG.worksOutputPath}`);
-    
-    // Step 4: Save formatted grants to file
-    await fs.writeFile(
-      CONFIG.grantsOutputPath,
-      JSON.stringify(grants, null, 2),
-      'utf8'
-    );
-    console.log(`✅ Saved ${grants.length} grants with their related experts to ${CONFIG.grantsOutputPath}`);
-    
+
     // Step 5: Cache expert profiles in Redis
     console.log('\nCaching expert profiles in Redis...');
     const cacheResults = await cacheEntities('expert', expertProfiles);
@@ -62,9 +40,7 @@ async function persistExpertProfiles(expertProfiles) {
       fileStorage: { 
         success: true, 
         count: {
-          expertProfiles: expertProfiles.length,
-          works: works.length,
-          grants: grants.length
+          expertProfiles: expertProfiles.length
         }
       },
       redisCache: cacheResults
