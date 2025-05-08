@@ -14,14 +14,21 @@ const expertConfig = {
     return id;
   },
   isItemUnchanged: (expert, existingExpert) => {
-    // Compare content and modifed date
+    // Helper function to get array length regardless of format
+    const getArrayLength = (value) => {
+      if (Array.isArray(value)) return value.length;
+      if (typeof value === 'string') return JSON.parse(value || '[]').length;
+      return 0;
+    };
+    
+    // Compare content and modified date
     const currentContent = JSON.stringify({
       firstName: expert.firstName,
       lastName: expert.lastName,
       title: expert.title,
       organizationUnit: expert.organizationUnit,
-      works: Array.isArray(expert.works) ? expert.works.length : 0,
-      grants: Array.isArray(expert.grants) ? expert.grants.length : 0,
+      works: getArrayLength(expert.works),
+      grants: getArrayLength(expert.grants),
       lastModified: expert.lastModified
     });
     
@@ -30,10 +37,8 @@ const expertConfig = {
       lastName: existingExpert.last_name,
       title: existingExpert.title,
       organizationUnit: existingExpert.organization_unit,
-      works: Array.isArray(existingExpert.works) ? existingExpert.works.length : 
-             (typeof existingExpert.works === 'string' ? JSON.parse(existingExpert.works || '[]').length : 0),
-      grants: Array.isArray(existingExpert.grants) ? existingExpert.grants.length : 
-              (typeof existingExpert.grants === 'string' ? JSON.parse(existingExpert.grants || '[]').length : 0),
+      works: getArrayLength(existingExpert.works),
+      grants: getArrayLength(existingExpert.grants),
       lastModified: existingExpert.last_modified
     });
 
@@ -47,11 +52,17 @@ const expertConfig = {
     const firstName = expert.firstName || '';
     const lastName = expert.lastName || '';
     
-    // Create fullName, defaulting to expertId if both firstName and lastName are empty
+    // Construct full name in a cleaner way
     const fullName = expert.fullName || 
-                    `${firstName} ${expert.middleName ? expert.middleName + ' ' : ''}${lastName}`.trim() || 
+                    [firstName, expert.middleName, lastName].filter(Boolean).join(' ') || 
                     `Expert ${id}`;
     
+    // Helper function to format array data consistently
+    const formatArray = (array, transformFn) => {
+      if (!array) return [];
+      return Array.isArray(array) ? array.map(transformFn) : [];
+    };
+
     return {
       id: id || '',
       first_name: firstName,
@@ -61,18 +72,18 @@ const expertConfig = {
       title: expert.title || '',
       organization_unit: expert.organizationUnit || '',
       url: expert.url || '',
-      works: Array.isArray(expert.works) ? expert.works.map(work => ({
+      works: formatArray(expert.works, work => ({
         ...work,
         type: work.type ? work.type.replace(/([A-Z])/g, ' $1').trim() : work.type
-      })) : [],
-      grants: Array.isArray(expert.grants) ? expert.grants.map(grant => ({
+      })),
+      grants: formatArray(expert.grants, grant => ({
         ...grant,
         grantRole: grant.grantRole ? 
           (typeof grant.grantRole === 'string' ? 
             grant.grantRole.replace(/([A-Z])/g, ' $1').trim() : 
             grant.grantRole) : 
           grant.grantRole
-      })) : [],
+      })),
       last_modified: expert.lastModified || new Date().toISOString(),
       cache_session: sessionId,
       cached_at: new Date().toISOString()
@@ -93,7 +104,6 @@ const expertConfig = {
       (typeof cachedExpert.grants === 'string' ? 
         JSON.parse(cachedExpert.grants || '[]') : 
         []);
-    console.log('FROMExpert:', cachedExpert.first_name);
     const formattedExpert = {
       expertId,
       firstName: cachedExpert.first_name,
@@ -110,7 +120,6 @@ const expertConfig = {
       cachedAt: cachedExpert.cached_at || ''
     };
 
-    console.log('Formatted Expert:', formattedExpert.firstName);
     return formattedExpert;
   }
 };
