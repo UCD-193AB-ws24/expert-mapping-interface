@@ -7,10 +7,6 @@
 * - Data transformation and formatting 
 * - Logging API batch operations
 *
-* USAGE: Import this module to access common API utilities for
-* fetching experts, grants, and works from the Aggie Experts API.
-* For Redis caching, use the caching modules in the ./redis directory.
-*
 * REQUIREMENTS: 
 * - A .env file in the project root with API_TOKEN=<your-api-token> for API authentication
 *
@@ -57,21 +53,9 @@ async function fetchFromApi(url, params = {}, headers = {}) {
     }
 }
 
-/**
- * Creates a sorted array of experts with their full names
- * @param {Array<Object>} experts - Array of expert objects with firstName, middleName, and lastName properties
- * @returns {Array<Object>} Sorted array of expert objects with fullName and url properties
- */
-function getSortedExperts(experts) {
-    return experts.map(expert => ({
-        fullName: `${expert.firstName} ${expert.middleName} ${expert.lastName}`.trim().replace(/\s+/g, ' '),
-        url: expert.url
-    })).sort((a, b) => a.fullName.localeCompare(b.fullName));
-}
 
 module.exports = { 
     logBatch, 
     fetchFromApi, 
-    getSortedExperts,
     API_TOKEN 
 };

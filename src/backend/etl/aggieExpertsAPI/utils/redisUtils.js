@@ -1,6 +1,7 @@
 /**
 * @file redisUtils.js
-* @description Central module for Redis configuration, utilities, and caching operations
+* @description Central module for Redis configuration, utilities, 
+*              and caching operations for expert profiles
 * 
 * USAGE: Import this module to access Redis client creation, utilities, and shared caching functionality
 * 
@@ -32,7 +33,7 @@ const createRedisClient = () => {
   });
 
   client.on('connect', () => {
-    console.log(`✅ Redis connected successfully at ${host}:${port}`);
+    console.log(`🔌 Redis connected successfully`);
   });
 
   client.on('end', () => {
@@ -173,29 +174,14 @@ async function cacheItems(items, options) {
     await redisClient.connect();
     console.log(`Processing ${items.length} ${entityType}s for Redis cache...`);
     
-    // Generate a unique session ID for this caching operation
     const sessionId = `session_${Date.now()}`;
-    
-    // Get all existing records for the entity type
     const existingRecords = await buildExistingRecordsMap(redisClient, entityType);
+    const processedIds = new Set();
     
-    // Track duplicate IDs found during caching
-    const duplicateTracker = new Map();
-    
-    // Counters
     let newCount = 0;
     let updatedCount = 0;
     let unchangedCount = 0;
     let duplicateCount = 0;
-    
-    // Update metadata with initial count
-    await updateMetadata(redisClient, entityType, { 
-      totalCount: items.length, 
-      sessionId 
-    });
-    
-    // Track processed IDs to detect duplicates
-    const processedIds = new Set();
     
     // Process each item
     for (let i = 0; i < items.length; i++) {
@@ -203,85 +189,46 @@ async function cacheItems(items, options) {
       const itemId = getItemId(item, i);
       const itemKey = `${entityType}:${itemId}`;
       
-      // Check for duplicate IDs in the current batch
       if (processedIds.has(itemId)) {
         duplicateCount++;
-        
-        // Track duplicate occurrence
-        if (duplicateTracker.has(itemId)) {
-          duplicateTracker.set(itemId, duplicateTracker.get(itemId) + 1);
-        } else {
-          duplicateTracker.set(itemId, 1);
-        }
-        
-        console.log(`⚠️ DUPLICATE DETECTED: ${entityType} with ID ${itemId} at index ${i} is a duplicate entry`);
+        console.log(`⚠️ DUPLICATE ${entityType.toUpperCase()}: ID ${itemId} at index ${i}`);
         continue;
       }
       
-      // Add to processed IDs
       processedIds.add(itemId);
-      
-      // Check if item already exists and if it's changed
       const existingItem = existingRecords[itemId];
-      let shouldUpdate = true;
       
+      // Check if update needed based on last_modified timestamp
+      if (existingItem && isItemUnchanged(item, existingItem)) {
+        unchangedCount++;
+        continue;
+      }
+      
+      // Item is either new or needs updating
       if (existingItem) {
-        // Compare relevant fields to see if there are changes
-        if (isItemUnchanged(item, existingItem)) {
-          shouldUpdate = false;
-          unchangedCount++;
-        } else {
-          updatedCount++;
-        }
+        updatedCount++;
       } else {
         newCount++;
       }
       
-      if (shouldUpdate) {
-        // Format and store the item data
-        const formattedItem = formatItemForCache(item, sessionId);
-        
-        // Convert all values to strings to prevent Redis errors
-        const stringifiedItem = {};
-        for (const [key, value] of Object.entries(formattedItem)) {
-          stringifiedItem[key] = value === null || value === undefined ? '' : String(value);
-        }
-        
-        await redisClient.hSet(itemKey, stringifiedItem);
-      }
-    }
-    
-    // Display duplicate summary if duplicates were found
-    if (duplicateCount > 0) {
-      console.log(`\n====== DUPLICATE ${entityType.toUpperCase()}S ALERT ======`);
-      console.log(`Found ${duplicateCount} duplicate entries for ${duplicateTracker.size} unique ${entityType}s during caching`);
+      const formattedItem = formatItemForCache(item, sessionId);
+      const stringifiedItem = {};
       
-      // Convert to array for sorting by occurrence count
-      const sortedDuplicates = [...duplicateTracker.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10); // Show top 10 duplicates
-      
-      // Display duplicate entries in a table format
-      console.log(` ID                  | Occurrences `);
-      console.log(`---------------------|------------`);
-      sortedDuplicates.forEach(([id, count]) => {
-        console.log(` ${id.padEnd(19)} | ${count.toString().padStart(10)} `);
-      });
-      
-      if (duplicateTracker.size > 10) {
-        console.log(`... and ${duplicateTracker.size - 10} more duplicate IDs`);
+      for (const [key, value] of Object.entries(formattedItem)) {
+        stringifiedItem[key] = value === null || value === undefined ? '' 
+          : typeof value === 'object' ? JSON.stringify(value)
+          : String(value);
       }
       
-      console.log(`=========================================\n`);
+      await redisClient.hSet(itemKey, stringifiedItem);
     }
     
-    // Update metadata with counts
+    // Update metadata
     await updateMetadata(redisClient, entityType, { 
       totalCount: items.length - duplicateCount, 
       newCount, 
       updatedCount, 
-      unchangedCount, 
-      duplicateCount,
+      unchangedCount,
       sessionId 
     });
     
@@ -299,12 +246,9 @@ async function cacheItems(items, options) {
     };
   } catch (error) {
     console.error(`❌ Error caching ${entityType}s to Redis:`, error);
-    return { 
-      success: false, 
-      error: error.message 
-    };
+    return { success: false, error: error.message };
   } finally {
-    await redisClient.disconnect();
+    await redisClient.quit();
   }
 }
 
@@ -331,8 +275,24 @@ async function getCachedItems(options) {
     // Get data for each entity
     const items = [];
     for (const key of entityKeys) {
-      const itemData = await redisClient.hGetAll(key);
-      const formattedItem = formatItemFromCache(itemData);
+      const rawData = await redisClient.hGetAll(key);
+      
+      // Parse any JSON strings back to objects/arrays
+      const parsedData = {};
+      for (const [field, value] of Object.entries(rawData)) {
+        if (value && (value.startsWith('[') || value.startsWith('{'))) {
+          try {
+            parsedData[field] = JSON.parse(value);
+          } catch (error) {
+            console.warn(`Failed to parse JSON for ${field} in ${key}, using raw value`);
+            parsedData[field] = value;
+          }
+        } else {
+          parsedData[field] = value;
+        }
+      }
+      
+      const formattedItem = formatItemFromCache(parsedData);
       items.push(formattedItem);
     }
     
@@ -356,8 +316,7 @@ async function getCacheStats() {
     
     // Get metadata for each cache type
     const expertMeta = await redisClient.hGetAll('expert:metadata') || {};
-    const grantMeta = await redisClient.hGetAll('grant:metadata') || {};
-    const workMeta = await redisClient.hGetAll('work:metadata') || {};
+
     
     return {
       experts: {
@@ -366,20 +325,6 @@ async function getCacheStats() {
         updated: parseInt(expertMeta.updated_count || '0'),
         unchanged: parseInt(expertMeta.unchanged_count || '0'),
         lastUpdate: expertMeta.timestamp || 'never'
-      },
-      grants: {
-        total: parseInt(grantMeta.total_count || '0'),
-        new: parseInt(grantMeta.new_count || '0'),
-        updated: parseInt(grantMeta.updated_count || '0'),
-        unchanged: parseInt(grantMeta.unchanged_count || '0'),
-        lastUpdate: grantMeta.timestamp || 'never'
-      },
-      works: {
-        total: parseInt(workMeta.total_count || '0'),
-        new: parseInt(workMeta.new_count || '0'),
-        updated: parseInt(workMeta.updated_count || '0'),
-        unchanged: parseInt(workMeta.unchanged_count || '0'),
-        lastUpdate: workMeta.timestamp || 'never'
       }
     };
   } catch (error) {
