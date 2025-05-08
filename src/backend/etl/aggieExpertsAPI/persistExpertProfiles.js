@@ -3,7 +3,6 @@
  * @description Persists expert profiles to file and Redis cache
  * 
  * Zoey Vo, 2025
- * Modified May 8, 2025
  */
 
 const fs = require('fs').promises;

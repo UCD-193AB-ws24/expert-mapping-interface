@@ -5,7 +5,7 @@ This directory contains the Extract, Transform, Load (ETL) pipeline for the Expe
 ## Overview
 
 ```
-Data Fetching → Expert Matching → Location Processing → GeoJSON Generation 
+Data Fetching → Location Processing → GeoJSON Generation 
 ```
 
 ---
@@ -15,8 +15,9 @@ Data Fetching → Expert Matching → Location Processing → GeoJSON Generation
 ### 1. Data Extraction (`/aggieExpertsAPI`)
 
 - **persistExpertProfiles.js**: Main file for fetching and persisting expert profiles with their works and grants.
-- **services/fetchAllExpertProfiles.js**: Retrieves expert profiles from the Aggie Experts API.
+- **services/fetchAllExpertProfiles.js**: Retrieves all expert profiles from the Aggie Experts API.
 - **services/fetchProfile.js**: Processes and formats expert profile data including works and grants.
+- **services/fetchExpert.js**: Retireves all expert id's via Aggie Experts API.
 - **utils/formatFeatures.js**: Formats expert profiles into work-centric and grant-centric JSON files.
   - Example:
     ```bash

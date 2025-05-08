@@ -5,7 +5,7 @@
  * Zoey Vo, 2025
  */
 
-const { cacheItems } = require('../utils/redisUtils');
+const { cacheItems, getItems, createRedisClient } = require('../utils/redisUtils');
 
 // Expert Profile Cache Configuration
 const expertConfig = {
@@ -63,6 +63,29 @@ const expertConfig = {
     last_modified: expert.lastModified || new Date().toISOString(),
     cache_session: sessionId,
     cached_at: new Date().toISOString()
+  }),
+  formatItemFromCache: (cachedExpert) => ({
+    expertId: cachedExpert.id || '',
+    firstName: cachedExpert.first_name || '',
+    middleName: cachedExpert.middle_name || '',
+    lastName: cachedExpert.last_name || '',
+    fullName: cachedExpert.full_name || '',
+    title: cachedExpert.title || '',
+    organizationUnit: cachedExpert.organization_unit || '',
+    url: cachedExpert.url || '',
+    works: Array.isArray(cachedExpert.works) ? 
+      cachedExpert.works : 
+      (typeof cachedExpert.works === 'string' ? 
+        JSON.parse(cachedExpert.works || '[]') : 
+        []),
+    grants: Array.isArray(cachedExpert.grants) ? 
+      cachedExpert.grants : 
+      (typeof cachedExpert.grants === 'string' ? 
+        JSON.parse(cachedExpert.grants || '[]') : 
+        []),
+    lastModified: cachedExpert.last_modified || '',
+    cache_session: cachedExpert.cache_session || '',
+    cachedAt: cachedExpert.cached_at || ''
   })
 };
 
@@ -79,6 +102,97 @@ async function cacheEntities(entityType, items) {
   return cacheItems(validItems, { ...expertConfig, entityType });
 }
 
+/**
+ * Retrieves cached expert profiles from Redis
+ * @param {string[]} ids - Array of expert IDs to retrieve (optional)
+ * @param {Object} options - Additional options for retrieval
+ * @returns {Promise<Object[]>} Array of retrieved expert profiles
+ */
+async function getCachedEntities(ids = null, options = {}) {
+  const entityType = 'expert';
+  
+  try {
+    const cachedItems = await getItems(ids, { ...expertConfig, entityType, ...options });
+    
+    return {
+      success: true,
+      items: cachedItems.map(item => expertConfig.formatItemFromCache(item)),
+      count: cachedItems.length
+    };
+  } catch (error) {
+    console.error('❌ Error retrieving cached expert profiles:', error);
+    return {
+      success: false,
+      error: error.message,
+      items: [],
+      count: 0
+    };
+  }
+}
+
+/**
+ * Retrieves the most recent session's cached expert profiles from Redis
+ * @param {Object} options - Additional options for retrieval
+ * @returns {Promise<Object>} Object containing success status, items array, and count
+ */
+async function getRecentCachedEntities(options = {}) {
+  const entityType = 'expert';
+  const redisClient = createRedisClient();
+  
+  try {
+    await redisClient.connect();
+    
+    // Step 1: Retrieve the latest session ID from metadata
+    const metadata = await redisClient.hGetAll(`${entityType}:metadata`);
+    const latestSessionId = metadata.last_session;
+    
+    if (!latestSessionId) {
+      console.warn('⚠️ No session ID found in metadata. Cache may be empty or corrupted.');
+      return {
+        success: false,
+        error: 'No recent cache session found',
+        items: [],
+        count: 0
+      };
+    }
+    
+    console.log(`📊 Found latest session ID: ${latestSessionId}`);
+    
+    // Step 2: Get all entities using the existing function
+    const allEntities = await getCachedEntities(null, options);
+    
+    if (!allEntities.success) {
+      return allEntities; // Return error if fetching failed
+    }
+    
+    // Step 3: Filter entities by session ID
+    const sessionItems = allEntities.items.filter(item => 
+      item.cache_session === latestSessionId
+    );
+    
+    console.log(`✅ Retrieved ${sessionItems.length} experts from session ${latestSessionId}`);
+    
+    return {
+      success: true,
+      items: sessionItems,
+      count: sessionItems.length,
+      sessionId: latestSessionId
+    };
+  } catch (error) {
+    console.error('❌ Error retrieving recent cached expert profiles:', error);
+    return {
+      success: false,
+      error: error.message,
+      items: [],
+      count: 0
+    };
+  } finally {
+    await redisClient.disconnect();
+  }
+}
+
 module.exports = {
-  cacheEntities
+  cacheEntities,
+  getCachedEntities,
+  getRecentCachedEntities
 };

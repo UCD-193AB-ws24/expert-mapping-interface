@@ -60,7 +60,7 @@ function getExpertIds(experts) {
  * @param {number} maxPages - Maximum number of pages to fetch (for testing)
  * @returns {Promise<Array>} Array of expert IDs
  */
-async function fetchAllExpertIds(maxPages = 20) {
+async function fetchAllExpertIds(maxPages = Infinity) {
   const experts = await fetchAllExperts(maxPages);
   const expertIds = getExpertIds(experts);
   return expertIds;
