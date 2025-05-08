@@ -21,21 +21,6 @@ const axios = require('axios');
 const API_TOKEN = 'Bearer ' + process.env.API_TOKEN;
 
 /**
- * Logs the progress of API batch operations
- * @param {string} type - The type of data being fetched (e.g., 'experts', 'works', 'grants')
- * @param {number} page - The current page being processed
- * @param {boolean} done - Whether the operation is complete
- * @param {number} total - The total number of items fetched (only used when done=true)
- */
-function logBatch(type, page, done = false, total = 0) {
-    if (!done) {
-        console.log(`[${type}] Fetched ${page} pages so far...`);
-    } else {
-        console.log(`[${type}] Finished fetching. Total pages: ${page}, Total items: ${total}`);
-    }
-}
-
-/**
  * Makes a GET request to the Aggie Experts API
  * @param {string} url - The API endpoint URL
  * @param {Object} params - Query parameters for the request
@@ -55,7 +40,6 @@ async function fetchFromApi(url, params = {}, headers = {}) {
 
 
 module.exports = { 
-    logBatch, 
     fetchFromApi, 
     API_TOKEN 
 };

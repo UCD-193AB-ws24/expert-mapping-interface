@@ -14,7 +14,7 @@
 require('dotenv').config();
 const { createClient } = require('redis');
 
-// ===== Redis Client Configuration =====
+// Redis Client Configuration
 
 /**
  * Create Redis client with appropriate configuration

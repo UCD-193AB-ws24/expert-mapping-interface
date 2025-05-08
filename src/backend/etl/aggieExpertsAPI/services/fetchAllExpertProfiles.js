@@ -15,8 +15,8 @@ const { getExpertData } = require('./fetchProfile');
 // Configuration
 const CONFIG = {
   outputPath: path.join(__dirname, 'expertProfiles.json'),
-  worksLimit: 1,  // Number of works to include per expert
-  grantsLimit: 1, // Number of grants to include per expert
+  worksLimit: 5,  // Number of works to include per expert
+  grantsLimit: 5, // Number of grants to include per expert
 };
 
 /**

@@ -15,7 +15,6 @@ const { fetchFromApi, API_TOKEN } = require('../utils/fetchingUtils');
 async function fetchAllExperts(maxPages = 1) {
   let page = 0;
   let experts = [];
-  const batchSize = 10;
 
   try {
     while (page < maxPages) {
@@ -32,10 +31,9 @@ async function fetchAllExperts(maxPages = 1) {
         id: expert['@id'] ? expert['@id'].split('/').pop() : null
       })));
 
-      if (page % batchSize === 0 && page !== 0) {
-        console.log(`Fetched ${experts.length} experts...`);
-      }
+      
       page++;
+     
     }
 
     console.log(`✅ Fetched ${experts.length} experts in total.`);
@@ -62,7 +60,7 @@ function getExpertIds(experts) {
  * @param {number} maxPages - Maximum number of pages to fetch (for testing)
  * @returns {Promise<Array>} Array of expert IDs
  */
-async function fetchAllExpertIds(maxPages = 1) {
+async function fetchAllExpertIds(maxPages = 20) {
   const experts = await fetchAllExperts(maxPages);
   const expertIds = getExpertIds(experts);
   return expertIds;

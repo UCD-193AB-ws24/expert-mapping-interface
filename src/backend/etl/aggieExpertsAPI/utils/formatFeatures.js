@@ -2,8 +2,7 @@
  * @file format.js
  * @description Formats expert profiles into work-centric and grant-centric JSON files
  * 
- * Created May 8, 2025
- * Updated May 8, 2025 - Handle issued field as array
+ * Zoey Vo, 2025
  */
 
 /**

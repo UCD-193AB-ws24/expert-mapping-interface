@@ -7,14 +7,14 @@
 
 const { cacheItems } = require('../utils/redisUtils');
 
-// ===== Expert Profile Cache Configuration =====
+// Expert Profile Cache Configuration
 const expertConfig = {
   getItemId: (expert, index) => {
     const id = expert.url ? expert.url.split('/').pop() : index.toString();
     return id;
   },
   isItemUnchanged: (expert, existingExpert) => {
-    // Compare content directly
+    // Compare content and modifed date
     const currentContent = JSON.stringify({
       firstName: expert.firstName,
       lastName: expert.lastName,

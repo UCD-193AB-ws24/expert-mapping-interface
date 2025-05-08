@@ -102,7 +102,6 @@ async function fetchAndPersistExpertProfiles() {
   }
 }
 
-// Run the script if called directly
 if (require.main === module) {
   fetchAndPersistExpertProfiles();
 }
