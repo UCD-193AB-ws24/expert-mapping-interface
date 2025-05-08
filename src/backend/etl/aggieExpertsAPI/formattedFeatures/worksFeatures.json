@@ -1,0 +1,157 @@
+[
+  {
+    "title": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks",
+    "name": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks Published article-journal 2016-12-01,2016-01-01 Castro Journal of Lightwave Technology 1558-2213",
+    "issued": "2016-12-01",
+    "abstract": [
+      "© 2016 IEEE. This paper proposes a new networking paradigm introducing the broker-plane above the management planes of Autonomous Systems (ASes). The brokers communicate with the manager of each AS to assist coordinate end-to-end resource management and path provisioning across the multi-AS networks involving multiple operators. The broker plane updates the virtual network topology, manages the resource information of inter-AS links and aggregated (abstracted) intra-AS links, and computes end-to-end routing, modulation formats, and spectrum assignment (RMSA). Notwithstanding, due to the different dynamicity of each AS, the probability of finding a multi-AS transparent path fulfilling the spectrum continuity and contiguity constraints might be low. To improve the grade of the inter-domain connectivity service, spectrum converters can be installed in inter-domain nodes or per-AS defragmentation can be performed with a global view. In this paper, we introduce a mechanism where each AS can advertise its internal capabilities, e.g., spectrum conversion, their ability to implement spectrum defragmentation or any other network feature. The Multi-AS RMSA with Defragmentation Capability problem is presented and mathematically modeled. A heuristic algorithm is designed to solve it. The mechanism's workflow is comprehensively tested using simulations. Results show connection blocking reduction as high as 26%, clearly validating the benefits of the proposed mechanism. Finally, its experimental assessment was conducted on a distributed multi-continental testbed.",
+      "This paper proposes a new networking paradigm introducing the broker-plane above the management planes of Autonomous Systems (ASes). The brokers communicate with the manager of each AS to assist coordinate end-to-end resource management and path provisioning across the multi-AS networks involving multiple operators. The broker plane updates the virtual network topology, manages the resource information of inter-AS links and aggregated (abstracted) intra-AS links, and computes end-to-end routing, modulation formats, and spectrum assignment (RMSA). Notwithstanding, due to the different dynamicity of each AS, the probability of finding a multi-AS transparent path fulfilling the spectrum continuity and contiguity constraints might be low. To improve the grade of the inter-domain connectivity service, spectrum converters can be installed in inter-domain nodes or per-AS defragmentation can be performed with a global view. In this paper, we introduce a mechanism where each AS can advertise its internal capabilities, e.g., spectrum conversion, their ability to implement spectrum defragmentation or any other network feature. The Multi-AS RMSA with Defragmentation Capability problem is presented and mathematically modeled. A heuristic algorithm is designed to solve it. The mechanism's workflow is comprehensively tested using simulations. Results show connection blocking reduction as high as 26%, clearly validating the benefits of the proposed mechanism. Finally, its experimental assessment was conducted on a distributed multi-continental testbed."
+    ],
+    "authors": [
+      "Alberto Castro",
+      "Luis Velasco",
+      "Lluis Gifre",
+      "Cen Chen",
+      "Jie Yin",
+      "Zuqing Zhu",
+      "Roberto Proietti",
+      "Sung-Joo Ben Yoo"
+    ],
+    "id": "1856515",
+    "type": "Scholarly  Article",
+    "relatedExperts": [
+      {
+        "expertId": "83x5AQ8a",
+        "firstName": "Sung-Joo",
+        "middleName": "Ben",
+        "lastName": "Yoo",
+        "fullName": "Sung-Joo Ben Yoo",
+        "title": "Professor",
+        "organizationUnit": "Elec & Comp Engr",
+        "url": "expert/83x5AQ8a"
+      }
+    ]
+  },
+  {
+    "title": "A Monolithic InP-based Photonic Integrated Circuit for Optical Arbitrary Waveform Generation",
+    "name": "A Monolithic InP-based Photonic Integrated Circuit for Optical Arbitrary Waveform Generation Published paper-conference 2008-02-01 Jiang OFC/NFOEC 2008 - 2008 Conference on Optical Fiber Communication/National Fiber Optic Engineers Conference",
+    "issued": "2008-02-01",
+    "abstract": "We demonstrate a compact monolithically-integrated InP optical arbitrary waveform generator, consisting of an arrayed waveguide grating pair with 10 GHz channel spacing, 10 high-speed optical amplitude modulators, and 10 high-speed optical phase modulators. © 2008 Optical Society of America.",
+    "authors": [
+      "W Jiang",
+      "FM Soares",
+      "SW Seo",
+      "JH Baek",
+      "NK Fontaine",
+      "RG Broeke",
+      "J Cao",
+      "J Yan",
+      "K Okamoto",
+      "F Olsson",
+      "S Lourdudoss",
+      "A Pham",
+      "SJ Ben Yoo",
+      "SJ Ben Yoo"
+    ],
+    "id": "4049037",
+    "type": "Scholarly  Article",
+    "relatedExperts": [
+      {
+        "expertId": "83x5AQ8a",
+        "firstName": "Sung-Joo",
+        "middleName": "Ben",
+        "lastName": "Yoo",
+        "fullName": "Sung-Joo Ben Yoo",
+        "title": "Professor",
+        "organizationUnit": "Elec & Comp Engr",
+        "url": "expert/83x5AQ8a"
+      }
+    ]
+  },
+  {
+    "title": "Demonstration of a 6×10 gb/s multiuser time-slotted SPECTS O-CDMA Network testbed",
+    "name": "Demonstration of a 6×10 gb/s multiuser time-slotted SPECTS O-CDMA Network testbed Published paper-conference 2005-01-01 Cong Optics InfoBase Conference Papers 2162-2701",
+    "issued": "2005-01-01",
+    "abstract": "We demonstrate error-free performance of a six-user, 10 Gb/s/user, time-slotted SPECTS O-CDMA network testbed. Careful system engineering and a nonlinear thresholder effectively suppress multiuser interference. © 2005 Optical Society of America.",
+    "authors": [
+      "W Cong",
+      "RP Scott",
+      "VJ Hernandez",
+      "K Li",
+      "BH Kolner",
+      "JP Heritage",
+      "SJB Yoo"
+    ],
+    "id": "635745",
+    "type": "Scholarly  Article",
+    "relatedExperts": [
+      {
+        "expertId": "83x5AQ8a",
+        "firstName": "Sung-Joo",
+        "middleName": "Ben",
+        "lastName": "Yoo",
+        "fullName": "Sung-Joo Ben Yoo",
+        "title": "Professor",
+        "organizationUnit": "Elec & Comp Engr",
+        "url": "expert/83x5AQ8a"
+      }
+    ]
+  },
+  {
+    "title": "Sinusoidal phase modulation as a gate for FROG",
+    "name": "Sinusoidal phase modulation as a gate for FROG Published paper-conference 2007-01-01 Fontaine Optics InfoBase Conference Papers 2162-2701",
+    "issued": "2007-01-01",
+    "abstract": "A sinusoidal phase-modulation gate for cross-correlation frequency-resolved optical gating (PMFROG) is demonstrated. This low-loss, linear gating technique can be used without separate gate characterization via a blind FROG algorithm with a simple intensity constraint. © 2007 Optical Society of America.",
+    "authors": [
+      "NK Fontaine",
+      "RP Scott",
+      "JP Heritage",
+      "BH Kolner",
+      "SJB Yoo"
+    ],
+    "id": "561008",
+    "type": "Scholarly  Article",
+    "relatedExperts": [
+      {
+        "expertId": "83x5AQ8a",
+        "firstName": "Sung-Joo",
+        "middleName": "Ben",
+        "lastName": "Yoo",
+        "fullName": "Sung-Joo Ben Yoo",
+        "title": "Professor",
+        "organizationUnit": "Elec & Comp Engr",
+        "url": "expert/83x5AQ8a"
+      }
+    ]
+  },
+  {
+    "title": "320-Gb/s capacity (32 users × 10 Gb/s) SPECTS O-CDMA local area network testbed",
+    "name": "320-Gb/s capacity (32 users × 10 Gb/s) SPECTS O-CDMA local area network testbed Published paper-conference 2006-12-14 Hernandez 2006 Optical Fiber Communication Conference, and the 2006 National Fiber Optic Engineers Conference",
+    "issued": "2006-12-14",
+    "abstract": "We demonstrate, for the first time, an error-free, 320-Gb/s optical code division multiple access (O-CDMA) network testbed employing the spectral phase encoded time spreading (SPECTS) technique. Results with and without forward error correction (FEC) are presented. © 2006 Optical Society of America.",
+    "authors": [
+      "VJ Hernandez",
+      "W Cong",
+      "RP Scott",
+      "C Yang",
+      "NK Fontaine",
+      "BH Kolner",
+      "JP Heritage",
+      "SJB Yoo"
+    ],
+    "id": "561007",
+    "type": "Scholarly  Article",
+    "relatedExperts": [
+      {
+        "expertId": "83x5AQ8a",
+        "firstName": "Sung-Joo",
+        "middleName": "Ben",
+        "lastName": "Yoo",
+        "fullName": "Sung-Joo Ben Yoo",
+        "title": "Professor",
+        "organizationUnit": "Elec & Comp Engr",
+        "url": "expert/83x5AQ8a"
+      }
+    ]
+  }
+]

@@ -5,7 +5,7 @@ This directory contains the Extract, Transform, Load (ETL) pipeline for the Expe
 ## Overview
 
 ```
-Data Fetching → Expert Matching → Location Processing → GeoJSON Generation 
+Data Fetching → Location Processing → GeoJSON Generation 
 ```
 
 ---
@@ -14,42 +14,34 @@ Data Fetching → Expert Matching → Location Processing → GeoJSON Generation
 
 ### 1. Data Extraction (`/aggieExpertsAPI`)
 
-- **services/FetchingService.js**: Core service that handles fetching and caching data from the Aggie Experts API to Redis.
-- **fetchFeatures.js**: Unified entry point for fetching all data types (experts, works, grants).
+- **persistExpertProfiles.js**: Main controller for fetching and persisting expert profiles with works and grants to both file storage and Redis cache.
+- **getExpertFeatures.js**: Retrieves cached expert profiles and generates formatted work and grant feature collections, supporting both recent-only (default) and full dataset retrieval.
+- **services/fetchExpertID.js**: Handles the retrieval of all expert IDs from the Aggie Experts API.
+- **services/fetchProfileByID.js**: Fetches detailed information for a specific expert profile, including associated works and grants, with support for paginated data retrieval.
+- **services/expertProfileCache.js**: Oversees the caching and retrieval of expert profiles in Redis, utilizing session-based storage to monitor updates and changes over time.
+- **utils/formatFeatures.js**: Converts expert profiles into structured formats focused on works and grants, establishing relationship mappings between them.
   - Example:
     ```bash
-    node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js [expert|work|grant]
+    node ./src/backend/etl/aggieExpertsAPI/persistExpertProfiles.js [numExperts=1] [worksLimit=5] [grantsLimit=5]
+    node ./src/backend/etl/aggieExpertsAPI/getExpertFeatures.js [--all]
     ```
-  - No arguments → fetch all types
-- Output data:
-  - Redis containing fetched expert, work, and grant data
-  - Accessible via KEYS:
-    - expert:*
-    - work:*
-    - grant:*
-
-### 2. Expert Matching (`/aggieExpertsAPI`)
-
-- **matchFeatures.js**: Orchestrates the matching process for works and grants to experts using the Redis cache.
-- **services/MatchingService.js**: Contains the logic for matching works (by author name) and grants (by expert url) to experts.
-- Example:
-    ```bash
-    node ./src/geo/etl/aggieExpertsAPI/matchFeatures.js [work|grant]
-    ```
-  - No arguments → match both
 - Output files:
-  - `expertMatchedWorks.json`:  Research work data with associated expert profiles
-  - `expertMatchedGrants.json`: Grant data with with associated expert profiles
+  - `expertProfiles.json`: Complete expert profiles with associated works and grants, including metadata like timestamps and session IDs
+  - `worksFeatures.json`: Work-centric data with related expert information and bibliographic metadata
+  - `grantsFeatures.json`: Grant-centric data with related expert information and funding details
+- Redis caching structure:
+  - Expert profiles stored with key pattern: `expert:{expertId}`
+  - Session-based tracking for detecting changes
+  - Metadata stored as `expert:metadata` with statistics and timestamps
 
-
-### 3. Location Processing (`/locationAssignment`)
+### 2. Location Processing (`/locationAssignment`)
 
 - **extractLocations.js**: Uses LLM (llama3.3) to identify geographic entities from text
 - **validateLocations.js**: Standardizes location names against ISO references
 - **geocodeLocations.js**: Converts locations to geographic coordinates
 - **processLocations.js**: Manages the complete location workflow
 
-### 4. GeoJSON Generation (`/geojsonGeneration`)
+### 3. GeoJSON Generation (`/geojsonGeneration`)
 
 - **generateGeoJson.js**: Creates finalized GeoJSON files to be stored in PostGIS
 - Example:
