@@ -14,42 +14,31 @@ Data Fetching → Expert Matching → Location Processing → GeoJSON Generation
 
 ### 1. Data Extraction (`/aggieExpertsAPI`)
 
-- **services/FetchingService.js**: Core service that handles fetching and caching data from the Aggie Experts API to Redis.
-- **fetchFeatures.js**: Unified entry point for fetching all data types (experts, works, grants).
+- **persistExpertProfiles.js**: Main file for fetching and persisting expert profiles with their works and grants.
+- **services/fetchAllExpertProfiles.js**: Retrieves expert profiles from the Aggie Experts API.
+- **services/fetchProfile.js**: Processes and formats expert profile data including works and grants.
+- **utils/formatFeatures.js**: Formats expert profiles into work-centric and grant-centric JSON files.
   - Example:
     ```bash
-    node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js [expert|work|grant]
+    node ./src/geo/etl/aggieExpertsAPI/persistExpertProfiles.js
     ```
-  - No arguments → fetch all types
-- Output data:
-  - Redis containing fetched expert, work, and grant data
+- Output files:
+  - `expertProfiles.json`: Contains all expert profiles with their associated works and grants
+  - `worksFeatures.json`: Work-centric data with related expert information
+  - `grantsFeatures.json`: Grant-centric data with related expert information
+- Redis caching:
+  - Redis containing expert profile data
   - Accessible via KEYS:
     - expert:*
-    - work:*
-    - grant:*
 
-### 2. Expert Matching (`/aggieExpertsAPI`)
-
-- **matchFeatures.js**: Orchestrates the matching process for works and grants to experts using the Redis cache.
-- **services/MatchingService.js**: Contains the logic for matching works (by author name) and grants (by expert url) to experts.
-- Example:
-    ```bash
-    node ./src/geo/etl/aggieExpertsAPI/matchFeatures.js [work|grant]
-    ```
-  - No arguments → match both
-- Output files:
-  - `expertMatchedWorks.json`:  Research work data with associated expert profiles
-  - `expertMatchedGrants.json`: Grant data with with associated expert profiles
-
-
-### 3. Location Processing (`/locationAssignment`)
+### 2. Location Processing (`/locationAssignment`)
 
 - **extractLocations.js**: Uses LLM (llama3.3) to identify geographic entities from text
 - **validateLocations.js**: Standardizes location names against ISO references
 - **geocodeLocations.js**: Converts locations to geographic coordinates
 - **processLocations.js**: Manages the complete location workflow
 
-### 4. GeoJSON Generation (`/geojsonGeneration`)
+### 3. GeoJSON Generation (`/geojsonGeneration`)
 
 - **generateGeoJson.js**: Creates finalized GeoJSON files to be stored in PostGIS
 - Example:
