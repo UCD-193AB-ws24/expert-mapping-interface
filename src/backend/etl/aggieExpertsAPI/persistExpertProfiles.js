@@ -9,8 +9,8 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { cacheEntities } = require('./services/expertProfileCache');
-const { fetchExpertProfiles } = require('./services/fetchExpertProfiles');
-const { formatExpertProfiles } = require('./format');
+const { fetchAllExpertProfiles } = require('./services/fetchAllExpertProfiles');
+const { formatFeatures } = require('./utils/formatFeatures');
 
 // Configuration
 const CONFIG = {
@@ -37,7 +37,7 @@ async function persistExpertProfiles(expertProfiles) {
     console.log(`✅ Saved ${expertProfiles.length} expert profiles to ${CONFIG.expertProfilesPath}`);
     
     // Step 2: Format expert profiles into work-centric and grant-centric JSONs
-    const { works, grants } = formatExpertProfiles(expertProfiles);
+    const { works, grants } = formatFeatures(expertProfiles);
     
     // Step 3: Save formatted works to file
     await fs.writeFile(
@@ -85,7 +85,7 @@ async function persistExpertProfiles(expertProfiles) {
 async function fetchAndPersistExpertProfiles() {
   try {
     // Step 1: Fetch expert profiles
-    const expertProfiles = await fetchExpertProfiles();
+    const expertProfiles = await fetchAllExpertProfiles();
     
     // Check if profiles were returned
     if (!expertProfiles || !Array.isArray(expertProfiles)) {

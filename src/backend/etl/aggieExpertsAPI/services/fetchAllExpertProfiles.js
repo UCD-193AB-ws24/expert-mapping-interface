@@ -1,5 +1,5 @@
 /**
- * @file fetchExpertProfiles.js
+ * @file fetchAllExpertProfiles.js
  * @description This module retrieves and processes expert profiles by:
  *              1. Fetching a list of expert IDs from the Aggie Experts API.
  *              2. Retrieving detailed profile information, including works and grants, for each expert.
@@ -9,8 +9,8 @@
  */
 
 const path = require('path');
-const { fetchAllExpertIds } = require('./fetchExperts');
-const { getExpertData } = require('./fetchProfiles');
+const { fetchAllExpertIds } = require('./fetchExpert');
+const { getExpertData } = require('./fetchProfile');
 
 // Configuration
 const CONFIG = {
@@ -23,7 +23,7 @@ const CONFIG = {
  * Main function to fetch and process expert profiles
  * @returns {Promise<Array>} - Array of expert profiles with their works and grants
  */
-async function fetchExpertProfiles() {
+async function fetchAllExpertProfiles() {
   try {
     // Step 1: Get all expert IDs
     console.log('\nFetching expert IDs...');
@@ -52,9 +52,9 @@ async function fetchExpertProfiles() {
     return expertProfiles;
     
   } catch (error) {
-    console.error('❌ Error in fetchExpertProfiles:', error);
+    console.error('❌ Error in fetchAllExpertProfiles:', error);
     throw error;
   }
 }
 
-module.exports = { fetchExpertProfiles };
+module.exports = { fetchAllExpertProfiles };

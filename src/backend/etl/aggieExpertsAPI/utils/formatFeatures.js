@@ -6,14 +6,12 @@
  * Updated May 8, 2025 - Handle issued field as array
  */
 
-const { fetchExpertProfiles } = require("./services/fetchExpertProfiles");
-
 /**
  * Format expert profiles into separate work-centric and grant-centric JSON files
  * @param {Array} expertProfiles - Array of expert profiles to format
  * @returns {Object} Object containing formatted works and grants
  */
-function formatExpertProfiles(expertProfiles) {
+function formatFeatures(expertProfiles) {
   // Create maps to track unique works and grants by their IDs
   const worksMap = new Map();
   const grantsMap = new Map();
@@ -88,4 +86,4 @@ function formatExpertProfiles(expertProfiles) {
   };
 }
 
-module.exports = { formatExpertProfiles };
+module.exports = { formatFeatures };
