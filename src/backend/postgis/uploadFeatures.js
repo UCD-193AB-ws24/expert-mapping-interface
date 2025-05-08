@@ -253,6 +253,34 @@ function mergeProperties(existingProperties, newProperties) {
   return { merged, hasChanges };
 }
 
+/**
+ * Merge entries by ID, only adding new or updated entries.
+ * Never removes old entries.
+ * @param {Array} oldEntries - Existing entries from DB
+ * @param {Array} newEntries - Incoming entries from GeoJSON
+ * @returns {{merged: Array, changed: boolean}}
+ */
+function mergeEntriesById(oldEntries, newEntries) {
+  const mergedMap = new Map();
+  let changed = false;
+  // Add all old entries first
+  oldEntries.forEach(e => e && e.id && mergedMap.set(e.id, e));
+  // Add or update with new entries
+  newEntries.forEach(e => {
+    if (!e || !e.id) {
+      console.warn('⚠️ Skipping entry with missing id:', e);
+      return;
+    }
+    if (!mergedMap.has(e.id) || !isDeepEqual(mergedMap.get(e.id), e)) {
+      mergedMap.set(e.id, e);
+      changed = true;
+    }
+  });
+  // Always return entries sorted by id for consistency
+  const merged = Array.from(mergedMap.values()).sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  return { merged, changed };
+}
+
 // Function to find matching features using more flexible criteria
 async function findMatchingFeature(client, tableName, feature) {
   const { geometry, properties } = feature;
@@ -345,30 +373,26 @@ async function findMatchingFeature(client, tableName, feature) {
   return null;
 }
 
-// Function to find matching features by name and geometry only
+// Function to find matching features by exact name and geometry
 async function findMatchingFeatureByNameAndGeometry(client, tableName, feature) {
   const { geometry, properties } = feature;
-  const name = (properties.name || properties.location || '').trim().toLowerCase();
+  const name = (properties.name || properties.location || '').trim();
   if (!name) return null;
   const geoJson = JSON.stringify(geometry);
   let geoResult;
   if (geometry.type === 'Point' || geometry.type === 'MultiPoint') {
-    // For points, find features with same name and within ~10 meters
+    // For points, require exact coordinates and exact name
     geoResult = await client.query(`
       SELECT id, properties FROM ${tableName}
-      WHERE LOWER(TRIM(properties->>'name')) = $1
-        AND ST_DWithin(
-          geom,
-          ST_SetSRID(ST_GeomFromGeoJSON($2), 4326),
-          0.0001
-        )
+      WHERE TRIM(properties->>'name') = $1
+        AND geom = ST_SetSRID(ST_GeomFromGeoJSON($2), 4326)
       LIMIT 1;
     `, [name, geoJson]);
   } else {
-    // For polygons, require exact geometry match and same name
+    // For polygons, require exact geometry and exact name
     geoResult = await client.query(`
       SELECT id, properties FROM ${tableName}
-      WHERE LOWER(TRIM(properties->>'name')) = $1
+      WHERE TRIM(properties->>'name') = $1
         AND ST_Equals(
           geom,
           ST_SetSRID(ST_GeomFromGeoJSON($2), 4326)
@@ -409,37 +433,19 @@ async function loadGeoJsonData() {
     for (const feature of worksData.features) {
       const { geometry, properties } = feature;
       const validatedGeometry = validateGeometry(geometry);
-      if (validatedGeometry.type === 'Point' || validatedGeometry.type === 'MultiPoint') {
-        pointCount++;
-      } else if (validatedGeometry.type === 'Polygon' || validatedGeometry.type === 'MultiPolygon') {
-        polygonCount++;
-      } else {
-        otherGeometryCount++;
-      }
+      if (validatedGeometry.type === 'Point' || validatedGeometry.type === 'MultiPoint') pointCount++;
+      else if (validatedGeometry.type === 'Polygon' || validatedGeometry.type === 'MultiPolygon') polygonCount++;
+      else otherGeometryCount++;
       const { name = 'Unnamed work' } = properties;
-      // Use new matching: name+geometry
       const existingFeature = await findMatchingFeatureByNameAndGeometry(client, tables.works, { geometry: validatedGeometry, properties });
       if (existingFeature) {
         const existingId = existingFeature.id;
         const existingProperties = existingFeature.properties;
-        // Only update entries array if changed
-        const oldEntries = existingProperties.entries || [];
-        const newEntries = properties.entries || [];
-        let entriesChanged = false;
-        // Merge entries by id
-        const mergedEntriesMap = new Map();
-        oldEntries.forEach(e => e.id && mergedEntriesMap.set(e.id, e));
-        newEntries.forEach(e => {
-          if (!e.id) return;
-          if (!mergedEntriesMap.has(e.id) || !isDeepEqual(mergedEntriesMap.get(e.id), e)) {
-            mergedEntriesMap.set(e.id, e);
-            entriesChanged = true;
-          }
-        });
-        // Remove entries that are not in newEntries? (optional, here we keep all)
-        const mergedEntries = Array.from(mergedEntriesMap.values());
-        if (entriesChanged) {
-          const updatedProperties = { ...existingProperties, entries: mergedEntries };
+        const oldEntries = Array.isArray(existingProperties.entries) ? existingProperties.entries : [];
+        const newEntries = Array.isArray(properties.entries) ? properties.entries : [];
+        const { merged, changed } = mergeEntriesById(oldEntries, newEntries);
+        if (changed) {
+          const updatedProperties = { ...existingProperties, entries: merged };
           console.log(`📝 Updating entries for work: id=${existingId}, name='${name}'`);
           await client.query(`
             UPDATE ${tables.works}
@@ -450,13 +456,14 @@ async function loadGeoJsonData() {
         } else {
           worksSkipped++;
         }
-      } else {
-        await client.query(`
-          INSERT INTO ${tables.works} (name, geom, properties)
-          VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
-        `, [name, JSON.stringify(validatedGeometry), properties]);
-        worksInserted++;
+        continue;
       }
+      // Insert new record if no match
+      await client.query(`
+        INSERT INTO ${tables.works} (name, geom, properties)
+        VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
+      `, [name, JSON.stringify(validatedGeometry), properties]);
+      worksInserted++;
     }
     
     // Process grants data
@@ -471,33 +478,19 @@ async function loadGeoJsonData() {
       for (const feature of grantsData.features) {
         const { geometry, properties } = feature;
         const validatedGeometry = validateGeometry(geometry);
-        if (validatedGeometry.type === 'Point' || validatedGeometry.type === 'MultiPoint') {
-          pointCount++;
-        } else if (validatedGeometry.type === 'Polygon' || validatedGeometry.type === 'MultiPolygon') {
-          polygonCount++;
-        } else {
-          otherGeometryCount++;
-        }
+        if (validatedGeometry.type === 'Point' || validatedGeometry.type === 'MultiPoint') pointCount++;
+        else if (validatedGeometry.type === 'Polygon' || validatedGeometry.type === 'MultiPolygon') polygonCount++;
+        else otherGeometryCount++;
         const { name = 'Unnamed grant' } = properties;
         const existingFeature = await findMatchingFeatureByNameAndGeometry(client, tables.grants, { geometry: validatedGeometry, properties });
         if (existingFeature) {
           const existingId = existingFeature.id;
           const existingProperties = existingFeature.properties;
-          const oldEntries = existingProperties.entries || [];
-          const newEntries = properties.entries || [];
-          let entriesChanged = false;
-          const mergedEntriesMap = new Map();
-          oldEntries.forEach(e => e.id && mergedEntriesMap.set(e.id, e));
-          newEntries.forEach(e => {
-            if (!e.id) return;
-            if (!mergedEntriesMap.has(e.id) || !isDeepEqual(mergedEntriesMap.get(e.id), e)) {
-              mergedEntriesMap.set(e.id, e);
-              entriesChanged = true;
-            }
-          });
-          const mergedEntries = Array.from(mergedEntriesMap.values());
-          if (entriesChanged) {
-            const updatedProperties = { ...existingProperties, entries: mergedEntries };
+          const oldEntries = Array.isArray(existingProperties.entries) ? existingProperties.entries : [];
+          const newEntries = Array.isArray(properties.entries) ? properties.entries : [];
+          const { merged, changed } = mergeEntriesById(oldEntries, newEntries);
+          if (changed) {
+            const updatedProperties = { ...existingProperties, entries: merged };
             console.log(`📝 Updating entries for grant: id=${existingId}, name='${name}'`);
             await client.query(`
               UPDATE ${tables.grants}
@@ -508,13 +501,14 @@ async function loadGeoJsonData() {
           } else {
             grantsSkipped++;
           }
-        } else {
-          await client.query(`
-            INSERT INTO ${tables.grants} (name, geom, properties)
-            VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
-          `, [name, JSON.stringify(validatedGeometry), properties]);
-          grantsInserted++;
+          continue;
         }
+        // Insert new record if no match
+        await client.query(`
+          INSERT INTO ${tables.grants} (name, geom, properties)
+          VALUES ($1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3)
+        `, [name, JSON.stringify(validatedGeometry), properties]);
+        grantsInserted++;
       }
     } catch (error) {
       console.warn('⚠️ Could not load grants data:', error.message);
