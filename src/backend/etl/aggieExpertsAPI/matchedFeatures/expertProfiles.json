@@ -13,7 +13,7 @@
     "works": [
       {
         "title": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks",
-        "name": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks Published article-journal 2016-12-01,2016-01-01 Castro Journal of Lightwave Technology 1558-2213 10.1109/jlt.2016.2610964",
+        "name": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks Published article-journal 2016-12-01,2016-01-01 Castro Journal of Lightwave Technology 1558-2213",
         "issued": [
           "2016-12-01",
           "2016-01-01"
@@ -32,33 +32,7 @@
           "Roberto Proietti",
           "Sung-Joo Ben Yoo"
         ],
-        "DOI": "10.1109/jlt.2016.2610964",
         "id": "1856515",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "A Monolithic InP-based Photonic Integrated Circuit for Optical Arbitrary Waveform Generation",
-        "name": "A Monolithic InP-based Photonic Integrated Circuit for Optical Arbitrary Waveform Generation Published paper-conference 2008-02-01 Jiang OFC/NFOEC 2008 - 2008 Conference on Optical Fiber Communication/National Fiber Optic Engineers Conference 10.1109/ofc.2008.4528068",
-        "issued": "2008-02-01",
-        "abstract": "We demonstrate a compact monolithically-integrated InP optical arbitrary waveform generator, consisting of an arrayed waveguide grating pair with 10 GHz channel spacing, 10 high-speed optical amplitude modulators, and 10 high-speed optical phase modulators. © 2008 Optical Society of America.",
-        "authors": [
-          "W Jiang",
-          "FM Soares",
-          "SW Seo",
-          "JH Baek",
-          "NK Fontaine",
-          "RG Broeke",
-          "J Cao",
-          "J Yan",
-          "K Okamoto",
-          "F Olsson",
-          "S Lourdudoss",
-          "A Pham",
-          "SJ Ben Yoo",
-          "SJ Ben Yoo"
-        ],
-        "DOI": "10.1109/ofc.2008.4528068",
-        "id": "4049037",
         "type": "Scholarly Article"
       }
     ],
@@ -67,21 +41,11 @@
         "id": "K320B61-117089",
         "title": "All-to-all optical shuffle device based on arrayed waveguide grating routers",
         "name": "All-to-all optical shuffle device based on arrayed waveguide grating routers § Completed • 2016 - 2018 • Yoo, S. J. Ben § National Security Agency • H98230-16-C-0820",
-        "assignedBy": "National Security Agency",
+        "funder": "National Security Agency",
         "status": "Completed",
         "startDate": "2016-10-01",
         "endDate": "2018-12-31",
         "grantRole": "Co Principal Investigator Role"
-      },
-      {
-        "id": "K321127-1324",
-        "title": "NSF ECS-00-70444",
-        "name": "NSF ECS-00-70444 § Completed • 2000 - 2005 • Yoo, S. J. Ben § National Science Foundation • 0070444",
-        "assignedBy": "National Science Foundation",
-        "status": "Completed",
-        "startDate": "2000-09-01",
-        "endDate": "2005-08-31",
-        "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
   },
@@ -99,7 +63,7 @@
     "works": [
       {
         "title": "Increased expression of soluble epoxide hydrolase in the brain and liver from patients with major psychiatric disorders: A role of brain – liver axis",
-        "name": "Increased expression of soluble epoxide hydrolase in the brain and liver from patients with major psychiatric disorders: A role of brain – liver axis Published article-journal 2020-06 Zhang Journal of Affective Disorders 1573-2517 10.1016/j.jad.2020.03.070",
+        "name": "Increased expression of soluble epoxide hydrolase in the brain and liver from patients with major psychiatric disorders: A role of brain – liver axis Published article-journal 2020-06 Zhang Journal of Affective Disorders 1573-2517",
         "issued": "2020-06",
         "abstract": "BACKGROUND: Soluble epoxide hydrolase (sEH) in the metabolism of polyunsaturated fatty acids might play a role in the pathogenesis of major psychiatric disorders. Here we studied whether expression of sEH protein is altered in the postmortem samples (parietal cortex, and liver) from patients with major psychiatric disorders. METHODS: Protein expression of sEH in the parietal cortex and liver from control, major depressive disorder (MDD), bipolar disorder (BD), and schizophrenia (SZ) groups was measured. RESULTS: Levels of sEH in the parietal cortex and liver from MDD, BD, and SZ groups were significantly higher than the control group. Interestingly, there was a positive correlation between sEH protein in the parietal cortex and sEH protein the liver in all groups. LIMITATIONS: The small number in each group may limit our interpretation. CONCLUSIONS: This study shows that the increased expression of sEH in the brain and liver might play a role in the pathogenesis of major psychiatric disorders, suggesting a role of brain - liver axis in major psychiatric disorders.",
         "authors": [
@@ -109,28 +73,7 @@
           "Bruce D Hammock",
           "Kenji Hashimoto"
         ],
-        "DOI": "10.1016/j.jad.2020.03.070",
         "id": "3089189",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "Lack of rewarding effects of a soluble epoxide hydrolase inhibitor TPPU in mice: Comparison with morphine",
-        "name": "Lack of rewarding effects of a soluble epoxide hydrolase inhibitor TPPU in mice: Comparison with morphine Published article-journal 2020-12 Wan Nihon shinkei seishin yakurigaku zasshi = Japanese journal of psychopharmacology 2574-173X 10.1002/npr2.12136",
-        "issued": "2020-12",
-        "abstract": "AIM: Although opioids have been used as treatment of neuropathic pain, opioids have abuse potential in humans. Since soluble epoxide hydrolase (sEH) in the metabolism of polyunsaturated fatty acids plays a key role in the pain, sEH inhibitors would be promising new therapeutic drugs for neuropathic pain. In this study, we examined the effect of the sEH inhibitor TPPU on rewarding effects in mice using the conditioned place preference (CPP) paradigm. METHODS: The rewarding effects of morphine (10 mg/kg) and TPPU (3, 10, or 30 mg/kg) in mice were examined using CPP paradigm. Furthermore, the effect of TPPU (30 mg/kg) on morphine-induced rewarding effects was examined. RESULTS: TPPU (3, 10, or 30 mg/kg) did not increase CPP scores in the mice whereas morphine significantly increased CPP scores in the mice. Furthermore, pretreatment with TPPU did not block the rewarding effects of morphine in the mice, suggesting that sEH does not play a role in the rewarding effect of morphine. CONCLUSION: This study suggests that TPPU did not have rewarding effects in rodents. This would make sEH inhibitors potential therapeutic drugs without abuse potential for neuropathic pain.",
-        "authors": [
-          "Xiayun Wan",
-          "Yuko Fujita",
-          "Lijia Chang",
-          "Yan Wei",
-          "Li Ma",
-          "Gerile Wuyun",
-          "Yaoyu Pu",
-          "Bruce D Hammock",
-          "Kenji Hashimoto"
-        ],
-        "DOI": "10.1002/npr2.12136",
-        "id": "3183044",
         "type": "Scholarly Article"
       }
     ],
@@ -139,21 +82,11 @@
         "id": "K320838-1129",
         "title": "BATTELLE MEMORIAL INSTITUTE #171034",
         "name": "BATTELLE MEMORIAL INSTITUTE #171034 § Completed • 2002 - 2004 • Hammock, Bruce § Battelle Memorial Institute • 171034/02-00050V",
-        "assignedBy": "Battelle Memorial Institute",
+        "funder": "Battelle Memorial Institute",
         "status": "Completed",
         "startDate": "2002-03-15",
         "endDate": "2004-09-30",
         "grantRole": "Grant Role,Principal Investigator Role"
-      },
-      {
-        "id": "K321909-105459",
-        "title": "Development of a fluorescent 96-well assay for dual detection of esterase- and GST- mediated pyrethroid resistance in mosquito",
-        "name": "Development of a fluorescent 96-well assay for dual detection of esterase- and GST- mediated pyrethroid resistance in mosquito § Completed • 2012 - 2013 • Hammock, Bruce § Mosquito Research Foundation • 201222676",
-        "assignedBy": "Mosquito Research Foundation",
-        "status": "Completed",
-        "startDate": "2012-04-27",
-        "endDate": "2013-12-31",
-        "grantRole": "Co Principal Investigator Role"
       }
     ]
   },
@@ -171,7 +104,7 @@
     "works": [
       {
         "title": "Craniomaxillofacial trauma in immature dogs–etiology, treatments, and outcomes",
-        "name": "Craniomaxillofacial trauma in immature dogs–etiology, treatments, and outcomes Published article-journal 2022 Wolfs Frontiers in Veterinary Science 2297-1769 10.3389/fvets.2022.932587",
+        "name": "Craniomaxillofacial trauma in immature dogs–etiology, treatments, and outcomes Published article-journal 2022 Wolfs Frontiers in Veterinary Science 2297-1769",
         "issued": "2022",
         "abstract": "Treatment of craniomaxillofacial (CMF) trauma in dogs often requires a multidisciplinary approach and a thorough understanding of the CMF anatomical structures involved. This retrospective study aimed to utilize computed tomography (CT) studies of immature dogs evaluated for CMF trauma and to describe common fracture locations, treatment modalities, and complications, as well as the fracture healing outcomes. The medical records and CT studies of 94 dogs under 1 year of age over a 13-year period were evaluated. The skeletal location of CMF fractures, as well as the severity of displacement and fragmentation of each fracture, was recorded. Case demographic data and trauma etiology were also recorded. Animal bites accounted for the majority of trauma (71.0%). The most likely bone or region to be fractured was the maxillary bones, followed by the molar region of the mandibles. Up to 37 bones or specific regions were fractured in any given patient, with an average of 8.8 ± 3.1 fractured bones or regions per dog. Rostral mandibular trauma was associated with intra-articular fractures of the temporomandibular joint (p = 0.016). Patients sustained concomitant injuries in 32% of the cases. Muzzle therapy was the main treatment performed for most dogs (53.2%), followed by soft tissue closure (47.9%) and selective dental extractions (27.6%). Healing complications were recorded in 71.6% of the dogs, with malocclusion being the most reported complication (55.2%), and associated with dentate mandibular jaw fractures (p = 0.05). The average number of complications per dog was 2.4. No statistically significant association was found between treatment modality and healing outcome. There was a positive correlation between the severity of fracture fragmentation and displacement and a negative healing outcome (all rho >0.7). Further treatment was required in 55.6% of the dogs. Additional dental extractions were performed in 77.7% of patients. Healing complications were common in the immature CMF trauma case. Thus, the need for a comprehensive assessment of the entire CMF region during the initial visit, as well as follow-up, preferably using CT or cone beam CT, is underscored.",
         "authors": [
@@ -181,23 +114,7 @@
           "Philip H Kass",
           "Frank JM Verstraete"
         ],
-        "DOI": "10.3389/fvets.2022.932587",
         "id": "3950089",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "Good clinical outcomes achieved in young dogs with tibial tuberosity avulsion fracture repairs when implants were left in situ past skeletal maturity.",
-        "name": "Good clinical outcomes achieved in young dogs with tibial tuberosity avulsion fracture repairs when implants were left in situ past skeletal maturity. Published article-journal 2022-09-28 Miller Journal of the American Veterinary Medical Association 1943-569X 10.2460/javma.22.07.0336",
-        "issued": "2022-09-28",
-        "abstract": "OBJECTIVE: To evaluate outcomes of tibial tuberosity avulsion fractures (TTAF) in dogs with implants left in situ past skeletal maturity and to compare clinical outcomes with published outcomes in dogs whose implants were removed 4 to 6 weeks postoperatively. ANIMALS: 47 client-owned dogs. PROCEDURES: In this retrospective study, 47 dogs had surgery to correct a TTAF before 10 months of age and had the implants left in situ past skeletal maturity. Of these, 42 were followed for a median of 36 months postoperatively. Short- and long-term complications were recorded and compared with historically published data in which the implants were removed within 6 weeks of surgery. RESULTS: 14% (6/42) of our population experienced minor long-term complications (stiffness and lameness), 6% (3/47) experienced major short-term complications (repair failure), and 14% (6/24) experienced major long-term complications (implant removal). There was no difference in long-term outcomes when compared with results of historical reports in which implants were removed 4 to 6 weeks postoperatively. Client satisfaction was high, with 93% (38/41) grading outcomes as excellent and 95% (39/41) stating they would have surgery performed again in retrospect. CLINICAL RELEVANCE: Immature dogs with surgically repaired TTAFs have favorable long-term outcomes when the implants were left in situ past skeletal maturity. Dogs with TTAF repairs may not need implant removal unless it becomes clinically necessary. Avoiding a second procedure will decrease patient morbidity, recovery time, and cost.",
-        "authors": [
-          "Zachary A Miller",
-          "Sady Y Cabrera",
-          "David Mason",
-          "Philip H Kass"
-        ],
-        "DOI": "10.2460/javma.22.07.0336",
-        "id": "3958944",
         "type": "Scholarly Article"
       }
     ],
@@ -206,21 +123,11 @@
         "id": "K328756-112108",
         "title": "PROSPECTIVE EVALUATION OF CALIFORNIAS ARMED AND PROHIBITED PERSONS SYSTEM",
         "name": "PROSPECTIVE EVALUATION OF CALIFORNIAS ARMED AND PROHIBITED PERSONS SYSTEM § Completed • 2015 - 2021 • Wintemute, Garen § National Institute Of Justice • 2014-R2-CX-0012",
-        "assignedBy": "National Institute Of Justice",
+        "funder": "National Institute Of Justice",
         "status": "Completed",
         "startDate": "2015-01-01",
         "endDate": "2021-06-30",
         "grantRole": "Co Principal Investigator Role"
-      },
-      {
-        "id": "K358091-7894",
-        "title": "2004 SURVEY OF PET OWNERSHIP AND STRAY CAT POPULATION IN SANTA CLARA COUNTY",
-        "name": "2004 SURVEY OF PET OWNERSHIP AND STRAY CAT POPULATION IN SANTA CLARA COUNTY § Completed • 2004 - 2005 • Kass, Philip H § Everycat Health Foundation Inc. • 58091",
-        "assignedBy": "Everycat Health Foundation Inc.",
-        "status": "Completed",
-        "startDate": "2004-09-01",
-        "endDate": "2005-06-30",
-        "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
   },
@@ -238,33 +145,14 @@
     "works": [
       {
         "title": "Incidence of malignant lymphoma in adolescents and young adults in the 58 counties of California with varying synthetic turf field density",
-        "name": "Incidence of malignant lymphoma in adolescents and young adults in the 58 counties of California with varying synthetic turf field density Published article-journal 2018-04 Bleyer Cancer Epidemiology 1877-783X 10.1016/j.canep.2018.01.010",
+        "name": "Incidence of malignant lymphoma in adolescents and young adults in the 58 counties of California with varying synthetic turf field density Published article-journal 2018-04 Bleyer Cancer Epidemiology 1877-783X",
         "issued": "2018-04",
         "abstract": "BACKGROUND: Case reports of cancer among soccer players raised concerns that the crumb rubber infill in synthetic turf fields may cause malignant lymphoma. One prior epidemiologic study on the topic found no association. METHODS: An ecologic evaluation of county-level incidence of lymphomas by race/ethnicity and socioeconomic status for the state of California with data obtained from the National Cancer Institute Surveillance, Epidemiology, and End Results Program. Synthetic turf field density by county was obtained from the Synthetic Turf Council. During 2000-2013, 7214 14- to 30-year-old Californians were diagnosed with malignant lymphoma. RESULTS: Annual lymphoma county incidence trends were not associated with the county-level synthetic turf field density. None of 20 sub-analyses by race/ethnicity, sex and county median household income indicated a correlation of lymphoma incidence with synthetic turf field density. In California, there was no evidence at the county-level that synthetic turf fields are associated with an increased incidence of lymphoma in adolescents and young adults. CONCLUSION: Our findings in the state with the greatest number of such fields and a large, diverse patient population are consistent with those of a prior study observing no association between individual-level exposures to turf fields and cancer incidence. Avoidance of synthetic turf fields for fear of increased cancer risk is not warranted.",
         "authors": [
           "Archie Bleyer",
           "Theresa Keegan"
         ],
-        "DOI": "10.1016/j.canep.2018.01.010",
         "id": "3897593",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "Melanoma in women of childbearing age and in pregnancy in California, 1994–2015: a population‐based cohort study",
-        "name": "Melanoma in women of childbearing age and in pregnancy in California, 1994–2015: a population‐based cohort study Published article-journal 2022-11 Kiuru Journal of the European Academy of Dermatology and Venereology 1468-3083 10.1111/jdv.18458",
-        "issued": "2022-11",
-        "abstract": "BACKGROUND: Melanoma is one of the most common malignancies during pregnancy. There is debate regarding the impact of pregnancy on the prognosis of melanoma. Recent large population-based studies from the United States are lacking. OBJECTIVES: To determine the characteristics and survival of women with pregnancy-associated melanoma. METHODS: This population-based, retrospective cohort study used California Cancer Registry data linked with state-wide hospitalization and ambulatory surgery data to identify 15-44-year-old female patients diagnosed with melanoma in 1994-2015, including pregnant patients. Multivariable logistic regression compared demographic and clinical characteristics between pregnant and non-pregnant women with melanoma. Multivariable cox proportional hazards regression models assessed melanoma-specific and overall survival. RESULTS: We identified 13 108 patients, of which 1406 were pregnant. Pregnancy-associated melanoma was more frequent in Hispanic compared to non-Hispanic White women. Melanoma occurring post-partum was associated with greater tumour thickness (2.01-4.00 vs. 0.01-1.00 mm, odds ratio 1.75, 95% confidence interval: 1.03-2.98). There were otherwise no significant differences between pregnant and non-pregnant women. Worse survival was associated with Asian, Black and Native American race/ethnicity (vs. non-Hispanic White), lower neighbourhood socio-economic status, public insurance, tumour site, greater tumour thickness and lymph node involvement, but not pregnancy. CONCLUSIONS: Melanoma occurring post-partum was associated with greater tumour thickness, but pregnancy status did not affect survival after melanoma. Race/ethnicity, socio-economic status and health insurance impacted survival, emphasizing the importance of reducing health disparities.",
-        "authors": [
-          "M Kiuru",
-          "Q Li",
-          "G Zhu",
-          "JR Terrell",
-          "K Beroukhim",
-          "E Maverakis",
-          "THM Keegan"
-        ],
-        "DOI": "10.1111/jdv.18458",
-        "id": "3874918",
         "type": "Scholarly Article"
       }
     ],
@@ -273,21 +161,11 @@
         "id": "K323C58-122336",
         "title": "Evaluation of Health Burden In Adolescent and Young Adult Survivors of Acute Lymphoblastic Leukemia The",
         "name": "Evaluation of Health Burden In Adolescent and Young Adult Survivors of Acute Lymphoblastic Leukemia The § Completed • 2018 - 2019 • Keegan, Theresa H § Stanford University • RQ4468480/PO61822103",
-        "assignedBy": "Stanford University",
+        "funder": "Stanford University",
         "status": "Completed",
         "startDate": "2018-02-16",
         "endDate": "2019-06-30",
         "grantRole": "Co Principal Investigator Role"
-      },
-      {
-        "id": "K331B41-118576",
-        "title": "Disparities in Late Medical Conditions among AYA Cancer Survivors",
-        "name": "Disparities in Late Medical Conditions among AYA Cancer Survivors § Completed • 2017 - 2018 • Keegan, Theresa H § St. Baldrick's Foundation, Inc. • 201703059",
-        "assignedBy": "St. Baldrick's Foundation, Inc.",
-        "status": "Completed",
-        "startDate": "2017-07-01",
-        "endDate": "2018-06-30",
-        "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
   },
@@ -305,7 +183,7 @@
     "works": [
       {
         "title": "Associations of 24-Hour Light Exposure and Activity Patterns and Risk of Cognitive Impairment and Decline in Older Men: The MrOS Sleep Study",
-        "name": "Associations of 24-Hour Light Exposure and Activity Patterns and Risk of Cognitive Impairment and Decline in Older Men: The MrOS Sleep Study Published article-journal 2023-10-09 Blackwell The journals of gerontology. Series A, Biological sciences and medical sciences 1758-535X 10.1093/gerona/glac187",
+        "name": "Associations of 24-Hour Light Exposure and Activity Patterns and Risk of Cognitive Impairment and Decline in Older Men: The MrOS Sleep Study Published article-journal 2023-10-09 Blackwell The journals of gerontology. Series A, Biological sciences and medical sciences 1758-535X",
         "issued": "2023-10-09",
         "abstract": "BACKGROUND: Older men with the worse alignment of activity and light may have lower levels of cognition and increased rates of cognitive decline. METHODS: This cohort consisted of 1 036 older men (81.1 ± 4.6 years) from the MrOS Sleep Study (2009-2012). Light and activity levels were gathered by wrist actigraphy. Phasor analysis was used to quantify the alignment of light-dark and rest-activity patterns (magnitude) and their temporal relationship (angle). Global cognitive function (Modified Mini-Mental State examination [3MS]) and executive function (Trails B test) were measured, then repeated 4.2 ± 0.8 years later. Linear regression models examined the associations of phasor magnitude and angle with cognition and cognitive decline. Models were adjusted for age, clinic, race, education, and season. RESULTS: Smaller phasor magnitude (worse aligned light and activity patterns) was associated with lower initial level and increased decline in executive function. Compared to those with higher phasor magnitude, those with lower magnitude took an average of 11.1 seconds longer to complete the Trails B test (quartile 1 vs quartile 4, p = .02). After follow-up, Trails B completion time increased an average of 5.5 seconds per standard deviation decrease in phasor magnitude (95% confidence interval [CI] 0.7-10.4, p = .03). There were no associations with phasor angle, and none with magnitude and global cognition (3MS). CONCLUSION: Among older men, worse alignment of light and activity patterns was associated with worse initial performance and increased decline in executive function, but not related to global cognition. Interventions that improve the alignment of light and activity may slow cognitive decline in older adults.",
         "authors": [
@@ -322,27 +200,7 @@
           "Katie L Stone",
           "Osteoporotic Fractures in Men Study Group"
         ],
-        "DOI": "10.1093/gerona/glac187",
         "id": "3958317",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "Musculoskeletal Pain, a Possible Indicator of Central Sensitization, Is Positively Associated With Lower Urinary Tract Symptom Progression in Community-Dwelling Older Men.",
-        "name": "Musculoskeletal Pain, a Possible Indicator of Central Sensitization, Is Positively Associated With Lower Urinary Tract Symptom Progression in Community-Dwelling Older Men. Published article-journal 2023-06-01 Senders The journals of gerontology. Series A, Biological sciences and medical sciences 1758-535X 10.1093/gerona/glac204",
-        "issued": "2023-06-01",
-        "abstract": "BACKGROUND: Musculoskeletal pain, a possible marker of central sensitization, is associated with higher prevalence of lower urinary tract symptoms (LUTS) among older men. We investigated whether musculoskeletal pain is associated with LUTS progression. METHODS: Participants were 5 569 men age ≥65 years enrolled in the prospective, multicenter Osteoporotic Fractures in Men (MrOS) Study. Self-reported musculoskeletal pain within 12 months before baseline was categorized as any pain and multilocation pain. Pain interference within 4 weeks of baseline was assessed with the SF-12 questionnaire. LUTS were assessed repeatedly with the American Urological Association Symptom Index (AUA-SI). Men with severe LUTS at baseline were excluded. LUTS progression was defined as the first occurrence of a ≥4-point AUA-SI increase during a 2-year follow-up interval. Incidence rate ratios (IRR) and 95% confidence intervals (CI) were estimated using multivariable pooled logistic regression. RESULTS: LUTS progression was 37% higher among men with any musculoskeletal pain compared with men without pain (IRR 1.37, 95% CI: 1.21, 1.54). Positive associations were also observed between LUTS progression and pain at 1 (IRR 1.31, 95% CI: 1.13, 1.48) and ≥2 locations (IRR 1.42, 95% CI: 1.24, 1.60). Compared with men without pain interference, men with quite a bit/extreme pain interference were most likely to experience LUTS progression (minimal interference IRR 1.15, 95% CI: 1.03, 1.26; moderate interference IRR 1.28, 95% CI: 1.11, 1.45; quite a bit/extreme interference IRR 1.47, 95% CI: 1.22, 1.71). CONCLUSIONS: Among men initially without severe LUTS, musculoskeletal pain is associated with an increased risk of LUTS progression. Studies using validated measures of central sensitization and LUTS progression among men are warranted.",
-        "authors": [
-          "Angela Senders",
-          "Scott R Bauer",
-          "Yiyi Chen",
-          "Barry Oken",
-          "Howard A Fink",
-          "Nancy E Lane",
-          "Kamran P Sajadi",
-          "Lynn M Marshall"
-        ],
-        "DOI": "10.1093/gerona/glac204",
-        "id": "3958980",
         "type": "Scholarly Article"
       }
     ],
@@ -351,20 +209,10 @@
         "id": "K320C73-122005",
         "title": "The Effects of Biologic Therapy with Disease Activity and Circadian Rhythm in Rheumatoid Arthritis Subjects",
         "name": "The Effects of Biologic Therapy with Disease Activity and Circadian Rhythm in Rheumatoid Arthritis Subjects § Completed • 2018 - 2019 • Lane, Nancy §  • ",
-        "assignedBy": "",
+        "funder": "",
         "status": "Completed",
         "startDate": "2018-09-04",
         "endDate": "2019-10-31",
-        "grantRole": "Grant Role,Principal Investigator Role"
-      },
-      {
-        "id": "K320C74-122006",
-        "title": "Prospective Study to Assess Changes in the Number and Activity of Pre-Osteoclasts and Osteoclasts Over Time in Postmenopausal Women Treated with Denosumab or Zoledronic Acid",
-        "name": "Prospective Study to Assess Changes in the Number and Activity of Pre-Osteoclasts and Osteoclasts Over Time in Postmenopausal Women Treated with Denosumab or Zoledronic Acid § Completed • 2018 - 2019 • Lane, Nancy § Amgen Inc. • 277706",
-        "assignedBy": "Amgen Inc.",
-        "status": "Completed",
-        "startDate": "2018-09-04",
-        "endDate": "2019-06-12",
         "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
@@ -383,7 +231,7 @@
     "works": [
       {
         "title": "Search for high-mass resonances decaying to a jet and a Lorentz-boosted resonance in proton-proton collisions at s = 13 TeV",
-        "name": "Search for high-mass resonances decaying to a jet and a Lorentz-boosted resonance in proton-proton collisions at s = 13 TeV Published article-journal 2022-09 Tumasyan Physics Letters B 1873-2445 10.1016/j.physletb.2022.137263",
+        "name": "Search for high-mass resonances decaying to a jet and a Lorentz-boosted resonance in proton-proton collisions at s = 13 TeV Published article-journal 2022-09 Tumasyan Physics Letters B 1873-2445",
         "issued": "2022-09",
         "abstract": "A search is reported for high-mass hadronic resonances that decay to a parton and a Lorentz-boosted resonance, which in turn decays into a pair of partons. The search is based on data collected with the CMS detector at the LHC in proton-proton collisions at s=13TeV, corresponding to an integrated luminosity of 138fb−1. The boosted resonance is reconstructed as a single wide jet with substructure consistent with a two-body decay. The high-mass resonance is thus considered as a dijet system. The jet substructure information and the kinematic properties of cascade resonance decays are exploited to disentangle the signal from the large quantum chromodynamics multijet background. The dijet mass spectrum is analyzed for the presence of new high-mass resonances, and is found to be consistent with the standard model background predictions. Results are interpreted in a warped extra dimension model where the high-mass resonance is a Kaluza–Klein gluon, the boosted resonance is a radion, and the final state partons are all gluons. Limits on the production cross section are set as a function of the Kaluza–Klein gluon and radion masses. These limits exclude at 95% confidence level models with Kaluza–Klein gluon masses in the range 2.0 to 4.3 TeV and radion masses in the range 0.20 to 0.74 TeV. By exploring a novel experimental signature, the observed limits on the Kaluza–Klein gluon mass are extended by up to about 1 TeV compared to previous searches.",
         "authors": [
@@ -429,60 +277,7 @@
           "S Moortgat",
           "W Vetens"
         ],
-        "DOI": "10.1016/j.physletb.2022.137263",
         "id": "3825443",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "Search for heavy resonances decaying to a pair of Lorentz-boosted Higgs bosons in final states with leptons and a bottom quark pair at s= 13 TeV",
-        "name": "Search for heavy resonances decaying to a pair of Lorentz-boosted Higgs bosons in final states with leptons and a bottom quark pair at s= 13 TeV Published article-journal 2022-05-01 Tumasyan Journal of High Energy Physics (JHEP) 1029-8479 10.1007/jhep05(2022)005",
-        "issued": "2022-05-01",
-        "abstract": "A search for new heavy resonances decaying to a pair of Higgs bosons (HH) in proton-proton collisions at a center-of-mass energy of 13 TeV is presented. Data were collected with the CMS detector at the LHC in 2016–2018, corresponding to an integrated luminosity of 138 fb−1. Resonances with a mass between 0.8 and 4.5 TeV are considered using events in which one Higgs boson decays into a bottom quark pair and the other into final states with either one or two charged leptons. Specifically, the single-lepton decay channel HH→ b b ¯ WW∗→ b b ¯ ℓvq q ¯ ′ and the dilepton decay channels HH→ b b ¯ WW∗→ b b ¯ ℓvℓv and HH→ b b ¯ ττ→ b b ¯ ℓvvℓvv are examined, where ℓ in the final state corresponds to an electron or muon. The signal is extracted using a two-dimensional maximum likelihood fit of the H → b b ¯ jet mass and HH invariant mass distributions. No significant excess above the standard model expectation is observed in data. Model-independent exclusion limits are placed on the product of the cross section and branching fraction for narrow spin-0 and spin-2 massive bosons decaying to HH. The results are also interpreted in the context of radion and bulk graviton production in models with a warped extra spatial dimension. The results provide the most stringent limits to date for X → HH signatures with final-state leptons and at some masses provide the most sensitive limits of all X → HH searches. [Figure not available: see fulltext.]",
-        "authors": [
-          "A Tumasyan",
-          "W Adam",
-          "JW Andrejkovic",
-          "T Bergauer",
-          "S Chatterjee",
-          "K Damanakis",
-          "M Dragicevic",
-          "A Escalante Del Valle",
-          "R Frühwirth",
-          "M Jeitler",
-          "N Krammer",
-          "L Lechner",
-          "D Liko",
-          "I Mikulec",
-          "P Paulitsch",
-          "FM Pitters",
-          "J Schieck",
-          "R Schöfbeck",
-          "D Schwarz",
-          "S Templ",
-          "W Waltenberger",
-          "C-E Wulz",
-          "V Chekhovsky",
-          "A Litomin",
-          "V Makarenko",
-          "MR Darwish",
-          "EA De Wolf",
-          "T Janssen",
-          "T Kello",
-          "A Lelek",
-          "H Rejeb Sfar",
-          "P Van Mechelen",
-          "S Van Putte",
-          "N Van Remortel",
-          "F Blekman",
-          "ES Bols",
-          "J D’Hondt",
-          "M Delcourt",
-          "H El Faham",
-          "S Lowette",
-          "W Vetens"
-        ],
-        "DOI": "10.1007/jhep05(2022)005",
-        "id": "3791284",
         "type": "Scholarly Article"
       }
     ],
@@ -491,20 +286,10 @@
         "id": "K326B11-117917",
         "title": "Statement of Work for UC Davis for Activities Related to the High Luminosity (HL) LHC CMS Detector Upgrade Project ? Outer Tracker",
         "name": "Statement of Work for UC Davis for Activities Related to the High Luminosity (HL) LHC CMS Detector Upgrade Project ? Outer Tracker § Completed • 2017 - 2019 • Chertok, Maxwell B § Fermi Research Alliance, Llc • 633923",
-        "assignedBy": "Fermi Research Alliance, Llc",
+        "funder": "Fermi Research Alliance, Llc",
         "status": "Completed",
         "startDate": "2017-01-01",
         "endDate": "2019-12-31",
-        "grantRole": "Grant Role,Principal Investigator Role"
-      },
-      {
-        "id": "K327157-110380",
-        "title": "STATEMENT OF WORK FOR US CMS UNIVERSITY-DAVIS FOR ACTIVITIES RELATED TO THE US CMS PHASE 2 UPGRAGE R & D SUBSYSTEM FOR YEAR 2014",
-        "name": "STATEMENT OF WORK FOR US CMS UNIVERSITY-DAVIS FOR ACTIVITIES RELATED TO THE US CMS PHASE 2 UPGRAGE R & D SUBSYSTEM FOR YEAR 2014 § Completed • 2014 - 2016 • Chertok, Maxwell B § Fermi Research Alliance, Llc • 617433",
-        "assignedBy": "Fermi Research Alliance, Llc",
-        "status": "Completed",
-        "startDate": "2014-01-01",
-        "endDate": "2016-06-30",
         "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
@@ -523,7 +308,7 @@
     "works": [
       {
         "title": "Epigenetic and integrative cross-omics analyses of cerebral white matter hyperintensities on MRI",
-        "name": "Epigenetic and integrative cross-omics analyses of cerebral white matter hyperintensities on MRI Published article-journal 2023-02-13 Yang Brain 1460-2156 10.1093/brain/awac290",
+        "name": "Epigenetic and integrative cross-omics analyses of cerebral white matter hyperintensities on MRI Published article-journal 2023-02-13 Yang Brain 1460-2156",
         "issued": "2023-02-13",
         "abstract": "Cerebral white matter hyperintensities on MRI are markers of cerebral small vessel disease, a major risk factor for dementia and stroke. Despite the successful identification of multiple genetic variants associated with this highly heritable condition, its genetic architecture remains incompletely understood. More specifically, the role of DNA methylation has received little attention. We investigated the association between white matter hyperintensity burden and DNA methylation in blood at ∼450 000 cytosine-phosphate-guanine (CpG) sites in 9732 middle-aged to older adults from 14 community-based studies. Single CpG and region-based association analyses were carried out. Functional annotation and integrative cross-omics analyses were performed to identify novel genes underlying the relationship between DNA methylation and white matter hyperintensities. We identified 12 single CpG and 46 region-based DNA methylation associations with white matter hyperintensity burden. Our top discovery single CpG, cg24202936 (P = 7.6 × 10-8), was associated with F2 expression in blood (P = 6.4 × 10-5) and co-localized with FOLH1 expression in brain (posterior probability = 0.75). Our top differentially methylated regions were in PRMT1 and in CCDC144NL-AS1, which were also represented in single CpG associations (cg17417856 and cg06809326, respectively). Through Mendelian randomization analyses cg06809326 was putatively associated with white matter hyperintensity burden (P = 0.03) and expression of CCDC144NL-AS1 possibly mediated this association. Differentially methylated region analysis, joint epigenetic association analysis and multi-omics co-localization analysis consistently identified a role of DNA methylation near SH3PXD2A, a locus previously identified in genome-wide association studies of white matter hyperintensities. Gene set enrichment analyses revealed functions of the identified DNA methylation loci in the blood-brain barrier and in the immune response. Integrative cross-omics analysis identified 19 key regulatory genes in two networks related to extracellular matrix organization, and lipid and lipoprotein metabolism. A drug-repositioning analysis indicated antihyperlipidaemic agents, more specifically peroxisome proliferator-activated receptor-alpha, as possible target drugs for white matter hyperintensities. Our epigenome-wide association study and integrative cross-omics analyses implicate novel genes influencing white matter hyperintensity burden, which converged on pathways related to the immune response and to a compromised blood-brain barrier possibly due to disrupted cell-cell and cell-extracellular matrix interactions. The results also suggest that antihyperlipidaemic therapy may contribute to lowering risk for white matter hyperintensities possibly through protection against blood-brain barrier disruption.",
         "authors": [
@@ -569,28 +354,7 @@
           "Perminder S Sachdev",
           "Myriam Fornage"
         ],
-        "DOI": "10.1093/brain/awac290",
         "id": "3907331",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "NEUROIMAGING IN DEMENTIA WITH WHITE-MATTER CHANGES",
-        "name": "NEUROIMAGING IN DEMENTIA WITH WHITE-MATTER CHANGES Published paper-conference 1994 FREO RECENT ADVANCES IN THE TREATMENT OF NEURODEGENERATIVE DISORDERS AND COGNITIVE DYSFUNCTION",
-        "issued": "1994",
-        "abstract": "",
-        "authors": [
-          "U FREO",
-          "C DECARLI",
-          "CL GRADY",
-          "CM CLARK",
-          "G GOURAS",
-          "JV HAXBY",
-          "JA SALERNO",
-          "SI RAPOPORT",
-          "MB SCHAPIRO"
-        ],
-        "DOI": "",
-        "id": "3913557",
         "type": "Scholarly Article"
       }
     ],
@@ -599,20 +363,10 @@
         "id": "K318942-707",
         "title": "UCSF MCA: CA NON-AD DIAGNOSITIC RELIABILITY CONSORTIUM",
         "name": "UCSF MCA: CA NON-AD DIAGNOSITIC RELIABILITY CONSORTIUM § Completed • 2004 - 2006 • Decarli, Charles § California Department Of Health Care Services • 04-35514-UCSFMCA3897",
-        "assignedBy": "California Department Of Health Care Services",
+        "funder": "California Department Of Health Care Services",
         "status": "Completed",
         "startDate": "2004-07-01",
         "endDate": "2006-06-30",
-        "grantRole": "Grant Role,Principal Investigator Role"
-      },
-      {
-        "id": "K320829-1120",
-        "title": "EPIDEMIOLOGY OF DEMENTIA IN THE FRAMINGHAM STUDY.",
-        "name": "EPIDEMIOLOGY OF DEMENTIA IN THE FRAMINGHAM STUDY. § Completed • 2005 - 2010 • Decarli, Charles § Boston University • MC514267-B-AJ",
-        "assignedBy": "Boston University",
-        "status": "Completed",
-        "startDate": "2005-06-01",
-        "endDate": "2010-08-31",
         "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
@@ -631,7 +385,7 @@
     "works": [
       {
         "title": "Screening for Fragile X Syndrome Among Filipino Children with Autism Spectrum Disorder",
-        "name": "Screening for Fragile X Syndrome Among Filipino Children with Autism Spectrum Disorder Published article-journal 2023-11 Dy Journal of Autism and Developmental Disorders 1573-3432 10.1007/s10803-022-05707-8",
+        "name": "Screening for Fragile X Syndrome Among Filipino Children with Autism Spectrum Disorder Published article-journal 2023-11 Dy Journal of Autism and Developmental Disorders 1573-3432",
         "issued": "2023-11",
         "abstract": "Individuals with autism spectrum disorder present with difficulties in social communication, restricted interests or behaviors and other co-morbidities. About 2 to 10% of cases of autism have a genetic cause, and Fragile X Syndrome (FXS) is reported in 0 to 6.5% of individuals with autism. However, the FXS and premutation prevalence among Filipino children has never been reported. The aim of the study was to establish the presence of FXS or premutation carriers among Filipino children with autism and to describe the phenotypic characteristic of cases identified. Blood was collected from 235 children aged 2-6 years old and diagnosed with autism. Samples were analyzed using PCR methods to amplify CGG repeats in the FMRI gene. The diagnosis of autism was confirmed through the Autism Diagnostic Observation Schedule-2. Additional characteristics were documented from a physical examination, Griffiths Scales of Child Development assessment and a parent-answered questionnaire using the Vineland Adaptive Behavior Scale. Fragile X testing through PCR methods in 235 children with diagnosed autism showed 220 (93.6%) were negative, no full mutations, 1 (0.436%) premutation carrier and 14 (5.95%) cases contained intermediate alleles. The FXS testing was limited to confirmed cases of autism, which is considered a high-risk group and does not provide prevalence for the general Filipino population. Subjects were self-referred or referred by clinicians, which may not represent the Filipino autism population with a bias towards those with means for clinical consultations and ability to travel to the place of testing. Samples were not measured for mosaicism, DNA methylation or AGG interspersion patterns. These may have effects on the CGG repeat expansion and overall presentation of FXS. Findings from a single premutation carrier cannot characterize features distinctly present in Filipinos with the mutation. Nevertheless, these results support the data that the prevalence of FXS in Asian populations may be lower than non-Asian populations. This can contribute to a better understanding of FXS and genetic causes of autism in the Philippines and other Asian populations.",
         "authors": [
@@ -641,23 +395,7 @@
           "Myla Dominicina Levantino",
           "Randi J Hagerman"
         ],
-        "DOI": "10.1007/s10803-022-05707-8",
         "id": "3921374",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "Case Reports of Aortic Aneurism in Fragile X Syndrome",
-        "name": "Case Reports of Aortic Aneurism in Fragile X Syndrome Published article-journal 2022-08-30 Lewis Genes 2073-4425 10.3390/genes13091560",
-        "issued": "2022-08-30",
-        "abstract": "Fragile X syndrome (FXS) is an inherited genetic condition that is the leading known cause of inherited intellectual developmental disability. Phenotypically, individuals with FXS also present with distinct physical features including, elongated face, prominent ears, pectus excavatum, macroorchidism, and joint laxity, which suggests connective tissue dysplasia. In addition to mitral valve prolapse, aortic dilatation has been identified within individuals with FXS. Abnormal elastin fiber networks have been found in the skin, valves, and aorta in individual cases. Aortic dilatation has been described in other connective tissue disorders, particularly Marfan syndrome. However, while aortic aneurysms are characteristic of Marfan syndrome, no similar cases have been reported in FXS patients to date. This case report details the presentation of two patients with FXS and aortic aneurysm. Our two cases highlight the risks of aortic pathology in FXS, and the need for monitoring in asymptomatic patients with significant aortic dilatation.",
-        "authors": [
-          "Sivan Lewis",
-          "Andrew DePass",
-          "Randi J Hagerman",
-          "Reymundo Lozano"
-        ],
-        "DOI": "10.3390/genes13091560",
-        "id": "3958942",
         "type": "Scholarly Article"
       }
     ],
@@ -666,20 +404,10 @@
         "id": "K321755-104897",
         "title": "A Randomized, Double-blindm, 12-week, Parallel Group, Placebo-controlled Study of the Efficacy and Safety of RO4917523 in Patients with Fragile X Syndrome",
         "name": "A Randomized, Double-blindm, 12-week, Parallel Group, Placebo-controlled Study of the Efficacy and Safety of RO4917523 in Patients with Fragile X Syndrome § Completed • 2012 - 2015 • Hagerman, Randi J § F. Hoffmann-la Roche Ltd • NP27936/B",
-        "assignedBy": "F. Hoffmann-la Roche Ltd",
+        "funder": "F. Hoffmann-la Roche Ltd",
         "status": "Completed",
         "startDate": "2012-01-27",
         "endDate": "2015-02-27",
-        "grantRole": "Grant Role,Principal Investigator Role"
-      },
-      {
-        "id": "K324643-3754",
-        "title": "FRAGILE X SYNDROME CASCADE TESTING AND GENETIC COUNSELING PROTOCOLS",
-        "name": "FRAGILE X SYNDROME CASCADE TESTING AND GENETIC COUNSELING PROTOCOLS § Completed • 2005 - 2007 • Hagerman, Randi J § Centers For Disease Control And Prevention • U10/CCU925123-01",
-        "assignedBy": "Centers For Disease Control And Prevention",
-        "status": "Completed",
-        "startDate": "2005-09-30",
-        "endDate": "2007-09-29",
         "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
@@ -698,7 +426,7 @@
     "works": [
       {
         "title": "A lensed radio jet at milliarcsecond resolution I: Bayesian comparison of parametric lens models",
-        "name": "A lensed radio jet at milliarcsecond resolution I: Bayesian comparison of parametric lens models Published article-journal 2022-09-06 Powell Monthly Notices of the Royal Astronomical Society 1365-2966 10.1093/mnras/stac2350",
+        "name": "A lensed radio jet at milliarcsecond resolution I: Bayesian comparison of parametric lens models Published article-journal 2022-09-06 Powell Monthly Notices of the Royal Astronomical Society 1365-2966",
         "issued": "2022-09-06",
         "abstract": "We investigate the mass structure of a strong gravitational lens galaxy at z = 0.350, taking advantage of the milliarcsecond (mas) angular resolution of very long baseline interferometric (VLBI) observations. In the first analysis of its kind at this resolution, we jointly infer the lens model parameters and pixellated radio source surface brightness. We consider several lens models of increasing complexity, starting from an elliptical power-law density profile. We extend this model to include angular multipole structures, a separate stellar mass component, additional nearby field galaxies, and/or a generic external potential. We compare these models using their relative Bayesian log-evidence (Bayes factor). We find strong evidence for angular structure in the lens; our best model is comprised of a power-law profile plus multipole perturbations and external potential, with a Bayes factor of +14984 relative to the elliptical power-law model. It is noteworthy that the elliptical power-law mass distribution is a remarkably good fit on its own, with additional model complexity correcting the deflection angles only at the ∼5 mas level. We also consider the effects of added complexity in the lens model on time-delay cosmography and flux-ratio analyses. We find that an overly simplistic power-law ellipsoid lens model can bias the measurement of H0 by ∼3 per cent and mimic flux ratio anomalies of ∼8 per cent. Our results demonstrate the power of high-resolution VLBI observations to provide strong constraints on the inner density profiles of lens galaxies.",
         "authors": [
@@ -709,60 +437,7 @@
           "Hannah R Stacey",
           "Christopher D Fassnacht"
         ],
-        "DOI": "10.1093/mnras/stac2350",
         "id": "3950301",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "STRIDES: automated uniform models for 30 quadruply imaged quasars",
-        "name": "STRIDES: automated uniform models for 30 quadruply imaged quasars Published article-journal 2022-11-22 Schmidt Monthly Notices of the Royal Astronomical Society 1365-2966 10.1093/mnras/stac2235",
-        "issued": "2022-11-22",
-        "abstract": "Gravitational time delays provide a powerful one-step measurement of H0, independent of all other probes. One key ingredient in time-delay cosmography are high-accuracy lens models. Those are currently expensive to obtain, both, in terms of computing and investigator time (105-106 CPU hours and ∼0.5-1 yr, respectively). Major improvements in modelling speed are therefore necessary to exploit the large number of lenses that are forecast to be discovered over the current decade. In order to bypass this roadblock, we develop an automated modelling pipeline and apply it to a sample of 31 lens systems, observed by the Hubble Space Telescope in multiple bands. Our automated pipeline can derive models for 30/31 lenses with few hours of human time and <100 CPU hours of computing time for a typical system. For each lens, we provide measurements of key parameters and predictions of magnification as well as time delays for the multiple images. We characterize the cosmography-readiness of our models using the stability of differences in the Fermat potential (proportional to time delay) with respect to modelling choices. We find that for 10/30 lenses, our models are cosmography or nearly cosmography grade (<3 per cent and 3-5 per cent variations). For 6/30 lenses, the models are close to cosmography grade (5-10 per cent). These results utilize informative priors and will need to be confirmed by further analysis. However, they are also likely to improve by extending the pipeline modelling sequence and options. In conclusion, we show that uniform cosmography grade modelling of large strong lens samples is within reach.",
-        "authors": [
-          "T Schmidt",
-          "T Treu",
-          "S Birrer",
-          "AJ Shajib",
-          "C Lemon",
-          "M Millon",
-          "D Sluse",
-          "A Agnello",
-          "T Anguita",
-          "MW Auger-Williams",
-          "RG McMahon",
-          "V Motta",
-          "P Schechter",
-          "C Spiniello",
-          "I Kayo",
-          "F Courbin",
-          "S Ertl",
-          "CD Fassnacht",
-          "JA Frieman",
-          "A More",
-          "S Schuldt",
-          "SH Suyu",
-          "M Aguena",
-          "F Andrade-Oliveira",
-          "J Annis",
-          "D Bacon",
-          "E Bertin",
-          "D Brooks",
-          "DL Burke",
-          "A Carnero Rosell",
-          "M Carrasco Kind",
-          "J Carretero",
-          "C Conselice",
-          "M Costanzi",
-          "LN da Costa",
-          "MES Pereira",
-          "J De Vicente",
-          "S Desai",
-          "P Doel",
-          "S Everett",
-          "TN Varga"
-        ],
-        "DOI": "10.1093/mnras/stac2235",
-        "id": "4088163",
         "type": "Scholarly Article"
       }
     ],
@@ -771,20 +446,10 @@
         "id": "K322908-2365",
         "title": "CHANDRA 7: DARK AND LUMINOUS MATTER IN THE B2108213 GROUP",
         "name": "CHANDRA 7: DARK AND LUMINOUS MATTER IN THE B2108213 GROUP § Completed • 2006 - 2009 • Fassnacht, Christopher D § Smithsonian Institute • GO6-7125X",
-        "assignedBy": "Smithsonian Institute",
+        "funder": "Smithsonian Institute",
         "status": "Completed",
         "startDate": "2006-08-18",
         "endDate": "2009-08-17",
-        "grantRole": "Grant Role,Principal Investigator Role"
-      },
-      {
-        "id": "K323139-106991",
-        "title": "The Highest Redshift Strongly Lensed Dusty Star Forming Galaxies",
-        "name": "The Highest Redshift Strongly Lensed Dusty Star Forming Galaxies § Completed • 2013 - 2015 • Fassnacht, Christopher D § Jet Propulsion Laboratory • 1473024",
-        "assignedBy": "Jet Propulsion Laboratory",
-        "status": "Completed",
-        "startDate": "2013-01-03",
-        "endDate": "2015-06-30",
         "grantRole": "Grant Role,Principal Investigator Role"
       }
     ]
@@ -803,7 +468,7 @@
     "works": [
       {
         "title": "Development and Evaluation of a Prototype Self-Propelled Crop Sprayer for Agricultural Sustainability in Small Farms",
-        "name": "Development and Evaluation of a Prototype Self-Propelled Crop Sprayer for Agricultural Sustainability in Small Farms Published article-journal 2022-08-01 Ghafoor Sustainability 2071-1050 10.3390/su14159204",
+        "name": "Development and Evaluation of a Prototype Self-Propelled Crop Sprayer for Agricultural Sustainability in Small Farms Published article-journal 2022-08-01 Ghafoor Sustainability 2071-1050",
         "issued": "2022-08-01",
         "abstract": "In most Asian countries, farmers have smallholdings ranging from one to two hectares. The tractor-mounted boom sprayers cannot practically be used in small size farms with divided plots and complex terrain. To cope with these issues, a prototype self-propelled crop sprayer was developed, including a 20-hp engine, 300 L liquid tank, and hydraulically-controlled spray boom with eight hollow cone nozzles. The spray symmetry of the hollow cone nozzle was evaluated under four pressures (2.5, 3, 3.5, and 4 bar) in the laboratory. The operating parameters of the sprayer, such as forward speed (4, 6, and 8 km h−1), spray height (40, 55, and 70 cm), and pressure (3, 5, and 7 bar) were optimized by measuring three spray characteristics including droplet density, coverage percentage, and Volume Median Diameter (VMD) in the cotton field. The results revealed that the nozzle spray was symmetrical at 2.5 and 3 bar pressure as the R2 value was higher than 0.96. The field test result showed that in all treatments, treatments T14 (6 km h−1, 55 cm, 5 bar) and T22 (8 km h−1, 55 cm, 3 bar) were suitable for spraying medium-to-low concentration solution (post-emergence herbicides and fungicides) and high concentration solution (insecticides and pre-emergence herbicides), respectively. The spray characteristics at treatments T14 and T22 were 64.7 droplets cm−2, 26.7%, 230 µm, and 39 droplets cm−2, 14.9%, and 219.8 µm respectively. The field efficiency of the sprayer was 61%. The spraying cost per unit area was 55–64% less compared to manual labor cost. In conclusion, a prototype self-propelled crop sprayer is an efficient and environment-friendly technology for small farms. Operating the sprayer at the optimal parameters also saves operational costs and time.",
         "authors": [
@@ -814,22 +479,7 @@
           "Hafiz Muhammad Nauman",
           "Muhammad Usman Farid"
         ],
-        "DOI": "10.3390/su14159204",
         "id": "3939371",
-        "type": "Scholarly Article"
-      },
-      {
-        "title": "A Systematic Review of Youth and All-Terrain Vehicles Safety in Agriculture",
-        "name": "A Systematic Review of Youth and All-Terrain Vehicles Safety in Agriculture Published article-journal 2023-04-03 Khorsandi Journal of Agromedicine 1545-0813 10.1080/1059924x.2022.2155747",
-        "issued": "2023-04-03",
-        "abstract": "All-terrain vehicle (ATV) incidents are one of the leading causes of injuries and fatalities among youth in the agricultural industry. It has been hypothesized that many youth-related ATV incidents occur because children ride ATVs that do not fit their capabilities and are not following basic safe riding practices. In addition, various ATV safety guidelines regarding youth (e.g., CPSC, ANSI/SVIA, ASI) are inconsistent and may not align with state or local laws. To the best of our knowledge, no comprehensive studies have compared the physical and mental requirements for riding ATVs and the youth's capabilities to ride ATVs safely. Consequently, there are no scientific-based recommendations for age limitation, physical and mental capabilities, and safety requirements for youth to ride ATVs safely. Thus, there is a need to review the available sources related to youth safety and ATVs in the agricultural industry, identify the research voids, and recommend modifications to current ATV guidelines. This study conducted a systematic review of available ATV-related studies, standards, guidelines, and laws to establish better-informed minimum age, physical and mental capabilities, and safety requirements for youths to ride ATVs on the farm.",
-        "authors": [
-          "Farzaneh Khorsandi",
-          "Guilherme De Moura Araujo",
-          "Fadi Fathallah"
-        ],
-        "DOI": "10.1080/1059924x.2022.2155747",
-        "id": "4050758",
         "type": "Scholarly Article"
       }
     ],
@@ -838,21 +488,11 @@
         "id": "K386D51-130903",
         "title": "The ability of Adult Female Operators to Reach Agricultural All Terrain Vehicles Controls",
         "name": "The ability of Adult Female Operators to Reach Agricultural All Terrain Vehicles Controls § Completed • 2021 - 2023 • Khorsandi Kouhanestani, Farzaneh § University Of Nebraska Medical Center • U54OH010162",
-        "assignedBy": "University Of Nebraska Medical Center",
+        "funder": "University Of Nebraska Medical Center",
         "status": "Completed",
         "startDate": "2021-11-01",
         "endDate": "2023-08-31",
         "grantRole": "Co Principal Investigator Role"
-      },
-      {
-        "id": "A240852",
-        "title": "Capabilities and Limitations of Youth Operating Agricultural All-Terrain Vehicles",
-        "name": " Capabilities and Limitations of Youth Operating Agricultural All-Terrain Vehicles § Completed • 2023 - 2024 • Farzaneh Khorsandi Kouhanestani § Marshfield Clinic Research Foundation • 606955-00",
-        "assignedBy": "Marshfield Clinic Research Foundation",
-        "status": "Completed",
-        "startDate": "2023-09-30",
-        "endDate": "2024-09-29",
-        "grantRole": "Grant Role,Co Principal Investigator Role"
       }
     ]
   }

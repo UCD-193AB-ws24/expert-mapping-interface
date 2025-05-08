@@ -1,0 +1,356 @@
+[
+  {
+    "title": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks",
+    "name": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks Published article-journal 2016-12-01,2016-01-01 Castro Journal of Lightwave Technology 1558-2213",
+    "issued": "2016-12-01",
+    "abstract": [
+      "© 2016 IEEE. This paper proposes a new networking paradigm introducing the broker-plane above the management planes of Autonomous Systems (ASes). The brokers communicate with the manager of each AS to assist coordinate end-to-end resource management and path provisioning across the multi-AS networks involving multiple operators. The broker plane updates the virtual network topology, manages the resource information of inter-AS links and aggregated (abstracted) intra-AS links, and computes end-to-end routing, modulation formats, and spectrum assignment (RMSA). Notwithstanding, due to the different dynamicity of each AS, the probability of finding a multi-AS transparent path fulfilling the spectrum continuity and contiguity constraints might be low. To improve the grade of the inter-domain connectivity service, spectrum converters can be installed in inter-domain nodes or per-AS defragmentation can be performed with a global view. In this paper, we introduce a mechanism where each AS can advertise its internal capabilities, e.g., spectrum conversion, their ability to implement spectrum defragmentation or any other network feature. The Multi-AS RMSA with Defragmentation Capability problem is presented and mathematically modeled. A heuristic algorithm is designed to solve it. The mechanism's workflow is comprehensively tested using simulations. Results show connection blocking reduction as high as 26%, clearly validating the benefits of the proposed mechanism. Finally, its experimental assessment was conducted on a distributed multi-continental testbed.",
+      "This paper proposes a new networking paradigm introducing the broker-plane above the management planes of Autonomous Systems (ASes). The brokers communicate with the manager of each AS to assist coordinate end-to-end resource management and path provisioning across the multi-AS networks involving multiple operators. The broker plane updates the virtual network topology, manages the resource information of inter-AS links and aggregated (abstracted) intra-AS links, and computes end-to-end routing, modulation formats, and spectrum assignment (RMSA). Notwithstanding, due to the different dynamicity of each AS, the probability of finding a multi-AS transparent path fulfilling the spectrum continuity and contiguity constraints might be low. To improve the grade of the inter-domain connectivity service, spectrum converters can be installed in inter-domain nodes or per-AS defragmentation can be performed with a global view. In this paper, we introduce a mechanism where each AS can advertise its internal capabilities, e.g., spectrum conversion, their ability to implement spectrum defragmentation or any other network feature. The Multi-AS RMSA with Defragmentation Capability problem is presented and mathematically modeled. A heuristic algorithm is designed to solve it. The mechanism's workflow is comprehensively tested using simulations. Results show connection blocking reduction as high as 26%, clearly validating the benefits of the proposed mechanism. Finally, its experimental assessment was conducted on a distributed multi-continental testbed."
+    ],
+    "authors": [
+      "Alberto Castro",
+      "Luis Velasco",
+      "Lluis Gifre",
+      "Cen Chen",
+      "Jie Yin",
+      "Zuqing Zhu",
+      "Roberto Proietti",
+      "Sung-Joo Ben Yoo"
+    ],
+    "id": "1856515",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "83x5AQ8a",
+        "firstName": "Sung-Joo",
+        "middleName": "Ben",
+        "lastName": "Yoo",
+        "fullName": "Sung-Joo Ben Yoo",
+        "title": "Professor",
+        "organizationUnit": "Elec & Comp Engr",
+        "url": "expert/83x5AQ8a"
+      }
+    ]
+  },
+  {
+    "title": "Increased expression of soluble epoxide hydrolase in the brain and liver from patients with major psychiatric disorders: A role of brain – liver axis",
+    "name": "Increased expression of soluble epoxide hydrolase in the brain and liver from patients with major psychiatric disorders: A role of brain – liver axis Published article-journal 2020-06 Zhang Journal of Affective Disorders 1573-2517",
+    "issued": "2020-06",
+    "abstract": "BACKGROUND: Soluble epoxide hydrolase (sEH) in the metabolism of polyunsaturated fatty acids might play a role in the pathogenesis of major psychiatric disorders. Here we studied whether expression of sEH protein is altered in the postmortem samples (parietal cortex, and liver) from patients with major psychiatric disorders. METHODS: Protein expression of sEH in the parietal cortex and liver from control, major depressive disorder (MDD), bipolar disorder (BD), and schizophrenia (SZ) groups was measured. RESULTS: Levels of sEH in the parietal cortex and liver from MDD, BD, and SZ groups were significantly higher than the control group. Interestingly, there was a positive correlation between sEH protein in the parietal cortex and sEH protein the liver in all groups. LIMITATIONS: The small number in each group may limit our interpretation. CONCLUSIONS: This study shows that the increased expression of sEH in the brain and liver might play a role in the pathogenesis of major psychiatric disorders, suggesting a role of brain - liver axis in major psychiatric disorders.",
+    "authors": [
+      "Jiancheng Zhang",
+      "Yunfei Tan",
+      "Lijia Chang",
+      "Bruce D Hammock",
+      "Kenji Hashimoto"
+    ],
+    "id": "3089189",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "PweNBqy2",
+        "firstName": "Bruce",
+        "middleName": "D",
+        "lastName": "Hammock",
+        "fullName": "Bruce D Hammock",
+        "title": "Professor",
+        "organizationUnit": "Entomology and Nematology",
+        "url": "expert/PweNBqy2"
+      }
+    ]
+  },
+  {
+    "title": "Craniomaxillofacial trauma in immature dogs–etiology, treatments, and outcomes",
+    "name": "Craniomaxillofacial trauma in immature dogs–etiology, treatments, and outcomes Published article-journal 2022 Wolfs Frontiers in Veterinary Science 2297-1769",
+    "issued": "2022",
+    "abstract": "Treatment of craniomaxillofacial (CMF) trauma in dogs often requires a multidisciplinary approach and a thorough understanding of the CMF anatomical structures involved. This retrospective study aimed to utilize computed tomography (CT) studies of immature dogs evaluated for CMF trauma and to describe common fracture locations, treatment modalities, and complications, as well as the fracture healing outcomes. The medical records and CT studies of 94 dogs under 1 year of age over a 13-year period were evaluated. The skeletal location of CMF fractures, as well as the severity of displacement and fragmentation of each fracture, was recorded. Case demographic data and trauma etiology were also recorded. Animal bites accounted for the majority of trauma (71.0%). The most likely bone or region to be fractured was the maxillary bones, followed by the molar region of the mandibles. Up to 37 bones or specific regions were fractured in any given patient, with an average of 8.8 ± 3.1 fractured bones or regions per dog. Rostral mandibular trauma was associated with intra-articular fractures of the temporomandibular joint (p = 0.016). Patients sustained concomitant injuries in 32% of the cases. Muzzle therapy was the main treatment performed for most dogs (53.2%), followed by soft tissue closure (47.9%) and selective dental extractions (27.6%). Healing complications were recorded in 71.6% of the dogs, with malocclusion being the most reported complication (55.2%), and associated with dentate mandibular jaw fractures (p = 0.05). The average number of complications per dog was 2.4. No statistically significant association was found between treatment modality and healing outcome. There was a positive correlation between the severity of fracture fragmentation and displacement and a negative healing outcome (all rho >0.7). Further treatment was required in 55.6% of the dogs. Additional dental extractions were performed in 77.7% of patients. Healing complications were common in the immature CMF trauma case. Thus, the need for a comprehensive assessment of the entire CMF region during the initial visit, as well as follow-up, preferably using CT or cone beam CT, is underscored.",
+    "authors": [
+      "Elias Wolfs",
+      "Boaz Arzi",
+      "Jose Guerrero Cota",
+      "Philip H Kass",
+      "Frank JM Verstraete"
+    ],
+    "id": "3950089",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "oTf5l6Tt",
+        "firstName": "Philip",
+        "middleName": "H",
+        "lastName": "Kass",
+        "fullName": "Philip H Kass",
+        "title": "Vice Provost",
+        "organizationUnit": "Academic Affairs",
+        "url": "expert/oTf5l6Tt"
+      }
+    ]
+  },
+  {
+    "title": "Incidence of malignant lymphoma in adolescents and young adults in the 58 counties of California with varying synthetic turf field density",
+    "name": "Incidence of malignant lymphoma in adolescents and young adults in the 58 counties of California with varying synthetic turf field density Published article-journal 2018-04 Bleyer Cancer Epidemiology 1877-783X",
+    "issued": "2018-04",
+    "abstract": "BACKGROUND: Case reports of cancer among soccer players raised concerns that the crumb rubber infill in synthetic turf fields may cause malignant lymphoma. One prior epidemiologic study on the topic found no association. METHODS: An ecologic evaluation of county-level incidence of lymphomas by race/ethnicity and socioeconomic status for the state of California with data obtained from the National Cancer Institute Surveillance, Epidemiology, and End Results Program. Synthetic turf field density by county was obtained from the Synthetic Turf Council. During 2000-2013, 7214 14- to 30-year-old Californians were diagnosed with malignant lymphoma. RESULTS: Annual lymphoma county incidence trends were not associated with the county-level synthetic turf field density. None of 20 sub-analyses by race/ethnicity, sex and county median household income indicated a correlation of lymphoma incidence with synthetic turf field density. In California, there was no evidence at the county-level that synthetic turf fields are associated with an increased incidence of lymphoma in adolescents and young adults. CONCLUSION: Our findings in the state with the greatest number of such fields and a large, diverse patient population are consistent with those of a prior study observing no association between individual-level exposures to turf fields and cancer incidence. Avoidance of synthetic turf fields for fear of increased cancer risk is not warranted.",
+    "authors": [
+      "Archie Bleyer",
+      "Theresa Keegan"
+    ],
+    "id": "3897593",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "U4H5hQ23",
+        "firstName": "Theresa",
+        "middleName": "H",
+        "lastName": "Keegan",
+        "fullName": "Theresa H Keegan",
+        "title": "Professor of Med",
+        "organizationUnit": "Hemat & Oncol",
+        "url": "expert/U4H5hQ23"
+      }
+    ]
+  },
+  {
+    "title": "Associations of 24-Hour Light Exposure and Activity Patterns and Risk of Cognitive Impairment and Decline in Older Men: The MrOS Sleep Study",
+    "name": "Associations of 24-Hour Light Exposure and Activity Patterns and Risk of Cognitive Impairment and Decline in Older Men: The MrOS Sleep Study Published article-journal 2023-10-09 Blackwell The journals of gerontology. Series A, Biological sciences and medical sciences 1758-535X",
+    "issued": "2023-10-09",
+    "abstract": "BACKGROUND: Older men with the worse alignment of activity and light may have lower levels of cognition and increased rates of cognitive decline. METHODS: This cohort consisted of 1 036 older men (81.1 ± 4.6 years) from the MrOS Sleep Study (2009-2012). Light and activity levels were gathered by wrist actigraphy. Phasor analysis was used to quantify the alignment of light-dark and rest-activity patterns (magnitude) and their temporal relationship (angle). Global cognitive function (Modified Mini-Mental State examination [3MS]) and executive function (Trails B test) were measured, then repeated 4.2 ± 0.8 years later. Linear regression models examined the associations of phasor magnitude and angle with cognition and cognitive decline. Models were adjusted for age, clinic, race, education, and season. RESULTS: Smaller phasor magnitude (worse aligned light and activity patterns) was associated with lower initial level and increased decline in executive function. Compared to those with higher phasor magnitude, those with lower magnitude took an average of 11.1 seconds longer to complete the Trails B test (quartile 1 vs quartile 4, p = .02). After follow-up, Trails B completion time increased an average of 5.5 seconds per standard deviation decrease in phasor magnitude (95% confidence interval [CI] 0.7-10.4, p = .03). There were no associations with phasor angle, and none with magnitude and global cognition (3MS). CONCLUSION: Among older men, worse alignment of light and activity patterns was associated with worse initial performance and increased decline in executive function, but not related to global cognition. Interventions that improve the alignment of light and activity may slow cognitive decline in older adults.",
+    "authors": [
+      "Terri L Blackwell",
+      "Mariana G Figueiro",
+      "Gregory J Tranah",
+      "Jamie M Zeitzer",
+      "Kristine Yaffe",
+      "Sonia Ancoli-Israel",
+      "Deborah M Kado",
+      "Kristine E Ensrud",
+      "Nancy E Lane",
+      "Yue Leng",
+      "Katie L Stone",
+      "Osteoporotic Fractures in Men Study Group"
+    ],
+    "id": "3958317",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "oOLuaS3z",
+        "firstName": "Nancy",
+        "middleName": "E",
+        "lastName": "Lane",
+        "fullName": "Nancy E Lane",
+        "title": "Distinguished Professor",
+        "organizationUnit": "INTERNAL MEDICINE",
+        "url": "expert/oOLuaS3z"
+      }
+    ]
+  },
+  {
+    "title": "Search for high-mass resonances decaying to a jet and a Lorentz-boosted resonance in proton-proton collisions at s = 13 TeV",
+    "name": "Search for high-mass resonances decaying to a jet and a Lorentz-boosted resonance in proton-proton collisions at s = 13 TeV Published article-journal 2022-09 Tumasyan Physics Letters B 1873-2445",
+    "issued": "2022-09",
+    "abstract": "A search is reported for high-mass hadronic resonances that decay to a parton and a Lorentz-boosted resonance, which in turn decays into a pair of partons. The search is based on data collected with the CMS detector at the LHC in proton-proton collisions at s=13TeV, corresponding to an integrated luminosity of 138fb−1. The boosted resonance is reconstructed as a single wide jet with substructure consistent with a two-body decay. The high-mass resonance is thus considered as a dijet system. The jet substructure information and the kinematic properties of cascade resonance decays are exploited to disentangle the signal from the large quantum chromodynamics multijet background. The dijet mass spectrum is analyzed for the presence of new high-mass resonances, and is found to be consistent with the standard model background predictions. Results are interpreted in a warped extra dimension model where the high-mass resonance is a Kaluza–Klein gluon, the boosted resonance is a radion, and the final state partons are all gluons. Limits on the production cross section are set as a function of the Kaluza–Klein gluon and radion masses. These limits exclude at 95% confidence level models with Kaluza–Klein gluon masses in the range 2.0 to 4.3 TeV and radion masses in the range 0.20 to 0.74 TeV. By exploring a novel experimental signature, the observed limits on the Kaluza–Klein gluon mass are extended by up to about 1 TeV compared to previous searches.",
+    "authors": [
+      "A Tumasyan",
+      "W Adam",
+      "JW Andrejkovic",
+      "T Bergauer",
+      "S Chatterjee",
+      "M Dragicevic",
+      "A Escalante Del Valle",
+      "R Frühwirth",
+      "M Jeitler",
+      "N Krammer",
+      "L Lechner",
+      "D Liko",
+      "I Mikulec",
+      "P Paulitsch",
+      "FM Pitters",
+      "J Schieck",
+      "R Schöfbeck",
+      "D Schwarz",
+      "S Templ",
+      "W Waltenberger",
+      "C-E Wulz",
+      "V Chekhovsky",
+      "A Litomin",
+      "V Makarenko",
+      "MR Darwish",
+      "EA De Wolf",
+      "T Janssen",
+      "T Kello",
+      "A Lelek",
+      "H Rejeb Sfar",
+      "P Van Mechelen",
+      "S Van Putte",
+      "N Van Remortel",
+      "F Blekman",
+      "ES Bols",
+      "J D'Hondt",
+      "M Delcourt",
+      "H El Faham",
+      "S Lowette",
+      "S Moortgat",
+      "W Vetens"
+    ],
+    "id": "3825443",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "48xkGvFK",
+        "firstName": "Maxwell",
+        "middleName": "B",
+        "lastName": "Chertok",
+        "fullName": "Maxwell B Chertok",
+        "title": "Professor",
+        "organizationUnit": "Physics",
+        "url": "expert/48xkGvFK"
+      }
+    ]
+  },
+  {
+    "title": "Epigenetic and integrative cross-omics analyses of cerebral white matter hyperintensities on MRI",
+    "name": "Epigenetic and integrative cross-omics analyses of cerebral white matter hyperintensities on MRI Published article-journal 2023-02-13 Yang Brain 1460-2156",
+    "issued": "2023-02-13",
+    "abstract": "Cerebral white matter hyperintensities on MRI are markers of cerebral small vessel disease, a major risk factor for dementia and stroke. Despite the successful identification of multiple genetic variants associated with this highly heritable condition, its genetic architecture remains incompletely understood. More specifically, the role of DNA methylation has received little attention. We investigated the association between white matter hyperintensity burden and DNA methylation in blood at ∼450 000 cytosine-phosphate-guanine (CpG) sites in 9732 middle-aged to older adults from 14 community-based studies. Single CpG and region-based association analyses were carried out. Functional annotation and integrative cross-omics analyses were performed to identify novel genes underlying the relationship between DNA methylation and white matter hyperintensities. We identified 12 single CpG and 46 region-based DNA methylation associations with white matter hyperintensity burden. Our top discovery single CpG, cg24202936 (P = 7.6 × 10-8), was associated with F2 expression in blood (P = 6.4 × 10-5) and co-localized with FOLH1 expression in brain (posterior probability = 0.75). Our top differentially methylated regions were in PRMT1 and in CCDC144NL-AS1, which were also represented in single CpG associations (cg17417856 and cg06809326, respectively). Through Mendelian randomization analyses cg06809326 was putatively associated with white matter hyperintensity burden (P = 0.03) and expression of CCDC144NL-AS1 possibly mediated this association. Differentially methylated region analysis, joint epigenetic association analysis and multi-omics co-localization analysis consistently identified a role of DNA methylation near SH3PXD2A, a locus previously identified in genome-wide association studies of white matter hyperintensities. Gene set enrichment analyses revealed functions of the identified DNA methylation loci in the blood-brain barrier and in the immune response. Integrative cross-omics analysis identified 19 key regulatory genes in two networks related to extracellular matrix organization, and lipid and lipoprotein metabolism. A drug-repositioning analysis indicated antihyperlipidaemic agents, more specifically peroxisome proliferator-activated receptor-alpha, as possible target drugs for white matter hyperintensities. Our epigenome-wide association study and integrative cross-omics analyses implicate novel genes influencing white matter hyperintensity burden, which converged on pathways related to the immune response and to a compromised blood-brain barrier possibly due to disrupted cell-cell and cell-extracellular matrix interactions. The results also suggest that antihyperlipidaemic therapy may contribute to lowering risk for white matter hyperintensities possibly through protection against blood-brain barrier disruption.",
+    "authors": [
+      "Yunju Yang",
+      "Maria J Knol",
+      "Ruiqi Wang",
+      "Aniket Mishra",
+      "Dan Liu",
+      "Michelle Luciano",
+      "Alexander Teumer",
+      "Nicola Armstrong",
+      "Joshua C Bis",
+      "Min A Jhun",
+      "Shuo Li",
+      "Hieab HH Adams",
+      "Nasir Ahmad Aziz",
+      "Mark E Bastin",
+      "Mathieu Bourgey",
+      "Jennifer A Brody",
+      "Stefan Frenzel",
+      "Rebecca F Gottesman",
+      "Norbert Hosten",
+      "Lifang Hou",
+      "Sharon LR Kardia",
+      "Valerie Lohner",
+      "Pascale Marquis",
+      "Susana Muñoz Maniega",
+      "Claudia L Satizabal",
+      "Farzaneh A Sorond",
+      "Maria C Valdés Hernández",
+      "Cornelia M van Duijn",
+      "Meike W Vernooij",
+      "Katharina Wittfeld",
+      "Qiong Yang",
+      "Wei Zhao",
+      "Eric Boerwinkle",
+      "Daniel Levy",
+      "Ian J Deary",
+      "Jiyang Jiang",
+      "Karen A Mather",
+      "Thomas H Mosley",
+      "Bruce M Psaty",
+      "Perminder S Sachdev",
+      "Myriam Fornage"
+    ],
+    "id": "3907331",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "pmbsK81V",
+        "firstName": "Charles",
+        "middleName": "",
+        "lastName": "Decarli",
+        "fullName": "Charles Decarli",
+        "title": "Professor",
+        "organizationUnit": "MED: Neurology",
+        "url": "expert/pmbsK81V"
+      }
+    ]
+  },
+  {
+    "title": "Screening for Fragile X Syndrome Among Filipino Children with Autism Spectrum Disorder",
+    "name": "Screening for Fragile X Syndrome Among Filipino Children with Autism Spectrum Disorder Published article-journal 2023-11 Dy Journal of Autism and Developmental Disorders 1573-3432",
+    "issued": "2023-11",
+    "abstract": "Individuals with autism spectrum disorder present with difficulties in social communication, restricted interests or behaviors and other co-morbidities. About 2 to 10% of cases of autism have a genetic cause, and Fragile X Syndrome (FXS) is reported in 0 to 6.5% of individuals with autism. However, the FXS and premutation prevalence among Filipino children has never been reported. The aim of the study was to establish the presence of FXS or premutation carriers among Filipino children with autism and to describe the phenotypic characteristic of cases identified. Blood was collected from 235 children aged 2-6 years old and diagnosed with autism. Samples were analyzed using PCR methods to amplify CGG repeats in the FMRI gene. The diagnosis of autism was confirmed through the Autism Diagnostic Observation Schedule-2. Additional characteristics were documented from a physical examination, Griffiths Scales of Child Development assessment and a parent-answered questionnaire using the Vineland Adaptive Behavior Scale. Fragile X testing through PCR methods in 235 children with diagnosed autism showed 220 (93.6%) were negative, no full mutations, 1 (0.436%) premutation carrier and 14 (5.95%) cases contained intermediate alleles. The FXS testing was limited to confirmed cases of autism, which is considered a high-risk group and does not provide prevalence for the general Filipino population. Subjects were self-referred or referred by clinicians, which may not represent the Filipino autism population with a bias towards those with means for clinical consultations and ability to travel to the place of testing. Samples were not measured for mosaicism, DNA methylation or AGG interspersion patterns. These may have effects on the CGG repeat expansion and overall presentation of FXS. Findings from a single premutation carrier cannot characterize features distinctly present in Filipinos with the mutation. Nevertheless, these results support the data that the prevalence of FXS in Asian populations may be lower than non-Asian populations. This can contribute to a better understanding of FXS and genetic causes of autism in the Philippines and other Asian populations.",
+    "authors": [
+      "Angel Belle C Dy",
+      "Lourdes Bernadette S Tanchanco",
+      "Jenica Clarisse Y Sy",
+      "Myla Dominicina Levantino",
+      "Randi J Hagerman"
+    ],
+    "id": "3921374",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "U8wW2G0y",
+        "firstName": "Randi",
+        "middleName": "J",
+        "lastName": "Hagerman",
+        "fullName": "Randi J Hagerman",
+        "title": "Med Dir/Prof",
+        "organizationUnit": "M.I.N.D. Institute",
+        "url": "expert/U8wW2G0y"
+      }
+    ]
+  },
+  {
+    "title": "A lensed radio jet at milliarcsecond resolution I: Bayesian comparison of parametric lens models",
+    "name": "A lensed radio jet at milliarcsecond resolution I: Bayesian comparison of parametric lens models Published article-journal 2022-09-06 Powell Monthly Notices of the Royal Astronomical Society 1365-2966",
+    "issued": "2022-09-06",
+    "abstract": "We investigate the mass structure of a strong gravitational lens galaxy at z = 0.350, taking advantage of the milliarcsecond (mas) angular resolution of very long baseline interferometric (VLBI) observations. In the first analysis of its kind at this resolution, we jointly infer the lens model parameters and pixellated radio source surface brightness. We consider several lens models of increasing complexity, starting from an elliptical power-law density profile. We extend this model to include angular multipole structures, a separate stellar mass component, additional nearby field galaxies, and/or a generic external potential. We compare these models using their relative Bayesian log-evidence (Bayes factor). We find strong evidence for angular structure in the lens; our best model is comprised of a power-law profile plus multipole perturbations and external potential, with a Bayes factor of +14984 relative to the elliptical power-law model. It is noteworthy that the elliptical power-law mass distribution is a remarkably good fit on its own, with additional model complexity correcting the deflection angles only at the ∼5 mas level. We also consider the effects of added complexity in the lens model on time-delay cosmography and flux-ratio analyses. We find that an overly simplistic power-law ellipsoid lens model can bias the measurement of H0 by ∼3 per cent and mimic flux ratio anomalies of ∼8 per cent. Our results demonstrate the power of high-resolution VLBI observations to provide strong constraints on the inner density profiles of lens galaxies.",
+    "authors": [
+      "Devon M Powell",
+      "Simona Vegetti",
+      "JP McKean",
+      "Cristiana Spingola",
+      "Hannah R Stacey",
+      "Christopher D Fassnacht"
+    ],
+    "id": "3950301",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "tixbfXvP",
+        "firstName": "Christopher",
+        "middleName": "D",
+        "lastName": "Fassnacht",
+        "fullName": "Christopher D Fassnacht",
+        "title": "Professor",
+        "organizationUnit": "Physics",
+        "url": "expert/tixbfXvP"
+      }
+    ]
+  },
+  {
+    "title": "Development and Evaluation of a Prototype Self-Propelled Crop Sprayer for Agricultural Sustainability in Small Farms",
+    "name": "Development and Evaluation of a Prototype Self-Propelled Crop Sprayer for Agricultural Sustainability in Small Farms Published article-journal 2022-08-01 Ghafoor Sustainability 2071-1050",
+    "issued": "2022-08-01",
+    "abstract": "In most Asian countries, farmers have smallholdings ranging from one to two hectares. The tractor-mounted boom sprayers cannot practically be used in small size farms with divided plots and complex terrain. To cope with these issues, a prototype self-propelled crop sprayer was developed, including a 20-hp engine, 300 L liquid tank, and hydraulically-controlled spray boom with eight hollow cone nozzles. The spray symmetry of the hollow cone nozzle was evaluated under four pressures (2.5, 3, 3.5, and 4 bar) in the laboratory. The operating parameters of the sprayer, such as forward speed (4, 6, and 8 km h−1), spray height (40, 55, and 70 cm), and pressure (3, 5, and 7 bar) were optimized by measuring three spray characteristics including droplet density, coverage percentage, and Volume Median Diameter (VMD) in the cotton field. The results revealed that the nozzle spray was symmetrical at 2.5 and 3 bar pressure as the R2 value was higher than 0.96. The field test result showed that in all treatments, treatments T14 (6 km h−1, 55 cm, 5 bar) and T22 (8 km h−1, 55 cm, 3 bar) were suitable for spraying medium-to-low concentration solution (post-emergence herbicides and fungicides) and high concentration solution (insecticides and pre-emergence herbicides), respectively. The spray characteristics at treatments T14 and T22 were 64.7 droplets cm−2, 26.7%, 230 µm, and 39 droplets cm−2, 14.9%, and 219.8 µm respectively. The field efficiency of the sprayer was 61%. The spraying cost per unit area was 55–64% less compared to manual labor cost. In conclusion, a prototype self-propelled crop sprayer is an efficient and environment-friendly technology for small farms. Operating the sprayer at the optimal parameters also saves operational costs and time.",
+    "authors": [
+      "Abdul Ghafoor",
+      "Fraz Ahmad Khan",
+      "Farzaneh Khorsandi",
+      "Muhammad Azam Khan",
+      "Hafiz Muhammad Nauman",
+      "Muhammad Usman Farid"
+    ],
+    "id": "3939371",
+    "type": "Scholarly Article",
+    "relatedExperts": [
+      {
+        "expertId": "0pW71mR8",
+        "firstName": "Farzaneh",
+        "middleName": "",
+        "lastName": "Khorsandi Kouhanestani",
+        "fullName": "Farzaneh Khorsandi Kouhanestani",
+        "title": "ASSOC SPECIALIST COOP EXT",
+        "organizationUnit": "ANR BIOLOGICAL&AG ENGINEERING",
+        "url": "expert/0pW71mR8"
+      }
+    ]
+  }
+]

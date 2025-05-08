@@ -1,7 +1,7 @@
 /**
  * @file fetchFeatures.js
  * @description This module provides functions to retrieve and profile associated with
- *              a given expert id
+ * a given expert ID
  * 
  * Zoey Vo, Loc Nguyen, 2025
  */
@@ -79,17 +79,16 @@ function processItems(items, limit, processFn) {
 
 // Process a single work item
 function processWork(work) {
-  const { title = '', abstract = '', issued = '', DOI = '', author = [], '@id': id = '' } = work;
+  const { title = '', abstract = '', issued = '', author = [], '@id': id = '' } = work;
   
   // Format publication details
   const publicationTitle = work.hasPublicationVenue?.name || work['container-title'] || '';
   const authorName = author[0]?.family || '';
-  const doi = DOI ? `10.${DOI.split('10.')[1] || ''}` : '';
   const identifier = work.eissn || work.ISSN || '';
   
   // Create name
   const name = publicationTitle 
-    ? `${title} Published ${work.type || ''} ${issued} ${authorName} ${publicationTitle} ${identifier} ${doi}`.trim().replace(/\s+/g, ' ')
+    ? `${title} Published ${work.type || ''} ${issued} ${authorName} ${publicationTitle} ${identifier}`.trim().replace(/\s+/g, ' ')
     : title;
 
   // Get specific work type
@@ -106,7 +105,6 @@ function processWork(work) {
     issued,
     abstract,
     authors: author ? author.map(a => `${a.given || ''} ${a.family || ''}`.trim()) : [],
-    DOI,
     id: id ? id.split('/').pop() : null,
     type
   };
@@ -137,7 +135,7 @@ function processGrant(grant) {
     id: id ? id.split('/').pop() : null,
     title,
     name: grantName,
-    assignedBy: assignedBy?.name || '',
+    funder: assignedBy?.name || '',
     status,
     startDate: dateTimeInterval?.start?.dateTime || '',
     endDate: dateTimeInterval?.end?.dateTime || '',
