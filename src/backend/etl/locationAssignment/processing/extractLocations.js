@@ -12,8 +12,8 @@ const path = require('path');
 const fs = require("fs");
 const { default: ollama } = require('ollama');
 
-const worksPath = path.join(__dirname, '../../aggieExpertsAPI/matchedFeatures', "expertMatchedWorks.json");
-const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/matchedFeatures', "expertMatchedGrants.json");
+const worksPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "worksFeatures.json");
+const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "grantsFeatures.json");
 const geoWorksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const geoGrantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
 
