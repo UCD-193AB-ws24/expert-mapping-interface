@@ -161,8 +161,8 @@ function App() {
                 <div>
                   <h3 className="font-semibold text-gray-700 mb-1">Location Colors</h3>
                   <ul className="list-disc list-inside space-y-1">
-                    <li><span className="text-yellow-500 font-semibold">Yellow</span> – Research work locations</li>
-                    <li><span className="text-blue-600 font-semibold">Blue</span> – Grant locations</li>
+                    <li><span className="text-yellow-500 font-semibold">Yellow</span> – Grant locations</li>
+                    <li><span className="text-blue-600 font-semibold">Blue</span> – Research work locations</li>
                     <li><span className="text-green-600 font-semibold">Green</span> – Locations with both work and grant data</li>
                   </ul>
                 </div>
