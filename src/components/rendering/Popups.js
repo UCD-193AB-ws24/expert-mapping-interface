@@ -115,12 +115,6 @@ export const createMultiExpertContent = (expertCount, locationName, totalWorks, 
     <div style="font-size: 14px; color: #333; margin-top: 5px;">
       <strong>Related Works:</strong> ${totalWorks}
     </div>
-    ${matchedFields.length > 0
-    ? `<div style="margin-top: 8px; font-size: 13px; color: #444;">
-           <em>Matched keyword in: ${matchedFields.join(", ")}</em>
-         </div>`
-    : ""
-  }    
     <a href='#'
        class="view-w-experts-btn"
        style="display: block; margin-top: 12px; padding: 8px 10px; background: #3879C7; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
@@ -183,6 +177,7 @@ export const createGrantPopupContent = (grant) => {
   `;
 };
 
+
 /**
  * createMultiGrantPopup
  * 
@@ -203,12 +198,6 @@ export const createMultiGrantPopup = (expertCount, grantCount, locationName, mat
     <div style="font-size: 14px; color: #333; margin-top: 5px;">
       <strong>Related Grants:</strong> ${grantCount}
     </div>
-    ${matchedFields.length > 0
-    ? `<div style="margin-top: 8px; font-size: 13px; color: #444;">
-           <em>Matched keyword in: ${matchedFields.join(", ")}</em>
-         </div>`
-    : ""
-  }    
     <a href='#'
        class='view-g-experts-btn'
        style='display: block; margin-top: 12px; padding: 8px 10px; background: #eda012; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
@@ -242,12 +231,6 @@ export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locat
     <div style='font-weight: bold; font-size: 16px; color: #659c39;'>Combined Polygon</div>
     ${matchedFields.length > 0 ? `<div style='margin-top: 5px; color: green;'>🔍 Match found</div>` : ""}
     <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
-    ${matchedFields.length > 0
-    ? `<div style='margin-top: 5px; font-size: 13px; color: #333;'>
-             <strong>Matched fields:</strong> ${matchedFields.join(", ")}
-           </div>`
-    : ""
-  }
     <div style='margin-top: 5px;'>
       <div style='color: #3879C7; display: inline-block; margin-right: 10px;'>
         <strong>${works2ExpertCount}</strong> Experts with Works
@@ -260,35 +243,6 @@ export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locat
       class='view-combined-btn'
       style='display: block; margin-top: 12px; padding: 8px 10px; background: #659c39; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
       Open Panel
-    </a>
-  </div>
-`;
-
-
-export const createMatchedGrantPopup = (grantCount, locationName) => `
-  <div style='padding: 15px; font-size: 14px; width: 250px;'>
-    <div style='margin-top: 5px; color: green;'>🔍 Match found</div>
-    <div style='margin-top: 8px; color: #333;'>
-      <strong>Location:</strong> ${locationName || "Unknown"}
-    </div>
-    <a href='#'
-       class='view-grants-btn'
-       style='display: block; margin-top: 12px; padding: 8px 10px; background: #eda012; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
-      View Grants
-    </a>
-  </div>
-`;
-
-export const createMatchedExpertPopup = (expertCount, locationName, totalWorks) => `
-  <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
-    <div style="margin-top: 5px; color: green;">🔍 ${expertCount} ${expertCount === 1 ? 'Match Found' : 'Matches Found'}</div>
-    <div style="font-size: 14px; color: #333; margin-top: 5px;">
-      <strong>Location:</strong> ${locationName || "Unknown"}
-    </div>
-    <a href='#'
-       class="view-experts-btn"
-       style="display: block; margin-top: 12px; padding: 8px 10px; background: #3879C7; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
-      View Experts
     </a>
   </div>
 `;
@@ -309,13 +263,7 @@ export const createMatchedCombinedPolygonPopup = (
       <div style='color: #eda012; display: inline-block;'>
         <strong>${grants2ExpertCount}</strong> Experts with Grants
       </div>
-    </div>
-    ${matchedFields.length > 0
-    ? `<div style="margin-top: 8px; font-size: 13px; color: #444;">
-             <em>Matched keyword in: ${matchedFields.join(", ")}</em>
-           </div>`
-    : ""
-  }    
+    </div>   
     <a href='#'
       class='view-combined-btn'
       style='display: block; margin-top: 12px; padding: 8px 10px; background: #659c39; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
