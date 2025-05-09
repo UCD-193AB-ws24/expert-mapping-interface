@@ -98,7 +98,14 @@ async function fetchAndPersistExpertProfiles(numExperts=1, worksLimit=5, grantsL
 }
 
 if (require.main === module) {
-  fetchAndPersistExpertProfiles();
+  const args = process.argv.slice(2);
+  const [numExpertsArg, worksLimitArg, grantsLimitArg] = args;
+
+  const numExperts = parseInt(numExpertsArg) || 1;
+  const worksLimit = parseInt(worksLimitArg) || 5;
+  const grantsLimit = parseInt(grantsLimitArg) || 5;
+
+  fetchAndPersistExpertProfiles(numExperts, worksLimit, grantsLimit);
 }
 
 module.exports = { persistExpertProfiles, fetchAndPersistExpertProfiles };

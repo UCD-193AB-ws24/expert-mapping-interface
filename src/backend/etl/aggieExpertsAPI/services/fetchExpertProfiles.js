@@ -30,7 +30,7 @@ async function fetchExpertProfiles(numExperts=1, worksLimit=5, grantsLimit=5) {
 
       try {
         // Get detailed data with works and grants
-        const expertData = await getExpertData(expertId, Math.max(worksLimit, grantsLimit));
+        const expertData = await getExpertData(expertId, worksLimit, grantsLimit);
         
         // Add to profiles collection
         expertProfiles.push(expertData);

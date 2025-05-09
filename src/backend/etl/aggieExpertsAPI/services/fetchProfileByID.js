@@ -14,7 +14,7 @@ const { fetchFromApi } = require('../utils/fetchingUtils');
  * @param {number} limit - Number of works/grants default is 1
  * @returns {Object} Expert data with works and grants
  */
-async function getExpertData(expertId, limit = 1) {
+async function getExpertData(expertId, worksLimit=1, grantsLimit=1) {
   if (!expertId) throw new Error('Expert ID required');
 
   try {
@@ -52,8 +52,8 @@ async function getExpertData(expertId, limit = 1) {
       );
       
       // Process with limit
-      result.works = processItems(works, limit, processWork);
-      result.grants = processItems(grants, limit, processGrant);
+      result.works = processItems(works, worksLimit, processWork);
+      result.grants = processItems(grants, grantsLimit, processGrant);
       
       //console.log(`Expert ${expertId}: ${works.length} works (${result.works.length} processed), ${grants.length} grants (${result.grants.length} processed)`);
     }

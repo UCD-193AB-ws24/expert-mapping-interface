@@ -1,5 +1,185 @@
 [
   {
+    "id": "K320838-1129",
+    "title": "BATTELLE MEMORIAL INSTITUTE #171034",
+    "name": "BATTELLE MEMORIAL INSTITUTE #171034 § Completed • 2002 - 2004 • Hammock, Bruce § Battelle Memorial Institute • 171034/02-00050V",
+    "funder": "Battelle Memorial Institute",
+    "status": "Completed",
+    "startDate": "2002-03-15",
+    "endDate": "2004-09-30",
+    "grantRole": "Grant  Role, Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "PweNBqy2",
+        "title": "Professor",
+        "organizationUnit": "",
+        "url": "expert/PweNBqy2"
+      }
+    ]
+  },
+  {
+    "id": "K321909-105459",
+    "title": "Development of a fluorescent 96-well assay for dual detection of esterase- and GST- mediated pyrethroid resistance in mosquito",
+    "name": "Development of a fluorescent 96-well assay for dual detection of esterase- and GST- mediated pyrethroid resistance in mosquito § Completed • 2012 - 2013 • Hammock, Bruce § Mosquito Research Foundation • 201222676",
+    "funder": "Mosquito Research Foundation",
+    "status": "Completed",
+    "startDate": "2012-04-27",
+    "endDate": "2013-12-31",
+    "grantRole": "Co  Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "PweNBqy2",
+        "title": "Professor",
+        "organizationUnit": "",
+        "url": "expert/PweNBqy2"
+      }
+    ]
+  },
+  {
+    "id": "K322413-1908",
+    "title": "DOE DE-FG03-96ER14629/99",
+    "name": "DOE DE-FG03-96ER14629/99 § Completed • 1996 - 2003 • Casey, William § Department Of Energy/miscellaneous Offices And Programs • DE-FG03-96ER14629",
+    "funder": "Department Of Energy/miscellaneous Offices And Programs",
+    "status": "Completed",
+    "startDate": "1996-05-01",
+    "endDate": "2003-04-30",
+    "grantRole": "Co  Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "PweNBqy2",
+        "title": "Professor",
+        "organizationUnit": "",
+        "url": "expert/PweNBqy2"
+      }
+    ]
+  },
+  {
+    "id": "K322761-2234",
+    "title": "ROLE OF A/B-HYDROLASE FOLD ENZYMES IN THE REGULATION OF JUVENILE HORMONE",
+    "name": "ROLE OF A/B-HYDROLASE FOLD ENZYMES IN THE REGULATION OF JUVENILE HORMONE § Completed • 2006 - 2010 • Hammock, Bruce § National Institute For Food And Agriculture • 07-35607-17830",
+    "funder": "National Institute For Food And Agriculture",
+    "status": "Completed",
+    "startDate": "2006-12-15",
+    "endDate": "2010-12-14",
+    "grantRole": "Grant  Role, Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "PweNBqy2",
+        "title": "Professor",
+        "organizationUnit": "",
+        "url": "expert/PweNBqy2"
+      }
+    ]
+  },
+  {
+    "id": "K323022-2434",
+    "title": "IDENTIFICATION AND DEVELOPMENT OF BIOLOGICAL MARKERS OF HUMAN EXPOSURE TO THE INSECTICIDE PERMETHRIN",
+    "name": "IDENTIFICATION AND DEVELOPMENT OF BIOLOGICAL MARKERS OF HUMAN EXPOSURE TO THE INSECTICIDE PERMETHRIN § Completed • 2001 - 2008 • Hammock, Bruce § US Army Medical Research And Development Command • DAMD17-01-1-0769",
+    "funder": "US Army Medical Research And Development Command",
+    "status": "Completed",
+    "startDate": "2001-09-24",
+    "endDate": "2008-03-23",
+    "grantRole": "Grant  Role, Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "PweNBqy2",
+        "title": "Professor",
+        "organizationUnit": "",
+        "url": "expert/PweNBqy2"
+      }
+    ]
+  },
+  {
+    "id": "K328756-112108",
+    "title": "PROSPECTIVE EVALUATION OF CALIFORNIAS ARMED AND PROHIBITED PERSONS SYSTEM",
+    "name": "PROSPECTIVE EVALUATION OF CALIFORNIAS ARMED AND PROHIBITED PERSONS SYSTEM § Completed • 2015 - 2021 • Wintemute, Garen § National Institute Of Justice • 2014-R2-CX-0012",
+    "funder": "National Institute Of Justice",
+    "status": "Completed",
+    "startDate": "2015-01-01",
+    "endDate": "2021-06-30",
+    "grantRole": "Co  Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "oTf5l6Tt",
+        "title": "Vice Provost",
+        "organizationUnit": "",
+        "url": "expert/oTf5l6Tt"
+      }
+    ]
+  },
+  {
+    "id": "K358091-7894",
+    "title": "2004 SURVEY OF PET OWNERSHIP AND STRAY CAT POPULATION IN SANTA CLARA COUNTY",
+    "name": "2004 SURVEY OF PET OWNERSHIP AND STRAY CAT POPULATION IN SANTA CLARA COUNTY § Completed • 2004 - 2005 • Kass, Philip H § Everycat Health Foundation Inc. • 58091",
+    "funder": "Everycat Health Foundation Inc.",
+    "status": "Completed",
+    "startDate": "2004-09-01",
+    "endDate": "2005-06-30",
+    "grantRole": "Grant  Role, Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "oTf5l6Tt",
+        "title": "Vice Provost",
+        "organizationUnit": "",
+        "url": "expert/oTf5l6Tt"
+      }
+    ]
+  },
+  {
+    "id": "K384869-100429",
+    "title": "Poultry Health and Well-Being for Development in East, Southern and West Africa",
+    "name": "Poultry Health and Well-Being for Development in East, Southern and West Africa § Completed • 2009 - 2009 • Kass, Philip H § Development Alternatives, Inc. • 100035410PO14249",
+    "funder": "Development Alternatives, Inc.",
+    "status": "Completed",
+    "startDate": "2009-11-01",
+    "endDate": "2009-12-31",
+    "grantRole": "Grant  Role, Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "oTf5l6Tt",
+        "title": "Vice Provost",
+        "organizationUnit": "",
+        "url": "expert/oTf5l6Tt"
+      }
+    ]
+  },
+  {
+    "id": "K385794-14009",
+    "title": "Companion Animal Foodborne Disease Surveillance and Epidemiologic Investigation Program",
+    "name": "Companion Animal Foodborne Disease Surveillance and Epidemiologic Investigation Program § Completed • 2010 - 2013 • Kass, Philip H § Mars, Incorporated • SLO001",
+    "funder": "Mars, Incorporated",
+    "status": "Completed",
+    "startDate": "2010-06-15",
+    "endDate": "2013-08-22",
+    "grantRole": "Grant  Role, Principal  Investigator  Role",
+    "relatedExperts": [
+      {
+        "expertId": "oTf5l6Tt",
+        "title": "Vice Provost",
+        "organizationUnit": "",
+        "url": "expert/oTf5l6Tt"
+      }
+    ]
+  },
+  {
+    "id": "K332443-103222",
+    "title": "Mouse Metabolic Phenotyping Center (MMPC) at UC Davis",
+    "name": "Mouse Metabolic Phenotyping Center (MMPC) at UC Davis § Completed • 2011 - 2016 • Lloyd, Kevin C § Diabetes, Digestive & Kidney Diseases, National Institute Of • 1U24DK092993",
+    "funder": "Diabetes, Digestive & Kidney Diseases, National Institute Of",
+    "status": "Completed",
+    "startDate": "2011-09-16",
+    "endDate": "2016-08-01",
+    "grantRole": "Grant  Role, Researcher  Role",
+    "relatedExperts": [
+      {
+        "expertId": "oTf5l6Tt",
+        "title": "Vice Provost",
+        "organizationUnit": "",
+        "url": "expert/oTf5l6Tt"
+      }
+    ]
+  },
+  {
     "id": "K320B61-117089",
     "title": "All-to-all optical shuffle device based on arrayed waveguide grating routers",
     "name": "All-to-all optical shuffle device based on arrayed waveguide grating routers § Completed • 2016 - 2018 • Yoo, S. J. Ben § National Security Agency • H98230-16-C-0820",
@@ -11,12 +191,8 @@
     "relatedExperts": [
       {
         "expertId": "83x5AQ8a",
-        "firstName": "Sung-Joo",
-        "middleName": "Ben",
-        "lastName": "Yoo",
-        "fullName": "Sung-Joo Ben Yoo",
         "title": "Professor",
-        "organizationUnit": "Elec & Comp Engr",
+        "organizationUnit": "",
         "url": "expert/83x5AQ8a"
       }
     ]
@@ -33,12 +209,8 @@
     "relatedExperts": [
       {
         "expertId": "83x5AQ8a",
-        "firstName": "Sung-Joo",
-        "middleName": "Ben",
-        "lastName": "Yoo",
-        "fullName": "Sung-Joo Ben Yoo",
         "title": "Professor",
-        "organizationUnit": "Elec & Comp Engr",
+        "organizationUnit": "",
         "url": "expert/83x5AQ8a"
       }
     ]
@@ -55,12 +227,8 @@
     "relatedExperts": [
       {
         "expertId": "83x5AQ8a",
-        "firstName": "Sung-Joo",
-        "middleName": "Ben",
-        "lastName": "Yoo",
-        "fullName": "Sung-Joo Ben Yoo",
         "title": "Professor",
-        "organizationUnit": "Elec & Comp Engr",
+        "organizationUnit": "",
         "url": "expert/83x5AQ8a"
       }
     ]
@@ -77,12 +245,8 @@
     "relatedExperts": [
       {
         "expertId": "83x5AQ8a",
-        "firstName": "Sung-Joo",
-        "middleName": "Ben",
-        "lastName": "Yoo",
-        "fullName": "Sung-Joo Ben Yoo",
         "title": "Professor",
-        "organizationUnit": "Elec & Comp Engr",
+        "organizationUnit": "",
         "url": "expert/83x5AQ8a"
       }
     ]
@@ -99,12 +263,8 @@
     "relatedExperts": [
       {
         "expertId": "83x5AQ8a",
-        "firstName": "Sung-Joo",
-        "middleName": "Ben",
-        "lastName": "Yoo",
-        "fullName": "Sung-Joo Ben Yoo",
         "title": "Professor",
-        "organizationUnit": "Elec & Comp Engr",
+        "organizationUnit": "",
         "url": "expert/83x5AQ8a"
       }
     ]
