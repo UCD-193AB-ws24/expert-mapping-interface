@@ -144,6 +144,12 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
                       {getConfidenceStyle(expert.works[0].confidence).label}
                     </span>
                   </div>
+                  {expert.works[0].matchedFields?.length > 0 && (
+                    <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                      Matched on: {expert.works[0].matchedFields.join(", ")}
+                    </div>
+                  )}
+
 
                   {/* Show dropdown button if there are more works */}
                   {expert.works.length > 1 && (
@@ -170,12 +176,24 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
                       {expert.works.slice(1).map((work, workIndex) => {
                         const { label, style } = getConfidenceStyle(work.confidence);
                         return (
+                          // <li key={workIndex} style={{ marginBottom: "10px" }}>
+                          //   <strong>Title:</strong> {work.title} <br />
+                          //   <strong>Issued:</strong> {work.issued} <br />
+                          //   <strong>Confidence:</strong>{" "}
+                          //   <span style={style}>{label}</span>
+                          // </li>
                           <li key={workIndex} style={{ marginBottom: "10px" }}>
                             <strong>Title:</strong> {work.title} <br />
                             <strong>Issued:</strong> {work.issued} <br />
                             <strong>Confidence:</strong>{" "}
                             <span style={style}>{label}</span>
+                            {work.matchedFields?.length > 0 && (
+                              <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                                Matched on: {work.matchedFields.join(", ")}
+                              </div>
+                            )}
                           </li>
+
                         );
                       })}
                     </ul>
@@ -313,6 +331,12 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
                 {getConfidenceStyle(expert.grants[0].confidence).label}
               </span>
             </div>
+            {expert.grants[0].matchedFields?.length > 0 && (
+              <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                Matched on: {expert.grants[0].matchedFields.join(", ")}
+              </div>
+            )}
+
 
             {/* Show dropdown button if there are more grants */}
             {expert.grants.length > 1 && (
@@ -348,6 +372,12 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
                     <span style={getConfidenceStyle(grant.confidence).style}>
                       {getConfidenceStyle(grant.confidence).label}
                     </span>
+                    {grant.matchedFields?.length > 0 && (
+                      <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                        Matched on: {grant.matchedFields.join(", ")}
+                      </div>
+                    )}
+
                   </li>
                 ))}
               </ul>
@@ -458,7 +488,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       {/* Tab Navigation */}
       <div style={{ display: "flex", marginBottom: "15px", borderBottom: "1px solid #eaeaea" }}>
         {/* Works Tab Button */}
-        <button 
+        <button
           onClick={() => setActiveTab("works")}
           style={{
             flex: 1,
@@ -476,7 +506,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
         </button>
 
         {/* Grants Tab Button */}
-        <button 
+        <button
           onClick={() => setActiveTab("grants")}
           style={{
             flex: 1,
@@ -497,210 +527,210 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       {/* Works Tab Content */}
       {activeTab === "works" && (
         <ul style={{ padding: 0, listStyle: "none" }}>
-        {filteredExperts.map((expert, index) => (
-          <li
-            key={index}
-            style={{
-              position: "relative",
-              padding: "15px",
-              fontSize: "14px",
-              lineHeight: "1.5",
-              width: "100%",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              marginBottom: "15px",
-              background: "#f9f9f9",
-            }}
-          >
-            <div
+          {filteredExperts.map((expert, index) => (
+            <li
+              key={index}
               style={{
-                fontWeight: "bold",
-                fontSize: "16px",
-                color: "#3879C7",
-              }}
-            >
-              {expert.name}
-            </div>
-            <div style={{ marginTop: "10px", paddingLeft: "10px" }}>
-              {expert.works.length > 0 && (
-                <>
-                  {/* Show the first work by default */}
-                  <div>
-                    <strong>Title:</strong> {expert.works[0].title} <br />
-                    <strong>Issued:</strong> {expert.works[0].issued} <br />
-                    <strong>Confidence:</strong>{" "}
-                    <span style={getConfidenceStyle(expert.works[0].confidence).style}>
-                      {getConfidenceStyle(expert.works[0].confidence).label}
-                    </span>
-                  </div>
-
-                  {/* Show dropdown button if there are more works */}
-                  {expert.works.length > 1 && (
-                    <button
-                      onClick={() => toggleWorksVisibility(index)}
-                      style={{
-                        marginTop: "10px",
-                        padding: "5px 10px",
-                        background: "#3879C7",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {expandedExpertIndex === index ? "Hide More Works" : "Show More Works"}
-                    </button>
-                  )}
-
-                  {/* Show additional works if expanded */}
-                  {expandedExpertIndex === index && (
-                    <ul style={{ marginTop: "10px", paddingLeft: "20px" }}>
-                      {expert.works.slice(1).map((work, workIndex) => {
-                        const { label, style } = getConfidenceStyle(work.confidence);
-                        return (
-                          <li key={workIndex} style={{ marginBottom: "10px" }}>
-                            <strong>Title:</strong> {work.title} <br />
-                            <strong>Issued:</strong> {work.issued} <br />
-                            <strong>Confidence:</strong>{" "}
-                            <span style={style}>{label}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </>
-              )}
-            </div>
-            {/* View Experts Button */}
-            <a
-              href={expert.url || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "block",
-                marginTop: "12px",
-                padding: "8px 10px",
-                background: "#3879C7",
-                color: "white",
-                textAlign: "center",
+                position: "relative",
+                padding: "15px",
+                fontSize: "14px",
+                lineHeight: "1.5",
+                width: "100%",
+                border: "1px solid #ccc",
                 borderRadius: "5px",
-                textDecoration: "none",
-                fontWeight: "bold",
-                opacity: expert.url ? "1" : "0.6",
-                cursor: expert.url ? "pointer" : "default",
+                marginBottom: "15px",
+                background: "#f9f9f9",
               }}
             >
-              {expert.url ? "View Profile" : "No Profile Found"}
-            </a>
-          </li>
-        ))}
-      </ul>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  color: "#3879C7",
+                }}
+              >
+                {expert.name}
+              </div>
+              <div style={{ marginTop: "10px", paddingLeft: "10px" }}>
+                {expert.works.length > 0 && (
+                  <>
+                    {/* Show the first work by default */}
+                    <div>
+                      <strong>Title:</strong> {expert.works[0].title} <br />
+                      <strong>Issued:</strong> {expert.works[0].issued} <br />
+                      <strong>Confidence:</strong>{" "}
+                      <span style={getConfidenceStyle(expert.works[0].confidence).style}>
+                        {getConfidenceStyle(expert.works[0].confidence).label}
+                      </span>
+                    </div>
+
+                    {/* Show dropdown button if there are more works */}
+                    {expert.works.length > 1 && (
+                      <button
+                        onClick={() => toggleWorksVisibility(index)}
+                        style={{
+                          marginTop: "10px",
+                          padding: "5px 10px",
+                          background: "#3879C7",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {expandedExpertIndex === index ? "Hide More Works" : "Show More Works"}
+                      </button>
+                    )}
+
+                    {/* Show additional works if expanded */}
+                    {expandedExpertIndex === index && (
+                      <ul style={{ marginTop: "10px", paddingLeft: "20px" }}>
+                        {expert.works.slice(1).map((work, workIndex) => {
+                          const { label, style } = getConfidenceStyle(work.confidence);
+                          return (
+                            <li key={workIndex} style={{ marginBottom: "10px" }}>
+                              <strong>Title:</strong> {work.title} <br />
+                              <strong>Issued:</strong> {work.issued} <br />
+                              <strong>Confidence:</strong>{" "}
+                              <span style={style}>{label}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </>
+                )}
+              </div>
+              {/* View Experts Button */}
+              <a
+                href={expert.url || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "block",
+                  marginTop: "12px",
+                  padding: "8px 10px",
+                  background: "#3879C7",
+                  color: "white",
+                  textAlign: "center",
+                  borderRadius: "5px",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  opacity: expert.url ? "1" : "0.6",
+                  cursor: expert.url ? "pointer" : "default",
+                }}
+              >
+                {expert.url ? "View Profile" : "No Profile Found"}
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
 
       {/* Grants Tab Content */}
       {activeTab === "grants" && (
         <ul style={{ padding: 0, listStyle: "none" }}>
-        {filteredExperts.map((expert, index) => (
-          <li
-            key={index}
-            style={{
-              position: "relative",
-              padding: "15px",
-              fontSize: "14px",
-              lineHeight: "1.5",
-              width: "100%",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              marginBottom: "15px",
-              background: "#f9f9f9",
-            }}
-          >
-            <div
+          {filteredExperts.map((expert, index) => (
+            <li
+              key={index}
               style={{
-                fontWeight: "bold",
-                fontSize: "16px",
-                color: "#eda012",
+                position: "relative",
+                padding: "15px",
+                fontSize: "14px",
+                lineHeight: "1.5",
+                width: "100%",
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                marginBottom: "15px",
+                background: "#f9f9f9",
               }}
             >
-              {expert.name || "Unknown Expert"}
-            </div>
-
-            {/* Show the first grant by default */}
-            <div style={{ marginTop: "10px", color: "#333" }}>
-              <strong>Title:</strong> {expert.grants[0].title || "Untitled Grant"} <br />
-              <strong>Funder:</strong> {expert.grants[0].funder || "Unknown"} <br />
-              <strong>Start Date:</strong> {expert.grants[0].startDate || "Unknown"} <br />
-              <strong>End Date:</strong> {expert.grants[0].endDate || "Unknown"} <br />
-              <strong>Confidence:</strong>{" "}
-              <span style={getConfidenceStyle(expert.grants[0].confidence).style}>
-                {getConfidenceStyle(expert.grants[0].confidence).label}
-              </span>
-            </div>
-
-            {/* Show dropdown button if there are more grants */}
-            {expert.grants.length > 1 && (
-              <button
-                onClick={() => toggleGrantDetails(index)}
+              <div
                 style={{
-                  marginTop: "10px",
-                  padding: "5px 10px",
-                  background: "#3879C7",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  fontSize: "14px",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  color: "#eda012",
                 }}
               >
-                {expandedExpertIndex === index
-                  ? "Hide More Grants"
-                  : "Show More Grants"}
-              </button>
-            )}
+                {expert.name || "Unknown Expert"}
+              </div>
 
-            {/* Show additional grants if expanded */}
-            {expandedExpertIndex === index && (
-              <ul style={{ marginTop: "10px", paddingLeft: "20px" }}>
-                {expert.grants.slice(1).map((grant, grantIndex) => (
-                  <li key={grantIndex} style={{ marginBottom: "10px" }}>
-                    <strong>Title:</strong> {grant.title || "Untitled Grant"} <br />
-                    <strong>Funder:</strong> {grant.funder || "Unknown"} <br />
-                    <strong>Start Date:</strong> {grant.startDate || "Unknown"} <br />
-                    <strong>End Date:</strong> {grant.endDate || "Unknown"} <br />
-                    <strong>Confidence:</strong>{" "}
-                    <span style={getConfidenceStyle(grant.confidence).style}>
-                      {getConfidenceStyle(grant.confidence).label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+              {/* Show the first grant by default */}
+              <div style={{ marginTop: "10px", color: "#333" }}>
+                <strong>Title:</strong> {expert.grants[0].title || "Untitled Grant"} <br />
+                <strong>Funder:</strong> {expert.grants[0].funder || "Unknown"} <br />
+                <strong>Start Date:</strong> {expert.grants[0].startDate || "Unknown"} <br />
+                <strong>End Date:</strong> {expert.grants[0].endDate || "Unknown"} <br />
+                <strong>Confidence:</strong>{" "}
+                <span style={getConfidenceStyle(expert.grants[0].confidence).style}>
+                  {getConfidenceStyle(expert.grants[0].confidence).label}
+                </span>
+              </div>
 
-            {/* View Profile Button */}
-            <a
-              href={expert.url || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "block",
-                marginTop: "12px",
-                padding: "8px 10px",
-                background: "#eda012",
-                color: "white",
-                textAlign: "center",
-                borderRadius: "5px",
-                textDecoration: "none",
-                fontWeight: "bold",
-                opacity: expert.url ? "1" : "0.6",
-                cursor: expert.url ? "pointer" : "default",
-              }}
-            >
-              {expert.url ? "View Profile" : "No Profile Found"}
-            </a>
-          </li>
-        ))}
-      </ul>
+              {/* Show dropdown button if there are more grants */}
+              {expert.grants.length > 1 && (
+                <button
+                  onClick={() => toggleGrantDetails(index)}
+                  style={{
+                    marginTop: "10px",
+                    padding: "5px 10px",
+                    background: "#3879C7",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                  }}
+                >
+                  {expandedExpertIndex === index
+                    ? "Hide More Grants"
+                    : "Show More Grants"}
+                </button>
+              )}
+
+              {/* Show additional grants if expanded */}
+              {expandedExpertIndex === index && (
+                <ul style={{ marginTop: "10px", paddingLeft: "20px" }}>
+                  {expert.grants.slice(1).map((grant, grantIndex) => (
+                    <li key={grantIndex} style={{ marginBottom: "10px" }}>
+                      <strong>Title:</strong> {grant.title || "Untitled Grant"} <br />
+                      <strong>Funder:</strong> {grant.funder || "Unknown"} <br />
+                      <strong>Start Date:</strong> {grant.startDate || "Unknown"} <br />
+                      <strong>End Date:</strong> {grant.endDate || "Unknown"} <br />
+                      <strong>Confidence:</strong>{" "}
+                      <span style={getConfidenceStyle(grant.confidence).style}>
+                        {getConfidenceStyle(grant.confidence).label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* View Profile Button */}
+              <a
+                href={expert.url || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "block",
+                  marginTop: "12px",
+                  padding: "8px 10px",
+                  background: "#eda012",
+                  color: "white",
+                  textAlign: "center",
+                  borderRadius: "5px",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  opacity: expert.url ? "1" : "0.6",
+                  cursor: expert.url ? "pointer" : "default",
+                }}
+              >
+                {expert.url ? "View Profile" : "No Profile Found"}
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

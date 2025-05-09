@@ -63,6 +63,7 @@ const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locat
         startDate: grant.startDate || "Unknown",
         endDate: grant.endDate || "Unknown",
         confidence: grant.confidence || "Unknown",
+        matchedFields: grant.matchedFields || [],
       })),
     };
   }).filter((expert) => expert); // Filter out null experts
@@ -379,11 +380,9 @@ const GrantLayer = ({
 
     const handleZoomEnd = () => {
       const zoomLevel = map.getZoom();
-      // console.log("Zoom level in GrantLayer:", zoomLevel);
 
       const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
-      // console.log("Zoom Filtered Grants:", zoomFilteredGrants);
-
+      
       setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
     };
 
@@ -427,16 +426,9 @@ const GrantLayer = ({
     const polygonLayers = [];
     const polygonMarkers = [];
 
-    // let grantIDCounter = 1;
-    // let expertIDCounter = 1;
 
-    // console.log('Before entering loop, here is the filtered grants:',filteredGrants);
-    // Populate locationMap, grantsMap, and expertsMap
-    // console.log('Entering Grant Processing...');
     filteredGrants.forEach((grantLocation) => {
       const { location, grantsFeatures } = grantLocation; // Destructure the object
-      // console.log(`Location: ${location}`);
-      // console.log(`Works Features:`, grantsFeatures);
 
       // Iterate over worksFeatures if needed
       grantsFeatures.forEach((grantFeature) => {
@@ -446,7 +438,6 @@ const GrantLayer = ({
         const location = grantFeature.properties.location || "Unknown";
         if (!showGrants) return;
         if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-          // console.log(`grantLayer - Skipping popup for overlapping location: ${location}`);
           return;
         }
         // Generate a unique location ID
@@ -473,7 +464,6 @@ const GrantLayer = ({
 
           // Generate a unique grant ID
           const grantID = `grant_${entry.id}`;
-          // console.log(`Now storing ${grantID}`);
           // Add grant to grantsMap
           grantsMap.set(grantID, {
             grantID: entry.id || 'Unknown grantID',

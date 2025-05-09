@@ -38,6 +38,7 @@ const preparePanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID) 
         title: work.title || "Untitled Work",
         issued: work.issued || "Unknown",
         confidence: work.confidence || "Unknown",
+        matchedFields: work.matchedFields || [],
       })),
     };
   }).filter((expert) => expert); // Filter out null experts
@@ -165,7 +166,6 @@ const renderPolygons = ({
 
         const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
         if (viewWPolyExpertsBtn) {
-          // // console.log('View Experts was pushed on a polygon!');
           viewWPolyExpertsBtn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -177,7 +177,6 @@ const renderPolygons = ({
               worksMap,
               locationID // Pass the current locationID
             );
-            // console.log("Panel Data for Polygon:", panelData); // Debugging log
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
             setPanelOpen(true);
@@ -285,7 +284,6 @@ const renderPoints = ({
 
         const viewWPointExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
         if (viewWPointExpertsBtn) {
-          // // console.log('View Experts was pushed on a point!');
           viewWPointExpertsBtn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -297,7 +295,6 @@ const renderPoints = ({
               worksMap,
               locationID // Pass the current locationID
             );
-            // console.log("Panel Data for Marker:", panelData); // Debugging log
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
             setPanelOpen(true);
@@ -404,7 +401,6 @@ const WorkLayer = ({
       },
     });
 
-    // console.log("WorkLayer - combinedKeys:", Array.from(combinedKeys));
 
     const locationMap = new Map();
     const worksMap = new Map();
@@ -412,17 +408,12 @@ const WorkLayer = ({
     const polygonLayers = [];
     const polygonMarkers = [];
 
-    // let workIDCounter = 1;
-    // let expertIDCounter = 1;
 
     filteredWorks.forEach((workLocation) => {
       const { location, worksFeatures } = workLocation; // Destructure the object
-      // console.log(`Location: ${location}`);
-      // console.log(`Works Features:`, worksFeatures);
 
       // Iterate over worksFeatures if needed
       worksFeatures.forEach((workFeature) => {
-        // console.log(`Work Feature:`, workFeature);
         // Add any additional processing logic here
         const geometry = workFeature.geometry;
         const entries = workFeature.properties.entries || [];
@@ -431,7 +422,6 @@ const WorkLayer = ({
         if (!showWorks) return;
         // Skip rendering if the location overlaps with combinedKeys
         if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-          // console.log(`WorkLayer - Skipping popup for overlapping location: ${location}`);
           return;
         }
         // Generate a unique location ID

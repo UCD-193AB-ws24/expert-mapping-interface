@@ -207,6 +207,12 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                         {getConfidenceStyle(expert.works[0].confidence).label}
                       </span>
                     </div>
+                    {expert.works[0].matchedFields?.length > 0 && (
+                      <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                        Matched on: {expert.works[0].matchedFields.join(", ")}
+                      </div>
+                    )}
+
 
                     {/* Show dropdown button if there are more works */}
                     {expert.works.length > 1 && (
@@ -238,7 +244,15 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                               <strong>Issued:</strong> {work.issued} <br />
                               <strong>Confidence:</strong>{" "}
                               <span style={style}>{label}</span>
+                              {work.matchedFields?.length > 0 && (
+                                <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                                  Matched on: {work.matchedFields.join(", ")}
+                                </div>
+                              )}
                             </li>
+
+
+
                           );
                         })}
                       </ul>
@@ -299,7 +313,6 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
               >
                 {expert.name || "Unknown Expert"}
               </div>
-
               {/* Show the first grant by default */}
               <div style={{ marginTop: "10px", color: "#333" }}>
                 <strong>Title:</strong> {expert.grants[0].title || "Untitled Grant"} <br />
@@ -310,7 +323,15 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                 <span style={getConfidenceStyle(expert.grants[0].confidence).style}>
                   {getConfidenceStyle(expert.grants[0].confidence).label}
                 </span>
+                {expert.grants[0].matchedFields?.length > 0 && (
+                  <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                    Matched on: {expert.grants[0].matchedFields.join(", ")}
+                  </div>
+                )}
               </div>
+
+
+
 
               {/* Show dropdown button if there are more grants */}
               {expert.grants.length > 1 && (
@@ -346,6 +367,12 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                       <span style={getConfidenceStyle(grant.confidence).style}>
                         {getConfidenceStyle(grant.confidence).label}
                       </span>
+                      {grant.matchedFields?.length > 0 && (
+                        <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                          Matched on: {grant.matchedFields.join(", ")}
+                        </div>
+                      )}
+
                     </li>
                   ))}
                 </ul>
