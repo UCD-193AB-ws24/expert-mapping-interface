@@ -8,7 +8,7 @@ import GrantLayer from "./rendering/GrantLayer";
 import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel } from "./rendering/Panels";
 import { CombinedPanel } from "./rendering/CombinedPanel";
-import { matchesKeyword } from "./filters/searchFilter";
+import { matchesKeyword } from "./rendering/filters/searchFilter";
 
 /**
  * ResearchMap Component
