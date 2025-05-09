@@ -15,22 +15,9 @@
  *
  * AUTHOR: Marina Mata, 2025
  */
- 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.leaflet-container {
-  width: 100%;
-  height: 100vh;
-}
-
-.leaflet-container {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-
-}
 
 html,
 body {
@@ -41,12 +28,17 @@ body {
   overflow: hidden;
 }
 
+.leaflet-container {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+}
+
 #map {
   flex: 1;
   height: 100%;
   width: 100%;
   max-height: 82vh;
-
 }
 
 .map-container {
@@ -55,21 +47,16 @@ body {
   height: 80vh;
   width: 100%;
   overflow: hidden;
-
 }
 
 .map-title {
   font-size: 1.5rem;
-  /* Adjust the size as needed */
   font-weight: 600;
-  /* If you still want it semi-bold */
 }
 
-/* Overall slider bar */
 .custom-slider {
   height: 8px;
   background: #facc15;
-  /* yellow */
   border-radius: 9999px;
   position: relative;
 }
@@ -79,25 +66,18 @@ body {
   border-radius: 9999px;
 }
 
-/* Left of range */
 .custom-track-0 {
   background-color: #e5e7eb !important;
-  /* gray */
 }
 
-/* Selected range */
 .custom-track-1 {
   background-color: #facc15 !important;
-  /* yellow */
 }
 
-/* Right of range */
 .custom-track-2 {
   background-color: #e5e7eb !important;
-  /* gray */
 }
 
-/*The draggable thumbs */
 .custom-thumb {
   height: 20px;
   width: 20px;
@@ -108,37 +88,4 @@ body {
   top: 50%;
   transform: translateY(-50%);
   border: 2px solid white;
-}
-
-.map-legend {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background: white;
-  border: 1px solid #ccc;
-  padding: 10px 14px;
-  font-size: 14px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-}
-
-.legend-marker {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  margin-right: 8px;
-  border-radius: 50%;
-}
-
-.legend-marker.expert {
-  background-color: #3b82f6;
-}
-
-.legend-marker.grant {
-  background-color: #fbbf24;
-}
-
-.legend-marker.overlap {
-  background-color: #10b981;
 }
