@@ -37,10 +37,10 @@ function App() {
           <a href="https://experts.ucdavis.edu/browse/expert/a" className="text-lg text-white hover:underline">Experts</a>
           <a href="https://experts.ucdavis.edu/browse/grant/1" className="text-lg text-white hover:underline">Grants</a>
         </div>
-          <span className="ml-2 p-2 rounded-full" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="white">
-            </svg>
-          </span>
+        <span className="ml-2 p-2 rounded-full" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="white">
+          </svg>
+        </span>
       </nav>
       {/* 🗺️ Map Section */}
       <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
@@ -55,7 +55,7 @@ function App() {
             />
           </div>
           {/* Sidebar */}
-          <aside className="w-[20%] p-4 bg-gray-50 border-l border-gray-200" aria-label="Search and filter controls">
+          <aside className="w-[20%] p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto max-h-full" aria-label="Search and filter controls">
             {/* Search Bar */}
             <div className="mb-6">
               <label htmlFor="search-input" className="sr-only">Search keyword</label>
@@ -153,12 +153,47 @@ function App() {
                 </button>
               </div>
             </div>
-            <div className="map-legend">
-              <div><span className="legend-marker expert" /> Expert</div>
-              <div><span className="legend-marker grant" /> Grant</div>
-              <div><span className="legend-marker overlap" /> Overlap</div>
-            </div>
-
+            <details className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
+              <summary className="font-semibold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
+                Map Guide
+              </summary>
+              <div className="mt-3 text-gray-800 space-y-4">
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-1">Location Colors</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><span className="text-yellow-500 font-semibold">Yellow</span> – Grant locations</li>
+                    <li><span className="text-blue-600 font-semibold">Blue</span> – Research work locations</li>
+                    <li><span className="text-green-600 font-semibold">Green</span> – Locations with both work and grant data</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-1">Map Features</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Number markers</strong> show how many entries are linked to that place</li>
+                    <li><strong>Confidence score</strong> shows how confident the system is in mapping the extracted geographic name to the corresponding location</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-1">Keyword Search</h3>
+                  <p>
+                    Type a word or phrase to find matches in:
+                  </p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Work or grant title</li>
+                    <li>Abstract</li>
+                    <li>Funder (for grants)</li>
+                    <li>Issued year, start or end date</li>
+                    <li>Expert names</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-1">Date Filter</h3>
+                  <p>
+                    Only shows research works published and grants funded within the selected year range.
+                  </p>
+                </div>
+              </div>
+            </details>
           </aside>
         </div>
       </main>

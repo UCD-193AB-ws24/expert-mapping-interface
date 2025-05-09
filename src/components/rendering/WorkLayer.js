@@ -129,7 +129,7 @@ const renderPolygons = ({
 
       const content = createMultiExpertContent(
         locationData.expertIDs.length,
-        locationData.display_name,
+        locationData.name,
         locationData.workIDs.length,
         matchedFields
       );
