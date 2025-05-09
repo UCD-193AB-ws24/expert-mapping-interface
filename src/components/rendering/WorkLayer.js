@@ -4,6 +4,8 @@ import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
 import { filterFeaturesByZoom } from "./filters/zoomFilter";
+import { getMatchedFields } from "./filters/searchFilter";
+
 
 /**
  * Helper function to prepare panel data.
@@ -108,17 +110,29 @@ const renderPolygons = ({
 
     // Track the marker for cleanup
     polygonMarkers.push(marker);
-    
+
     let workPolyPopup = null;
     let workPolyCT = null; // CT = closeTimeout
 
     marker.on("mouseover", () => {
       if (workPolyCT) clearTimeout(workPolyCT);
+
+      const matchedFieldsSet = new Set();
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
+
       const content = createMultiExpertContent(
         locationData.expertIDs.length,
         locationData.display_name,
-        locationData.workIDs.length
+        locationData.workIDs.length,
+        matchedFields
       );
+
       if (workPolyPopup) workPolyPopup.remove();
 
       workPolyPopup = L.popup({
@@ -131,7 +145,7 @@ const renderPolygons = ({
         .setLatLng(polygon.getBounds().getCenter())
         .setContent(content)
         .openOn(map);
-    
+
       const popupElement = workPolyPopup.getElement();
       if (popupElement) {
         popupElement.style.pointerEvents = "auto";
@@ -223,11 +237,23 @@ const renderPoints = ({
 
     marker.on("mouseover", () => {
       if (workPointCT) clearTimeout(workPointCT);
+
+      const matchedFieldsSet = new Set();
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
+
       const content = createMultiExpertContent(
         locationData.expertIDs.length,
         locationData.name,
-        locationData.workIDs.length
+        locationData.workIDs.length,
+        matchedFields
       );
+
 
       if (workPointPopup) workPointPopup.remove();
       workPointPopup = L.popup({
@@ -240,49 +266,49 @@ const renderPoints = ({
         .setLatLng(marker.getLatLng())
         .setContent(content)
         .openOn(map);
-        const popupElement = workPointPopup.getElement();
-        if (popupElement) {
-          popupElement.style.pointerEvents = "auto";
-  
-          popupElement.addEventListener("mouseenter", () => {
-            clearTimeout(workPointCT);
+      const popupElement = workPointPopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        popupElement.addEventListener("mouseenter", () => {
+          clearTimeout(workPointCT);
+        });
+
+        popupElement.addEventListener("mouseleave", () => {
+          workPointCT = setTimeout(() => {
+            if (workPointPopup) {
+              workPointPopup.close();
+              workPointPopup = null;
+            }
+          }, 200);
+        });
+
+        const viewWPointExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
+        if (viewWPointExpertsBtn) {
+          // // console.log('View Experts was pushed on a point!');
+          viewWPointExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const panelData = preparePanelData(
+              locationData.expertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID // Pass the current locationID
+            );
+            // console.log("Panel Data for Marker:", panelData); // Debugging log
+            setSelectedWorks(panelData); // Pass the prepared data to the panel
+            setPanelType("works");
+            setPanelOpen(true);
+
+            if (workPointPopup) {
+              workPointPopup.close();
+              workPointPopup = null;
+            }
           });
-  
-          popupElement.addEventListener("mouseleave", () => {
-            workPointCT = setTimeout(() => {
-              if (workPointPopup) {
-                workPointPopup.close();
-                workPointPopup = null;
-              }
-            }, 200);
-          });
-  
-          const viewWPointExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
-          if (viewWPointExpertsBtn) {
-            // // console.log('View Experts was pushed on a point!');
-            viewWPointExpertsBtn.addEventListener("click", (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-  
-              const panelData = preparePanelData(
-                locationData.expertIDs,
-                locationData.workIDs,
-                expertsMap,
-                worksMap,
-                locationID // Pass the current locationID
-              );
-              // console.log("Panel Data for Marker:", panelData); // Debugging log
-              setSelectedWorks(panelData); // Pass the prepared data to the panel
-              setPanelType("works");
-              setPanelOpen(true);
-  
-              if (workPointPopup) {
-                workPointPopup.close();
-                workPointPopup = null;
-              }
-            });
-          }
-        }    
+        }
+      }
     });
 
     marker.on("mouseout", () => {
@@ -311,54 +337,55 @@ const WorkLayer = ({
   setPanelOpen,
   setPanelType,
   combinedKeys,
+  searchKeyword,
 }) => {
   const map = useMap();
   const [filteredWorks, setFilteredWorks] = useState(nonOverlappingWorks);
-    
-    // Define handleZoomEnd outside the useEffect
+
+  // Define handleZoomEnd outside the useEffect
+  const handleZoomEnd = () => {
+    if (!map || !nonOverlappingWorks) return;
+
+    const zoomLevel = map.getZoom();
+    console.log("Zoom level in WorkLayer:", zoomLevel);
+
+    const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
+    console.log("Zoom Filtered Works:", zoomFilteredWorks);
+
+    setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
+  };
+
+  useEffect(() => {
+    if (!map || !nonOverlappingWorks) {
+      console.error("Error: No Works found!");
+      return;
+    }
+
     const handleZoomEnd = () => {
-      if (!map || !nonOverlappingWorks) return;
-  
       const zoomLevel = map.getZoom();
-      console.log("Zoom level in WorkLayer:", zoomLevel);
-  
+      console.log("Zoom level in GrantLayer:", zoomLevel);
+
       const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
       console.log("Zoom Filtered Works:", zoomFilteredWorks);
-  
+
       setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
     };
 
-    useEffect(() => {
-      if (!map || !nonOverlappingWorks) {
-        console.error("Error: No Works found!");
-        return;
-      }
-  
-      const handleZoomEnd = () => {
-        const zoomLevel = map.getZoom();
-        console.log("Zoom level in GrantLayer:", zoomLevel);
-  
-        const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
-        console.log("Zoom Filtered Works:", zoomFilteredWorks);
-  
-        setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
-      };
+    map.on("zoomend", handleZoomEnd);
 
-      map.on("zoomend", handleZoomEnd);
-  
-      // Apply the filter initially
-      handleZoomEnd();
-  
-      return () => {
-        map.off("zoomend", handleZoomEnd);
-      };
-    }, [map, nonOverlappingWorks]);
+    // Apply the filter initially
+    handleZoomEnd();
+
+    return () => {
+      map.off("zoomend", handleZoomEnd);
+    };
+  }, [map, nonOverlappingWorks]);
 
   useEffect(() => {
     if (!map || !filteredWorks || !filteredWorks.length) {
       console.error('Error: No works found!');
       return;
-    } 
+    }
 
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
@@ -392,7 +419,7 @@ const WorkLayer = ({
       const { location, worksFeatures } = workLocation; // Destructure the object
       // console.log(`Location: ${location}`);
       // console.log(`Works Features:`, worksFeatures);
-    
+
       // Iterate over worksFeatures if needed
       worksFeatures.forEach((workFeature) => {
         // console.log(`Work Feature:`, workFeature);
@@ -401,7 +428,7 @@ const WorkLayer = ({
         const entries = workFeature.properties.entries || [];
         const location = workFeature.properties.location || "Unknown";
 
-        if(!showWorks) return;
+        if (!showWorks) return;
         // Skip rendering if the location overlaps with combinedKeys
         if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
           // console.log(`WorkLayer - Skipping popup for overlapping location: ${location}`);
@@ -424,8 +451,12 @@ const WorkLayer = ({
           });
         }
 
+
+
         // Process each work entry
         entries.forEach((entry) => {
+          const matchedFields = getMatchedFields(searchKeyword, entry);
+          if (searchKeyword && matchedFields.length === 0) return;
           // Generate a unique work ID
           const workID = `work_${entry.id}`;
 
@@ -438,6 +469,7 @@ const WorkLayer = ({
             confidence: entry.confidence || "Unknown",
             locationID,
             relatedExpertIDs: [],
+            matchedFields,
           });
 
           // Add work ID to locationMap
@@ -477,7 +509,7 @@ const WorkLayer = ({
             if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
               locationMap.get(locationID).expertIDs.push(expertID);
             }
-        });
+          });
         });
       });
     });

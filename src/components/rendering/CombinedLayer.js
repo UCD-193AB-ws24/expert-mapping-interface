@@ -40,6 +40,7 @@ const renderPolygons = ({
   setPanelType,
   comboLayers,
   comboPolyMarkers,
+  searchKeyword
 }) => {
   const sortedPolygons = Array.from(locationMap.entries())
     .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
@@ -155,11 +156,47 @@ const renderPolygons = ({
 
     marker.on("mouseover", () => {
       if (closeTimeout) clearTimeout(closeTimeout);
-      const content = createCombinedPopup(
+      // const content = createCombinedPopup(
+      //   work2expertCount,
+      //   grant2expertCount,
+      //   locationData.display_name
+      // );
+      const matchedFieldsSet = new Set();
+
+// Collect from works
+locationData.workIDs.forEach((workID) => {
+  const work = worksMap.get(workID);
+  if (work?.matchedFields) {
+    work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+  }
+});
+
+// Collect from grants
+locationData.grantIDs.forEach((grantID) => {
+  const grant = grantsMap.get(grantID);
+  if (grant?.matchedFields) {
+    grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+  }
+});
+
+const matchedFields = Array.from(matchedFieldsSet);
+
+const content =
+  searchKeyword && matchedFields.length > 0
+    ? createMatchedCombinedPolygonPopup(
         work2expertCount,
         grant2expertCount,
-        locationData.display_name
+        locationData.display_name,
+        matchedFields
+      )
+    : createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.display_name,
+        matchedFields
       );
+
+
 
       if (activePopup) activePopup.remove();
 
@@ -248,6 +285,7 @@ const renderPoints = ({
   setLocationName,
   setPanelOpen,
   setPanelType,
+  searchKeyword,
 }) => {
   locationMap.forEach((locationData, locationID) => {
     if (locationData.geometryType !== "Point" || locationData.grantIDs.length === 0 || locationData.worksIDs.length === 0) return;
@@ -304,11 +342,47 @@ const renderPoints = ({
 
     marker.on("mouseover", () => {
       if (closePointTimeout) clearTimeout(closePointTimeout);
-      const content = createCombinedPopup(
+      // const content = createCombinedPopup(
+      //   work2expertCount,
+      //   grant2expertCount,
+      //   locationData.display_name
+      // );
+      const matchedFieldsSet = new Set();
+
+// Collect from works
+locationData.workIDs.forEach((workID) => {
+  const work = worksMap.get(workID);
+  if (work?.matchedFields) {
+    work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+  }
+});
+
+// Collect from grants
+locationData.grantIDs.forEach((grantID) => {
+  const grant = grantsMap.get(grantID);
+  if (grant?.matchedFields) {
+    grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+  }
+});
+
+const matchedFields = Array.from(matchedFieldsSet);
+
+const content =
+  searchKeyword && matchedFields.length > 0
+    ? createMatchedCombinedPolygonPopup(
         work2expertCount,
         grant2expertCount,
-        locationData.display_name
+        locationData.display_name,
+        matchedFields
+      )
+    : createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.display_name,
+        matchedFields
       );
+
+
       if (activePointPopup) activePointPopup.remove();
       activePointPopup = L.popup({
         closeButton: false,
@@ -527,15 +601,35 @@ const CombinedLayer = ({
             const workID = `work_${entry.id}`;
   
             // Add work to worksMap
-            worksMap.set(workID, {
-              workID: entry.id,
-              title: entry.title || "No Title",
-              abstract: entry.abstract || "No Abstract",
-              issued: entry.issued || "Unknown",
-              confidence: entry.confidence || "Unknown",
-              locationID,
-              relatedExpertIDs: [],
-            });
+            // worksMap.set(workID, {
+            //   workID: entry.id,
+            //   title: entry.title || "No Title",
+            //   abstract: entry.abstract || "No Abstract",
+            //   issued: entry.issued || "Unknown",
+            //   confidence: entry.confidence || "Unknown",
+            //   locationID,
+            //   relatedExpertIDs: [],
+            // });
+            const matchedFields = [];
+if (searchKeyword) {
+  const keywordLower = searchKeyword.toLowerCase();
+  if ((entry.title || "").toLowerCase().includes(keywordLower)) matchedFields.push("title");
+  if ((entry.abstract || "").toLowerCase().includes(keywordLower)) matchedFields.push("abstract");
+  if ((entry.issued || "").toLowerCase().includes(keywordLower)) matchedFields.push("issued");
+  if ((entry.confidence || "").toLowerCase().includes(keywordLower)) matchedFields.push("confidence");
+}
+
+worksMap.set(workID, {
+  workID: entry.id,
+  title: entry.title || "No Title",
+  abstract: entry.abstract || "No Abstract",
+  issued: entry.issued || "Unknown",
+  confidence: entry.confidence || "Unknown",
+  locationID,
+  relatedExpertIDs: [],
+  matchedFields, // ✅ this line enables popup highlighting
+});
+
   
             // Add work ID to locationMap
             locationMap.get(locationID).workIDs.push(workID);
@@ -590,16 +684,38 @@ const CombinedLayer = ({
               const grantID = `grant_${entry.id}`;
               // console.log(`Now storing ${grantID}`);
               // Add grant to grantsMap
-              grantsMap.set(grantID, {
-                grantID: entry.id || 'Unknown grantID',
-                title: entry.title || "Untitled Grant",
-                funder: entry.funder || "Unknown",
-                startDate: entry.start_date || "Unknown",
-                endDate: entry.end_date || "Unknown",
-                confidence: entry.confidence || "Unknown",
-                locationID,
-                relatedExpertIDs: [],
-              });
+              // grantsMap.set(grantID, {
+              //   grantID: entry.id || 'Unknown grantID',
+              //   title: entry.title || "Untitled Grant",
+              //   funder: entry.funder || "Unknown",
+              //   startDate: entry.start_date || "Unknown",
+              //   endDate: entry.end_date || "Unknown",
+              //   confidence: entry.confidence || "Unknown",
+              //   locationID,
+              //   relatedExpertIDs: [],
+              // });
+              const matchedFields = [];
+if (searchKeyword) {
+  const keywordLower = searchKeyword.toLowerCase();
+  if ((entry.title || "").toLowerCase().includes(keywordLower)) matchedFields.push("title");
+  if ((entry.funder || "").toLowerCase().includes(keywordLower)) matchedFields.push("funder");
+  if ((entry.start_date || "").toLowerCase().includes(keywordLower)) matchedFields.push("startDate");
+  if ((entry.end_date || "").toLowerCase().includes(keywordLower)) matchedFields.push("endDate");
+  if ((entry.confidence || "").toLowerCase().includes(keywordLower)) matchedFields.push("confidence");
+}
+
+grantsMap.set(grantID, {
+  grantID: entry.id || 'Unknown grantID',
+  title: entry.title || "Untitled Grant",
+  funder: entry.funder || "Unknown",
+  startDate: entry.start_date || "Unknown",
+  endDate: entry.end_date || "Unknown",
+  confidence: entry.confidence || "Unknown",
+  locationID,
+  relatedExpertIDs: [],
+  matchedFields, // ✅ now passed to popup
+});
+
   
               // Add grant ID to locationMap
               locationMap.get(locationID).grantIDs.push(grantID);
@@ -664,6 +780,7 @@ const CombinedLayer = ({
         setPanelType,
         comboLayers,
         comboPolyMarkers,
+        searchKeyword,
       });
 
       renderPoints({
@@ -678,6 +795,7 @@ const CombinedLayer = ({
         setLocationName,
         setPanelOpen,
         setPanelType,
+        searchKeyword,
       });
 
       

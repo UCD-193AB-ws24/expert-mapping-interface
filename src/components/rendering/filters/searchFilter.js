@@ -38,3 +38,46 @@ export const matchesKeyword = (keyword, entry) => {
 
   return terms.every((term) => searchable.includes(term));
 };
+
+/**
+ * Returns a list of fields in the entry where the keyword matched.
+ */
+export const getMatchedFields = (keyword, entry) => {
+  if (!keyword?.trim() || !entry) return [];
+
+  const relatedExperts = getRelatedExperts(entry);
+  const lowerKeyword = keyword.toLowerCase();
+  const quoteMatch = keyword.match(/^"(.*)"$/);
+  const terms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
+
+  const matched = [];
+
+  const check = (field, name) => {
+    if (!field) return;
+    const text = field.toString().toLowerCase();
+    if (terms.every((term) => text.includes(term))) {
+      matched.push(name);
+    }
+  };
+
+  check(entry.title, "title");
+  check(entry.abstract, "abstract");
+  check(entry.issued, "issued");
+  check(entry.funder, "funder");
+  check(entry.startDate, "startDate");
+  check(entry.endDate, "endDate");
+  check(entry.confidence, "confidence");
+
+  if (
+    relatedExperts.length &&
+    relatedExperts.some((e) => {
+      const name = (e.fullName || e.name || "").toLowerCase();
+      return terms.every((term) => name.includes(term));
+    })
+  ) {
+    matched.push("relatedExperts");
+  }
+
+  return matched;
+};
+

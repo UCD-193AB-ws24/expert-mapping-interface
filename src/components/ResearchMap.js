@@ -300,6 +300,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
+              
             />
           )}
         </MapWrapper>
