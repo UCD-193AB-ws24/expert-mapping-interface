@@ -1,16 +1,26 @@
 /**
- * Normalize related experts for both works and grants.
+ * @file searchFilter.js
+ * @description Utility functions for filtering and searching entries based on keywords.
+ *              Includes support for exact matches, multi-word fuzzy terms, and related experts.
+ *
+ * FUNCTIONS:
+ * - getRelatedExperts(entry): Normalizes related experts for both works and grants.
+ * - matchesKeyword(keyword, entry): Checks if a given entry matches the provided keyword.
+ * - getMatchedFields(keyword, entry): Returns a list of fields in the entry where the keyword matched.
+ *
+ * Marina Mata, 2025
  */
+
+
+ //Normalize related experts for both works and grants.
 export const getRelatedExperts = (entry) => {
   if (entry.relatedExperts) return entry.relatedExperts;
   if (entry.relatedExpert) return [entry.relatedExpert];
   return [];
 };
 
-/**
- * Check if the given entry matches the keyword.
- * Supports quoted exact matches and multi-word fuzzy terms.
- */
+
+//Check if the given entry matches the keyword.
 export const matchesKeyword = (keyword, entry) => {
   const relatedExperts = getRelatedExperts(entry);
   if (!relatedExperts.length) return false;
@@ -39,9 +49,8 @@ export const matchesKeyword = (keyword, entry) => {
   return terms.every((term) => searchable.includes(term));
 };
 
-/**
- * Returns a list of fields in the entry where the keyword matched.
- */
+
+//Returns a list of fields in the entry where the keyword matched.
 export const getMatchedFields = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return [];
 
