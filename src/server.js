@@ -64,10 +64,8 @@ app.use((req, res, next) => {
 });
 
 // Fetch all works from Redis as geojson file
-app.get('/api/redis/comboMapData', async (req, res) => {
-  console.log('📍 Received request for /api/redis/map-data');
-app.get('/api/redis/comboMapData', async (req, res) => {
-  console.log('📍 Received request for /api/redis/map-data');
+app.get('/api/redis/worksQuery', async (req, res) => {
+  console.log('📍 Received request for Redis data');
   try {
     if (!redisClient.isOpen) {
       console.error('❌ Redis client is not connected');
@@ -146,14 +144,11 @@ app.get('/api/redis/comboMapData', async (req, res) => {
 
     res.json(geojson);
   } catch (error) {
-      console.error('❌ Error fetching map data:', error);
-      res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    console.error('❌ Error querying Redis:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
-app.get('/api/redis/grantMapdata', async (req, res) => {
-});
-app.get('/api/redis/grantMapdata', async (req, res) => {
-});
+
 // Fetch all grants from Redis as geojson file
 app.get('/api/redis/grantsQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
