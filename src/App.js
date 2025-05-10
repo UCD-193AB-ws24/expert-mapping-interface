@@ -1,3 +1,29 @@
+/**
+ * @file App.js
+ * @description This file contains the main `App` component, which serves as the entry point for the application.
+ *              It provides the user interface for interacting with the research map, including search, filters,
+ *              and toggles for displaying works and grants. The application integrates the `ResearchMap` component
+ *              to visualize research-related data on a Leaflet map.
+ *
+ * Features:
+ * - Header with navigation links and branding.
+ * - Sidebar with search, toggles, and filters for refining map data.
+ * - Interactive map displaying research works and grants.
+ * - Footer for additional branding or information.
+ *
+ * Components:
+ * - ResearchMap: Displays the interactive map with works and grants data.
+ * - ReactSlider: Provides a slider for selecting a date range.
+ *
+ * State Variables:
+ * - showGrants: Boolean to toggle the display of grant-related data.
+ * - showWorks: Boolean to toggle the display of works-related data.
+ * - searchKeyword: String used to filter data based on a search term.
+ * - selectedDateRange: Array of two numbers representing the selected year range for filtering data.
+ * - pendingDateRange: Array of two numbers representing the temporary date range before applying filters.
+ *
+ * Marina Mata, 2025
+ */
 import React, { useState } from "react";
 import "./styles/index.css";
 import ResearchMap from "./components/ResearchMap";
@@ -8,21 +34,27 @@ import topImage from "./assets/topImage.png";
 import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
 
 function App() {
+  // State variables for toggles, search, and filters
   const [showGrants, setShowGrants] = useState(false);
   const [showWorks, setShowWorks] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedDateRange, setSelectedDateRange] = useState([1990, 2025]);
   const [pendingDateRange, setPendingDateRange] = useState([1990, 2025]);
+
+  // Check if the pending date range differs from the applied date range
   const isFilterPending = JSON.stringify(pendingDateRange) !== JSON.stringify(selectedDateRange);
 
-
+ /**
+   * Handles changes to the search input field.
+   * @param {object} e - The event object from the input field.
+   */
   const handleSearchChange = (e) => {
     setSearchKeyword(e.target.value);
   };
 
   return (
     <div className="App flex flex-col min-h-screen" style={{ backgroundColor: "#FFFFFF" }}>
-      {/* 🔷 Header */}
+      {/* Header */}
       <header className="flex items-center py-2 px-10 bg-white shadow-md fixed top-0 left-0 w-full z-50">
         <div className="flex items-center space-x-6">
           <img src={aggieExpertsLogo} alt="Aggie Experts Logo" className="h-16 w-auto ml-4" />
@@ -31,7 +63,7 @@ function App() {
           </h1>
         </div>
       </header>
-      {/* 🔗 Navigation Bar */}
+      {/* Navigation Bar */}
       <nav className="flex justify-between items-center bg-[#022851] px-10 py-2 fixed top-[80px] left-0 w-full z-50" aria-label="Main navigation">
         <div className="flex space-x-12">
           <a href="https://experts.ucdavis.edu/browse/expert/a" className="text-lg text-white hover:underline">Experts</a>
@@ -42,7 +74,7 @@ function App() {
           </svg>
         </span>
       </nav>
-      {/* 🗺️ Map Section */}
+      {/* Map Section */}
       <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
         <div className="flex w-full h-full">
           {/* Map */}
@@ -197,7 +229,7 @@ function App() {
           </aside>
         </div>
       </main>
-      {/* 🔻 Footer */}
+      {/* Footer */}
       <footer className="w-full h-10 bg-[#022851]" role="contentinfo"></footer>
     </div>
   );

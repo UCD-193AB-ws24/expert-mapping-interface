@@ -1,22 +1,27 @@
-import React, { useState } from "react";
-
 /**
- * CombinedPanel Component
- * 
- * This component displays a side panel with two tabs: "Works" and "Grants".
- * It allows users to view detailed information about works and grants related
- * to a specific location. The panel is interactive and includes features like
- * tab switching, confidence level styling, and researcher profile links.
- * 
- * Props:
+ * @file CombinedPanel.js
+ * @description This component displays a side panel with two tabs: "Works" and "Grants".
+ *              It allows users to view detailed information about works and grants related
+ *              to a specific location. The panel is interactive and includes features like
+ *              tab switching, confidence level styling, and researcher profile links.
+ *
+ * PROPS:
  * - works: Array of work entries related to the location.
  * - grants: Array of grant entries related to the location.
  * - locationName: String representing the name of the location.
  * - onClose: Function to handle closing the panel.
+ * - keyword: String used to filter works and grants.
+ *
+ * Marina Mata, 2025
  */
+
+import React, { useState } from "react";
+
 export const CombinedPanel = ({ works, grants, locationName, onClose, keyword }) => {
+  // Convert the keyword to lowercase for case-insensitive filtering
   const lowerKeyword = (keyword || "").toLowerCase().trim();
 
+  // Filter works and grants based on the keyword
   const filteredWorks = works.filter(entry =>
     JSON.stringify(entry).toLowerCase().includes(lowerKeyword)
   );
@@ -42,11 +47,9 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
     setExpandedGrantIndex(expandedGrantIndex === index ? null : index);
   };
 
-  /**
+   /**
    * getConfidenceStyle
-   * 
-   * Determines the style and label for the confidence level of a work entry.
-   * 
+   * @description Determines the style and label for the confidence level of a work or grant entry.
    * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
    * @returns {object} An object containing the label and style for the confidence level.
    */
@@ -250,9 +253,6 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                                 </div>
                               )}
                             </li>
-
-
-
                           );
                         })}
                       </ul>
@@ -329,9 +329,6 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                   </div>
                 )}
               </div>
-
-
-
 
               {/* Show dropdown button if there are more grants */}
               {expert.grants.length > 1 && (

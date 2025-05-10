@@ -1,31 +1,35 @@
+/**
+ * @file CombinedLayer.js
+ * @description This component renders combined polygons and points on a Leaflet map where there is an overlap
+ *              between works and grants for specific locations. It handles interactive popups, zoom filtering,
+ *              and updates the state for selected experts, grants, and the side panel.
+ *
+ * FUNCTIONS:
+ * - renderPolygons: Renders overlapping polygons for works and grants, including interactive popups.
+ * - renderPoints: Renders overlapping points for works and grants, including interactive popups.
+ *
+ * PROPS:
+ * - overlappingLocations: Array of overlapping locations with works and grants data.
+ * - showWorks: Boolean indicating whether to display work polygons and points.
+ * - showGrants: Boolean indicating whether to display grant polygons and points.
+ * - setSelectedWorks: Function to update the selected works for the side panel.
+ * - setSelectedGrants: Function to update the selected grants for the side panel.
+ * - setPanelOpen: Function to control whether the side panel is open.
+ * - setPanelType: Function to set the type of content displayed in the side panel.
+ * - setCombinedKeys: Function to update the set of overlapping locations.
+ * - combinedKeys: Set of currently overlapping locations.
+ * - searchKeyword: Keyword used for filtering works and grants.
+ * - setLocationName: Function to set the name of the location for the side panel.
+ *
+ * Marina Mata, 2025
+ */
+
 import { useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { createCombinedPopup, createMatchedCombinedPolygonPopup } from "./Popups";
 import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
 import { filterOverlappingLocationsByZoom } from "./filters/zoomFilter";
-/**
- * CombinedLayer Component
- * 
- * This component renders combined polygons on a Leaflet map where there is an overlap
- * between works and grants for specific locations. It handles interactive popups and
- * updates the state for selected experts, grants, and the side panel.
- * 
- * Props:
- * - workGeoJSON: GeoJSON object containing work-related data.
- * - grantGeoJSON: GeoJSON object containing grant-related data.
- * - showWorks: Boolean indicating whether to display work polygons.
- * - showGrants: Boolean indicating whether to display grant polygons.
- * - setSelectedWorks: Function to update the selected experts for the side panel.
- * - setSelectedGrants: Function to update the selected grants for the side panel.
- * - setPanelOpen: Function to control whether the side panel is open.
- * - setPanelType: Function to set the type of content displayed in the side panel.
- * - setCombinedKeys: Function to update the set of overlapping locations.
- * - combinedKeys: Set of currently overlapping locations.
- * - setLocationName: Function to set the name of the location for the side panel.
- */
-
-
 
 const renderPolygons = ({
   locationMap,
@@ -42,6 +46,7 @@ const renderPolygons = ({
   comboPolyMarkers,
   searchKeyword
 }) => {
+  // Sort polygons by area (largest to smallest)
   const sortedPolygons = Array.from(locationMap.entries())
     .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
     .sort(([, a], [, b]) => {
@@ -58,7 +63,7 @@ const renderPolygons = ({
     });
 
   sortedPolygons.forEach(([locationID, locationData]) => {
-    // console.log("Processing locationData:", locationData);
+    // Flip coordinates for Leaflet compatibility
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
@@ -110,6 +115,7 @@ const renderPolygons = ({
       return;
     }
 
+    // Skip rendering if no experts are found
     if (work2expertCount === 0 && grant2expertCount === 0 || locationData.workExpertIDs.length === 0 && locationData.grantExpertIDs.length === 0) {
       console.warn(`No experts found for locationID: ${locationID}`);
       return;
@@ -117,6 +123,7 @@ const renderPolygons = ({
 
     const totalExpertCount = work2expertCount + grant2expertCount;
 
+    // Create a polygon for the location
     const polygon = L.polygon(flippedCoordinates, {
       color: "#659c39",
       fillColor: "#96ca6e",
@@ -151,6 +158,7 @@ const renderPolygons = ({
     // Track the marker for cleanup
     comboPolyMarkers.push(marker);
 
+    // Handle interactive popups for the marker
     let activePopup = null;
     let closeTimeout = null;
 
@@ -158,7 +166,7 @@ const renderPolygons = ({
       if (closeTimeout) clearTimeout(closeTimeout);
       const matchedFieldsSet = new Set();
 
-      // Collect from works
+      // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
         const work = worksMap.get(workID);
         if (work?.matchedFields) {
@@ -166,7 +174,6 @@ const renderPolygons = ({
         }
       });
 
-      // Collect from grants
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap.get(grantID);
         if (grant?.matchedFields) {
@@ -176,6 +183,7 @@ const renderPolygons = ({
 
       const matchedFields = Array.from(matchedFieldsSet);
 
+      // Create popup content
       const content =
         searchKeyword && matchedFields.length > 0
           ? createMatchedCombinedPolygonPopup(
@@ -190,8 +198,6 @@ const renderPolygons = ({
             locationData.display_name,
             matchedFields
           );
-
-
 
       if (activePopup) activePopup.remove();
 
@@ -282,9 +288,12 @@ const renderPoints = ({
   setPanelType,
   searchKeyword,
 }) => {
+  // Iterate through each location in the location map
   locationMap.forEach((locationData, locationID) => {
+     // Skip locations that are not points or have no works or grants
     if (locationData.geometryType !== "Point" || locationData.grantIDs.length === 0 || locationData.worksIDs.length === 0) return;
 
+    // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
 
@@ -324,6 +333,7 @@ const renderPoints = ({
     const grant2expertCount = grantExpertSet.size;
     const totalExpertCount = work2expertCount + grant2expertCount;
 
+    // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
         html: `<div style='background: #659c39; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${totalExpertCount}</div>`,
@@ -333,13 +343,14 @@ const renderPoints = ({
     });
 
     let activePointPopup = null;
-    let closePointTimeout = null; // CT = closetimeout
+    let closePointTimeout = null; 
 
+    // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (closePointTimeout) clearTimeout(closePointTimeout);
       const matchedFieldsSet = new Set();
 
-      // Collect from works
+      // Collect matched fields from works
       locationData.workIDs.forEach((workID) => {
         const work = worksMap.get(workID);
         if (work?.matchedFields) {
@@ -347,7 +358,7 @@ const renderPoints = ({
         }
       });
 
-      // Collect from grants
+      // Collect matched fields from grants
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap.get(grantID);
         if (grant?.matchedFields) {
@@ -357,6 +368,7 @@ const renderPoints = ({
 
       const matchedFields = Array.from(matchedFieldsSet);
 
+      // Create popup content
       const content =
         searchKeyword && matchedFields.length > 0
           ? createMatchedCombinedPolygonPopup(
@@ -436,6 +448,7 @@ const renderPoints = ({
       }
     });
 
+    // Handle mouseout event for the marker
     marker.on("mouseout", () => {
       closePointTimeout = setTimeout(() => {
         if (activePointPopup) {
@@ -445,6 +458,7 @@ const renderPoints = ({
       }, 100);
     });
 
+    // Add the marker to the marker group
     comboMarkerGroup.addLayer(marker);
   });
   map.addLayer(comboMarkerGroup);
