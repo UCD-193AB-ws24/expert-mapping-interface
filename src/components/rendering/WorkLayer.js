@@ -206,7 +206,6 @@ const renderPolygons = ({
       }
     });
 
-
     marker.on("mouseout", () => {
       workPolyCT = setTimeout(() => {
         if (workPolyPopup) {
@@ -417,13 +416,11 @@ const WorkLayer = ({
       },
     });
 
-
     const locationMap = new Map();
     const worksMap = new Map();
     const expertsMap = new Map();
     const polygonLayers = [];
     const polygonMarkers = [];
-
 
     filteredWorks.forEach((workLocation) => {
       const { location, worksFeatures } = workLocation; // Destructure the object

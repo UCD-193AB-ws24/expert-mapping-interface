@@ -12,13 +12,10 @@
  *
  * Marina Mata, 2025
  */
+
 import React, { useState } from "react";
 
-/**
- * Helper function to style confidence levels.
- * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
- * @returns {object} An object containing the label and style for the confidence level.
- */
+//Helper function to style confidence levels.
 const getConfidenceStyle = (confidenceValue) => {
   if (!confidenceValue) return { label: '', style: {} };
 
@@ -61,16 +58,8 @@ const getConfidenceStyle = (confidenceValue) => {
   }
 };
 
-
-/**
- * WorksPanel Component
- * @description Displays a side panel with a list of works associated with a specific location.
- *              Includes keyword filtering and expandable lists for works.
- * @param {Array} works - Array of work entries.
- * @param {Function} onClose - Function to handle closing the panel.
- * @param {string} panelType - Type of the panel (e.g., "works").
- * @param {string} keyword - Keyword used for filtering works.
- */
+// Displays a side panel with a list of works associated with a specific location.
+// Includes keyword filtering and expandable lists for works.
 export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => {
   const lowerKeyword = (keyword || "").toLowerCase().trim();
 
@@ -109,7 +98,7 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
         zIndex: 1001,
       }}
     >
-       {/* Close Button */}
+      {/* Close Button */}
       <button
         onClick={onClose}
         style={{
@@ -126,7 +115,7 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
         ×
       </button>
 
-       {/* Panel Header */}
+      {/* Panel Header */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#3879C7" }}>
         <strong>{filteredExperts.length} Expert{filteredExperts.length !== 1 ? "s" : ""} at this Location</strong>
       </h2>
@@ -177,7 +166,6 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
                       Matched on: {expert.works[0].matchedFields.join(", ")}
                     </div>
                   )}
-
 
                   {/* Show dropdown button if there are more works */}
                   {expert.works.length > 1 && (
@@ -252,14 +240,9 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
   );
 };
 
-/**
- * GrantsPanel Component
- * @description Displays a side panel with a list of grants associated with a specific location.
- *              Includes keyword filtering and expandable lists for grants.
- * @param {Array} grants - Array of grant entries.
- * @param {Function} onClose - Function to handle closing the panel.
- * @param {string} keyword - Keyword used for filtering grants.
- */
+
+// Displays a side panel with a list of grants associated with a specific location.
+// Includes keyword filtering and expandable lists for grants.
 export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
   const lowerKeyword = (keyword || "").toLowerCase().trim();
 
@@ -438,16 +421,8 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
   );
 };
 
-/**
- * CombinedPanel Component
- * @description Displays a side panel with two tabs: "Works" and "Grants" for a specific location.
- *              Includes keyword filtering, confidence level styling, and expandable lists for works and grants.
- * @param {Array} works - Array of work entries related to the location.
- * @param {Array} grants - Array of grant entries related to the location.
- * @param {string} locationName - Name of the location being displayed.
- * @param {Function} onClose - Function to handle closing the panel.
- * @param {string} keyword - Keyword used for filtering works and grants.
- */
+// Displays a side panel with two tabs: "Works" and "Grants" for a specific location.
+// Includes keyword filtering, confidence level styling, and expandable lists for works and grants
 export const CombinedPanel = ({ works, grants, locationName, onClose, keyword }) => {
   const lowerKeyword = (keyword || "").toLowerCase().trim();
 
@@ -462,15 +437,6 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
 
   // State to track the currently active tab ("works" or "grants")
   const [activeTab, setActiveTab] = useState("works");
-
-  /**
-   * getConfidenceStyle
-   * 
-   * Determines the style and label for the confidence level of a work entry.
-   * 
-   * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
-   * @returns {object} An object containing the label and style for the confidence level.
-   */
 
   return (
     <div style={{

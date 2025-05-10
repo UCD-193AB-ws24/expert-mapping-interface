@@ -28,9 +28,6 @@ import React, { useState } from "react";
 import "./styles/index.css";
 import ResearchMap from "./components/ResearchMap";
 import ReactSlider from "react-slider";
-
-
-import topImage from "./assets/topImage.png";
 import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
 
 function App() {
@@ -44,10 +41,10 @@ function App() {
   // Check if the pending date range differs from the applied date range
   const isFilterPending = JSON.stringify(pendingDateRange) !== JSON.stringify(selectedDateRange);
 
- /**
-   * Handles changes to the search input field.
-   * @param {object} e - The event object from the input field.
-   */
+  /**
+    * Handles changes to the search input field.
+    * @param {object} e - The event object from the input field.
+    */
   const handleSearchChange = (e) => {
     setSearchKeyword(e.target.value);
   };

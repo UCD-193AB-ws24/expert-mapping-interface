@@ -229,6 +229,7 @@ const renderPolygons = ({
           }, 100);
         });
 
+        // Add event listener for the button in the popup
         const viewPointComboExpertsBtn = popupElement.querySelector(".view-combined-btn");
         if (viewPointComboExpertsBtn) {
           viewPointComboExpertsBtn.addEventListener("click", (e) => {
@@ -263,6 +264,7 @@ const renderPolygons = ({
       }
     });
 
+    // Handle mouseout event
     marker.on("mouseout", () => {
       closeTimeout = setTimeout(() => {
         if (activePopup) {
@@ -290,7 +292,7 @@ const renderPoints = ({
 }) => {
   // Iterate through each location in the location map
   locationMap.forEach((locationData, locationID) => {
-     // Skip locations that are not points or have no works or grants
+    // Skip locations that are not points or have no works or grants
     if (locationData.geometryType !== "Point" || locationData.grantIDs.length === 0 || locationData.worksIDs.length === 0) return;
 
     // Flip coordinates for Leaflet compatibility
@@ -343,7 +345,7 @@ const renderPoints = ({
     });
 
     let activePointPopup = null;
-    let closePointTimeout = null; 
+    let closePointTimeout = null;
 
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
@@ -385,7 +387,10 @@ const renderPoints = ({
           );
 
 
+      // Remove existing popup if present
       if (activePointPopup) activePointPopup.remove();
+
+      // Create a new popup
       activePointPopup = L.popup({
         closeButton: false,
         autoClose: false,
@@ -415,7 +420,6 @@ const renderPoints = ({
 
         const viewCombinedExpertsBtn = popupElement.querySelector(".view-combined-btn");
         if (viewCombinedExpertsBtn) {
-          // console.log('View Experts was pushed on a point!');
           viewCombinedExpertsBtn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -502,10 +506,8 @@ const CombinedLayer = ({
     const handleZoomEnd = () => {
       const zoomLevel = map.getZoom();
       console.log("Zoom level in GrantLayer:", zoomLevel);
-
       const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
       console.log("Zoom Filtered Works:", zoomFilteredFeatures);
-
       setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
     };
 
@@ -602,7 +604,6 @@ const CombinedLayer = ({
             // Generate a unique work ID
             const workID = `work_${entry.id}`;
 
-
             const matchedFields = [];
             if (searchKeyword) {
               const keywordLower = searchKeyword.toLowerCase();
@@ -622,7 +623,6 @@ const CombinedLayer = ({
               relatedExpertIDs: [],
               matchedFields,
             });
-
 
             // Add work ID to locationMap
             locationMap.get(locationID).workIDs.push(workID);
@@ -696,7 +696,6 @@ const CombinedLayer = ({
               relatedExpertIDs: [],
               matchedFields,
             });
-
 
             // Add grant ID to locationMap
             locationMap.get(locationID).grantIDs.push(grantID);

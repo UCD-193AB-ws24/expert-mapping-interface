@@ -29,9 +29,6 @@ import { createMultiGrantPopup, createMatchedGrantPopup } from "./Popups";
 import { filterFeaturesByZoom } from "./filters/zoomFilter";
 import { getMatchedFields } from "./filters/searchFilter";
 
-/**
- * Helper function that Prepares data for the side panel based on grants and experts.
- */
 
 const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID) => {
   return expertIDs.map((expertID) => {
@@ -56,6 +53,8 @@ const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locat
         }
         return grant;
       })
+
+      // Filter grants based on the expert ID and location ID
       .filter((grant) => {
         if (!grant) return false;
         if (!grant.relatedExpertIDs) {
@@ -92,9 +91,7 @@ const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locat
   }).filter((expert) => expert); // Filter out null experts
 };
 
-/**
- * Renders grant-related polygons on the map.
- */
+
 const renderPolygons = ({
   locationMap,
   map,
@@ -185,8 +182,10 @@ const renderPolygons = ({
       );
 
 
+      // Remove existing popup if it exists
       if (activePopup) activePopup.remove();
 
+      // Create a new popup
       activePopup = L.popup({
         closeButton: false,
         autoClose: false,
@@ -215,6 +214,7 @@ const renderPolygons = ({
           }, 100);
         });
 
+        // Add event listener for the button inside the popup
         const viewExpertsBtn = popupElement.querySelector(".view-g-experts-btn");
         if (viewExpertsBtn) {
           viewExpertsBtn.addEventListener("click", (e) => {
@@ -241,7 +241,7 @@ const renderPolygons = ({
       }
     });
 
-     // Handle mouseout event for the marker
+    // Handle mouseout event for the marker
     marker.on("mouseout", () => {
       closeTimeout = setTimeout(() => {
         if (activePopup) {
@@ -253,9 +253,6 @@ const renderPolygons = ({
   });
 };
 
-/**
- * Renders grant-related points on the map.
- */
 const renderPoints = ({
   locationMap,
   map,
@@ -272,6 +269,7 @@ const renderPoints = ({
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
 
+    // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
         html: `<div style='background: #eda012; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
@@ -302,7 +300,10 @@ const renderPoints = ({
         matchedFields
       );
 
+      // Remove existing popup if it exists
       if (grantPointPopup) grantPointPopup.remove();
+
+      // Create a new popup
       grantPointPopup = L.popup({
         closeButton: false,
         autoClose: false,
@@ -330,9 +331,9 @@ const renderPoints = ({
           }, 100);
         });
 
+        // Add event listener for the button inside the popup
         const viewWPointExpertsBtn = popupElement.querySelector(".view-g-experts-btn");
         if (viewWPointExpertsBtn) {
-          // // console.log('View Experts was pushed on a point!');
           viewWPointExpertsBtn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -372,9 +373,8 @@ const renderPoints = ({
   map.addLayer(grantMarkerGroup);
 };
 
-/**
- * Main component for rendering grant-related polygons and points on the map.
- */
+
+// Main component for rendering grant-related polygons and points on the map.
 const GrantLayer = ({
   nonOverlappingGrants,
   showWorks,
@@ -393,10 +393,8 @@ const GrantLayer = ({
     if (!map || !nonOverlappingGrants) return;
 
     const zoomLevel = map.getZoom();
-    console.log("Zoom level in GrantLayer:", zoomLevel);
 
     const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
-    console.log("Zoom Filtered Grants:", zoomFilteredGrants);
 
     setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
   };
@@ -412,7 +410,7 @@ const GrantLayer = ({
       const zoomLevel = map.getZoom();
 
       const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
-      
+
       setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
     };
 
@@ -436,6 +434,8 @@ const GrantLayer = ({
     const grantsMap = new Map();
     const expertsMap = new Map();
 
+    // Create a marker cluster group for the grant markers
+    // This will group markers that are close to each other into a single cluster
     const grantMarkerGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 40,
@@ -456,7 +456,7 @@ const GrantLayer = ({
     const polygonLayers = [];
     const polygonMarkers = [];
 
-     // Process filtered grants
+    // Process filtered grants
     filteredGrants.forEach((grantLocation) => {
       const { location, grantsFeatures } = grantLocation; // Destructure the object
 
@@ -474,7 +474,7 @@ const GrantLayer = ({
         // Initialize locationMap entry if it doesn't exist
         if (!locationMap.has(locationID)) {
           locationMap.set(locationID, {
-            name: location, 
+            name: location,
             display_name: grantFeature.properties.display_name,
             country: grantFeature.properties.country,
             place_rank: grantFeature.properties.place_rank,

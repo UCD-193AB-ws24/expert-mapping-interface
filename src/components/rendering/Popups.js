@@ -5,27 +5,11 @@
  *              and combined data for specific locations. The popups include features like confidence
  *              level styling, expert and grant details, and interactive buttons for viewing profiles
  *              or opening panels.
- *
- * FUNCTIONS:
- * - createSingleExpertContent: Generates HTML content for a popup displaying details about a single expert.
- * - createMultiExpertContent: Generates HTML content for a popup displaying details about multiple experts.
- * - noExpertContent: Generates HTML content for locations with no experts.
- * - createGrantPopupContent: Generates HTML content for a popup displaying details about a single grant.
- * - createMultiGrantPopup: Generates HTML content for a popup displaying details about multiple grants.
- * - noGrantContent: Generates HTML content for locations with no grants.
- * - createCombinedPopup: Generates HTML content for a popup displaying combined data for works and grants.
- * - createMatchedCombinedPolygonPopup: Generates HTML content for a popup displaying matched combined data.
- *
+ * 
  * Marina Mata, 2025
  */
 
-/**
- * createSingleExpertContent [DEPRECATED]
- * @description Generates HTML content for a popup displaying details about a single expert.
- * @param {object} expert - The expert object containing details such as name, location, confidence, and works.
- * @param {boolean} isPopup - Indicates whether the content is for a popup (default: true).
- * @returns {string} HTML string for the popup content.
- */
+// Generates HTML content for a popup displaying details about a single expert.
 export const createSingleExpertContent = (locationName, entries, isPopup = true) => {
   try {
     // Ensure entries array is not empty
@@ -106,14 +90,7 @@ export const createSingleExpertContent = (locationName, entries, isPopup = true)
   }
 };
 
-/**
- * createMultiExpertContent
- * @description Generates HTML content for a popup displaying details about multiple experts at a location.
- * @param {number} expertCount - The number of experts at the location.
- * @param {string} locationName - The name of the location.
- * @param {number} totalWorks - The total number of works associated with the experts.
- * @returns {string} HTML string for the popup content.
- */
+//Generates HTML content for a popup displaying details about multiple experts at a location.
 export const createMultiExpertContent = (expertCount, locationName, totalWorks, matchedFields = []) => `
   <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
     <div style="font-weight: bold; font-size: 16px; color: #3879C7;">
@@ -133,12 +110,7 @@ export const createMultiExpertContent = (expertCount, locationName, totalWorks, 
   </div>
 `;
 
-/**
- * createGrantPopupContent
- * @description Generates HTML content for a popup displaying details about a single grant.
- * @param {object} grant - The grant object containing details such as title, expert, location, and funder.
- * @returns {string} HTML string for the popup content.
- */
+// Generates HTML content for a popup displaying details about a single grant.
 export const createGrantPopupContent = (grant) => {
   const rawTitle = grant.title || "";
   const cleanTitle = rawTitle.split("ยง")[0].trim().replace(/^"+|"+$/g, ""); // remove leading/trailing quotes
@@ -166,16 +138,7 @@ export const createGrantPopupContent = (grant) => {
   `;
 };
 
-/**
- * createMultiGrantPopup
- * @description Generates HTML content for a popup displaying the number of grants at a specific location.
- *              Includes details about the location, the number of grants, and an interactive button
- *              to view more information about the grants.
- * @param {number} expertCount - Number of experts associated with the grants at the location.
- * @param {number} grantCount - Number of grants at the location.
- * @param {string} locationName - The name of the location.
- * @returns {string} HTML string for the popup content.
- */
+// Generates HTML content for a popup displaying the number of grants at a specific location.
 export const createMultiGrantPopup = (expertCount, grantCount, locationName = []) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
     <div style='font-weight: bold; font-size: 16px; color: #eda012;'>
@@ -195,17 +158,7 @@ export const createMultiGrantPopup = (expertCount, grantCount, locationName = []
   </div>
 `;
 
-/**
- * createCombinedPopup
- * @description Generates HTML content for a popup displaying combined data for works and grants at a specific location.
- *              Includes details about the location, the number of experts with works and grants, and an interactive button
- *              to open the corresponding panel.
- * @param {number} works2ExpertCount - Number of experts associated with works at the location.
- * @param {number} grants2ExpertCount - Number of experts associated with grants at the location.
- * @param {string} locationName - The name of the location.
- * @param {Array} matchedFields - Array of matched fields for filtering (optional).
- * @returns {string} HTML string for the popup content.
- */
+// Generates HTML content for a popup displaying combined data for works and grants at a specific location.
 export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locationName, matchedFields = []) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
     <div style='font-weight: bold; font-size: 16px; color: #659c39;'>Combined Polygon</div>
@@ -227,16 +180,7 @@ export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locat
   </div>
 `;
 
-/**
- * createMatchedCombinedPolygonPopup
- * @description Generates HTML content for a popup displaying matched combined data for works and grants at a specific location.
- *              Includes details about the location, the number of experts with works and grants, and an interactive button
- *              to open the corresponding panel.
- * @param {number} works2ExpertCount - Number of experts associated with works at the location.
- * @param {number} grants2ExpertCount - Number of experts associated with grants at the location.
- * @param {string} locationName - The name of the location.
- * @returns {string} HTML string for the popup content.
- */
+// Generates HTML content for a popup displaying matched combined data for works and grants at a specific location.
 export const createMatchedCombinedPolygonPopup = (
   works2ExpertCount,
   grants2ExpertCount,

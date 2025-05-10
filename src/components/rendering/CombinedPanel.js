@@ -47,12 +47,13 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
     setExpandedGrantIndex(expandedGrantIndex === index ? null : index);
   };
 
-   /**
-   * getConfidenceStyle
-   * @description Determines the style and label for the confidence level of a work or grant entry.
-   * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
-   * @returns {object} An object containing the label and style for the confidence level.
-   */
+  /**
+  * getConfidenceStyle
+  * @description Determines the style and label for the confidence level of a work or grant entry.
+  * @param {string} confidenceValue - The confidence level (e.g., "High", "Low").
+  * @returns {object} An object containing the label and style for the confidence level.
+  */
+
   const getConfidenceStyle = (confidenceValue) => {
     if (!confidenceValue) return { label: '', style: {} };
 
