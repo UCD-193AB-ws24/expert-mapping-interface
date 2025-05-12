@@ -1,3 +1,21 @@
+/**
+ * @file WorkLayer.js
+ * @description This file contains the implementation of the `WorkLayer` component, which is responsible for rendering
+ *              works-related data on a Leaflet map. It includes logic for rendering polygons and points, clustering markers,
+ *              and handling interactions such as hover and click events. The component also filters works based on zoom level
+ *              and search keywords.
+ *
+ * FUNCTIONS:
+ * - preparePanelData: Prepares data for the side panel by collecting expert and work information.
+ * - renderPolygons: Renders polygons on the map for locations with works.
+ * - renderPoints: Renders points on the map with clustering logic for locations with works.
+ *
+ * COMPONENTS:
+ * - WorkLayer: React component that integrates the above functions to render works data on the map.
+ *
+ * Marina Mata, 2025
+ */
+
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
@@ -6,10 +24,8 @@ import { createMultiExpertContent } from "./Popups";
 import { filterFeaturesByZoom } from "./filters/zoomFilter";
 import { getMatchedFields } from "./filters/searchFilter";
 
-
 /**
- * Helper function to prepare panel data.
- * Collects expert and work information for the side panel.
+ * Prepares data for the side panel by collecting expert and work information for a specific location.
  */
 const preparePanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID) => {
   return expertIDs.map((expertID) => {
@@ -189,7 +205,6 @@ const renderPolygons = ({
         }
       }
     });
-
 
     marker.on("mouseout", () => {
       workPolyCT = setTimeout(() => {
@@ -401,13 +416,11 @@ const WorkLayer = ({
       },
     });
 
-
     const locationMap = new Map();
     const worksMap = new Map();
     const expertsMap = new Map();
     const polygonLayers = [];
     const polygonMarkers = [];
-
 
     filteredWorks.forEach((workLocation) => {
       const { location, worksFeatures } = workLocation; // Destructure the object

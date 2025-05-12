@@ -15,6 +15,8 @@ import "leaflet/dist/leaflet.css";
  * - Sets the initial center and zoom level of the map.
  * - Restricts zoom levels and map bounds to prevent users from panning too far.
  * - Includes a TileLayer for rendering the base map using OpenStreetMap tiles.
+ * 
+ * Marina Mata, 2025
  */
 
 const MapWrapper = ({ children }) => {

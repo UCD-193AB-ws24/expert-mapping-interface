@@ -1,3 +1,25 @@
+/**
+ * @file ResearchMap.js
+ * @description This file contains the implementation of the `ResearchMap` component, which serves as the main interface
+ *              for visualizing research-related data on a Leaflet map. It integrates multiple layers (works, grants, and combined data)
+ *              and provides interactive panels for detailed information about the data.
+ *
+ * Features:
+ * - Fetches and processes GeoJSON data for works and grants from APIs.
+ * - Filters data based on the selected date range and search keyword.
+ * - Displays interactive map layers for works, grants, and combined locations.
+ * - Provides side panels for detailed information about experts, grants, or combined data.
+ * - Handles loading and error states during data fetching.
+ *
+ * Props:
+ * - showGrants: Boolean to toggle the display of grant-related data.
+ * - showWorks: Boolean to toggle the display of works-related data.
+ * - searchKeyword: String used to filter data based on a search term.
+ * - selectedDateRange: Array of two numbers representing the selected year range for filtering data by date.
+ *
+ * Marina Mata, 2025
+ */
+
 import React, { useRef, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -12,25 +34,12 @@ import { matchesKeyword } from "./rendering/filters/searchFilter";
 
 /**
  * ResearchMap Component
- * 
- * This component serves as the main map interface for visualizing research-related data.
- * It integrates multiple layers (e.g., experts, grants, combined locations) and provides
- * interactive panels for detailed information about the data.
- * 
- * Props:
- * - showGrants: Boolean to toggle the display of grant-related data.
- * - showWorks: Boolean to toggle the display of works-related data.
- * - searchKeyword: String used to filter data based on a search term.
- * - selectedDate: String representing the selected year for filtering data by date.
- * 
- * Features:
- * - Fetches and processes GeoJSON data for works and grants from APIs.
- * - Filters data based on the selected date and search keyword.
- * - Displays interactive map layers for works, grants, and combined locations.
- * - Provides side panels for detailed information about experts, grants, or combined data.
- * - Handles loading and error states during data fetching.
+ * @description Main map interface for visualizing research-related data.
+ * @param {boolean} showGrants - Whether to display grant-related data.
+ * @param {boolean} showWorks - Whether to display works-related data.
+ * @param {string} searchKeyword - Keyword used to filter data.
+ * @param {Array<number>} selectedDateRange - Array of two numbers representing the selected year range for filtering data.
  */
-
 const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }) => {
   const [geoData, setGeoData] = useState(null);
   const [grantGeoJSON, setGrantGeoJSON] = useState(null);
@@ -52,7 +61,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
      * - Processes the data into GeoJSON format and updates state variables.
      * - Handles errors and updates the loading state.
      */
-
   useEffect(() => {
     setIsLoading(true);
     const loadGeoData = async () => {
@@ -73,7 +81,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           }),
         ])
           .then(([worksData, grantsData]) => {
-            // console.log("Converting data to GeoJSON format...");
             // Process works data into GeoJSON format.
             const processedWorksData = {
               type: "FeatureCollection",
@@ -114,11 +121,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     loadGeoData();
   }, []);
 
-  /**
+ /**
    * Helper function to filter works by issued year.
-   * 
    * @param {object} entry - A work entry object.
-   * @returns {boolean} True if the work matches the selected date, otherwise false.
+   * @returns {boolean} True if the work matches the selected date range, otherwise false.
    */
   const isWorkInDate = (entry) => {
     if (!selectedDateRange || selectedDateRange.length !== 2) return true;
@@ -128,9 +134,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
 
   /**
    * Helper function to filter grants by start or end date.
-   * 
    * @param {object} entry - A grant entry object.
-   * @returns {boolean} True if the grant matches the selected date, otherwise false.
+   * @returns {boolean} True if the grant matches the selected date range, otherwise false.
    */
   const isGrantInDate = (entry) => {
     if (!selectedDateRange || selectedDateRange.length !== 2) return true;
@@ -227,10 +232,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
   const validWorkGeoJSON = keywordFilteredWorkGeoJSON || { type: "FeatureCollection", features: [] };
   const validGrantGeoJSON = keywordFilteredGrantGeoJSON || { type: "FeatureCollection", features: [] };
 
-  // Debugging logs to check the structure of the filtered data
-  // console.log("Filtered Work GeoJSON:", validWorkGeoJSON);
-  // console.log("Filtered Grant GeoJSON:", validGrantGeoJSON);
-
   // Call processGeoJSONData with validated inputs
   const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
     validWorkGeoJSON,
@@ -238,14 +239,12 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     showWorks,
     showGrants
   );
-  // console.log("Non-overlapping work features:", nonOverlappingWorks);
-  // console.log("Non-overlapping grant features:", nonOverlappingGrants);
-  // console.log('Overlapping Locations:', overlappingLocations);
+
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
         <MapWrapper>
-          {/* Combined location layer must come first to handle overlaps */}
+          {/* Combined location layer */}
           {((showWorks && showGrants) || searchKeyword) && (
             <CombinedLayer
               overlappingLocations={overlappingLocations}
@@ -261,21 +260,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               searchKeyword={searchKeyword}
             />
           )}
-          {/* <CombinedLayer
-          workGeoJSON={dateFilteredWorkGeoJSON}
-          grantGeoJSON={dateFilteredGrantGeoJSON}
-          showWorks={showWorks}
-          showGrants={showGrants}
-          setSelectedWorks={setSelectedWorks}
-          setSelectedGrants={setSelectedGrants}
-          setPanelOpen={setPanelOpen}
-          setPanelType={setPanelType}
-          setCombinedKeys={setCombinedKeys}
-          combinedKeys={combinedKeys}
-          setLocationName={setLocationName}
-          searchKeyword={searchKeyword}
-        /> */}
-          {/* Regular works layer */}
+          
+          {/* Works layer */}
           {(showWorks || searchKeyword) && (
             <WorkLayer
               nonOverlappingWorks={nonOverlappingWorks}
@@ -289,7 +275,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
 
             />
           )}
-          {/* Regular grants layer */}
+          {/* Grants layer */}
           {(showGrants || searchKeyword) && (
             <GrantLayer
               nonOverlappingGrants={nonOverlappingGrants}
@@ -360,11 +346,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
         </div>
       )}
 
-      {/* Bug: Panels not display experts when keyword is in a hidden data field
-           - Temp fix: pass in keyword = null (selectedWorks/selectedGrants already got filtered ?)
-           - Need: Add more to searchableText in filteredExperts in Panels.js ?
-      */}
-
       {/* Panels */}
       {panelOpen && (panelType === "grants" || panelType === "grant-polygon") && (
         <GrantsPanel
@@ -376,7 +357,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
 
       {panelOpen && panelType === "works" && (
         <>
-          {/* {console.log("Selected Works Data:", selectedWorks)} Debugging log */}
           <WorksPanel
             works={selectedWorks} // Pass the array of work objects
             onClose={() => setPanelOpen(false)}
