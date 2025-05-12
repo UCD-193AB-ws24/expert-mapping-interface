@@ -21,7 +21,8 @@ const { createClient } = require('redis');
  * @returns {Object} - Configured Redis client
  */
 const createRedisClient = () => {
-  const host = process.env.REDIS_HOST;
+  
+  const host = process.env.SERVER_HOST;
   const port = process.env.REDIS_PORT;
     
   const client = createClient({

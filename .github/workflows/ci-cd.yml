@@ -30,19 +30,18 @@ jobs:
       # Generates a .env file containing connection details and API keys needed by the application using github repo secrets.
       - name: Create .env file
         run: |
+          # Ollama and Server configuration
+          echo "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}" >> .env
+          echo "SERVER_HOST=${{ secrets.SERVER_HOST }}" >> .env
+
           # External PostgreSQL Database connection details
-          echo "PG_HOST=${{ secrets.PG_HOST }}" >> .env # Hostname of the external PostgreSQL server
-          echo "PG_PORT=${{ secrets.PG_PORT }}" >> .env # Port number for the PostgreSQL server
-          echo "PG_USER=${{ secrets.PG_USER }}" >> .env # Username for the PostgreSQL database
-          echo "PG_PASSWORD=${{ secrets.PG_PASSWORD }}" >> .env # Password for the PostgreSQL database
-          echo "PG_DATABASE=${{ secrets.PG_DATABASE }}" >> .env # Name of the PostgreSQL database
+          echo "PG_PORT=${{ secrets.PG_PORT }}" >> .env
+          echo "PG_USER=${{ secrets.PG_USER }}" >> .env
+          echo "PG_PASSWORD=${{ secrets.PG_PASSWORD }}" >> .env
+          echo "PG_DATABASE=${{ secrets.PG_DATABASE }}" >> .env
 
           # External Redis Database connection details
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env # Hostname of the external Redis server
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env # Port number for the Redis server
-
-          # API Authentication Token
-          echo "API_TOKEN=${{ secrets.API_TOKEN }}" >> .env # Token needed to authenticate with the Aggie Experts API
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
 
       # Compiles the React frontend code into static assets for deployment.
       - name: Build project
