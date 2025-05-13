@@ -61,131 +61,133 @@ function App() {
         </div>
       </header>
       {/* Navigation Bar */}
-      <nav className="flex justify-between items-center bg-[#022851] px-10 py-2 fixed top-[80px] left-0 w-full z-50" aria-label="Main navigation">
-        <div className="flex space-x-12">
+      <nav className="flex flex-wrap items-center bg-[#022851] px-4 py-2 fixed top-[80px] left-0 w-full z-50" aria-label="Main navigation">
+        {/* Links */}
+        <div className="flex space-x-6 mb-2 sm:mb-0">
           <a href="https://experts.ucdavis.edu/browse/expert/a" className="text-lg text-white hover:underline">Experts</a>
           <a href="https://experts.ucdavis.edu/browse/grant/1" className="text-lg text-white hover:underline">Grants</a>
         </div>
-        <span className="ml-2 p-2 rounded-full" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="white">
-          </svg>
-        </span>
+        {/* Searchbar */}
+          <div className="relative searchbar ml-auto" style={{ maxWidth: "200px" }}>
+            <label htmlFor="search-input" className="sr-only">Search keyword</label>
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Search keyword"
+              value={searchKeyword}
+              onChange={handleSearchChange}
+              className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#022851]"
+            />
+            <button className="absolute right-3 top-1/2 transform -translate-y-1/2" aria-label="Search">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
+          </div>
       </nav>
       {/* Map Section */}
       <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
-        <div className="flex w-full h-full">
-          {/* Map */}
-          <div className="w-[80%] min-w-0 relative" aria-label="Interactive map showing expert and grant locations">
-            <ResearchMap
-              showGrants={showGrants}
-              showWorks={showWorks}
-              searchKeyword={searchKeyword}
-              selectedDateRange={selectedDateRange}
-            />
-          </div>
+      <div className="map-container flex w-full h-full">
+        {/* Map */}
+        <div id="map" className="flex-1 min-w-0 relative order-1" aria-label="Interactive map showing expert and grant locations">
+          <ResearchMap
+            showGrants={showGrants}
+            showWorks={showWorks}
+            searchKeyword={searchKeyword}
+            selectedDateRange={selectedDateRange}
+          />
+        </div>
+
           {/* Sidebar */}
-          <aside className="w-[20%] p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto max-h-full" aria-label="Search and filter controls">
-            {/* Search Bar */}
-            <div className="mb-6">
-              <label htmlFor="search-input" className="sr-only">Search keyword</label>
-              <div className="relative">
+    <aside className="p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto mt-4" aria-label="Search and filter controls">
+        {/* Toggles */}
+        <div className="mb-4">
+          <div className="flex justify-center items-center gap-10">
+            {/* Show Grants Toggle */}
+            <div className="flex items-center">
+              <span id="grants-label" className="text-gray-700 font-medium mr-2">Show Grants</span>
+              <label className="relative inline-flex items-center cursor-pointer">
                 <input
-                  id="search-input"
-                  type="text"
-                  placeholder="Search keyword"
-                  value={searchKeyword}
-                  onChange={handleSearchChange}
-                  className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#022851]"
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={showGrants}
+                  onChange={() => setShowGrants(!showGrants)}
+                  aria-labelledby="grants-label"
                 />
-                <button className="absolute right-3 top-1/2 transform -translate-y-1/2" aria-label="Search">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </button>
-              </div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+              </label>
             </div>
-            {/* Toggles */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-3">
-                <span id="grants-label" className="text-gray-700 font-medium">Show Grants</span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={showGrants}
-                    onChange={() => setShowGrants(!showGrants)}
-                    aria-labelledby="grants-label"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
-                </label>
-              </div>
-              <div className="flex justify-between items-center mb-6">
-                <span id="works-label" className="text-gray-700 font-medium">Show Works</span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={showWorks}
-                    onChange={() => setShowWorks(!showWorks)}
-                    aria-labelledby="works-label"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#022851]"></div>
-                </label>
-              </div>
-            </div>
-            {/* Filters */}
-            <div>
-              <h2 className="text-lg font-medium mb-3">Filters</h2>
-              {/* Date Filter */}
-              <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-                {/* Selected Dates */}
-                <div className="flex justify-center items-center text-lg font-semibold mb-2">
-                  {pendingDateRange[0]} – {pendingDateRange[1]}
-                </div>
-                {/* Date Range Slider */}
-                <ReactSlider
-                  min={1990}
-                  max={2025}
-                  value={pendingDateRange}
-                  onChange={(value) => setPendingDateRange(value)}
-                  step={1}
-                  className="custom-slider"
-                  thumbClassName="custom-thumb"
-                  trackClassName="custom-track"
-                  withTracks={true}
+
+            {/* Show Works Toggle */}
+            <div className="flex items-center">
+              <span id="works-label" className="text-gray-700 font-medium mr-2">Show Works</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={showWorks}
+                  onChange={() => setShowWorks(!showWorks)}
+                  aria-labelledby="works-label"
                 />
-              </div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#022851]"></div>
+              </label>
             </div>
-            {/* Apply + Clear Filters */}
-            {/* Apply + Clear Filters */}
-            <div className="mt-4">
-              <p className="text-sm text-gray-600 mb-2">Use the buttons below to apply or reset the date range filter:</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setSelectedDateRange([...pendingDateRange])}
-                  className={`w-1/2 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 transition ${isFilterPending
-                      ? "bg-[#022851] text-white hover:bg-[#044073] focus:ring-[#022851]"
-                      : "bg-gray-300 text-gray-600 hover:bg-gray-400 focus:ring-gray-400"
-                    }`}
-                  aria-label="Apply selected date range filter"
-                >
-                  Apply Filter
-                </button>
-                <button
-                  onClick={() => {
-                    setPendingDateRange([1990, 2025]);
-                    setSelectedDateRange([1990, 2025]);
-                  }}
-                  className="w-1/2 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
-                  aria-label="Reset date range to default"
-                >
-                  Reset Dates
-                </button>
-              </div>
-            </div>
+          </div>
+        </div>
+        {/* Filters */}
+      <div>
+        <h2 className="text-lg font-medium mb-3">Filters</h2>
+        {/* Date Filter */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+          {/* Selected Dates */}
+          <div className="flex justify-center items-center text-lg font-semibold mb-2">
+            {pendingDateRange[0]} – {pendingDateRange[1]}
+          </div>
+          {/* Date Range Slider */}
+          <ReactSlider
+            min={1990}
+            max={2025}
+            value={pendingDateRange}
+            onChange={(value) => setPendingDateRange(value)}
+            step={1}
+            className="custom-slider"
+            thumbClassName="custom-thumb"
+            trackClassName="custom-track"
+            withTracks={true}
+            ariaLabel={['Start year', 'End year']} // Add accessible names for the thumbs
+            ariaValuetext={(state) => `Selected year: ${state.valueNow}`} // Optional: Add dynamic value text
+          />
+        </div>
+      </div>
+      {/* Apply + Clear Filters */}
+      <div className="mt-4">
+        <p className="text-sm text-gray-600 mb-2">Use the buttons below to apply or reset the date range filter:</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSelectedDateRange([...pendingDateRange])}
+            className={`w-1/2 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 transition ${isFilterPending
+                ? "bg-[#022851] text-white hover:bg-[#044073] focus:ring-[#022851]"
+                : "bg-gray-300 text-gray-600 hover:bg-gray-400 focus:ring-gray-400"
+              }`}
+            aria-label="Apply selected date range filter"
+          >
+            Apply Filter
+          </button>
+          <button
+            onClick={() => {
+              setPendingDateRange([1990, 2025]);
+              setSelectedDateRange([1990, 2025]);
+            }}
+            className="w-1/2 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+            aria-label="Reset date range to default"
+          >
+            Reset Dates
+          </button>
+        </div>
+      </div>
 
             <details className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
               <summary className="font-semibold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
@@ -231,7 +233,6 @@ function App() {
                 </div>
               </div>
             </details>
-
           </aside>
         </div>
       </main>
