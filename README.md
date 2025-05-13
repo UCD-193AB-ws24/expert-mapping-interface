@@ -33,6 +33,10 @@ The **Expert Mapping Interface** displays research expert information using:
 
 ![EMI System Architecture](src/assets/postgis.png)
 
+### Frontend
+![EMI System Architecture](src/assets/frontend1.png)
+
+![EMI System Architecture](src/assets/frontend2.png)
 ---
 
 ## Technology Stack
