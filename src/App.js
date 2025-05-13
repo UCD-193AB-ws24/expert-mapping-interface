@@ -158,55 +158,63 @@ function App() {
                   withTracks={true}
                 />
               </div>
-              {/* Apply + Clear Filters */}
-              <div className="flex gap-2 mt-2 p-2 rounded">
+            </div>
+            {/* Apply + Clear Filters */}
+            {/* Apply + Clear Filters */}
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-2">Use the buttons below to apply or reset the date range filter:</p>
+              <div className="flex gap-2">
                 <button
                   onClick={() => setSelectedDateRange([...pendingDateRange])}
-                  className={`w-1/2 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 ${isFilterPending
-                    ? "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-600"
-                    : "bg-gray-300 text-gray-700 hover:bg-gray-400 focus:ring-gray-400"
+                  className={`w-1/2 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 transition ${isFilterPending
+                      ? "bg-[#022851] text-white hover:bg-[#044073] focus:ring-[#022851]"
+                      : "bg-gray-300 text-gray-600 hover:bg-gray-400 focus:ring-gray-400"
                     }`}
-                  aria-label="Apply selected filters"
+                  aria-label="Apply selected date range filter"
                 >
-                  Apply
+                  Apply Filter
                 </button>
                 <button
                   onClick={() => {
                     setPendingDateRange([1990, 2025]);
                     setSelectedDateRange([1990, 2025]);
                   }}
-                  className="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
-                  aria-label="Clear all filters"
+                  className="w-1/2 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                  aria-label="Reset date range to default"
                 >
-                  Clear
+                  Reset Dates
                 </button>
               </div>
             </div>
+
             <details className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
               <summary className="font-semibold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
                 Map Guide
               </summary>
-              <div className="mt-3 text-gray-800 space-y-4">
+              <div className="mt-3 text-gray-800 space-y-6">
+                {/* Location Colors */}
                 <div>
-                  <h3 className="font-semibold text-gray-700 mb-1">Location Colors</h3>
+                  <h3 className="text-base font-bold text-[#022851] mb-1">Location Colors</h3>
                   <ul className="list-disc list-inside space-y-1">
                     <li><span className="text-yellow-500 font-semibold">Yellow</span> – Grant locations</li>
                     <li><span className="text-blue-600 font-semibold">Blue</span> – Research work locations</li>
                     <li><span className="text-green-600 font-semibold">Green</span> – Locations with both work and grant data</li>
                   </ul>
                 </div>
+
+                {/* Map Features */}
                 <div>
-                  <h3 className="font-semibold text-gray-700 mb-1">Map Features</h3>
+                  <h3 className="text-base font-bold text-[#022851] mb-1">Map Features</h3>
                   <ul className="list-disc list-inside space-y-1">
                     <li><strong>Number markers</strong> show how many entries are linked to that place</li>
                     <li><strong>Confidence score</strong> shows how confident the system is in mapping the extracted geographic name to the corresponding location</li>
                   </ul>
                 </div>
+
+                {/* Keyword Search */}
                 <div>
-                  <h3 className="font-semibold text-gray-700 mb-1">Keyword Search</h3>
-                  <p>
-                    Type a word or phrase to find matches in:
-                  </p>
+                  <h3 className="text-base font-bold text-[#022851] mb-1">Keyword Search</h3>
+                  <p>Type a word or phrase to find matches in:</p>
                   <ul className="list-disc list-inside ml-4 space-y-1">
                     <li>Work or grant title</li>
                     <li>Abstract</li>
@@ -215,14 +223,15 @@ function App() {
                     <li>Expert names</li>
                   </ul>
                 </div>
+
+                {/* Date Filter */}
                 <div>
-                  <h3 className="font-semibold text-gray-700 mb-1">Date Filter</h3>
-                  <p>
-                    Only shows research works published and grants funded within the selected year range.
-                  </p>
+                  <h3 className="text-base font-bold text-[#022851] mb-1">Date Filter</h3>
+                  <p>Only shows research works published and grants funded within the selected year range.</p>
                 </div>
               </div>
             </details>
+
           </aside>
         </div>
       </main>
