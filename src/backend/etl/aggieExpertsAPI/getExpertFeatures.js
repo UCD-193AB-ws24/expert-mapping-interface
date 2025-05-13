@@ -9,6 +9,7 @@ const { formatFeatures } = require("./services/formatFeatures");
 const { getExpertProfiles } = require("./services/getExpertProfiles");
 const fs = require('fs').promises;
 const path = require('path');
+const { formatTime } = require('./utils/timingUtils');
 
 /**
  * Retrieves expert profiles and formats them into feature collections
@@ -17,21 +18,31 @@ const path = require('path');
  * @returns {Promise<{success: boolean, features?: {works: Array, grants: Array}, error?: string}>}
  */
 async function getExpertFeatures(options = {}) {
+  const startTime = performance.now();
+  
   try {
     const { recent = true } = options;
     // Always save regardless of the provided option
     
     // Get expert profiles
-    console.log('Retrieving expert profiles...');
+    const profileFetchStart = performance.now();
     const profilesResult = await getExpertProfiles({ recent });
+    const profileFetchEnd = performance.now();
+    const profileFetchDuration = profileFetchEnd - profileFetchStart;
+    
+    console.log(`⏱️ Time to retrieve all profile info: ${formatTime(profileFetchDuration)}\n`);
     
     if (!profilesResult.success) {
       throw new Error(`Failed to retrieve expert profiles: ${profilesResult.error}`);
     }
     
     // Format the profiles into works and grants features
-    console.log('Formatting expert profiles into features...');
+    console.log('\n🔄 Formatting expert profiles into features...');
+    const formatStart = performance.now();
     const formattedFeatures = formatFeatures(profilesResult.profiles);
+    const formatEnd = performance.now();
+    
+    console.log(`⏱️ Time to format features: ${formatTime(formatEnd - formatStart)}`);
     
     console.log(`✅ Created ${formattedFeatures.works.length} work features and ${formattedFeatures.grants.length} grant features`);
     
@@ -59,20 +70,34 @@ async function getExpertFeatures(options = {}) {
     path.join(outputDir, 'grantsFeatures.json'),
     JSON.stringify(formattedFeatures.grants, null, 2)
     );
+      console.log(`\n✅ Saved formatted features to ${outputDir}`);
     
-    console.log(`✅ Saved formatted features to ${outputDir}`);
-    
+    const endTime = performance.now();
+    const totalDuration = endTime - startTime;
+    console.log(`\n✅ Total process time: ${formatTime(totalDuration)}`);
     
     return {
       success: true,
       features: formattedFeatures,
-      sessionId: profilesResult.sessionId
+      sessionId: profilesResult.sessionId,
+      timing: {
+        profileFetchDuration: profileFetchDuration,
+        totalDuration: totalDuration
+      }
     };
   } catch (error) {
+    const endTime = performance.now();
+    const totalDuration = endTime - startTime;
+    
     console.error(`❌ Error in getExpertFeatures: ${error.message}`);
+    console.log(`⏱️ Total process time before error: ${formatTime(totalDuration)}`);
+    
     return {
       success: false,
-      error: error.message
+      error: error.message,
+      timing: {
+        totalDuration: totalDuration
+      }
     };
   }
 }
@@ -92,7 +117,7 @@ if (require.main === module) {
   getExpertFeatures({ recent: useRecent, save: saveToFiles })
     .then(result => {
       if (result.success) {
-        console.log(`\n✅ Successfully generated features from ${result.features.works.length + result.features.grants.length} items`);
+        // console.log(`\n✅ Successfully generated features from ${result.features.works.length + result.features.grants.length} items`);
       } else {
         console.error('\n❌ Failed to generate expert features:', result.error);
         process.exit(1);

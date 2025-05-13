@@ -31,10 +31,6 @@ async function getExpertProfiles(options = {}) {
     }
     
     const expertProfiles = cachedResult.items;
-    console.log(`✅ Retrieved ${expertProfiles.length} expert profiles from cache${
-      cachedResult.sessionId ? ` (session: ${cachedResult.sessionId})` : ''
-    }`);
-    
     return {
       success: true,
       profiles: expertProfiles,

@@ -9,6 +9,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { cacheEntities } = require('./services/expertProfileCache');
 const { fetchExpertProfiles } = require('./services/fetchExpertProfiles');
+const { formatTime } = require('./utils/timingUtils');
 
 // Configuration
 const CONFIG = {
@@ -64,8 +65,7 @@ async function persistExpertProfiles(expertProfiles) {
         }
       },
       redisCache: cacheResults
-    };
-  } catch (error) {
+    };  } catch (error) {
     console.error('❌ Error persisting expert profiles:', error);
     return {
       fileStorage: { success: false, error: error.message },
@@ -78,9 +78,15 @@ async function persistExpertProfiles(expertProfiles) {
  * Main function to fetch and persist expert profiles
  */
 async function fetchAndPersistExpertProfiles(numExperts=1, worksLimit=5, grantsLimit=5) {
+  const startTime = performance.now();
+  
   try {
     // Step 1: Fetch expert profiles
     const expertProfiles = await fetchExpertProfiles(numExperts, worksLimit, grantsLimit);
+    
+    // After fetching profiles - first timing point
+    const afterFetchTime = performance.now();
+    console.log(`\n⏱️ Time to fetch profiles: ${formatTime(afterFetchTime - startTime)}`);
     
     // Check if profiles were returned
     if (!expertProfiles || !Array.isArray(expertProfiles)) {
@@ -88,11 +94,24 @@ async function fetchAndPersistExpertProfiles(numExperts=1, worksLimit=5, grantsL
     }
     
     // Step 2: Persist the expert profiles
+    console.log(`\n🔄 Persisting ${expertProfiles.length} expert profiles...`);
     await persistExpertProfiles(expertProfiles);
     
-    console.log('\n✅ Fetch and persist process complete!');
-  } catch (error) {
+    // After persisting - second timing point
+    const afterPersistTime = performance.now();
+    console.log(`\n⏱️ Time to persist profiles: ${formatTime(afterPersistTime - afterFetchTime)}`);
+    
+    console.log(`\n✅ Total process time: ${formatTime(afterPersistTime - startTime)}`);
+    
+    return {
+      success: true
+    };  } catch (error) {
+    const totalEndTime = performance.now();
+    const totalDuration = totalEndTime - startTime;
+    
     console.error('\n❌ Error in fetch and persist process:', error);
+    console.log(`⏱️ Total process time: ${formatTime(totalDuration)}`);
+    
     process.exit(1);
   }
 }

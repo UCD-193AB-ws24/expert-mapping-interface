@@ -90,15 +90,15 @@ async function isRedisAvailable() {
  * @returns {Promise<Object>} Map of entity IDs to their Redis data
  */
 async function buildExistingRecordsMap(redisClient, entityType) {
-  console.log(`[DEBUG] Building existing records map for ${entityType}...`);
+  // console.log(`[DEBUG] Building existing records map for ${entityType}...`);
   const existingKeys = await redisClient.keys(`${entityType}:*`);
-  console.log(`[DEBUG] Found ${existingKeys.length} existing keys for ${entityType}`);
+  // console.log(`[DEBUG] Found ${existingKeys.length} existing keys for ${entityType}`);
   
   const existingRecords = {};
   
   // Track filtered keys for debugging
   const filteredKeys = existingKeys.filter(key => key !== `${entityType}:metadata` && !key.includes(':entry:'));
-  console.log(`[DEBUG] After filtering, working with ${filteredKeys.length} keys`);
+  // console.log(`[DEBUG] After filtering, working with ${filteredKeys.length} keys`);
   
   // Build lookup map - process only relevant keys (skip metadata and entry keys)
   await Promise.all(filteredKeys.map(async (key) => {
@@ -107,14 +107,14 @@ async function buildExistingRecordsMap(redisClient, entityType) {
       
       // Debug any keys with empty data
       if (!data || Object.keys(data).length === 0) {
-        console.log(`[DEBUG] Warning: Empty data for key ${key}`);
+        // console.log(`[DEBUG] Warning: Empty data for key ${key}`);
       } else {
         existingRecords[id] = data;
       }
     })
   );
   
-  console.log(`[DEBUG] Successfully built map with ${Object.keys(existingRecords).length} records`);
+  console.log(`[DEBUG] Successfully built existing map with ${Object.keys(existingRecords).length} records`);
   
   // If there's a discrepancy, log more details
   if (Object.keys(existingRecords).length !== filteredKeys.length) {
@@ -192,7 +192,7 @@ async function cacheItems(items, options) {
       
       if (processedIds.has(itemId)) {
         duplicateCount++;
-        console.log(`⚠️ DUPLICATE ${entityType.toUpperCase()}: ID ${itemId} at index ${i}`);
+        // console.log(`⚠️ DUPLICATE ${entityType.toUpperCase()}: ID ${itemId} at index ${i}`);
         continue;
       }
       
@@ -234,7 +234,7 @@ async function cacheItems(items, options) {
     });
     
     console.log(`✅ Successfully cached ${entityType}s to Redis with session ID: ${sessionId}`);
-    console.log(`📊 Cache stats: ${newCount} new, ${updatedCount} updated, ${unchangedCount} unchanged, ${duplicateCount} duplicates skipped`);
+    console.log(`📊 Cache stats: ${newCount} new, ${updatedCount} updated, ${duplicateCount} duplicates skipped`);
     
     return { 
       success: true, 
