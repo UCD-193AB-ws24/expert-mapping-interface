@@ -41,6 +41,10 @@ function App() {
   // Check if the pending date range differs from the applied date range
   const isFilterPending = JSON.stringify(pendingDateRange) !== JSON.stringify(selectedDateRange);
 
+  // State to manage dropdown visibility
+  const [isTogglesOpen, setIsTogglesOpen] = useState(true);
+  const [isDateSliderOpen, setIsDateSliderOpen] = useState(true);
+
   /**
     * Handles changes to the search input field.
     * @param {object} e - The event object from the input field.
@@ -68,7 +72,7 @@ function App() {
           <a href="https://experts.ucdavis.edu/browse/grant/1" className="text-lg text-white hover:underline">Grants</a>
         </div>
         {/* Searchbar */}
-          <div className="relative searchbar ml-auto" style={{ maxWidth: "200px" }}>
+          <div className="relative searchbar ml-auto">
             <label htmlFor="search-input" className="sr-only">Search keyword</label>
             <input
               id="search-input"
@@ -101,93 +105,107 @@ function App() {
         </div>
 
           {/* Sidebar */}
-    <aside className="p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto mt-4" aria-label="Search and filter controls">
-        {/* Toggles */}
-        <div className="mb-4">
-          <div className="flex justify-center items-center gap-10">
-            {/* Show Grants Toggle */}
-            <div className="flex items-center">
-              <span id="grants-label" className="text-gray-700 font-medium mr-2">Show Grants</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={showGrants}
-                  onChange={() => setShowGrants(!showGrants)}
-                  aria-labelledby="grants-label"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
-              </label>
+          <aside className="p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto mt-4" aria-label="Search and filter controls">
+            {/* Toggles Dropdown */}
+            <div className="mb-4">
+              <button
+                onClick={() => setIsTogglesOpen(!isTogglesOpen)}
+                className="w-full text-left font-medium text-[#022851] hover:underline"
+              >
+                Toggles {isTogglesOpen ? "▲" : "▼"}
+              </button>
+              {isTogglesOpen && (
+                <div className="mt-2">
+                  {/* Show Grants Toggle */}
+                  <div className="flex items-center mb-2">
+                    <span id="grants-label" className="text-gray-700 font-medium mr-2">Show Grants</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                      type="checkbox"
+                        className="sr-only peer"
+                        checked={showGrants}
+                        onChange={() => setShowGrants(!showGrants)}
+                        aria-labelledby="grants-label"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                    </label>
+                  </div>
+                  {/* Show Works Toggle */}
+                  <div className="flex items-center">
+                    <span id="works-label" className="text-gray-700 font-medium mr-2">Show Works</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={showWorks}
+                        onChange={() => setShowWorks(!showWorks)}
+                        aria-labelledby="works-label"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#022851]"></div>
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
-
-            {/* Show Works Toggle */}
-            <div className="flex items-center">
-              <span id="works-label" className="text-gray-700 font-medium mr-2">Show Works</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={showWorks}
-                  onChange={() => setShowWorks(!showWorks)}
-                  aria-labelledby="works-label"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#022851] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#022851]"></div>
-              </label>
+              
+              {/* Date Slider Dropdown */}
+            <div className="mb-4">
+              <button
+                onClick={() => setIsDateSliderOpen(!isDateSliderOpen)}
+                className="w-full text-left font-medium text-[#022851] hover:underline"
+              >
+                Date Slider {isDateSliderOpen ? "▲" : "▼"}
+              </button>
+              {isDateSliderOpen && (
+                <div>
+                  <div className="mt-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                    <div className="flex justify-center items-center text-lg font-semibold mb-2 date-range">
+                      {pendingDateRange[0]} – {pendingDateRange[1]}
+                    </div>
+                    <ReactSlider
+                      min={1990}
+                      max={2025}
+                      value={pendingDateRange}
+                      onChange={(value) => setPendingDateRange(value)}
+                      step={1}
+                      className="custom-slider"
+                      thumbClassName="custom-thumb"
+                      trackClassName="custom-track"
+                      withTracks={true}
+                      ariaLabel={['Start year', 'End year']}
+                      ariaValuetext={(state) => `Selected year: ${state.valueNow}`}
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Use the buttons below to apply or reset the date range filter:</p>
+                    <div className="flex gap-2 filter-buttons">
+                      <button
+                        onClick={() => setSelectedDateRange([...pendingDateRange])}
+                        className={`apply-filter-btn w-1/2 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 transition ${
+                          isFilterPending
+                            ? "bg-[#022851] text-white hover:bg-[#044073] focus:ring-[#022851]"
+                            : "bg-gray-300 text-gray-600 hover:bg-gray-400 focus:ring-gray-400"
+                        }`}
+                        aria-label="Apply selected date range filter"
+                      >
+                        Apply Filter
+                      </button>
+                      <button
+                        onClick={() => {
+                          setPendingDateRange([1990, 2025]);
+                          setSelectedDateRange([1990, 2025]);
+                        }}
+                        className="reset-dates-btn w-1/2 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                        aria-label="Reset date range to default"
+                      >
+                        Reset Dates
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-        {/* Filters */}
-      <div>
-        <h2 className="text-lg font-medium mb-3">Filters</h2>
-        {/* Date Filter */}
-        <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-          {/* Selected Dates */}
-          <div className="flex justify-center items-center text-lg font-semibold mb-2">
-            {pendingDateRange[0]} – {pendingDateRange[1]}
-          </div>
-          {/* Date Range Slider */}
-          <ReactSlider
-            min={1990}
-            max={2025}
-            value={pendingDateRange}
-            onChange={(value) => setPendingDateRange(value)}
-            step={1}
-            className="custom-slider"
-            thumbClassName="custom-thumb"
-            trackClassName="custom-track"
-            withTracks={true}
-            ariaLabel={['Start year', 'End year']} // Add accessible names for the thumbs
-            ariaValuetext={(state) => `Selected year: ${state.valueNow}`} // Optional: Add dynamic value text
-          />
-        </div>
-      </div>
-      {/* Apply + Clear Filters */}
-      <div className="mt-4">
-        <p className="text-sm text-gray-600 mb-2">Use the buttons below to apply or reset the date range filter:</p>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setSelectedDateRange([...pendingDateRange])}
-            className={`w-1/2 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 transition ${isFilterPending
-                ? "bg-[#022851] text-white hover:bg-[#044073] focus:ring-[#022851]"
-                : "bg-gray-300 text-gray-600 hover:bg-gray-400 focus:ring-gray-400"
-              }`}
-            aria-label="Apply selected date range filter"
-          >
-            Apply Filter
-          </button>
-          <button
-            onClick={() => {
-              setPendingDateRange([1990, 2025]);
-              setSelectedDateRange([1990, 2025]);
-            }}
-            className="w-1/2 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
-            aria-label="Reset date range to default"
-          >
-            Reset Dates
-          </button>
-        </div>
-      </div>
 
             <details className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
               <summary className="font-semibold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
@@ -243,3 +261,5 @@ function App() {
 }
 
 export default App;
+
+

@@ -30,37 +30,61 @@ body {
 
 .leaflet-container {
   width: 100%; /* Inherit width from parent */
-  height: 100%; /* Inherit height from parent */
+  height: 100%;
   position: relative; /* Change from absolute to relative if needed */
 }
 
 /* Default layout for larger screens */
 .map-container {
   display: grid;
-  grid-template-columns: 1fr 300px; /* Map takes most space, sidebar is 300px wide */
-  grid-template-rows: auto; /* Single row layout */
-  height: calc(100vh - 140px); /* Full viewport height minus header and navbar */
-  width: 100%;
-  overflow: hidden;
+  grid-template-columns: 1fr; /* Single column layout */
+  grid-template-rows: auto 1fr; /* Sidebar on top, map below */
+  height: 100%; /* Full viewport height minus navbar */
+  margin-top: 0; /* Ensure no extra margin is applied */
+  overflow: visible; /* Allow content to overflow if necessary */
 }
 
 aside {
+  font-size: large;
   grid-column: 2; /* Place the aside on the right */
   grid-row: 1; /* Single row layout */
-  width: 100%; /* Take full width of its column */
-  height: calc(100vh - 140px); /* Full height minus header and navbar */
-  overflow-y: auto; /* Make the content scrollable */
-  position: sticky; /* Keeps the aside in view */
-  /* top: 140px; Align with the header and navbar */
+  width: 500px; /* Set a fixed width for the aside */
+  min-width: 500px; /* Ensure the aside does not shrink below this width */
+  height: auto; /* Let the content determine the height */
+  max-height: none; /* Remove any height restrictions */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  position: relative; /* Prevent sticky issues */
   z-index: 10; /* Ensure it stays above other elements */
   background-color: #f9fafb; /* Consistent background */
+  margin-top: 0; /* Remove any extra margin */
+  align-items: stretch;
 }
 
 #map {
   flex: 1;
   width: 100%;
-  height: 75vh; /* Map takes up half the screen height */
-  max-height: 75vh; /* Prevent the map from exceeding half the screen height */
+  height: 85vh; /* Map takes up half the screen height */
+  max-height: 85vh; /* Prevent the map from exceeding half the screen height */
+}
+
+details {
+  width: 100%; /* Ensure details take full width */
+  margin-bottom: 1rem; /* Add spacing between details elements */
+  word-wrap: break-word; /* Ensure long words break to the next line */
+  overflow-wrap: break-word; /* Ensure text wraps properly */
+  white-space: normal; /* Prevent text from staying on one line */
+}
+
+summary {
+  font-size: 1rem; /* Adjust font size */
+  font-weight: 600; /* Make it bold */
+  color: #022851; /* Dark blue text */
+  cursor: pointer; /* Show pointer cursor */
+  outline: none; /* Remove default focus outline */
+  display: block; /* Ensure summary takes full width */
+  word-wrap: break-word; /* Ensure long words break to the next line */
+  overflow-wrap: break-word; /* Ensure text wraps properly */
+  white-space: normal; /* Prevent text from staying on one line */
 }
 
 /* For tablets (max-width: 768px) */
@@ -75,13 +99,15 @@ aside {
   aside {
     grid-row: 1; /* Sidebar appears first */
     grid-column: 1; /* Full width */
-    width: 100%; /* Sidebar takes full width */
-    height: auto; /* Let the content determine the height */
-    max-height: 40%; /* Ensure the aside takes up no more than 40% of the screen */
+    width: 100%; /* Shrink the width to 80% of the screen */
+    max-width: 100%; /* Ensure it does not exceed 300px */
+    height: 100%; /* Let the content determine the height */
+    max-height: 100%; /* Ensure the aside takes up no more than 40% of the screen */
     overflow-y: hidden; /* Prevent scrolling */
     position: relative; /* Prevent sticky issues */
     z-index: 10; /* Ensure it stays above other elements */
     background-color: #f9fafb; /* Consistent background */
+    margin: 0; /* Center the aside horizontally */
   }
 
   #map {
@@ -89,7 +115,14 @@ aside {
     grid-column: 1; /* Full width */
     width: 100%; /* Map takes full width */
     height: calc(100vh - 80px - var(--aside-height)); /* Fill remaining space below the aside */
-    max-height: 60%; /* Ensure the map takes up the rest of the screen */
+    max-height: 100%; /* Ensure the map takes up the rest of the screen */
+  }
+  details {
+    margin-bottom: 0.75rem; /* Adjust spacing for smaller screens */
+  }
+
+  summary {
+    font-size: 0.9rem; /* Slightly smaller font size */
   }
 }
 
@@ -99,19 +132,22 @@ aside {
     display: grid;
     grid-template-columns: 1fr; /* Single column layout */
     grid-template-rows: auto 1fr; /* Sidebar on top, map below */
-    height: calc(100vh - 80px); /* Full viewport height minus navbar */
+    height: 100%; /* Full viewport height minus navbar */
   }
 
   aside {
+    font-size: medium;
     grid-row: 1; /* Sidebar appears first */
     grid-column: 1; /* Full width */
-    width: 100%; /* Sidebar takes full width */
-    height: auto; /* Let the content determine the height */
-    max-height: 50%; /* Ensure the aside takes up no more than 50% of the screen */
+    width: 100%; /* Shrink the width to 90% of the screen */
+    max-width: 100%; /* Ensure it does not exceed 250px */
+    height: 100%; /* Let the content determine the height */
+    max-height: 100%; /* Ensure the aside takes up no more than 50% of the screen */
     overflow-y: hidden; /* Prevent scrolling */
     position: relative; /* Prevent sticky issues */
     z-index: 10; /* Ensure it stays above other elements */
     background-color: #f9fafb; /* Consistent background */
+    margin: 0; /* Center the aside horizontally */
   }
 
   #map {
@@ -119,8 +155,9 @@ aside {
     grid-column: 1; /* Full width */
     width: 100%; /* Map takes full width */
     height: calc(100vh - 80px - var(--aside-height)); /* Fill remaining space below the aside */
-    max-height: 50%; /* Ensure the map takes up the rest of the screen */
+    max-height: 100%; /* Ensure the map takes up the rest of the screen */
   }
+
 }
 
 .map-title {
@@ -133,7 +170,10 @@ aside {
   background: #facc15;
   border-radius: 9999px;
   position: relative;
+  width: 100%; /* Default width for larger screens */
+  margin: 0 auto; /* Center the slider horizontally */
 }
+
 
 .custom-track {
   height: 8px;
@@ -163,3 +203,167 @@ aside {
   transform: translateY(-50%);
   border: 2px solid white;
 }
+/* Default styling for the date range */
+.date-range {
+  font-size: 1.25rem; /* Default font size (20px) for larger screens */
+  font-weight: 600; /* Make it bold */
+  text-align: center; /* Center align the text */
+  width: 100%;
+}
+
+/* For tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .date-range {
+    font-size: 1rem; /* Reduce font size to 16px */
+  }
+}
+
+/* For mobile devices (max-width: 480px) */
+@media (max-width: 480px) {
+  .date-range {
+    font-size: 0.875rem; /* Reduce font size to 14px */
+  }
+}
+
+/* For tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .custom-slider {
+    width: 100%; /* Shrink the slider width to 80% of the screen */
+    margin: 0;
+  }
+}
+
+/* For mobile devices (max-width: 480px) */
+@media (max-width: 480px) {
+  .custom-slider {
+    width: 100%; 
+    max-width: 400px;
+    margin: 0;
+  }
+  details {
+    width: 100%; /* Ensure details take full width */
+    max-width: 400px;
+    margin-bottom: 0.75rem; /* Adjust spacing for smaller screens */
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    overflow-wrap: break-word; /* Ensure text wraps properly */
+    white-space: normal; /* Prevent text from staying on one line */
+  }
+  summary {
+    font-size: 0.85rem; /* Reduce font size for smaller screens */
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    overflow-wrap: break-word; /* Ensure text wraps properly */
+    white-space: normal; /* Prevent text from staying on one line */
+  }
+}
+@media (max-width: 400px) {
+  .custom-slider {
+    width: 100%; /* Shrink the slider width to 90% of the screen */
+    max-width: 350px;
+    margin: 0;
+  }
+  details {
+    width: 100%; /* Ensure details take full width */
+    max-width: 350px;
+    margin-bottom: 0.75rem; /* Adjust spacing for smaller screens */
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    overflow-wrap: break-word; /* Ensure text wraps properly */
+    white-space: normal; /* Prevent text from staying on one line */
+  }
+  summary {
+    font-size: 0.85rem; /* Reduce font size for smaller screens */
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    overflow-wrap: break-word; /* Ensure text wraps properly */
+    white-space: normal; /* Prevent text from staying on one line */
+  }
+}
+
+@media (max-width:350px) {
+  .custom-slider {
+    width: 100%; /* Shrink the slider width to 90% of the screen */
+    max-width: 300px;
+    margin: 0;
+  }
+  details {
+    width: 100%; /* Ensure details take full width */
+    max-width: 300px;
+    margin-bottom: 0.75rem; /* Adjust spacing for smaller screens */
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    overflow-wrap: break-word; /* Ensure text wraps properly */
+    white-space: normal; /* Prevent text from staying on one line */
+  }
+  summary {
+    font-size: 0.85rem; /* Reduce font size for smaller screens */
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    overflow-wrap: break-word; /* Ensure text wraps properly */
+    white-space: normal; /* Prevent text from staying on one line */
+  }
+}
+
+/* Default styles for Apply Filter and Reset Dates buttons */
+.filter-buttons .apply-filter-btn,
+.filter-buttons .reset-dates-btn {
+  font-size: 1rem; /* Default font size */
+  padding: 0.5rem 1rem; /* Default padding */
+}
+
+/* For tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .filter-buttons .apply-filter-btn,
+  .filter-buttons .reset-dates-btn {
+    font-size: 0.9rem; /* Slightly smaller font size */
+    padding: 0.4rem 0.8rem; /* Reduce padding */
+  }
+}
+
+/* For small screens (max-width: 480px) */
+@media (max-width: 480px) {
+  .filter-buttons .apply-filter-btn,
+  .filter-buttons .reset-dates-btn {
+    font-size: 0.85rem; /* Smaller font size */
+    padding: 0.3rem 0.6rem; /* Further reduce padding */
+    max-width: 185px;
+  }
+}
+
+/* For very small screens (max-width: 400px) */
+@media (max-width: 400px) {
+  .filter-buttons .apply-filter-btn,
+  .filter-buttons .reset-dates-btn {
+    font-size: 0.8rem; /* Even smaller font size */
+    padding: 0.25rem 0.5rem; /* Minimal padding */
+    height: auto;
+    width: 70%;
+    max-width: 170px;
+  }
+}
+
+/* For ultra-small screens (max-width: 350px) */
+@media (max-width: 350px) {
+  .filter-buttons .apply-filter-btn,
+  .filter-buttons .reset-dates-btn {
+    font-size: 0.75rem; /* Smallest font size */
+    padding: 0.2rem 0.4rem; /* Minimal padding */
+    height: auto;
+    width: 65%;
+    max-width: 150px;
+  }
+}
+
+/* Default styles for the search bar */
+.searchbar {
+  max-width: 200px; /* Default width for smaller screens */
+  flex-grow: 0; /* Prevent it from growing */
+}
+
+/* For screens larger than 760px */
+@media (min-width: 760px) {
+  .searchbar {
+    max-width: 500px; /* Make the search bar take up half of the navbar */
+    flex-grow: 1; /* Allow it to grow proportionally */
+  }
+
+  .searchbar input {
+    width: 100%; /* Ensure the input fills the container */
+  }
+}
+
