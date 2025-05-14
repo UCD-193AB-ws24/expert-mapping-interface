@@ -19,6 +19,8 @@ import "leaflet/dist/leaflet.css";
  * Marina Mata, 2025
  */
 
+
+
 const MapWrapper = ({ children }) => {
   return (
     <MapContainer
@@ -26,7 +28,7 @@ const MapWrapper = ({ children }) => {
       zoom={2} // Initial zoom level.
       minZoom={2} // Minimum zoom level to prevent excessive zooming out.
       maxZoom={12} // Maximum zoom level to prevent excessive zooming in.
-      style={{ height: "100%", width: "100%" }} // Full height and width to fit the container.
+      // style={{ height: "100%", width: "100%" }} // Full height and width to fit the container.
       maxBounds={[
         [-80, -200], // Southwest corner of the map bounds
         [85, 200]    // Northeast corner of the map bounds
