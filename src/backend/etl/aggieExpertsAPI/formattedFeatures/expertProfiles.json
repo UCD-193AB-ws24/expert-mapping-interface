@@ -1,453 +1,319 @@
 [
   {
-    "expertId": "PweNBqy2",
-    "title": "Professor",
-    "organizationUnit": "",
-    "url": "expert/PweNBqy2",
-    "works": [
-      {
-        "title": "Increased expression of soluble epoxide hydrolase in the brain and liver from patients with major psychiatric disorders: A role of brain – liver axis",
-        "name": "Increased expression of soluble epoxide hydrolase in the brain and liver from patients with major psychiatric disorders: A role of brain – liver axis Published article-journal 2020-06 Zhang Journal of Affective Disorders 1573-2517",
-        "issued": "2020-06",
-        "abstract": "BACKGROUND: Soluble epoxide hydrolase (sEH) in the metabolism of polyunsaturated fatty acids might play a role in the pathogenesis of major psychiatric disorders. Here we studied whether expression of sEH protein is altered in the postmortem samples (parietal cortex, and liver) from patients with major psychiatric disorders. METHODS: Protein expression of sEH in the parietal cortex and liver from control, major depressive disorder (MDD), bipolar disorder (BD), and schizophrenia (SZ) groups was measured. RESULTS: Levels of sEH in the parietal cortex and liver from MDD, BD, and SZ groups were significantly higher than the control group. Interestingly, there was a positive correlation between sEH protein in the parietal cortex and sEH protein the liver in all groups. LIMITATIONS: The small number in each group may limit our interpretation. CONCLUSIONS: This study shows that the increased expression of sEH in the brain and liver might play a role in the pathogenesis of major psychiatric disorders, suggesting a role of brain - liver axis in major psychiatric disorders.",
-        "authors": [
-          "Jiancheng Zhang",
-          "Yunfei Tan",
-          "Lijia Chang",
-          "Bruce D Hammock",
-          "Kenji Hashimoto"
-        ],
-        "id": "3089189",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "Lack of rewarding effects of a soluble epoxide hydrolase inhibitor TPPU in mice: Comparison with morphine",
-        "name": "Lack of rewarding effects of a soluble epoxide hydrolase inhibitor TPPU in mice: Comparison with morphine Published article-journal 2020-12 Wan Nihon shinkei seishin yakurigaku zasshi = Japanese journal of psychopharmacology 2574-173X",
-        "issued": "2020-12",
-        "abstract": "AIM: Although opioids have been used as treatment of neuropathic pain, opioids have abuse potential in humans. Since soluble epoxide hydrolase (sEH) in the metabolism of polyunsaturated fatty acids plays a key role in the pain, sEH inhibitors would be promising new therapeutic drugs for neuropathic pain. In this study, we examined the effect of the sEH inhibitor TPPU on rewarding effects in mice using the conditioned place preference (CPP) paradigm. METHODS: The rewarding effects of morphine (10 mg/kg) and TPPU (3, 10, or 30 mg/kg) in mice were examined using CPP paradigm. Furthermore, the effect of TPPU (30 mg/kg) on morphine-induced rewarding effects was examined. RESULTS: TPPU (3, 10, or 30 mg/kg) did not increase CPP scores in the mice whereas morphine significantly increased CPP scores in the mice. Furthermore, pretreatment with TPPU did not block the rewarding effects of morphine in the mice, suggesting that sEH does not play a role in the rewarding effect of morphine. CONCLUSION: This study suggests that TPPU did not have rewarding effects in rodents. This would make sEH inhibitors potential therapeutic drugs without abuse potential for neuropathic pain.",
-        "authors": [
-          "Xiayun Wan",
-          "Yuko Fujita",
-          "Lijia Chang",
-          "Yan Wei",
-          "Li Ma",
-          "Gerile Wuyun",
-          "Yaoyu Pu",
-          "Bruce D Hammock",
-          "Kenji Hashimoto"
-        ],
-        "id": "3183044",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "Ingestion of Faecalibaculum rodentium causes depression-like phenotypes in resilient Ephx2 knock-out mice: A role of brain–gut–microbiota axis via the subdiaphragmatic vagus nerve",
-        "name": "Ingestion of Faecalibaculum rodentium causes depression-like phenotypes in resilient Ephx2 knock-out mice: A role of brain–gut–microbiota axis via the subdiaphragmatic vagus nerve Published article-journal 2021-09 Wang Journal of Affective Disorders 1573-2517",
-        "issued": "2021-09",
-        "abstract": "BACKGROUND: The brain-gut-microbiota axis plays a crucial role in the bidirectional interactions between the brain and the gut. Soluble epoxide hydrolase (coded by the Ephx2 gene) plays an important role in inflammation, which has been implicated in stress-related depression. Ephx2 knock-out (KO) mice exposed to chronic social defeat stress (CSDS) did not show depression-like behaviors, indicating stress resilience. Here we examined whether the brain-gut-microbiota axis influences the resilience in Ephx2 KO mice. METHODS: Effects of fecal microbiota transplantation (FMT) from CSDS-susceptible (or control) mice in wild-type (WT) mice and Ephx2 KO mice treated with an antibiotic cocktail (ABX) were investigated. Behavioral, biochemical tests and 16S ribosome RNA analysis were performed. RESULTS: FMT from CSDS-susceptible mice produced anhedonia-like behavior in ABX-treated WT and Ephx2 KO mice. The 16S ribosome RNA analysis showed that Faecalibaculum rodentium (F. rodentium) may be responsible for the observed anhedonia-like behavior following FMT from CSDS-susceptible mice. Ingestion of F. rodentium for 14 days produced depression- and anhedonia-like behaviors, higher blood levels of interleukin-6, and reduced expression of synaptic proteins in the prefrontal cortex of ABX-treated Ephx2 KO mice. Furthermore, subdiaphragmatic vagotomy blocked the development of these behavioral abnormalities after ingestion of F. rodentium. LIMITATIONS: Detailed mechanisms are unclear. CONCLUSIONS: These findings suggest that F. rodentium might contribute to the conversion of resilient Ephx2 KO mice into KO mice with depression-like phenotypes. The brain-gut-microbiota axis via the subdiaphragmatic vagus nerve plays a crucial role in susceptibility and resilience to stress.",
-        "authors": [
-          "Siming Wang",
-          "Tamaki Ishima",
-          "Youge Qu",
-          "Jiajing Shan",
-          "Lijia Chang",
-          "Yan Wei",
-          "Jiancheng Zhang",
-          "Yaoyu Pu",
-          "Yuko Fujita",
-          "Yunfei Tan",
-          "Xingming Wang",
-          "Li Ma",
-          "Xiayun Wan",
-          "Bruce D Hammock",
-          "Kenji Hashimoto"
-        ],
-        "id": "3492937",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "Construction and Characterization of Immediate Early Baculovirus Pesticides",
-        "name": "Construction and Characterization of Immediate Early Baculovirus Pesticides Published article-journal 1996-10 Jarvis Biological Control 1090-2112",
-        "issued": "1996-10",
-        "abstract": "Recombinant baculoviruses that express insect-specific toxins under the control of viral late gene promoters can kill susceptible lepidopteran hosts faster than the wild-type virus. In an effort to improve the efficacy of genetically engineered baculovirus pesticides, we have produced a recombinant that contains an insect specific toxin gene (AaIT) under the control of the promoter from an immediate early gene (ie1) of Autographa californica nuclear polyhedrosis virus (AcNPV). AaIT protein was detected as early as 4 h postinfection in cultured insect cells infected with this recombinant. The protein continued to accumulate as the infection progressed and, even as late as 24 h postinfection, the amount of AaIT was about equal to that provided by a recombinant that expressed AaIT under the control of the very late p10 promoter. Similar results were obtained with a recombinant that expressed a modified insect juvenile hormone esterase (JHE-KK) under ie1 control, confirming the ability of this promoter to provide early and abundant expression of gene products with potential pesticidal activity. Bioassays showed that the ie1-AaIT recombinant killed Heliothis virescens larvae faster than wild-type virus, but not faster than the p10-AaIT recombinant. However, larvae infected with the ie1-AaIT recombinant were smaller than those infected with the p10-AaIT recombinant, suggesting that expression of AaIT earlier in infection enhanced the ability of the virus to reduce the feeding activity of H. virescens larvae.",
-        "authors": [
-          "Donald L Jarvis",
-          "Linda M Reilly",
-          "Kelli Hoover",
-          "Christine Schultz",
-          "Bruce D Hammock",
-          "Linda A Guarino"
-        ],
-        "id": "532845",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "Competition between Wild-Type and Recombinant Nucleopolyhedroviruses in a Greenhouse Microcosm",
-        "name": "Competition between Wild-Type and Recombinant Nucleopolyhedroviruses in a Greenhouse Microcosm Published article-journal 2001-01 Lee Biological Control 1049-9644",
-        "issued": "2001-01",
-        "abstract": "Wild-type Autographa californica nucleopolyhedrovirus (AcNPV or AcNPV.WT), AcNPV expressing a scorpion toxin (AcNPV.AaIT), and AcNPV expressing a mutated juvenile hormone esterase (AcJHE.SG) were compared in their capability to produce epizootics in larvae of Trichoplusia ni infesting collards in a greenhouse microcosm. Larvae treated in four different ways were released into 1.8-m2 microplots in week 1. The four treatments included (1) uninfected larvae (control), (2) 100% AcNPV.WT-infected larvae (WT), (3) 100% AcNPV.AaIT-infected larvae (AaIT), and (4) 1:1 ratio of AcNPV.WT-infected and AcNPV.AaIT-infected larvae (WT+AaIT). On a weekly basis, larvae were sampled and new, uninfected larvae were added to all plots. Sampled larvae were reared until death and then subjected individually to DNA-DNA dot-blot hybridization assay to determine the proportion of insects infected with each virus in each plot. The entire experiment was repeated with AcJHE.SG in the place of AcNPV.AaIT. Epizootics of AcNPV.WT lasted 8 weeks after a single viral release in the replicated greenhouse microplots. AcJHE.SG epizootics also lasted 8 weeks after viral release, but this virus and AcNPV.AaIT were both out-competed by AcNPV.WT. AcNPV.AaIT was no longer detected in the T. ni population by the fourth week after release. AcNPV.WT also increased to greater numbers in soil than AcNPV.AaIT or AcJHE.SG after 8 weeks. Thus, it was possible to induce 8-week epizootics of AcNPV.WT in replicated microplots under artificial greenhouse conditions, and the wild-type virus out-competed the recombinant virus for a niche in this greenhouse microcosm, which reduces the probability that the recombinant virus will persist in an agroecosystem. © 2000 Academic Press.",
-        "authors": [
-          "Y Lee",
-          "JR Fuxa",
-          "AB Inceoglu",
-          "SA Alaniz",
-          "AR Richter",
-          "LM Reilly",
-          "BD Hammock"
-        ],
-        "id": "532858",
-        "type": "Scholarly  Article"
-      }
-    ],
-    "grants": [
-      {
-        "id": "K320838-1129",
-        "title": "BATTELLE MEMORIAL INSTITUTE #171034",
-        "name": "BATTELLE MEMORIAL INSTITUTE #171034 § Completed • 2002 - 2004 • Hammock, Bruce § Battelle Memorial Institute • 171034/02-00050V",
-        "funder": "Battelle Memorial Institute",
-        "status": "Completed",
-        "startDate": "2002-03-15",
-        "endDate": "2004-09-30",
-        "grantRole": "Grant  Role, Principal  Investigator  Role"
-      },
-      {
-        "id": "K321909-105459",
-        "title": "Development of a fluorescent 96-well assay for dual detection of esterase- and GST- mediated pyrethroid resistance in mosquito",
-        "name": "Development of a fluorescent 96-well assay for dual detection of esterase- and GST- mediated pyrethroid resistance in mosquito § Completed • 2012 - 2013 • Hammock, Bruce § Mosquito Research Foundation • 201222676",
-        "funder": "Mosquito Research Foundation",
-        "status": "Completed",
-        "startDate": "2012-04-27",
-        "endDate": "2013-12-31",
-        "grantRole": "Co  Principal  Investigator  Role"
-      },
-      {
-        "id": "K322413-1908",
-        "title": "DOE DE-FG03-96ER14629/99",
-        "name": "DOE DE-FG03-96ER14629/99 § Completed • 1996 - 2003 • Casey, William § Department Of Energy/miscellaneous Offices And Programs • DE-FG03-96ER14629",
-        "funder": "Department Of Energy/miscellaneous Offices And Programs",
-        "status": "Completed",
-        "startDate": "1996-05-01",
-        "endDate": "2003-04-30",
-        "grantRole": "Co  Principal  Investigator  Role"
-      },
-      {
-        "id": "K322761-2234",
-        "title": "ROLE OF A/B-HYDROLASE FOLD ENZYMES IN THE REGULATION OF JUVENILE HORMONE",
-        "name": "ROLE OF A/B-HYDROLASE FOLD ENZYMES IN THE REGULATION OF JUVENILE HORMONE § Completed • 2006 - 2010 • Hammock, Bruce § National Institute For Food And Agriculture • 07-35607-17830",
-        "funder": "National Institute For Food And Agriculture",
-        "status": "Completed",
-        "startDate": "2006-12-15",
-        "endDate": "2010-12-14",
-        "grantRole": "Grant  Role, Principal  Investigator  Role"
-      },
-      {
-        "id": "K323022-2434",
-        "title": "IDENTIFICATION AND DEVELOPMENT OF BIOLOGICAL MARKERS OF HUMAN EXPOSURE TO THE INSECTICIDE PERMETHRIN",
-        "name": "IDENTIFICATION AND DEVELOPMENT OF BIOLOGICAL MARKERS OF HUMAN EXPOSURE TO THE INSECTICIDE PERMETHRIN § Completed • 2001 - 2008 • Hammock, Bruce § US Army Medical Research And Development Command • DAMD17-01-1-0769",
-        "funder": "US Army Medical Research And Development Command",
-        "status": "Completed",
-        "startDate": "2001-09-24",
-        "endDate": "2008-03-23",
-        "grantRole": "Grant  Role, Principal  Investigator  Role"
-      }
-    ],
-    "lastModified": "",
-    "cache_session": "session_1746826269112",
-    "cachedAt": ""
-  },
-  {
-    "expertId": "oTf5l6Tt",
-    "title": "Vice Provost",
-    "organizationUnit": "",
-    "url": "expert/oTf5l6Tt",
-    "works": [
-      {
-        "title": "Craniomaxillofacial trauma in immature dogs–etiology, treatments, and outcomes",
-        "name": "Craniomaxillofacial trauma in immature dogs–etiology, treatments, and outcomes Published article-journal 2022 Wolfs Frontiers in Veterinary Science 2297-1769",
-        "issued": "2022",
-        "abstract": "Treatment of craniomaxillofacial (CMF) trauma in dogs often requires a multidisciplinary approach and a thorough understanding of the CMF anatomical structures involved. This retrospective study aimed to utilize computed tomography (CT) studies of immature dogs evaluated for CMF trauma and to describe common fracture locations, treatment modalities, and complications, as well as the fracture healing outcomes. The medical records and CT studies of 94 dogs under 1 year of age over a 13-year period were evaluated. The skeletal location of CMF fractures, as well as the severity of displacement and fragmentation of each fracture, was recorded. Case demographic data and trauma etiology were also recorded. Animal bites accounted for the majority of trauma (71.0%). The most likely bone or region to be fractured was the maxillary bones, followed by the molar region of the mandibles. Up to 37 bones or specific regions were fractured in any given patient, with an average of 8.8 ± 3.1 fractured bones or regions per dog. Rostral mandibular trauma was associated with intra-articular fractures of the temporomandibular joint (p = 0.016). Patients sustained concomitant injuries in 32% of the cases. Muzzle therapy was the main treatment performed for most dogs (53.2%), followed by soft tissue closure (47.9%) and selective dental extractions (27.6%). Healing complications were recorded in 71.6% of the dogs, with malocclusion being the most reported complication (55.2%), and associated with dentate mandibular jaw fractures (p = 0.05). The average number of complications per dog was 2.4. No statistically significant association was found between treatment modality and healing outcome. There was a positive correlation between the severity of fracture fragmentation and displacement and a negative healing outcome (all rho >0.7). Further treatment was required in 55.6% of the dogs. Additional dental extractions were performed in 77.7% of patients. Healing complications were common in the immature CMF trauma case. Thus, the need for a comprehensive assessment of the entire CMF region during the initial visit, as well as follow-up, preferably using CT or cone beam CT, is underscored.",
-        "authors": [
-          "Elias Wolfs",
-          "Boaz Arzi",
-          "Jose Guerrero Cota",
-          "Philip H Kass",
-          "Frank JM Verstraete"
-        ],
-        "id": "3950089",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "Good clinical outcomes achieved in young dogs with tibial tuberosity avulsion fracture repairs when implants were left in situ past skeletal maturity.",
-        "name": "Good clinical outcomes achieved in young dogs with tibial tuberosity avulsion fracture repairs when implants were left in situ past skeletal maturity. Published article-journal 2022-09-28 Miller Journal of the American Veterinary Medical Association 1943-569X",
-        "issued": "2022-09-28",
-        "abstract": "OBJECTIVE: To evaluate outcomes of tibial tuberosity avulsion fractures (TTAF) in dogs with implants left in situ past skeletal maturity and to compare clinical outcomes with published outcomes in dogs whose implants were removed 4 to 6 weeks postoperatively. ANIMALS: 47 client-owned dogs. PROCEDURES: In this retrospective study, 47 dogs had surgery to correct a TTAF before 10 months of age and had the implants left in situ past skeletal maturity. Of these, 42 were followed for a median of 36 months postoperatively. Short- and long-term complications were recorded and compared with historically published data in which the implants were removed within 6 weeks of surgery. RESULTS: 14% (6/42) of our population experienced minor long-term complications (stiffness and lameness), 6% (3/47) experienced major short-term complications (repair failure), and 14% (6/24) experienced major long-term complications (implant removal). There was no difference in long-term outcomes when compared with results of historical reports in which implants were removed 4 to 6 weeks postoperatively. Client satisfaction was high, with 93% (38/41) grading outcomes as excellent and 95% (39/41) stating they would have surgery performed again in retrospect. CLINICAL RELEVANCE: Immature dogs with surgically repaired TTAFs have favorable long-term outcomes when the implants were left in situ past skeletal maturity. Dogs with TTAF repairs may not need implant removal unless it becomes clinically necessary. Avoiding a second procedure will decrease patient morbidity, recovery time, and cost.",
-        "authors": [
-          "Zachary A Miller",
-          "Sady Y Cabrera",
-          "David Mason",
-          "Philip H Kass"
-        ],
-        "id": "3958944",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "Dental and Temporomandibular Joint Pathology of the Steller Sea Lion (Eumetopias jubatus)",
-        "name": "Dental and Temporomandibular Joint Pathology of the Steller Sea Lion (Eumetopias jubatus) Published article-journal 2022-11 Kot Journal of Comparative Pathology 1532-3129",
-        "issued": "2022-11",
-        "abstract": "Skulls from 112 Steller sea lions (Eumetopias jubatus) were examined according to predefined criteria. Of the specimens, 73 (65.2%) were from males, 29 (25.9%) from females and 10 (8.9%) were of unknown sex, with 50 adults (44.6%), 61 young adults (54.5%) and one of unknown age (0.9%). The number of teeth evaluated was 3,521. Adults had more acquired tooth loss than young adults (P <0.0001). A total of 1,660 teeth (47.1%) from 111 specimens (99.1%) had evidence of attrition or abrasion. Adults displayed more attrition or abrasion than young adults (P <0.0001). A total of 241 teeth (6.8%) from 47 specimens (42%) had tooth fractures. Adults had more fractured teeth than young adults (P <0.0001). Bony changes consistent with periodontitis affected 36.7% of teeth. Adults had more teeth affected by periodontitis than young adults (P <0.0001). Temporomandibular joint osteoarthritis lesions were found in 54 specimens (48.2%) with more in adults than in young adults (P <0.0001). Although the significance of our findings is unknown, the occurrence and severity of these lesions may play an important role in the morbidity and mortality of Steller sea lions.",
-        "authors": [
-          "Ching Ching Shirley Kot",
-          "Boaz Arzi",
-          "Janny V Evenhuis",
-          "Philip H Kass",
-          "Frank JM Verstraete"
-        ],
-        "id": "3985718",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "Hematologic Reference Intervals and Comparison of Natt-Herrick Technique and Smear-Based Leukocyte Estimation in Cockatiels (Nymphicus hollandicus)",
-        "name": "Hematologic Reference Intervals and Comparison of Natt-Herrick Technique and Smear-Based Leukocyte Estimation in Cockatiels (Nymphicus hollandicus) Published article-journal 2022-11 Monopoli Journal of Avian Medicine and Surgery 1938-2871",
-        "issued": "2022-11",
-        "abstract": "Although cockatiels are among the most common avian species maintained as companion animals in the United States, information on standard hematologic reference values for this species is limited. The objectives of this study were to establish hematologic reference intervals (RI) for cockatiels, compare methods using both the Natt-Herrick technique (NHT) and the smear-based estimation technique (SBT), explore age and sex differences in the hematologic findings for this species, and produce the first cockatiel RI for fibrinogen concentration and thrombocyte estimate. Healthy cockatiels (60 males and 60 females, 2-11 years old) from a research colony were included in this study. Blood samples were placed in dipotassium ethylenediaminetetraacetic acid tubes, and erythrocyte counts and thrombocyte estimates were determined via automated analyzer (ADVIA 120) and SBT, respectively. Moreover, leukocyte concentrations were determined using both NHT and SBT to compare these common methods for measuring a complete blood count in cockatiels. Data were analyzed for outliers, distributions, descriptive statistics, and RI via Reference Value Adviser, a set of macroinstructions for Microsoft Excel (Microsoft, Redmond, WA, USA). Lymphocytes were the predominant leukocyte across both methods. According to the NHT, females had significantly higher concentrations of total leukocytes, heterophils, bands, lymphocytes, basophils, and total plasma protein compared with males. Significant inverse polynomial relationships were noted between total leukocyte count and age and lymphocyte counts and age for NHT. Total leukocyte count produced via NHT and SBT were compared using Passing-Bablok and Bland-Altman plots, and no significant constant or proportional biases were found. However, these methods showed wide limits of agreement. While the RI were interchangeable between methods from a clinical standpoint, the same method should be used to assess changes in an individual. The reported RI are uniquely robust given the sample size, balanced sex and age distributions, inclusion criteria, and control over sample collection.",
-        "authors": [
-          "Marissa Rae Monopoli",
-          "David Sanchez-Migallon Guzman",
-          "Philip H Kass",
-          "Amir Kol"
-        ],
-        "id": "4031826",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "A Retrospective Short-Term Evaluation Using a Polyaxial Plating System in 60 Small Animal Fractures",
-        "name": "A Retrospective Short-Term Evaluation Using a Polyaxial Plating System in 60 Small Animal Fractures Published article-journal 2023-03 Mascellino Veterinary and Comparative Orthopaedics and Traumatology 2567-6911",
-        "issued": "2023-03",
-        "abstract": "OBJECTIVE:  The aim of this study was to retrospectively evaluate the use, complications and outcomes of the Liberty Lock System (LLS) used to repair fractures in dogs and cats. STUDY DESIGN:  Medical records (October 2016-June 2019) of dog and cat fractures repaired with the LLS were reviewed. Data reviewed included signalment, fracture classification, complications and radiographic outcome. RESULTS:  The LLS was used to repair 60 fractures (57 appendicular and 3 axial) in 54 dogs and 6 cats. Mean time to radiographic union was 6 weeks (range: 4-16). Radiographic union was achieved in all 60 fractures with 55/60 healing without recorded complications. Major complications 4/60 and minor complication 1/60 rates were low and no catastrophic complications occurred. The most common major complication was surgical site infection. CONCLUSION:  The LLS allowed for successful repair in all 60 cases with a wide variety of fractures. The LLS had a similar complication rate and time to radiographic union to that reported in other veterinary locking plate systems. The LLS is a reliable locking plate system which offers some advantages such as a low-profile plate with the ability to place non-polyaxial to angled polyaxial screws, to treat fractures in dogs and cats.",
-        "authors": [
-          "Haley Mascellino",
-          "Karl Maritato",
-          "Matthew Barnhart",
-          "Philip Kass"
-        ],
-        "id": "4078377",
-        "type": "Scholarly  Article"
-      }
-    ],
-    "grants": [
-      {
-        "id": "K328756-112108",
-        "title": "PROSPECTIVE EVALUATION OF CALIFORNIAS ARMED AND PROHIBITED PERSONS SYSTEM",
-        "name": "PROSPECTIVE EVALUATION OF CALIFORNIAS ARMED AND PROHIBITED PERSONS SYSTEM § Completed • 2015 - 2021 • Wintemute, Garen § National Institute Of Justice • 2014-R2-CX-0012",
-        "funder": "National Institute Of Justice",
-        "status": "Completed",
-        "startDate": "2015-01-01",
-        "endDate": "2021-06-30",
-        "grantRole": "Co  Principal  Investigator  Role"
-      },
-      {
-        "id": "K358091-7894",
-        "title": "2004 SURVEY OF PET OWNERSHIP AND STRAY CAT POPULATION IN SANTA CLARA COUNTY",
-        "name": "2004 SURVEY OF PET OWNERSHIP AND STRAY CAT POPULATION IN SANTA CLARA COUNTY § Completed • 2004 - 2005 • Kass, Philip H § Everycat Health Foundation Inc. • 58091",
-        "funder": "Everycat Health Foundation Inc.",
-        "status": "Completed",
-        "startDate": "2004-09-01",
-        "endDate": "2005-06-30",
-        "grantRole": "Grant  Role, Principal  Investigator  Role"
-      },
-      {
-        "id": "K384869-100429",
-        "title": "Poultry Health and Well-Being for Development in East, Southern and West Africa",
-        "name": "Poultry Health and Well-Being for Development in East, Southern and West Africa § Completed • 2009 - 2009 • Kass, Philip H § Development Alternatives, Inc. • 100035410PO14249",
-        "funder": "Development Alternatives, Inc.",
-        "status": "Completed",
-        "startDate": "2009-11-01",
-        "endDate": "2009-12-31",
-        "grantRole": "Grant  Role, Principal  Investigator  Role"
-      },
-      {
-        "id": "K385794-14009",
-        "title": "Companion Animal Foodborne Disease Surveillance and Epidemiologic Investigation Program",
-        "name": "Companion Animal Foodborne Disease Surveillance and Epidemiologic Investigation Program § Completed • 2010 - 2013 • Kass, Philip H § Mars, Incorporated • SLO001",
-        "funder": "Mars, Incorporated",
-        "status": "Completed",
-        "startDate": "2010-06-15",
-        "endDate": "2013-08-22",
-        "grantRole": "Grant  Role, Principal  Investigator  Role"
-      },
-      {
-        "id": "K332443-103222",
-        "title": "Mouse Metabolic Phenotyping Center (MMPC) at UC Davis",
-        "name": "Mouse Metabolic Phenotyping Center (MMPC) at UC Davis § Completed • 2011 - 2016 • Lloyd, Kevin C § Diabetes, Digestive & Kidney Diseases, National Institute Of • 1U24DK092993",
-        "funder": "Diabetes, Digestive & Kidney Diseases, National Institute Of",
-        "status": "Completed",
-        "startDate": "2011-09-16",
-        "endDate": "2016-08-01",
-        "grantRole": "Grant  Role, Researcher  Role"
-      }
-    ],
-    "lastModified": "",
-    "cache_session": "session_1746826269112",
-    "cachedAt": ""
-  },
-  {
     "expertId": "83x5AQ8a",
+    "type": "Expert",
+    "firstName": "Sung-Joo",
+    "middleName": "Ben",
+    "lastName": "Yoo",
+    "fullName": "Sung-Joo Ben Yoo",
     "title": "Professor",
-    "organizationUnit": "",
+    "organizationUnit": "Elec & Comp Engr",
+    "lastModified": "2025-05-02T23:18:27.000949818Z",
     "url": "expert/83x5AQ8a",
     "works": [
       {
-        "title": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks",
-        "name": "Brokered Orchestration for End-to-End Service Provisioning Across Heterogeneous Multi-Operator (Multi-AS) Optical Networks Published article-journal 2016-12-01,2016-01-01 Castro Journal of Lightwave Technology 1558-2213",
-        "issued": [
-          "2016-12-01",
-          "2016-01-01"
-        ],
-        "abstract": [
-          "© 2016 IEEE. This paper proposes a new networking paradigm introducing the broker-plane above the management planes of Autonomous Systems (ASes). The brokers communicate with the manager of each AS to assist coordinate end-to-end resource management and path provisioning across the multi-AS networks involving multiple operators. The broker plane updates the virtual network topology, manages the resource information of inter-AS links and aggregated (abstracted) intra-AS links, and computes end-to-end routing, modulation formats, and spectrum assignment (RMSA). Notwithstanding, due to the different dynamicity of each AS, the probability of finding a multi-AS transparent path fulfilling the spectrum continuity and contiguity constraints might be low. To improve the grade of the inter-domain connectivity service, spectrum converters can be installed in inter-domain nodes or per-AS defragmentation can be performed with a global view. In this paper, we introduce a mechanism where each AS can advertise its internal capabilities, e.g., spectrum conversion, their ability to implement spectrum defragmentation or any other network feature. The Multi-AS RMSA with Defragmentation Capability problem is presented and mathematically modeled. A heuristic algorithm is designed to solve it. The mechanism's workflow is comprehensively tested using simulations. Results show connection blocking reduction as high as 26%, clearly validating the benefits of the proposed mechanism. Finally, its experimental assessment was conducted on a distributed multi-continental testbed.",
-          "This paper proposes a new networking paradigm introducing the broker-plane above the management planes of Autonomous Systems (ASes). The brokers communicate with the manager of each AS to assist coordinate end-to-end resource management and path provisioning across the multi-AS networks involving multiple operators. The broker plane updates the virtual network topology, manages the resource information of inter-AS links and aggregated (abstracted) intra-AS links, and computes end-to-end routing, modulation formats, and spectrum assignment (RMSA). Notwithstanding, due to the different dynamicity of each AS, the probability of finding a multi-AS transparent path fulfilling the spectrum continuity and contiguity constraints might be low. To improve the grade of the inter-domain connectivity service, spectrum converters can be installed in inter-domain nodes or per-AS defragmentation can be performed with a global view. In this paper, we introduce a mechanism where each AS can advertise its internal capabilities, e.g., spectrum conversion, their ability to implement spectrum defragmentation or any other network feature. The Multi-AS RMSA with Defragmentation Capability problem is presented and mathematically modeled. A heuristic algorithm is designed to solve it. The mechanism's workflow is comprehensively tested using simulations. Results show connection blocking reduction as high as 26%, clearly validating the benefits of the proposed mechanism. Finally, its experimental assessment was conducted on a distributed multi-continental testbed."
-        ],
+        "title": "Scalable Nanophotonic-Electronic Spiking Neural Networks",
+        "name": "Scalable Nanophotonic-Electronic Spiking Neural Networks Published article-journal 2023-01-01 Srouji IEEE Journal of Selected Topics in Quantum Electronics 1558-4542",
+        "issued": "2023-01-01",
+        "abstract": "Spiking neural networks (SNN) provide a new computational paradigm capable of highly parallelized, real-time processing. Photonic devices are ideal for the design of high-bandwidth, parallel architectures matching the SNN computational paradigm. Furthermore, the co-integration of CMOS and photonic elements combineslow-loss photonic devices with analog electronics for greater flexibility of nonlinear computational elements. We designed and simulated an optoelectronic spiking neuron circuit on a monolithic silicon photonics (SiPh) process that replicates useful spiking behaviors beyond the leaky integrate-and-fire (LIF). Additionally, we explored two learning algorithms with the potential for on-chip learning using Mach-Zehnder Interferometric (MZI) meshes as synaptic interconnects. A variation of Random Backpropagation (RPB) was experimentally demonstrated on-chip and matched the performance of a standard linear regression on a simple classification task. In addition, we applied the Contrastive Hebbian Learning (CHL) rule to a simulated neural network composed of MZI meshes for a random input-output mapping task. The CHL-trained MZI network performed better than random guessing but did not match the performance of the ideal neural network (without the constraints imposed by the MZI meshes). Through these efforts, we demonstrate that co-integrated CMOS and SiPh technologies are well-suited to the design of scalable SNN computing architectures.",
         "authors": [
-          "Alberto Castro",
-          "Luis Velasco",
-          "Lluis Gifre",
-          "Cen Chen",
-          "Jie Yin",
-          "Zuqing Zhu",
-          "Roberto Proietti",
-          "Sung-Joo Ben Yoo"
-        ],
-        "id": "1856515",
-        "type": "Scholarly  Article"
-      },
-      {
-        "title": "A Monolithic InP-based Photonic Integrated Circuit for Optical Arbitrary Waveform Generation",
-        "name": "A Monolithic InP-based Photonic Integrated Circuit for Optical Arbitrary Waveform Generation Published paper-conference 2008-02-01 Jiang OFC/NFOEC 2008 - 2008 Conference on Optical Fiber Communication/National Fiber Optic Engineers Conference",
-        "issued": "2008-02-01",
-        "abstract": "We demonstrate a compact monolithically-integrated InP optical arbitrary waveform generator, consisting of an arrayed waveguide grating pair with 10 GHz channel spacing, 10 high-speed optical amplitude modulators, and 10 high-speed optical phase modulators. © 2008 Optical Society of America.",
-        "authors": [
-          "W Jiang",
-          "FM Soares",
-          "SW Seo",
-          "JH Baek",
-          "NK Fontaine",
-          "RG Broeke",
-          "J Cao",
-          "J Yan",
-          "K Okamoto",
-          "F Olsson",
-          "S Lourdudoss",
-          "A Pham",
-          "SJ Ben Yoo",
+          "Luis El Srouji",
+          "Yun-Jhu Lee",
+          "Mehmet Berkay On",
+          "Li Zhang",
           "SJ Ben Yoo"
         ],
-        "id": "4049037",
-        "type": "Scholarly  Article"
+        "id": "4026630",
+        "type": "Scholarly Article"
       },
       {
-        "title": "Demonstration of a 6×10 gb/s multiuser time-slotted SPECTS O-CDMA Network testbed",
-        "name": "Demonstration of a 6×10 gb/s multiuser time-slotted SPECTS O-CDMA Network testbed Published paper-conference 2005-01-01 Cong Optics InfoBase Conference Papers 2162-2701",
-        "issued": "2005-01-01",
-        "abstract": "We demonstrate error-free performance of a six-user, 10 Gb/s/user, time-slotted SPECTS O-CDMA network testbed. Careful system engineering and a nonlinear thresholder effectively suppress multiuser interference. © 2005 Optical Society of America.",
+        "title": "A Model for Scalable and Balanced Accelerators for Graph Processing",
+        "name": "A Model for Scalable and Balanced Accelerators for Graph Processing Published article-journal 2022-01-01 Fariborz IEEE Computer Architecture Letters 1556-6064",
+        "issued": "2022-01-01",
+        "abstract": "Designing a graph processing system that can scale to graph sizes that are orders of magnitude larger than what is possible on a single accelerator requires a careful codesign of accelerator memory bandwidth and capacity, the interconnect bandwidth between accelerators, and the overall system architecture. We present a high-level bottleneck-analysis model for design and evaluation of scalable and balanced accelerators for graph processing. We show several applications of this model including how to choose the right mix of different memory types, network topology, network bisection bandwidth, and system-level architecture to match the access patterns and capacity requirements of different data structures for a given graph and a performance target.",
         "authors": [
-          "W Cong",
-          "RP Scott",
-          "VJ Hernandez",
-          "K Li",
-          "BH Kolner",
-          "JP Heritage",
-          "SJB Yoo"
+          "Marjan Fariborz",
+          "Mahyar Samani",
+          "Terry O'Neill",
+          "Jason Lowe-Power",
+          "SJ Ben Yoo",
+          "Venkatesh Akella"
         ],
-        "id": "635745",
-        "type": "Scholarly  Article"
+        "id": "4023928",
+        "type": "Scholarly Article"
       },
       {
-        "title": "Sinusoidal phase modulation as a gate for FROG",
-        "name": "Sinusoidal phase modulation as a gate for FROG Published paper-conference 2007-01-01 Fontaine Optics InfoBase Conference Papers 2162-2701",
-        "issued": "2007-01-01",
-        "abstract": "A sinusoidal phase-modulation gate for cross-correlation frequency-resolved optical gating (PMFROG) is demonstrated. This low-loss, linear gating technique can be used without separate gate characterization via a blind FROG algorithm with a simple intensity constraint. © 2007 Optical Society of America.",
+        "title": "LLM: Realizing Low-Latency Memory by Exploiting Embedded Silicon Photonics for Irregular Workloads",
+        "name": "LLM: Realizing Low-Latency Memory by Exploiting Embedded Silicon Photonics for Irregular Workloads Published paper-conference 2022 Fariborz Lecture Notes in Computer Science (including subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics) 1611-3349",
+        "issued": "2022",
+        "abstract": "As emerging workloads exhibit irregular memory access patterns with poor data reuse and locality, they would benefit from a DRAM that achieves low latency without sacrificing bandwidth and energy efficiency. We propose LLM (Low Latency Memory), a codesign of the DRAM microarchitecture, the memory controller and the LLC/DRAM interconnect by leveraging embedded silicon photonics in 2.5D/3D integrated system on chip. LLM relies on Wavelength Division Multiplexing (WDM)-based photonic interconnects to reduce the contention throughout the memory subsystem. LLM also increases the bank-level parallelism, eliminates bus conflicts by using dedicated optical data paths, and reduces the access energy per bit with shorter global bitlines and smaller row buffers. We evaluate the design space of LLM for a variety of synthetic benchmarks and representative graph workloads on a full-system simulator (gem5). LLM exhibits low memory access latency for traffics with both regular and irregular access patterns. For irregular traffic, LLM achieves high bandwidth utilization (over 80% peak throughput compared to 20% of HBM2.0). For real workloads, LLM achieves 3 × and 1.8 × lower execution time compared to HBM2.0 and a state-of-the-art memory system with high memory level parallelism, respectively. This study also demonstrates that by reducing queuing on the data path, LLM can achieve on average 3.4 × lower memory latency variation compared to HBM2.0.",
         "authors": [
-          "NK Fontaine",
-          "RP Scott",
-          "JP Heritage",
-          "BH Kolner",
-          "SJB Yoo"
+          "Marjan Fariborz",
+          "Mahyar Samani",
+          "Pouya Fotouhi",
+          "Roberto Proietti",
+          "Il-Min Yi",
+          "Venkatesh Akella",
+          "Jason Lowe-Power",
+          "Samuel Palermo",
+          "SJ Ben Yoo"
         ],
-        "id": "561008",
-        "type": "Scholarly  Article"
+        "id": "3826959",
+        "type": "Scholarly Article"
       },
       {
-        "title": "320-Gb/s capacity (32 users × 10 Gb/s) SPECTS O-CDMA local area network testbed",
-        "name": "320-Gb/s capacity (32 users × 10 Gb/s) SPECTS O-CDMA local area network testbed Published paper-conference 2006-12-14 Hernandez 2006 Optical Fiber Communication Conference, and the 2006 National Fiber Optic Engineers Conference",
-        "issued": "2006-12-14",
-        "abstract": "We demonstrate, for the first time, an error-free, 320-Gb/s optical code division multiple access (O-CDMA) network testbed employing the spectral phase encoded time spreading (SPECTS) technique. Results with and without forward error correction (FEC) are presented. © 2006 Optical Society of America.",
+        "title": "Photonic Interferometric Imager with monolithic silicon CMOS photonic integrated circuits",
+        "name": "Photonic Interferometric Imager with monolithic silicon CMOS photonic integrated circuits Published paper-conference 2022-01-01 Chen 2022 Optical Fiber Communications Conference and Exhibition, OFC 2022 - Proceedings",
+        "issued": "2022-01-01",
+        "abstract": "We demonstrate, for the first time to our knowledge, a monolithically-integrated photonic interferometric imager circuit with on-chip detectors, CMOS trans-impedance-amplifiers, and associated photonic imager components. A proof-of-principle demonstration of interferogram fringe generation will be discussed.",
         "authors": [
-          "VJ Hernandez",
-          "W Cong",
-          "RP Scott",
-          "C Yang",
-          "NK Fontaine",
-          "BH Kolner",
-          "JP Heritage",
+          "H Chen",
+          "MB On",
+          "YJ Yun-Jhu-Lee",
+          "L Zhang",
+          "R Proietti",
           "SJB Yoo"
         ],
-        "id": "561007",
-        "type": "Scholarly  Article"
+        "id": "3797840",
+        "type": "Scholarly Article"
+      },
+      {
+        "title": "Photonic spiking neural networks with event-driven femtojoule optoelectronic neurons based on Izhikevich-inspired model.",
+        "name": "Photonic spiking neural networks with event-driven femtojoule optoelectronic neurons based on Izhikevich-inspired model. Published article-journal 2022-05-23 Lee Optics Express 1094-4087",
+        "issued": "2022-05-23",
+        "abstract": "Photonic spiking neural networks (PSNNs) potentially offer exceptionally high throughput and energy efficiency compared to their electronic neuromorphic counterparts while maintaining their benefits in terms of event-driven computing capability. While state-of-the-art PSNN designs require a continuous laser pump, this paper presents a monolithic optoelectronic PSNN hardware design consisting of an MZI mesh incoherent network and event-driven laser spiking neurons. We designed, prototyped, and experimentally demonstrated this event-driven neuron inspired by the Izhikevich model incorporating both excitatory and inhibitory optical spiking inputs and producing optical spiking outputs accordingly. The optoelectronic neurons consist of two photodetectors for excitatory and inhibitory optical spiking inputs, electrical transistors' circuits providing spiking nonlinearity, and a laser for optical spiking outputs. Additional inclusion of capacitors and resistors complete the Izhikevich-inspired optoelectronic neurons, which receive excitatory and inhibitory optical spikes as inputs from other optoelectronic neurons. We developed a detailed optoelectronic neuron model in Verilog-A and simulated the circuit-level operation of various cases with excitatory input and inhibitory input signals. The experimental results closely resemble the simulated results and demonstrate how the excitatory inputs trigger the optical spiking outputs while the inhibitory inputs suppress the outputs. The nanoscale neuron designed in our monolithic PSNN utilizes quantum impedance conversion. It shows that estimated 21.09 fJ/spike input can trigger the output from on-chip nanolasers running at a maximum of 10 Gspike/second in the neural network. Utilizing the simulated neuron model, we conducted simulations on MNIST handwritten digits recognition using fully connected (FC) and convolutional neural networks (CNN). The simulation results show 90% accuracy on unsupervised learning and 97% accuracy on a supervised modified FC neural network. The benchmark shows our PSNN can achieve 50 TOP/J energy efficiency, which corresponds to 100 × throughputs and 1000 × energy-efficiency improvements compared to state-of-art electrical neuromorphic hardware such as Loihi and NeuroGrid.",
+        "authors": [
+          "Yun-Jhu Lee",
+          "Mehmet Berkay On",
+          "Xian Xiao",
+          "Roberto Proietti",
+          "SJ Ben Yoo"
+        ],
+        "id": "3808362",
+        "type": "Scholarly Article"
       }
     ],
     "grants": [
       {
-        "id": "K320B61-117089",
-        "title": "All-to-all optical shuffle device based on arrayed waveguide grating routers",
-        "name": "All-to-all optical shuffle device based on arrayed waveguide grating routers § Completed • 2016 - 2018 • Yoo, S. J. Ben § National Security Agency • H98230-16-C-0820",
-        "funder": "National Security Agency",
-        "status": "Completed",
-        "startDate": "2016-10-01",
-        "endDate": "2018-12-31",
-        "grantRole": "Co  Principal  Investigator  Role"
+        "id": "A252063",
+        "title": "Nanoscale Hybrids: A New Paradigm for Energy-Efficient Optoelectronics",
+        "name": " Nanoscale Hybrids: A New Paradigm for Energy-Efficient Optoelectronics § Active • 2025 - 2028 • Sung-Joo Yoo § UC Lawrence Berkeley Laboratory • 7806941",
+        "funder": "UC Lawrence Berkeley Laboratory",
+        "status": "Active",
+        "startDate": "2025-04-07",
+        "endDate": "2028-09-30",
+        "grantRole": "Grant Role,Principal Investigator Role"
       },
       {
-        "id": "K321127-1324",
-        "title": "NSF ECS-00-70444",
-        "name": "NSF ECS-00-70444 § Completed • 2000 - 2005 • Yoo, S. J. Ben § National Science Foundation • 0070444",
-        "funder": "National Science Foundation",
-        "status": "Completed",
-        "startDate": "2000-09-01",
-        "endDate": "2005-08-31",
-        "grantRole": "Grant  Role, Principal  Investigator  Role"
+        "id": "K336F32",
+        "title": "Center for Heterogeneous Integration of Micro Electronic Systems CHIMES",
+        "name": "Center for Heterogeneous Integration of Micro Electronic Systems CHIMES § Active • 2023 - 2027 • Sung-Joo Yoo § Pennsylvania State University • S003605-SRC",
+        "funder": "Pennsylvania State University",
+        "status": "Active",
+        "startDate": "2023-01-01",
+        "endDate": "2027-12-31",
+        "grantRole": "Grant Role,Principal Investigator Role"
       },
       {
-        "id": "K321280-1477",
-        "title": "COLLABORATIVE RESEARCH:  NETS-NBD:  INTELLIGENT AND ADAPTIVE NETWORKING FOR THE NEXT GENERATION INTERNET",
-        "name": "COLLABORATIVE RESEARCH:  NETS-NBD:  INTELLIGENT AND ADAPTIVE NETWORKING FOR THE NEXT GENERATION INTERNET § Completed • 2005 - 2008 • Yoo, S. J. Ben § National Science Foundation • 0520333",
-        "funder": "National Science Foundation",
-        "status": "Completed",
-        "startDate": "2005-08-15",
-        "endDate": "2008-07-31",
-        "grantRole": "Co  Principal  Investigator  Role"
+        "id": "A241119",
+        "title": "Mixed-Precision-PCM-GaAs-MemResonator-NaPSAC",
+        "name": " Mixed-Precision-PCM-GaAs-MemResonator-NaPSAC § Active • 2023 - 2027 • Sung-Joo Yoo § Defense Advanced Research Projects Agency • N660012424005",
+        "funder": "Defense Advanced Research Projects Agency",
+        "status": "Active",
+        "startDate": "2023-11-01",
+        "endDate": "2027-10-31",
+        "grantRole": "Grant Role,Principal Investigator Role"
       },
       {
-        "id": "K321451-1648",
-        "title": "COLLABORATIVE RESEARCH:  NETS-NR:  HIGH-PERFORMANCE NEXT GENERATION NETWORKING TECHNOLOGY AND SYSTEMS FOR HETEROGENEOUS NETWORKS",
-        "name": "COLLABORATIVE RESEARCH:  NETS-NR:  HIGH-PERFORMANCE NEXT GENERATION NETWORKING TECHNOLOGY AND SYSTEMS FOR HETEROGENEOUS NETWORKS § Completed • 2004 - 2008 • Yoo, S. J. Ben § National Science Foundation • 0435529",
-        "funder": "National Science Foundation",
-        "status": "Completed",
-        "startDate": "2004-10-01",
-        "endDate": "2008-09-30",
-        "grantRole": "Grant  Role, Co  Principal  Investigator  Role"
+        "id": "A252002",
+        "title": "Energy-Efficient, Scalable, and Self-Learning Optoelectronic Neurons and Neural Networks",
+        "name": " Energy-Efficient, Scalable, and Self-Learning Optoelectronic Neurons and Neural Networks § Active • 2025 - 2026 • Sung-Joo Yoo § DOD National Reconnaissance Office • NRO000-25-9-0065",
+        "funder": "DOD National Reconnaissance Office",
+        "status": "Active",
+        "startDate": "2025-01-13",
+        "endDate": "2026-07-12",
+        "grantRole": "Grant Role,Principal Investigator Role"
       },
       {
-        "id": "K321661-1859",
-        "title": "UCB MCA: INTERACTIVE VISUALIZATION AND EXPLORATION OF MASSIVE MULTISOURCE DATA STREAMS IN COLLABORATIVE ENVIRONMENTS USING PARALLEL AND DISTRIBUTED COMPUTING",
-        "name": "UCB MCA: INTERACTIVE VISUALIZATION AND EXPLORATION OF MASSIVE MULTISOURCE DATA STREAMS IN COLLABORATIVE ENVIRONMENTS USING PARALLEL AND DISTRIBUTED COMPUTING § Completed • 2001 - 2006 • Hamann, Bernd § National Science Foundation • NSF-EIA-01-22599",
-        "funder": "National Science Foundation",
-        "status": "Completed",
-        "startDate": "2001-10-01",
-        "endDate": "2006-09-30",
-        "grantRole": "Co  Principal  Investigator  Role"
+        "id": "A240969",
+        "title": "California-Pacific-Northwest AI Hardware Microelectronics Commons Hub (Northwest-AI-Hub)",
+        "name": " California-Pacific-Northwest AI Hardware Microelectronics Commons Hub (Northwest-AI-Hub) § Active • 2023 - 2025 • Sung-Joo Yoo § Stanford University • 63353801-290856",
+        "funder": "Stanford University",
+        "status": "Active",
+        "startDate": "2023-11-17",
+        "endDate": "2025-09-30",
+        "grantRole": "Grant Role,Principal Investigator Role"
+      }
+    ]
+  },
+  {
+    "expertId": "PweNBqy2",
+    "type": "Expert",
+    "firstName": "Bruce",
+    "middleName": "D",
+    "lastName": "Hammock",
+    "fullName": "Bruce D Hammock",
+    "title": "Professor",
+    "organizationUnit": "Entomology and Nematology",
+    "lastModified": "2025-05-02T23:16:47.486701231Z",
+    "url": "expert/PweNBqy2",
+    "works": [
+      {
+        "title": "A Soluble Epoxide Hydrolase Inhibitor Improves Cerebrovascular Dysfunction, Neuroinflammation, Amyloid Burden, and Cognitive Impairments in the hAPP/PS1 TgF344-AD Rat Model of Alzheimer’s Disease",
+        "name": "A Soluble Epoxide Hydrolase Inhibitor Improves Cerebrovascular Dysfunction, Neuroinflammation, Amyloid Burden, and Cognitive Impairments in the hAPP/PS1 TgF344-AD Rat Model of Alzheimer’s Disease Published article-journal 2025-03-08 Fang International Journal of Molecular Sciences 1422-0067",
+        "issued": "2025-03-08",
+        "abstract": "Alzheimer's disease (AD) is an increasing global healthcare crisis with few effective treatments. The accumulation of amyloid plaques and hyper-phosphorylated tau are thought to underlie the pathogenesis of AD. However, current studies have recognized a prominent role of cerebrovascular dysfunction in AD. We recently reported that SNPs in soluble epoxide hydrolase (sEH) are linked to AD in human genetic studies and that long-term administration of an sEH inhibitor attenuated cerebral vascular and cognitive dysfunction in a rat model of AD. However, the mechanisms linking changes in cerebral vascular function and neuroprotective actions of sEH inhibitors in AD remain to be determined. This study investigated the effects of administration of an sEH inhibitor, 1-(1-Propanoylpiperidin-4-yl)-3-[4-(trifluoromethoxy)phenyl]urea (TPPU), on neurovascular coupling, blood-brain barrier (BBB) function, neuroinflammation, and cognitive dysfunction in an hAPP/PS1 TgF344-AD rat model of AD. We observed predominant β-amyloid accumulation in the brains of 9-10-month-old AD rats and that TPPU treatment for three months reduced amyloid burden. The functional hyperemic response to whisker stimulation was attenuated in AD rats, and TPPU normalized the response. The sEH inhibitor, TPPU, mitigated capillary rarefaction, BBB leakage, and activation of astrocytes and microglia in AD rats. TPPU increased the expression of pre- and post-synaptic proteins and reduced loss of hippocampal neurons and cognitive impairments in the AD rats, which was confirmed in a transcriptome and GO analysis. These results suggest that sEH inhibitors could be a novel therapeutic strategy for AD.",
+        "authors": [
+          "Xing Fang",
+          "Jane J Border",
+          "Huawei Zhang",
+          "Lavanya Challagundla",
+          "Jasleen Kaur",
+          "Sung Hee Hwang",
+          "Bruce D Hammock",
+          "Fan Fan",
+          "Richard J Roman"
+        ],
+        "id": "4900827",
+        "type": "Scholarly Article"
+      },
+      {
+        "title": "Comparative analysis of immunization strategies for broad-specificity antibody preparation and immunoassay development for sulfonamides detection in chicken and pork samples",
+        "name": "Comparative analysis of immunization strategies for broad-specificity antibody preparation and immunoassay development for sulfonamides detection in chicken and pork samples Published article-journal 2025-05 Xiao Food Bioscience 2212-4306",
+        "issued": "2025-05",
+        "abstract": "With the widespread use of sulfonamides (SAs) as veterinary drugs, the levels and diversity of residues in food are increasing. Rapid monitoring of SAs with high throughput is essential to ensure food safety and protect human health. Thus, the preparation for broad-specificity antibodies against a class of drugs has garnered considerable attention in recent years. This study systematically investigated the effectiveness of various immunization strategies—single-sulfonamide immunogen, designed-hapten immunogen, and multi-immunogen—using a total of 13 immunogens to prepare broad-specificity monoclonal antibodies (mAbs) targeting 30 SAs. Three mAbs with different broad spectrum were successfully obtained, which could identify up to 25 different types of SAs. Computational simulation and molecular docking revealed that the –SO2NH– moiety was the critical binding site for broad-specificity mAbs. Additionally, the lateral flow immunoassays were developed to detect SAs in chicken and pork samples with the recovery ranging from 86.1% to 105.1% and the coefficient of variation ranging from 2.1% to 10.9%. Overall, this study presents a systematic comparison of immunization strategies for preparing broad-specificity antibodies and provides both theoretical and practical insights into the production of these antibodies using a multi-immunogen approach. It provides a powerful tool for the efficient detection of SAs veterinary drugs in food, thus reinforcing safeguards for food safety.",
+        "authors": [
+          "Xiaoyue Xiao",
+          "Zhenzhen Chen",
+          "Jiawei Chen",
+          "Yanyan Tang",
+          "Gan Zhang",
+          "Juan Peng",
+          "Daofeng Liu",
+          "Bruce D Hammock",
+          "Weihua Lai"
+        ],
+        "id": "4917359",
+        "type": "Scholarly Article"
+      },
+      {
+        "title": "Comprehensive Nontargeted Analysis of Drinking Water Supplies to Identify Chemicals Associated with Estrogen Receptor Agonism or Present in Regions of Elevated Breast Cancer Occurrence",
+        "name": "Comprehensive Nontargeted Analysis of Drinking Water Supplies to Identify Chemicals Associated with Estrogen Receptor Agonism or Present in Regions of Elevated Breast Cancer Occurrence Published article-journal 2025-03-18 Black Environmental Science and Technology 1520-5851",
+        "issued": "2025-03-18",
+        "abstract": "To explore the hypothesis that differential exposures to estrogen active chemicals may contribute to regional disparities in cancer incidence, a comprehensive targeted and nontargeted analysis was conducted over two seasons (2020) for drinking water samples from 120 households served by 8 public water systems (4 with historically elevated breast cancer incidence) and from 15 brands of retail water. All samples were analyzed using gas and liquid chromatography with high-resolution mass spectrometry and a bioassay for estrogen receptor agonism. Target compounds included disinfection byproducts, per- and polyfluoroalkyl substances (PFAS), trace elements, and compounds selected for their possible relation to breast cancer. Over 7500 GC and LC nontargeted molecular features passed all quality control filters in each sampling season and were prioritized for identification if they were related to measured estrogen receptor agonism or were present at higher levels in areas with high breast cancer incidence (n = 1036). Benzothiazole-2-sulfonic acid, acetyl tributyl citrate, and diphenyl sulfone were among the prioritized and confirmed nontarget compounds. Nine polycyclic aromatic hydrocarbons and two ketone derivatives displayed significant negative correlations with estrogen receptor agonism. Many prioritized compounds remained unidentified, as 84.4% of the LC features and 77.5% of the GC features could not be annotated with high confidence.",
+        "authors": [
+          "Gabrielle P Black",
+          "Berkley N Anderson",
+          "Luann Wong",
+          "Christopher P Alaimo",
+          "Guochun He",
+          "Michael S Denison",
+          "Deborah H Bennett",
+          "Daniel Tancredi",
+          "Blythe Durbin-Johnson",
+          "Bruce D Hammock",
+          "Pujeeta Chowdhary",
+          "Rainbow Rubin",
+          "Thomas M Young"
+        ],
+        "id": "4880083",
+        "type": "Scholarly Article"
+      },
+      {
+        "title": "Correction: Novel inhibition of AKR1C3 and androgen receptor axis by PTUPB synergizes enzalutamide treatment in advanced prostate cancer",
+        "name": "Correction: Novel inhibition of AKR1C3 and androgen receptor axis by PTUPB synergizes enzalutamide treatment in advanced prostate cancer Published article-journal 2025-04-10 Yang Oncogene 1476-5594",
+        "issued": "2025-04-10",
+        "abstract": "Correction to: Oncogenehttps://doi.org/10.1038/s41388-022-02566-6, published online 3 January 2023 Following the publication of this article, the authors noted in Figure 5F the image panel for the control AR-V7 staining was inadvertently duplicated with the Enza Ki67 staining. This has now been corrected and the correct Figure is shown below. The quantification was analyzed using 1-2 representative tumors per group with three view areas. The authors apologise for any inconvenience caused by this unintentional error. New Fig 5: (Figure presented.) Former Fig 5: (Figure presented.) The original article has been corrected.",
+        "authors": [
+          "Joy C Yang",
+          "Pengfei Xu",
+          "Shu Ning",
+          "Logan J Wasielewski",
+          "Hans Adomat",
+          "Sung Hee Hwang",
+          "Christophe Morisseau",
+          "Martin Gleave",
+          "Eva Corey",
+          "Allen C Gao",
+          "Primo N Lara Jr",
+          "Christopher P Evans",
+          "Bruce D Hammock",
+          "Chengfei Liu"
+        ],
+        "id": "4923257",
+        "type": "Scholarly Article"
+      },
+      {
+        "title": "Development of a nanobody-based immunoassay for the analysis of the disinfectant triclosan in water",
+        "name": "Development of a nanobody-based immunoassay for the analysis of the disinfectant triclosan in water Published article-journal 2025-09 Xu Talanta 1873-3573",
+        "issued": "2025-09",
+        "abstract": "Triclosan (TCS), a broad-spectrum antimicrobial agent in pharmaceuticals and personal care products, necessitates environmental monitoring due to its antimicrobial properties and widespread in the environment. In this study, two anti-TCS single-domain antibodies (i.e., nanobodies, Nbs), T1 and T2, were isolated from a phage-displayed Nb library derived from a camel immunized with a mixture of TCS immunogens. The T1-based enzyme-linked immunosorbent assay (ELISA) exhibited a better sensitivity to TCS than the T2-base ELISA. Motivation at enhancing specificity, sensitivity, and stability of Nb-based immunoassays promoted exploring use of a bivalent strategy to enhance performance. The bivalent Nb T1-T1 was tandemized via a linker-(GGGGS)3- between. The thermal stability of the bivalent Nb was improved in comparison with that of a monovalent Nb. The sensitivity of T1-T1-based ELISA, with an IC50 value of 4.3 ng mL-1 of TCS, was improved approximately 2-3 fold in comparison to those of T1-or T2-based ELISAs (8.5 and 14.6 ng mL-1, respectively). The average recovery of TCS from water samples measured with T1-T1-based ELISA was in the range of 99-125 %, which correlated well with that measured by a high-performance liquid chromatography (HPLC) method (R2 > 0.99). TCS in river water samples was detected by the resultant ELISA and an HPLC method, showing a satisfactory correlation.",
+        "authors": [
+          "Bojie Xu",
+          "Xiangyu Zhang",
+          "Kai Wang",
+          "Xianle Xue",
+          "Surat Hongsibsong",
+          "Christophe Morisseau",
+          "Qing X Li",
+          "Bruce D Hammock",
+          "Ting Xu"
+        ],
+        "id": "4903874",
+        "type": "Scholarly Article"
       }
     ],
-    "lastModified": "",
-    "cache_session": "session_1746826269112",
-    "cachedAt": ""
+    "grants": [
+      {
+        "id": "K370C47",
+        "title": "Bioactive lipids as effectors and indicators of the deleterious effects of environmental exposure on chronic diseases",
+        "name": "Bioactive lipids as effectors and indicators of the deleterious effects of environmental exposure on chronic diseases § Active • 2019 - 2026 • Bruce Hammock § Environmental Health Sciences National Institute Of • R35ES030443",
+        "funder": "Environmental Health Sciences National Institute Of",
+        "status": "Active",
+        "startDate": "2019-06-15",
+        "endDate": "2026-04-30",
+        "grantRole": "Grant Role,Principal Investigator Role"
+      },
+      {
+        "id": "A251690",
+        "title": "Development of Novel Inhibitors of Soluble Epoxide Hydrolase Specifically to Treat Alzheimer's Disease",
+        "name": " Development of Novel Inhibitors of Soluble Epoxide Hydrolase Specifically to Treat Alzheimer's Disease § Active • 2024 - 2025 • Bruce Hammock § Uh Harrington Discovery Instit • A25-1690",
+        "funder": "Uh Harrington Discovery Instit",
+        "status": "Active",
+        "startDate": "2024-12-01",
+        "endDate": "2025-11-30",
+        "grantRole": "Grant Role,Principal Investigator Role"
+      },
+      {
+        "id": "K382F15",
+        "title": "Soluble epoxide hydrolase and epoxide fatty acidinvolvement in corneal injury after ammoniaexposure Mechanisms of injury and potential",
+        "name": "Soluble epoxide hydrolase and epoxide fatty acidinvolvement in corneal injury after ammoniaexposure Mechanisms of injury and potential § Active • 2023 - 2025 • Bruce Hammock § Augusta University • 38878-1",
+        "funder": "Augusta University",
+        "status": "Active",
+        "startDate": "2023-09-01",
+        "endDate": "2025-08-31",
+        "grantRole": "Grant Role,Principal Investigator Role"
+      },
+      {
+        "id": "K376F80",
+        "title": "Vascular mechanisms of inhibition of sEH as a novel therapy for AD ADRDPRIME 1RF1AG079336",
+        "name": "Vascular mechanisms of inhibition of sEH as a novel therapy for AD ADRDPRIME 1RF1AG079336 § Active • 2022 - 2025 • Bruce Hammock § University Of Mississippi • SP14581-SB1",
+        "funder": "University Of Mississippi",
+        "status": "Active",
+        "startDate": "2022-08-15",
+        "endDate": "2025-07-31",
+        "grantRole": "Grant Role,Principal Investigator Role"
+      },
+      {
+        "id": "K370D33",
+        "title": "Biomarkers of Exposure to Hazardous Substances YR 33",
+        "name": "Biomarkers of Exposure to Hazardous Substances YR 33 § Completed • 2021 - 2025 • Bruce Hammock § Environmental Health Sciences National Institute Of • P42ES004699",
+        "funder": "Environmental Health Sciences National Institute Of",
+        "status": "Completed",
+        "startDate": "2021-04-01",
+        "endDate": "2025-03-31",
+        "grantRole": "Grant Role,Principal Investigator Role"
+      }
+    ]
   }
 ]

@@ -6,7 +6,7 @@
  * Zoey Vo, Loc Nguyen, 2025
  */
 
-const { fetchFromApi } = require('../utils/fetchingUtils');
+const { postRequestApi } = require('../utils/fetchingUtils');
 
 /**
  * Fetches expert data with works and grants
@@ -14,12 +14,19 @@ const { fetchFromApi } = require('../utils/fetchingUtils');
  * @param {number} limit - Number of works/grants default is 1
  * @returns {Object} Expert data with works and grants
  */
-async function getExpertData(expertId, worksLimit=1, grantsLimit=1) {
+async function getExpertData(expertId, worksLimit = 1, grantsLimit = 1) {
   if (!expertId) throw new Error('Expert ID required');
 
   try {
-    const data = await fetchFromApi(`https://experts.ucdavis.edu/api/expert/${expertId}`);
-    if (!data || typeof data !== 'object') throw new Error(`Invalid data for expert ${expertId}`);    
+    const params = {
+      "is-visible": true,
+      "expert": { "include": true },
+      "grants": { "include": true, "page": 1, "size": 5, "exclude": ["totalAwardAmount"], "includeMisformatted": false, "sort": [{ "field": "dateTimeInterval.end.dateTime", "sort": "desc", "type": "date" }, { "field": "name", "sort": "asc", "type": "string" }] },
+      "works": { "include": true, "page": 1, "size": 5, "exclude": [], "includeMisformatted": false, "sort": [{ "field": "issued", "sort": "desc", "type": "year" }, { "field": "title", "sort": "asc", "type": "string" }] }
+    };
+
+    const data = await postRequestApi(`https://experts.ucdavis.edu/api/expert/${expertId}`, params, null);
+    if (!data || typeof data !== 'object') throw new Error(`Invalid data for expert ${expertId}`);
 
     // Basic expert info
     const result = {
@@ -39,25 +46,25 @@ async function getExpertData(expertId, worksLimit=1, grantsLimit=1) {
     // Process graph data if available
     if (data["@graph"]?.length) {
       const items = data["@graph"];
-      
+
       // Extract works and grants
-      const works = items.filter(item => 
-        item["@type"] && Array.isArray(item["@type"]) && item["title"] && 
+      const works = items.filter(item =>
+        item["@type"] && Array.isArray(item["@type"]) && item["title"] &&
         (item["@type"].includes("ScholarlyArticle") || item["@type"].includes("Article"))
       );
-      
-      const grants = items.filter(item => 
-        item["@type"] && Array.isArray(item["@type"]) && 
+
+      const grants = items.filter(item =>
+        item["@type"] && Array.isArray(item["@type"]) &&
         item["@type"].includes("Grant")
       );
-      
+
       // Process with limit
       result.works = processItems(works, worksLimit, processWork);
       result.grants = processItems(grants, grantsLimit, processGrant);
-      
+
       //console.log(`Expert ${expertId}: ${works.length} works (${result.works.length} processed), ${grants.length} grants (${result.grants.length} processed)`);
     }
-    
+
     return result;
   } catch (error) {
     console.error(`Error fetching expert ${expertId}:`, error.message);
@@ -80,21 +87,21 @@ function processItems(items, limit, processFn) {
 // Process a single work item
 function processWork(work) {
   const { title = '', abstract = '', issued = '', author = [], '@id': id = '' } = work;
-  
+
   // Format publication details
   const publicationTitle = work.hasPublicationVenue?.name || work['container-title'] || '';
   const authorName = author[0]?.family || '';
   const identifier = work.eissn || work.ISSN || '';
-  
+
   // Create name
-  const name = publicationTitle 
+  const name = publicationTitle
     ? `${title} Published ${work.type || ''} ${issued} ${authorName} ${publicationTitle} ${identifier}`.trim().replace(/\s+/g, ' ')
     : title;
 
   // Get specific work type
   const typeData = work['@type'];
   let type = !typeData ? '' : (
-    Array.isArray(typeData) 
+    Array.isArray(typeData)
       ? (typeData.find(t => t && t !== 'Work') || '')
       : (typeof typeData === 'string' && typeData.includes('Work,') ? typeData.replace('Work,', '').trim() : typeData)
   );
@@ -112,15 +119,15 @@ function processWork(work) {
 
 // Process a single grant item
 function processGrant(grant) {
-  const { 
-    '@id': id = '', 
-    name: grantName = '', 
-    assignedBy = {}, 
-    status = '', 
-    dateTimeInterval = {}, 
-    relatedBy = [] 
+  const {
+    '@id': id = '',
+    name: grantName = '',
+    assignedBy = {},
+    status = '',
+    dateTimeInterval = {},
+    relatedBy = []
   } = grant;
-  
+
   // Extract title from name if needed
   let title = grantName;
   if (typeof grantName === 'string' && grantName.includes('§')) {
@@ -128,7 +135,7 @@ function processGrant(grant) {
   }
 
   // Get grant role
-  let grantRole = !relatedBy || !Array.isArray(relatedBy) ? '' : 
+  let grantRole = !relatedBy || !Array.isArray(relatedBy) ? '' :
     relatedBy.find(rel => rel?.['@type'])?.['@type'] || '';
   grantRole = splitCamelPascal(String(grantRole));
   return {
