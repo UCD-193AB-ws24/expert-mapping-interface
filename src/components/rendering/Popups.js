@@ -94,7 +94,7 @@ export const createSingleExpertContent = (locationName, entries, isPopup = true)
 export const createMultiExpertContent = (expertCount, locationName, totalWorks, matchedFields = []) => `
   <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
     <div style="font-weight: bold; font-size: 16px; color: #3879C7;">
-      ${expertCount} Experts at this Location
+      ${expertCount} Expert${expertCount === 1 ? '' : 's'} at this Location
     </div>
     <div style="font-size: 14px; color: #333; margin-top: 5px;">
       <strong>Location:</strong> ${locationName || "Unknown"}
@@ -105,38 +105,10 @@ export const createMultiExpertContent = (expertCount, locationName, totalWorks, 
     <a href='#'
        class="view-w-experts-btn"
        style="display: block; margin-top: 12px; padding: 8px 10px; background: #3879C7; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;">
-      View Experts
+      View Expert${expertCount === 1 ? '' : 's'}
     </a>
   </div>
 `;
-
-// Generates HTML content for a popup displaying details about a single grant.
-export const createGrantPopupContent = (grant) => {
-  const rawTitle = grant.title || "";
-  const cleanTitle = rawTitle.split("ยง")[0].trim().replace(/^"+|"+$/g, ""); // remove leading/trailing quotes
-  return `
-  <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
-<div style="margin-top: 4px;">
-        <strong>Grant:</strong> ${cleanTitle || "Unknown"}
-      </div>
-      <div style="margin-top: 4px;">
-        <strong>Expert:</strong> ${grant.expert_name || "Unknown"}
-      </div>
-      <div style="margin-top: 4px;">
-        <strong>Location:</strong> ${grant.location_name || "Unknown"}
-      </div>
-      <div style="margin-top: 4px;">
-        <strong>Funder:</strong> ${grant.funder || "Unknown"}
-      </div>
-      <a href='${grant.expert_url || "#"}' 
-         target='_blank'
-         rel="noopener noreferrer"
-         style="display: block; margin-top: 12px; padding: 8px 10px; background: #eda012; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold; opacity: ${(grant.expert_url) ? '1' : '0.6'}; cursor: ${(grant.expert_url) ? 'pointer' : 'default'}">
-        ${grant.expert_url ? "View Expert Profile" : "No Profile Found"}
-      </a>
-    </div>
-  `;
-};
 
 // Generates HTML content for a popup displaying the number of grants at a specific location.
 export const createMultiGrantPopup = (expertCount, grantCount, locationName = []) => `
@@ -153,7 +125,7 @@ export const createMultiGrantPopup = (expertCount, grantCount, locationName = []
     <a href='#'
        class='view-g-experts-btn'
        style='display: block; margin-top: 12px; padding: 8px 10px; background: #eda012; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
-      View Grants
+      View Expert${expertCount === 1 ? '' : 's'}
     </a>
   </div>
 `;
@@ -204,5 +176,4 @@ export const createMatchedCombinedPolygonPopup = (
     </a>
   </div>
 `;
-
 

@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -19,21 +17,22 @@ import "leaflet/dist/leaflet.css";
  * Marina Mata, 2025
  */
 
+const MapWrapper = ({ children, mapRef }) => {
 
-
-const MapWrapper = ({ children }) => {
   return (
     <MapContainer
       center={[30, 0]} // Initial center of the map [latitude, longitude].
       zoom={2} // Initial zoom level.
       minZoom={2} // Minimum zoom level to prevent excessive zooming out.
       maxZoom={12} // Maximum zoom level to prevent excessive zooming in.
-      // style={{ height: "100%", width: "100%" }} // Full height and width to fit the container.
       maxBounds={[
         [-80, -200], // Southwest corner of the map bounds
         [85, 200]    // Northeast corner of the map bounds
       ]}
       maxBoundsViscosity={1.0} // Viscosity for the bounds to prevent panning outside the defined area.
+      whenCreated={(mapInstance) => {
+        if (mapRef) mapRef.current = mapInstance;
+      }}
     >
       {/* Add a TileLayer to render the base map using OpenStreetMap tiles. */}
       <TileLayer

@@ -54,6 +54,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
   const [combinedKeys, setCombinedKeys] = useState(new Set());
   const mapRef = useRef(null);
   const [locationName, setLocationName] = useState("Unknown");
+  const [zoomLevel, setZoomLevel] = useState(2);
+
 
   /**
      * useEffect: Fetch GeoJSON data for works and grants.
@@ -121,11 +123,25 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     loadGeoData();
   }, []);
 
- /**
-   * Helper function to filter works by issued year.
-   * @param {object} entry - A work entry object.
-   * @returns {boolean} True if the work matches the selected date range, otherwise false.
+  /**
+   * useEffect: Attach a zoom event listener to the map.
+   * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
    */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) {
+      map.on("zoomend", () => {
+        setZoomLevel(map.getZoom());
+        console.log("Current zoom level:", map.getZoom());
+      });
+    }
+  }, []);
+
+  /**
+    * Helper function to filter works by issued year.
+    * @param {object} entry - A work entry object.
+    * @returns {boolean} True if the work matches the selected date range, otherwise false.
+    */
   const isWorkInDate = (entry) => {
     if (!selectedDateRange || selectedDateRange.length !== 2) return true;
     const issuedYear = parseInt(entry.issued, 10);
@@ -187,7 +203,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     }
     : null;
   ;
- 
+
   // Apply keyword filter on top of date filter
   const keywordFilteredWorkGeoJSON = dateFilteredWorkGeoJSON
     ? {
@@ -240,11 +256,40 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     showGrants
   );
 
-
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
-        <MapWrapper>
+        <button
+          onClick={() => {
+            const map = mapRef.current;
+            if (map) {
+              map.setView([30, 0], 2); // or use your constants if you prefer
+              setZoomLevel(2);
+            }
+          }}
+          style={{
+            position: "absolute",
+            top: "15px",
+            right: "15px",
+            zIndex: 1002,
+            padding: "8px 14px",
+            backgroundColor: "#2f6bb3", // Slightly deeper shade
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontWeight: "500",
+            cursor: "pointer",
+            fontSize: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
+          }}
+        >
+          Reset Map
+        </button>
+
+        <MapWrapper mapRef={mapRef}>
           {/* Combined location layer */}
           {((showWorks && showGrants) || searchKeyword) && (
             <CombinedLayer
@@ -261,7 +306,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               searchKeyword={searchKeyword}
             />
           )}
-          
+
           {/* Works layer */}
           {(showWorks || searchKeyword) && (
             <WorkLayer
@@ -287,7 +332,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
               combinedKeys={combinedKeys}
-              
+
             />
           )}
         </MapWrapper>
