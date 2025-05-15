@@ -1,270 +1,88 @@
-/* 
-*
-* populateRedis.js
-*
-* Problem: Need a script that can populate a Redis database to act as a man-in-the-middle between 
-* PostgreSQL and the frontend.
-* 
-* Solution:
-* Runs fetchFeatures.js to fetch data from PostgreSQL, parses (and sanitizes) it, and stores it in Redis as the primary database and cache.
-*
-* Usage: First run: 
-* `node src/server.js` to start the server, 
-* run entire pipeline up until fetchFeatures.js,
-* then run this script:
-* `node src/backend/redis/populateRedis.js`
-*
-*/
 require('dotenv').config();
+const { Pool } = require('pg');
 const { createClient } = require('redis');
-const fs = require('fs').promises;
-const path = require('path');
-const { exec } = require('child_process'); 
+const { initializeRedis } = require('./utils/initializeRedis');
+const { syncRedisWithPostgres } = require('./utils/syncRedis');
 
-// Helper function to sanitize strings
-function sanitizeString(input) {
-  if (!input) return '';
-  return input
-    .replace(/[^\w\s.-]/g, '') // Remove special characters except word characters, spaces, hyphens, and periods
-    .replace(/\s+/g, ' ')      // Replace multiple spaces with a single space
-    .trim();                   
+// PostgreSQL connection
+const pool = new Pool({
+  user: process.env.PG_USER,
+  host: process.env.SERVER_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
+});
+
+// Redis connection
+const redisClient = createClient({
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+});
+redisClient.on('error', (err) => {
+  console.error('❌ Redis error:', err);
+});
+redisClient.on('connect', () => {
+  console.log('✅ Redis connected successfully');
+});
+redisClient.on('end', () => {
+  console.log('🔌 Redis connection closed');
+});
+
+
+async function updateMetadata(redisClient, type) {
+  const prefix = `${type}:`;
+  const metadataKey = `${type}:metadata`;
+
+  // Fetch all keys for the given type
+  const allKeys = await redisClient.keys(`${prefix}*`);
+
+  // Filter out entry keys and the metadata key itself
+  const relevantKeys = allKeys.filter(
+    (key) => !key.includes(':entry:') && key !== metadataKey
+  );
+
+  // Update metadata
+  const metadata = {
+    total_keys: relevantKeys.length,
+    last_updated: new Date().toISOString(),
+  };
+
+  await redisClient.hSet(metadataKey, metadata);
+  console.log(`🔄 Updated ${metadataKey}:`, metadata);
 }
 
-const redisClient = createClient(process.env.REDIS_HOST, process.env.REDIS_PORT);
+/**
+ * Compare PostgreSQL and Redis data and update Redis with differences
+ * @param {Object} pgClient - The PostgreSQL client instance
+ */
 
-async function populateRedis() {
+(async () => {
   try {
+    console.log('🚀 Starting populateRedis script...');
     await redisClient.connect();
+    const pgClient = await pool.connect();
 
-    // Run fetchFeatures.js
-    await new Promise((resolve, reject) => {
-      exec('node ../postgis/fetchFeatures.js', { cwd: path.join(__dirname, '../redis') }, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`❌ Error running fetchFeatures.js: ${error.message}`);
-          return reject(error);
-        }
-        if (stderr) {
-          console.error(`❌ Error output from fetchFeatures.js: ${stderr}`);
-          return reject(new Error(stderr));
-        }
-        // console.log(`✅ fetchFeatures.js output: ${stdout}`);
-        resolve();
-      });
-    });
+    console.log('🔍 Checking if Redis is empty...');
+    const keys = await redisClient.keys('*');
 
-    async function checkTimestamp(key) {
-      // Check if Redis already has metadata keys and compare timestamps
-      const metadata = await redisClient.hGetAll(key);
-
-      if (metadata && metadata.timestamp) {
-        console.log(`🔍 Existing metadata found in Redis: ${key} has timestamp of ${metadata.timestamp}.`);
-      }
-      const timestamp = metadata.timestamp;
-      return {timestamp};
+    if (keys.length === 0) {
+      console.log('⏳ Redis is empty. Initializing with data from PostgreSQL...');
+      await initializeRedis(redisClient, pgClient);
+      // Initialize metadata keys
+      await updateMetadata(redisClient, 'work');
+      await updateMetadata(redisClient, 'grant');
+      console.log('✅ Redis initialization complete.');
+    } else {
+      console.log('🔄 Redis contains data. Syncing with PostgreSQL...');
+      await syncRedisWithPostgres(pgClient, redisClient);
     }
+    pgClient.release();
 
-    // Purpose of different functions: workFeatures.json and grantFeatures.json have different entry structures.
-    async function processWorkGeoJSON(filePath) {
-      const workGeoData = await fs.readFile(filePath, 'utf8');
-      const workGeoJson = JSON.parse(workGeoData);
-      const metadataKey = 'work:metadata'
-      const oldTimeStamp = await checkTimestamp(metadataKey);
-      const { count, timestamp } = workGeoJson.metadata;
-      if(oldTimeStamp && timestamp == oldTimeStamp)
-      {
-        console.log('No new data to update! Skipping this function!');
-        return;
-      }
-      console.log(`💾 New data found with timestamp: ${timestamp}. Continuing with populating Redis...`)
-      for (const workFeature of workGeoJson.features) {
-        const featureID = workFeature.id; // ID attached to each feature can be thought of as a location ID as each feature is a location with related works and experts
-        const { geometry, properties } = workFeature;
-        const { coordinates, type: geometryType } = geometry;
-        const {
-          name,
-          type,
-          class: featureClass,
-          country,
-          entries,
-          location,
-          osm_type,
-          place_rank,
-          display_name,
-          id,
-          source,
-        } = properties;
-
-      const workFeatureKey = `work:${featureID}`;
-
-      try {
-        await redisClient.hSet(workFeatureKey, {
-        id: featureID || '',
-        geometry_type: geometryType || '',
-        coordinates: JSON.stringify(coordinates) || '[]',
-        type: type || '',
-        class: featureClass || '',
-        location: location || '',
-        country: country || '',
-        place_rank: place_rank || '',
-        display_name: display_name || '',
-        osm_type: osm_type || '',
-        source: source || '',
-        });
-
-        console.log(`✅ Successfully stored work: ${featureID}`);
-
-        if (Array.isArray(entries)) {
-        for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i];
-          const entryKey = `work:${featureID}:entry:${i + 1}`;
-
-          await redisClient.hSet(entryKey, {
-          id: entry.id || 'Unknown WorkID',
-          title: sanitizeString(entry.title) || '',
-          fullTitle: sanitizeString(entry.name) || '',
-          issued: Array.isArray(entry.issued)
-                ? JSON.stringify(entry.issued) || '[]'
-                : entry.issued || '',
-          authors: entry.authors ? JSON.stringify(entry.authors) : '[]',
-          abstract: sanitizeString(entry.abstract) || '',
-          confidence: entry.confidence || '',
-          related_experts: entry.relatedExperts
-            ? JSON.stringify(entry.relatedExperts)
-            : '[]',
-          });
-
-          console.log(`✅ Successfully stored work entry: ${entryKey}`);
-        }
-        }
-      } catch (error) {
-        console.error(`❌ Error storing ${workFeatureKey}`, error);
-      }
-      }
-
-      await redisClient.hSet(`work:metadata`, {
-      count: count.toString(),
-      timestamp,
-      });
-
-      console.log(`✅ Work metadata stored in Redis.`);
-    }
-    
-    async function processGrantGeoJSON(filePath) {
-      const grantGeoData = await fs.readFile(filePath, 'utf8');
-      const grantGeoJson = JSON.parse(grantGeoData);
-      const metadataKey = 'grant:metadata'
-      const oldTimeStamp = await checkTimestamp(metadataKey);
-      const { count, timestamp } = grantGeoJson.metadata;
-      if(oldTimeStamp && timestamp == oldTimeStamp)
-      {
-        console.log('No new data to update! Skipping this function!');
-        return;
-      }
-      try {
-        for (const grantFeature of grantGeoJson.features) {
-          const featureID = grantFeature.id;
-          const { geometry, properties } = grantFeature;
-          const { coordinates, type: geometryType } = geometry;
-          const {
-            name,
-            type,
-            class: featureClass,
-            entries,
-            location,
-            osm_type,
-            display_name,
-            id,
-            source,
-            place_rank,
-            country,
-          } = properties;
-    
-          
-          const grantFeatureKey = `grant:${featureID}`;
-    
-          try {
-            await redisClient.hSet(grantFeatureKey, {
-              id: featureID || '',
-              geometry_type: geometryType || '',
-              coordinates: JSON.stringify(coordinates) || '[]',
-              type: type || '',
-              class: featureClass || '',
-              location: location || '',
-              country: country || '',
-              place_rank: place_rank || '',
-              display_name: display_name || '',
-              osm_type: osm_type || '',
-              source: source || '',
-            });
-    
-            console.log(`✅ Successfully stored grant: ${featureID}`);
-    
-            if (Array.isArray(entries)) {
-              for (let i = 0; i < entries.length; i++) {
-                const entry = entries[i];
-                const entryKey = `grant:${featureID}:entry:${i + 1}`;
-    
-                const relatedExperts = Array.isArray(entry.relatedExperts)
-                  ? entry.relatedExperts
-                  : entry.relatedExperts
-                  ? [entry.relatedExperts]
-                  : [];
-
-                await redisClient.hSet(entryKey, {
-                  id: entry.id || 'Unknown WorkID',
-                  grant_URL: entry.url || '',
-                  title: sanitizeString(entry.title) || '',
-                  funder: entry.funder || '',
-                  start_date: entry.startDate || '',
-                  end_date: entry.endDate || '',
-                  confidence: entry.confidence || '',
-                  related_experts: JSON.stringify(relatedExperts),
-                });
-    
-                console.log(`✅ Successfully stored grant entry: ${entryKey}`);
-              }
-            }
-          } catch (error) {
-            console.error(`❌ Error storing grant: ${grantFeatureKey}`, error);
-          }
-        }
-
-        await redisClient.hSet(`grant:metadata`, {
-          count: count.toString(),
-          timestamp,
-        });
-    
-        console.log(`✅ Grant metadata stored in Redis.`);
-      } catch (error) {
-        console.error(`❌ Error processing GeoJSON file at ${filePath}:`, error);
-      }
-    }
-
-
-    // After fetchFeatures.js has run, the produced files will be located in `src/components/features/`.
-    // This function will process the GeoJSON files and store the data in Redis.
-
-    console.log('⏳ Processing data...');
-    await processWorkGeoJSON(path.join(__dirname, '../../components/features/workFeatures.geojson'));
-    await processGrantGeoJSON(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
-    console.log('⌛ Processing data completed!');
-    // Delete the GeoJSON files after processing (security measure)
-    // await fs.unlink(path.join(__dirname, '../../components/features/workFeatures.geojson'));
-    // console.log('✅ Deleted workFeatures.geojson');
-    // await fs.unlink(path.join(__dirname, '../../components/features/grantFeatures.geojson'));
-    // console.log('✅ Deleted grantFeatures.geojson');
-
-    console.log('✅ Successfully populated Redis with GeoJSON data!');
   } catch (error) {
-    console.error('❌ Error in populateRedis:', error);
-
+    console.error('❌ Error during Redis synchronization:', error);
+  } finally {
+    await redisClient.disconnect();
+    await pool.end();
+    console.log('✅ PostgreSQL and Redis connections closed.');
+    process.exit(0);
   }
-}
-populateRedis()
-  .catch((error) => {
-    console.error('❌ Unhandled error:', error);
-  })
-  .finally(() => {
-    console.log('✅ Redis is fully populated.');
-    process.exit(0); 
-  });
+})();

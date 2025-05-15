@@ -74,44 +74,54 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       const workKeys = await redisClient.keys('work:*');
       const features = [];
     
-      console.log(`Found ${workKeys.length} features in Redis`);
+      // console.log(`Found ${workKeys.length} features in Redis`);
+      
     for (const workKey of workKeys) {
       if (workKey.includes(':entry')) continue;
       if(workKey.includes(':metadata')) continue;
-
+      
       const workData = await redisClient.hGetAll(workKey);
       const feature_id = workData.id || workKey.split(':')[1]; 
+
       const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
+      console.log('Number of entries for this workKey:', entryKeys.length);
       const entries = [];
       
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
         const entry = {
-          name: entryData.title || '',
           id: entryData.id || 'Unknown WorkID',
           title: entryData.title || '',
-          fullTitle: entryData.fullTitle || '',
           issued: Array.isArray(entryData.issued)
           ? JSON.parse(entryData.issued) || '[]'
           : entryData.issued || '',
           authors: entryData.authors ? JSON.parse(entryData.authors) : '[]',
           abstract: entryData.abstract || '',
           confidence: entryData.confidence || '',
-          relatedExperts: entryData.related_experts
-            ? JSON.parse(entryData.related_experts)
+          relatedExperts: entryData.relatedExperts
+            ? JSON.parse(entryData.relatedExperts)
             : '[]',
         };
         console.log('📋 Entry added:', entry);
         entries.push(entry);
-        
+      }
+      
+      // Validate and parse geometry
+      let geometry = { type: 'Point', coordinates: [] };
+      try {
+        if (workData.geometry) {
+          geometry = JSON.parse(workData.geometry);
+        }
+      } catch (error) {
+        console.error(`❌ Error parsing geometry for workKey ${workKey}:`, error.message);
       }
 
       features.push({
         type: 'Feature',
         id: feature_id,
         geometry: {
-          type: workData.geometry_type,
-          coordinates: JSON.parse(workData.coordinates),
+          type: geometry.type || 'Point',
+          coordinates: geometry.coordinates || [],
         },
         properties: {
           name: workData.location || '',
@@ -124,8 +134,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
           display_name: workData.display_name || '',
           place_rank: workData.place_rank || '',
           osm_type: workData.osm_type || '',
-          source: workData.source || '',
-          entries,
+          source: 'work',
         },
       });
     }
@@ -160,7 +169,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       const grantKeys = await redisClient.keys('grant:*');
       const features = [];
     
-      console.log(`Found ${grantKeys.length} features in Redis`);
+      // console.log(`Found ${grantKeys.length} features in Redis`);
     
     for (const grantKey of grantKeys) {
       if (grantKey.includes(':entry')) continue;
@@ -172,30 +181,37 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       const entries = [];
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
-        console.log(`Processing entry: ${entryKey}`);
+        // console.log(`Processing entry: ${entryKey}`);
         const entry = {
-          name: entryData.title || '',
-          id: entryData.id || '',
-          grant_URL: entryData.grant_URL || '',
+          id: entryData.id || 'Unknown GrantID',
           title: entryData.title || '',
+          grant_URL: entryData.url || '',
           funder: entryData.funder || '',
-          start_date: entryData.start_date || '',
-          end_date: entryData.end_date || '',
+          start_date: entryData.startDate || '',
+          end_date: entryData.endDate || '',
           confidence: entryData.confidence || '',
-          relatedExperts: entryData.related_experts
-            ? JSON.parse(entryData.related_experts)
+          relatedExperts: entryData.relatedExperts
+            ? JSON.parse(entryData.relatedExperts)
             : '[]',
         };
-        console.log('📋 Entry being added:', entry);
+        // console.log('📋 Entry being added:', entry);
         entries.push(entry);
       }
-
+      // Validate and parse geometry
+      let geometry = { type: 'Point', coordinates: [] };
+      try {
+        if (grantData.geometry) {
+          geometry = JSON.parse(grantData.geometry);
+        }
+      } catch (error) {
+        console.error(`❌ Error parsing geometry for workKey ${workKey}:`, error.message);
+      }
       features.push({
         type: 'Feature',
         id: feature_id,
         geometry: {
-          type: grantData.geometry_type,
-          coordinates: JSON.parse(grantData.coordinates),
+          type: geometry.type || 'Point',
+          coordinates: geometry.coordinates || [],
         },
         properties: {
           name: grantData.location || '',
@@ -208,9 +224,9 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           display_name: grantData.display_name || '',
           place_rank: grantData.place_rank || '',
           osm_type: grantData.osm_type || '',
-          source: grantData.source || '',
           place_rank: grantData.place_rank || '',
           country: grantData.country || '',
+          source: 'grant',
         },
       });
     }
@@ -233,7 +249,6 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
-
 
 
 // ================ POSTGIS ENDPOINTS ================ //
