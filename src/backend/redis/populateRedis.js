@@ -13,18 +13,26 @@ const pool = new Pool({
   port: process.env.PG_PORT,
 });
 
-// Redis connection
+const redisHost = process.env.SERVER_HOST;
+const redisPort = process.env.REDIS_PORT;
+
 const redisClient = createClient({
-  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  socket: {
+    host: redisHost,
+    port: redisPort
+  }
 });
+
 redisClient.on('error', (err) => {
   console.error('❌ Redis error:', err);
+  process.exit(1);
 });
 redisClient.on('connect', () => {
   console.log('✅ Redis connected successfully');
 });
 redisClient.on('end', () => {
   console.log('🔌 Redis connection closed');
+  process.exit(1);
 });
 
 
@@ -58,11 +66,14 @@ async function updateMetadata(redisClient, type) {
 (async () => {
   try {
     console.log('🚀 Starting populateRedis script...');
+    console.log('Connecting to Postgis Database: ', process.env.PG_DATABASE, ' on user: ', process.env.PG_USER, ' hosted on: ', process.env.SERVER_HOST);
     await redisClient.connect();
     const pgClient = await pool.connect();
 
     console.log('🔍 Checking if Redis is empty...');
-    const keys = await redisClient.keys('*');
+    const workKeys = await redisClient.keys('work:*');
+    const grantKeys = await redisClient.keys('grant:*');
+    const keys = [...workKeys, ...grantKeys];
 
     if (keys.length === 0) {
       console.log('⏳ Redis is empty. Initializing with data from PostgreSQL...');
@@ -76,6 +87,8 @@ async function updateMetadata(redisClient, type) {
       await syncRedisWithPostgres(pgClient, redisClient);
     }
     pgClient.release();
+
+
 
   } catch (error) {
     console.error('❌ Error during Redis synchronization:', error);

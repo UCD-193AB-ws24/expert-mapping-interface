@@ -20,9 +20,16 @@ const PORT = 3001;
 const { createClient } = require('redis');
 
 // Redis event handlers
-const redisClient = createClient(process.env.REDIS_HOST, process.env.REDIS_PORT);
+const host = process.env.SERVER_HOST;
+const port = process.env.REDIS_PORT;
+
+const redisClient = createClient({
+    socket: { host, port }
+});
+
 redisClient.on('error', (err) => {
   console.error('❌ Redis error:', err);
+  process.exit(1);
 });
 redisClient.on('connect', () => {
   console.log('✅ Redis connected successfully');

@@ -38,17 +38,17 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
   `;
   const grantsResult = await pgClient.query(grantsQuery);
 
-  console.log('🔍 Fetching data from Redis...');
-  const redisKeys = await redisClient.keys('*');
-  const redisData = {};
-  for (const key of redisKeys) {
-    redisData[key] = await redisClient.hGetAll(key);
+  console.log('🔍 Fetching work data from Redis...');
+  const redisWorkKeys = await redisClient.keys('work:*');
+  const redisWorkData = {};
+  for (const key of redisWorkKeys) {
+    redisWorkData[key] = await redisClient.hGetAll(key);
   }
 
   console.log('🔄 Syncing works...');
   for (const row of worksResult.rows) {
     const redisKey = `work:${row.id}`;
-    const redisEntry = redisData[redisKey];
+    const redisEntry = redisWorkData[redisKey];
 
     const redisDataToStore = {
       id: row.id,
@@ -145,10 +145,16 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
     }
   }
 
+  console.log('🔍 Fetching grant data from Redis...');
+  const redisGrantKeys = await redisClient.keys('grant:*');
+  const redisGrantData = {};
+  for (const key of redisGrantKeys) {
+    redisGrantData[key] = await redisClient.hGetAll(key);
+  }
   console.log('🔄 Syncing grants...');
   for (const row of grantsResult.rows) {
     const redisKey = `grant:${row.id}`;
-    const redisEntry = redisData[redisKey];
+    const redisEntry = redisGrantData[redisKey];
 
     const redisDataToStore = {
       id: row.id,

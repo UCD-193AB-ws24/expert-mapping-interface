@@ -13,22 +13,32 @@ const pool = new Pool({
   port: process.env.PG_PORT,
 });
 
-// Redis connection
+const redisHost = process.env.SERVER_HOST;
+const redisPort = process.env.REDIS_PORT;
+
 const redisClient = createClient({
-  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  socket: {
+    host: redisHost,
+    port: redisPort
+  }
 });
+
 redisClient.on('error', (err) => {
   console.error('❌ Redis error:', err);
+  process.exit(1);
+});
+redisClient.on('connect', () => {
+  console.log('✅ Redis connected successfully');
+});
+redisClient.on('end', () => {
+  console.log('🔌 Redis connection closed');
+  process.exit(1);
 });
 
 (async () => {
   try {
     await redisClient.connect();
     const pgClient = await pool.connect();
-
-    console.log('🔄 Clearing Redis...');
-    await redisClient.flushAll(); // Clear Redis to simulate an empty state
-    console.log('✅ Redis cleared.');
 
     console.log('🔄 Running populateRedis to initialize Redis...');
     await new Promise((resolve, reject) => {
