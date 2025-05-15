@@ -67,13 +67,13 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
       try {
         // Fetch data from two different APIs concurrently
         Promise.all([
-          fetch("/features/workFeatures.geojson").then((response) => {
+          fetch(`${process.env.PUBLIC_URL}/features/workFeatures.geojson`).then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
           }),
-          fetch("/features/grantFeatures.geojson").then((response) => {
+          fetch(`${process.env.PUBLIC_URL}/features/grantFeatures.geojson`).then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
