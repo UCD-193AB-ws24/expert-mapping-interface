@@ -21,8 +21,8 @@ async function getExpertData(expertId, worksLimit = 1, grantsLimit = 1) {
     const params = {
       "is-visible": true,
       "expert": { "include": true },
-      "grants": { "include": true, "page": 1, "size": 5, "exclude": ["totalAwardAmount"], "includeMisformatted": false, "sort": [{ "field": "dateTimeInterval.end.dateTime", "sort": "desc", "type": "date" }, { "field": "name", "sort": "asc", "type": "string" }] },
-      "works": { "include": true, "page": 1, "size": 5, "exclude": [], "includeMisformatted": false, "sort": [{ "field": "issued", "sort": "desc", "type": "year" }, { "field": "title", "sort": "asc", "type": "string" }] }
+      "grants": { "include": true, "page": 1, "size": grantsLimit, "exclude": ["totalAwardAmount"], "includeMisformatted": false, "sort": [{ "field": "dateTimeInterval.end.dateTime", "sort": "desc", "type": "date" }, { "field": "name", "sort": "asc", "type": "string" }] },
+      "works": { "include": true, "page": 1, "size": worksLimit, "exclude": [], "includeMisformatted": false, "sort": [{ "field": "issued", "sort": "desc", "type": "year" }, { "field": "title", "sort": "asc", "type": "string" }] }
     };
 
     const data = await postRequestApi(`https://experts.ucdavis.edu/api/expert/${expertId}`, params, null);
