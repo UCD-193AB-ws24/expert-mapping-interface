@@ -67,13 +67,13 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
       try {
         // Fetch data from two different APIs concurrently
         Promise.all([
-          fetch(`${process.env.PUBLIC_URL}/features/worksFeatures.json`).then((response) => {
+          fetch("http://localhost:3001/api/redis/worksQuery").then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
           }),
-          fetch(`${process.env.PUBLIC_URL}/features/grantsFeatures.json`).then((response) => {
+          fetch("http://localhost:3001/api/redis/grantsQuery").then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -85,22 +85,22 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             const processedWorksData = {
               type: "FeatureCollection",
               features: worksData.features.map((feature) => ({
-                ...feature,
-                properties: {
-                  ...feature.properties,
-                  entries: feature.properties.entries || [],
-                },
+              ...feature,
+              properties: {
+                ...feature.properties,
+                entries: feature.properties.entries || [],
+              },
               })),
             };
             // Process grants data into GeoJSON format.
             const processedGrantsData = {
               type: "FeatureCollection",
               features: grantsData.features.map((feature) => ({
-                ...feature,
-                properties: {
-                  ...feature.properties,
-                  entries: feature.properties.entries || [],
-                },
+              ...feature,
+              properties: {
+                ...feature.properties,
+                entries: feature.properties.entries || [],
+              },
               })),
             };
             setWorkGeoJSON(processedWorksData);
@@ -187,7 +187,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     }
     : null;
   ;
-
+ 
   // Apply keyword filter on top of date filter
   const keywordFilteredWorkGeoJSON = dateFilteredWorkGeoJSON
     ? {
@@ -239,6 +239,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     showWorks,
     showGrants
   );
+
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>

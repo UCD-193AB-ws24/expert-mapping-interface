@@ -11,6 +11,7 @@
 const { pool, tables } = require('./config');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
 // Paths to the GeoJSON files (generated output)
 const WORKS_GEOJSON_PATH = path.join(__dirname, '../etl/geojsonGeneration/generatedFeatures/generatedWorks.geojson');
@@ -585,6 +586,30 @@ async function main() {
   } catch (error) {
     console.error('\n❌ Import failed:', error);
     process.exit(1);
+  }
+
+  /* 
+  * Purpose: After PostGIS has completed updating, update Redis cache 
+  * with write through cache code to sync Redis with PostGIS
+  * 
+  * Alyssa Vallejo, 2025 
+  */
+ 
+  try {
+    console.log('🔄 Syncing Redis with PostGIS data...');
+    exec('node src/backend/redis/populateRedis.js', (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Error syncing Redis:', error.message);
+        return;
+      }
+      if (stderr) {
+        console.error('⚠️ Stderr from populateRedis.js:', stderr);
+      }
+      console.log('✅ Redis sync completed successfully.');
+      console.log(stdout);
+    });
+  } catch (error) {
+    console.error('❌ Failed to sync Redis:', error.message);
   }
 }
 

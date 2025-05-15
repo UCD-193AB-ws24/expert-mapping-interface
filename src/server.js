@@ -74,7 +74,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       const workKeys = await redisClient.keys('work:*');
       const features = [];
     
-      console.log(`Found ${workKeys.length} features in Redis`);
+      // console.log(`Found ${workKeys.length} features in Redis`);
       
     for (const workKey of workKeys) {
       if (workKey.includes(':entry')) continue;
@@ -134,7 +134,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
           display_name: workData.display_name || '',
           place_rank: workData.place_rank || '',
           osm_type: workData.osm_type || '',
-          source: workData.source || '',
+          source: 'work',
         },
       });
     }
@@ -169,7 +169,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       const grantKeys = await redisClient.keys('grant:*');
       const features = [];
     
-      console.log(`Found ${grantKeys.length} features in Redis`);
+      // console.log(`Found ${grantKeys.length} features in Redis`);
     
     for (const grantKey of grantKeys) {
       if (grantKey.includes(':entry')) continue;
@@ -181,7 +181,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       const entries = [];
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
-        console.log(`Processing entry: ${entryKey}`);
+        // console.log(`Processing entry: ${entryKey}`);
         const entry = {
           id: entryData.id || 'Unknown GrantID',
           title: entryData.title || '',
@@ -194,7 +194,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
             ? JSON.parse(entryData.relatedExperts)
             : '[]',
         };
-        console.log('📋 Entry being added:', entry);
+        // console.log('📋 Entry being added:', entry);
         entries.push(entry);
       }
       // Validate and parse geometry
@@ -224,9 +224,9 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           display_name: grantData.display_name || '',
           place_rank: grantData.place_rank || '',
           osm_type: grantData.osm_type || '',
-          source: grantData.source || '',
           place_rank: grantData.place_rank || '',
           country: grantData.country || '',
+          source: 'grant',
         },
       });
     }
