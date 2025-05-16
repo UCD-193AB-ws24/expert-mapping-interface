@@ -102,8 +102,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       right: 0,
       top: 0,
       bottom: 0,
-      width: "100%",
-      maxWidth: "500px",
+      width: "360px",
       marginTop: "140px",
       backgroundColor: "white",
       boxShadow: "-2px 0 5px rgba(0,0,0,0.2)",
@@ -200,7 +199,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
               >
                 {expert.name || "Unknown Expert"}
               </div>
-              <div style={{ marginTop: "10px", paddingLeft: "10px" }}>
+              <div style={{ marginTop: "10px", }}>
                 {expert.works.length > 0 && (
                   <>
                     {/* Show the first work by default */}
@@ -211,6 +210,9 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                       <span style={getConfidenceStyle(expert.works[0].confidence).style}>
                         {getConfidenceStyle(expert.works[0].confidence).label}
                       </span>
+                      <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
+                      (We are {expert.works[0].confidence}% confident that the extracted location is located in this area of the map.)
+                      </div>
                     </div>
                     {expert.works[0].matchedFields?.length > 0 && (
                       <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
@@ -240,7 +242,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
 
                     {/* Show additional works if expanded */}
                     {expandedWorkIndex === index && (
-                      <ul style={{ marginTop: "10px", paddingLeft: "20px" }}>
+                      <ul style={{ marginTop: "10px", }}>
                         {expert.works.slice(1).map((work, workIndex) => {
                           const { label, style } = getConfidenceStyle(work.confidence);
                           return (
@@ -317,7 +319,9 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
               </div>
               {/* Show the first grant by default */}
               <div style={{ marginTop: "10px", color: "#333" }}>
-                <strong>Title:</strong> {expert.grants[0].title || "Untitled Grant"} <br />
+                <strong>
+                  {expert.grants.length === 1 ? "Grant Title" : "Grant Titles"}:
+                </strong> {expert.grants[0].title || "Untitled Grant"} <br />
                 <strong>Funder:</strong> {expert.grants[0].funder || "Unknown"} <br />
                 <strong>Start Date:</strong> {expert.grants[0].startDate || "Unknown"} <br />
                 <strong>End Date:</strong> {expert.grants[0].endDate || "Unknown"} <br />
@@ -325,12 +329,16 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                 <span style={getConfidenceStyle(expert.grants[0].confidence).style}>
                   {getConfidenceStyle(expert.grants[0].confidence).label}
                 </span>
-                {expert.grants[0].matchedFields?.length > 0 && (
-                  <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                    Matched on: {expert.grants[0].matchedFields.join(", ")}
-                  </div>
-                )}
+                <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
+                (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
+                </div>
               </div>
+
+              {expert.grants[0].matchedFields?.length > 0 && (
+                <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                  Matched on: {expert.grants[0].matchedFields.join(", ")}
+                </div>
+              )}
 
               {/* Show dropdown button if there are more grants */}
               {expert.grants.length > 1 && (
@@ -355,7 +363,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
 
               {/* Show additional grants if expanded */}
               {expandedGrantIndex === index && (
-                <ul style={{ marginTop: "10px", paddingLeft: "20px" }}>
+                <ul style={{ marginTop: "10px", }}>
                   {expert.grants.slice(1).map((grant, grantIndex) => (
                     <li key={grantIndex} style={{ marginBottom: "10px" }}>
                       <strong>Title:</strong> {grant.title || "Untitled Grant"} <br />
@@ -366,6 +374,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                       <span style={getConfidenceStyle(grant.confidence).style}>
                         {getConfidenceStyle(grant.confidence).label}
                       </span>
+
                       {grant.matchedFields?.length > 0 && (
                         <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
                           Matched on: {grant.matchedFields.join(", ")}
