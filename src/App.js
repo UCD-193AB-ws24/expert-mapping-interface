@@ -85,7 +85,11 @@ function App() {
               selectedDateRange={selectedDateRange}
             />
           </div>
-          <aside className="p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto mt-4" aria-label="Search and filter controls">
+          <aside className="p-4 bg-white border-l border-gray-200 overflow-y-auto mt-4"
+            style={{ width: "360px", minWidth: "320px", maxWidth: "100%" }}
+            aria-label="Search and filter controls"
+          >
+
             <div className="mb-4">
               <button
                 onClick={() => setIsTogglesOpen(!isTogglesOpen)}
@@ -94,7 +98,7 @@ function App() {
                 Toggles {isTogglesOpen ? "▲" : "▼"}
               </button>
               {isTogglesOpen && (
-                <div className="mt-2 flex justify-center items-center gap-10">
+                <div className="mt-2 flex flex-col gap-4">
                   <div className="flex items-center">
                     <span id="grants-label" className="text-gray-700 font-medium mr-2">Show Grants</span>
                     <label className="relative inline-flex items-center cursor-pointer">

@@ -102,7 +102,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       right: 0,
       top: 0,
       bottom: 0,
-      width: "300px",
+      width: "360px",
       marginTop: "140px",
       backgroundColor: "white",
       boxShadow: "-2px 0 5px rgba(0,0,0,0.2)",
