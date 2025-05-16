@@ -13,6 +13,7 @@ const fs = require("fs");
 require('dotenv').config();
 const { Ollama } = require('ollama');
 
+// Config Ollama to VM host address
 const ollama = new Ollama({
   host: `http://${process.env.OLLAMA_HOST}:11434`,
 });

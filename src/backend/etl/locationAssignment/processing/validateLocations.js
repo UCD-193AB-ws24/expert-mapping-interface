@@ -1,7 +1,8 @@
 /**
 * @file validateLocations.js
-* @description Validates the locations extracted by Llama in location based works and grant by
-*              comparing Nominatim API and Llama's ISO 3166-1 code.
+* @description
+* Validates the locations extracted by Llama in locationBasedWorks.json and locationBasedGrants.json by
+* comparing Nominatim API result and Llama's ISO 3166-1 code.
 *      
 * USAGE: node src/geo/etl/locationAssignment/processing/validateLocations.js
 *
@@ -14,6 +15,7 @@ const fs = require("fs");
 require('dotenv').config();
 const { Ollama } = require('ollama');
 
+// Config Ollama to VM host address
 const ollama = new Ollama({
   host: `http://${process.env.OLLAMA_HOST}:11434`,
 });
@@ -119,20 +121,12 @@ async function getISOcode(location) {
   return chatCompletion.choices[0].message.content;
 }
 
-function findDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c * 0.6214;
-}
-
+/**
+ * Generate Confidence metric based on distance between Nominatim API and Llama's ISO 3166-1 code
+ * @param {Object} location_info - Nominatim API's return object of the location
+ * @param {String} iso_location - ISO 3166-1 code of location
+ * @returns {String} - Confidence metric in percentage
+ */
 async function calculateConfidence(location_info, iso_location) {
   const MAX_DIST = 12400;
 
@@ -150,9 +144,31 @@ async function calculateConfidence(location_info, iso_location) {
 }
 
 /**
+ * Helper function: Find distance between 2 coordinate points
+ * @param {number} lat1 - 1st location's latitude
+ * @param {number} lon1 - 1st location's longitude
+ * @param {number} lat2 - 2nd location's latitude
+ * @param {number} lon2 - 2nd location's longitude
+ * @returns {number} - Distance
+ */
+function findDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c * 0.6214;
+}
+
+/**
  * Preprocess the location string to clean and normalize it.
  * @param {String} location - location string to preprocess
- * @returns {String} - preprocessed location string
+ * @returns {String}        - preprocessed location string
  */
 function preprocessLocation(location) {
   // Remove URLs or invalid characters from the location string
@@ -166,7 +182,7 @@ function preprocessLocation(location) {
 /**
  * Using Nominatim API and Llama's ISO code to make decision on the location
  * @param {String} location  - location
- * @returns                  - {name: "Location name", confidence: "Confidence"}
+ * @returns   - {name: "Location name", confidence: "Confidence", country: "Country name"}
  */
 async function validateLocation(location) {
   // Preprocess the location string
@@ -195,7 +211,10 @@ async function validateLocation(location) {
     location = "America";
   }
 
+  // Get location info from Nominatim
   let location_info = await getLocationInfo(location);
+
+  // Extract Country code from Nominatim object
   let iso_nominatim;
   if (location_info === null) {
     iso_nominatim = "Fail";
@@ -203,9 +222,10 @@ async function validateLocation(location) {
     iso_nominatim = location_info.address.country_code;
   }
 
+  // Get location's ISO code using Llama
   const iso_llama = await getISOcode(location);
 
-  // Handle API giving too specific location
+  // Handle Nominatim API giving too specific location
   if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
     if (location_info.place_rank >= 30) {
       const simplify_loc = location.replace(/,.*/, '');
@@ -215,10 +235,9 @@ async function validateLocation(location) {
 
   const special_locations = ["ocean", "sea", "continent"];
 
-  // Considerations:
-  // - Run ISO through geocode instead of searching in dict?
-  // - Else branch: iso_llama undefined - use Nominatim instead of N/A
+  // Compare Nominatim's country code and Llama's ISO to make decision on the location
   try {
+    // Can't get Nominatim result, use Llama's ISO
     if (location_info === null) {
       if (countries[iso_llama] === undefined) {
         return {
@@ -233,28 +252,28 @@ async function validateLocation(location) {
           country: countries[iso_llama]
         };
       }
-      // If codes are the same, location is good
+      // If 2 codes are the same, location is good
     } else if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
       return {
         name: location_info.name,
         confidence: await calculateConfidence(location_info, countries[iso_llama]),
         country: countries[iso_llama],
       };
-      // Unable to use Nominatim, use ISO if exists
+      // Special location not linked to a country
     } else if (special_locations.includes(location_info.type)) {
       return {
         name: location_info.name,
-        confidence: "90",
+        confidence: "90%",
         country: "None"
       };
-      // Unable to get ISO code, bad location
+      // Unable to get Llama's ISO code, bad location
     } else if (String(iso_llama).length > 2) {
       return {
         name: location,
         confidence: "Low",
         country: countries[String(iso_nominatim).toUpperCase()]
       };
-      // Unmatch codes, priortize ISO
+      // Unmatch codes: Priortize Llama's ISO, use Nominatim if not existed
     } else {
       if (countries[iso_llama] === undefined) {
         return {
@@ -271,7 +290,6 @@ async function validateLocation(location) {
       }
     }
   } catch (error) {
-    console.log("Fail to validate: " + location);
     return {
       name: "N/A",
       confidence: "",
