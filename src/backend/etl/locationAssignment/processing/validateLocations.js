@@ -11,7 +11,12 @@
 const axios = require('axios');
 const path = require('path');
 const fs = require("fs");
-const { default: ollama } = require('ollama');
+require('dotenv').config();
+const { Ollama } = require('ollama');
+
+const ollama = new Ollama({
+  host: `http://${process.env.OLLAMA_HOST}:11434`,
+});
 
 const Groq = require('groq-sdk');
 const groq = new Groq({ apiKey: "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" });

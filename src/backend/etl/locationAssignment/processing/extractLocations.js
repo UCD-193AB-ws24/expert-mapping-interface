@@ -10,7 +10,12 @@
 
 const path = require('path');
 const fs = require("fs");
-const { default: ollama } = require('ollama');
+require('dotenv').config();
+const { Ollama } = require('ollama');
+
+const ollama = new Ollama({
+  host: `http://${process.env.OLLAMA_HOST}:11434`,
+});
 
 const worksPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "worksFeatures.json");
 const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "grantsFeatures.json");
