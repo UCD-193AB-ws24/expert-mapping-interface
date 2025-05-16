@@ -155,24 +155,30 @@ function App() {
                 </div>
               )}
             </div>
-            <details className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
-              <summary className="font-semibold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
-                Map Guide
+            <details open className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
+              <summary className="flex items-center justify-between font-semibold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
+                <span style={{ color: "#2f6bb3", fontWeight: 500 }}>
+                  Map Guide
+                </span>
+                <span className="text-sm text-gray-400">
+                  <span className="group-open:hidden">(click to open)</span>
+                  <span className="hidden group-open:inline">(click to close)</span>
+                </span>
               </summary>
               <div className="mt-3 text-gray-800 space-y-6">
                 <div>
                   <h3 className="text-base font-bold text-[#022851] mb-1">Location Colors</h3>
                   <ul className="list-disc list-inside space-y-1">
-                    <li><span className="text-yellow-500 font-semibold">Yellow</span> – Grant locations</li>
-                    <li><span className="text-blue-600 font-semibold">Blue</span> – Research work locations</li>
-                    <li><span className="text-green-600 font-semibold">Green</span> – Locations with both work and grant data</li>
+                    <li><span className="text-yellow-500 font-semibold">Yellow</span> – Grant locations.</li>
+                    <li><span className="text-blue-600 font-semibold">Blue</span> – Research work locations.</li>
+                    <li><span className="text-green-600 font-semibold">Green</span> – Locations with both work and grant data.</li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#022851] mb-1">Map Features</h3>
                   <ul className="list-disc list-inside space-y-1">
-                    <li><strong>Number markers</strong> show how many entries are linked to that place</li>
-                    <li><strong>Confidence score</strong> shows how confident the system is in mapping the extracted geographic name to the corresponding location</li>
+                    <li><strong>Number markers</strong> show how many entries are linked to that place.</li>
+                    <li><strong>Confidence score</strong> shows how confident the system is in mapping the extracted geographic name to the corresponding location.</li>
                   </ul>
                 </div>
                 <div>

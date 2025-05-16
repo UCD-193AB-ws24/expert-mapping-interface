@@ -161,7 +161,7 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
                       {getConfidenceStyle(expert.works[0].confidence).label}
                     </span>
                     <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                      (This means we're {expert.works[0].confidence}% confident this location matches the extracted name.)
+                      (We are {expert.works[0].confidence}% confident that the extracted location is located in this area of the map.)
                     </div>
                   </div>
                   {expert.works[0].matchedFields?.length > 0 && (
@@ -347,7 +347,7 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
                 {getConfidenceStyle(expert.grants[0].confidence).label}
               </span>
               <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                (This means we're {expert.grants[0].confidence}% confident this location matches the extracted name.)
+                (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
               </div>
             </div>
 
@@ -394,7 +394,7 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
                       {getConfidenceStyle(grant.confidence).label}
                     </span>
                     <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                      (This means we're {expert.grants[0].confidence}% confident this location matches the extracted name.)
+                    (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
                     </div>
                     {grant.matchedFields?.length > 0 && (
                       <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
