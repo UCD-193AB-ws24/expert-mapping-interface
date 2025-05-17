@@ -26,70 +26,70 @@ import { useEffect, useState } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { createMultiGrantPopup, createMatchedGrantPopup } from "./Popups";
-import { filterFeaturesByZoom } from "./filters/zoomFilter";
-import { getMatchedFields } from "./filters/searchFilter";
+// import { filterFeaturesByZoom } from "./filters/zoomFilter";
+// import { getMatchedFields } from "./filters/searchFilter";
+import { prepareGrantPanelData } from "./utils/preparePanelData";
 
+// const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID) => {
+//   return expertIDs.map((expertID) => {
+//     const expert = expertsMap.get(expertID);
+//     if (!expert) {
+//       console.warn(`Expert with ID ${expertID} not found in expertsMap.`);
+//       return null;
+//     }
 
-const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID) => {
-  return expertIDs.map((expertID) => {
-    const expert = expertsMap.get(expertID);
-    if (!expert) {
-      console.warn(`Expert with ID ${expertID} not found in expertsMap.`);
-      return null;
-    }
+//     // Ensure the URL is a full URL
+//     const fullUrl = expert.url.startsWith("http")
+//       ? expert.url
+//       : `https://experts.ucdavis.edu/${expert.url}`;
 
-    // Ensure the URL is a full URL
-    const fullUrl = expert.url.startsWith("http")
-      ? expert.url
-      : `https://experts.ucdavis.edu/${expert.url}`;
+//     // Find grants associated with this expert and the current location
+//     const associatedGrants = grantIDs
+//       .map((grantID) => {
+//         const grant = grantsMap.get(grantID);
+//         if (!grant) {
+//           console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
+//           return null;
+//         }
+//         return grant;
+//       })
 
-    // Find grants associated with this expert and the current location
-    const associatedGrants = grantIDs
-      .map((grantID) => {
-        const grant = grantsMap.get(grantID);
-        if (!grant) {
-          console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
-          return null;
-        }
-        return grant;
-      })
+//       // Filter grants based on the expert ID and location ID
+//       .filter((grant) => {
+//         if (!grant) return false;
+//         if (!grant.relatedExpertIDs) {
+//           console.warn(`Grant with ID ${grant.grantID} has no relatedExpertIDs.`);
+//           return false;
+//         }
+//         if (!grant.relatedExpertIDs.includes(expertID)) {
+//           console.warn(
+//             `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertIDs}, which does not match expertID ${expertID}.`
+//           );
+//           return false;
+//         }
+//         if (!grant.locationID.includes(locationID)) {
+//           console.warn(
+//             `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
+//           );
+//           return false;
+//         }
+//         return true;
+//       });
 
-      // Filter grants based on the expert ID and location ID
-      .filter((grant) => {
-        if (!grant) return false;
-        if (!grant.relatedExpertIDs) {
-          console.warn(`Grant with ID ${grant.grantID} has no relatedExpertIDs.`);
-          return false;
-        }
-        if (!grant.relatedExpertIDs.includes(expertID)) {
-          console.warn(
-            `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertIDs}, which does not match expertID ${expertID}.`
-          );
-          return false;
-        }
-        if (!grant.locationID.includes(locationID)) {
-          console.warn(
-            `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
-          );
-          return false;
-        }
-        return true;
-      });
-
-    return {
-      name: expert.name || "Unknown",
-      url: fullUrl, // Use the full URL
-      grants: associatedGrants.map((grant) => ({
-        title: grant.title || "Untitled Grant",
-        funder: grant.funder || "Unknown",
-        startDate: grant.startDate || "Unknown",
-        endDate: grant.endDate || "Unknown",
-        confidence: grant.confidence || "Unknown",
-        matchedFields: grant.matchedFields || [],
-      })),
-    };
-  }).filter((expert) => expert); // Filter out null experts
-};
+//     return {
+//       name: expert.name || "Unknown",
+//       url: fullUrl, // Use the full URL
+//       grants: associatedGrants.map((grant) => ({
+//         title: grant.title || "Untitled Grant",
+//         funder: grant.funder || "Unknown",
+//         startDate: grant.startDate || "Unknown",
+//         endDate: grant.endDate || "Unknown",
+//         confidence: grant.confidence || "Unknown",
+//         matchedFields: grant.matchedFields || [],
+//       })),
+//     };
+//   }).filter((expert) => expert); // Filter out null experts
+// };
 
 
 const renderPolygons = ({
@@ -376,66 +376,33 @@ const renderPoints = ({
 
 // Main component for rendering grant-related polygons and points on the map.
 const GrantLayer = ({
-  nonOverlappingGrants,
+  locationMap,
+  grantsMap,
+  expertsMap,
   showWorks,
   showGrants,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
-  combinedKeys,
-  searchKeyword,
 }) => {
   const map = useMap();
-  const [filteredGrants, setFilteredGrants] = useState(nonOverlappingGrants);
-
   // Handle zoom filtering
-  const handleZoomEnd = () => {
-    if (!map || !nonOverlappingGrants) return;
+  // const handleZoomEnd = () => {
+  //   if (!map || !nonOverlappingGrants) return;
 
-    const zoomLevel = map.getZoom();
+  //   const zoomLevel = map.getZoom();
 
-    const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
+  //   const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
 
-    setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
-  };
+  //   setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
+  // };
 
   useEffect(() => {
-    if (!map || !nonOverlappingGrants) {
+    if (!map || !locationMap || !grantsMap || !expertsMap || !showGrants) {
       console.error("Error: No grants found!");
       return;
     }
 
-    // Apply the filter initially
-    const handleZoomEnd = () => {
-      const zoomLevel = map.getZoom();
-
-      const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
-
-      setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
-    };
-
-    map.on("zoomend", handleZoomEnd);
-
-    // Apply the filter initially
-    handleZoomEnd();
-
-    return () => {
-      map.off("zoomend", handleZoomEnd);
-    };
-  }, [map, nonOverlappingGrants]);
-
-  useEffect(() => {
-    if (!map || !filteredGrants) {
-      console.error("Error: No filtered grants found!");
-      return;
-    }
-
-    const locationMap = new Map();
-    const grantsMap = new Map();
-    const expertsMap = new Map();
-
-    // Create a marker cluster group for the grant markers
-    // This will group markers that are close to each other into a single cluster
     const grantMarkerGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 40,
@@ -455,104 +422,7 @@ const GrantLayer = ({
 
     const polygonLayers = [];
     const polygonMarkers = [];
-
-    // Process filtered grants
-    filteredGrants.forEach((grantLocation) => {
-      const { location, grantsFeatures } = grantLocation; // Destructure the object
-
-      grantsFeatures.forEach((grantFeature) => {
-        const geometry = grantFeature.geometry;
-        const entries = grantFeature.properties.entries || [];
-        const location = grantFeature.properties.location || "Unknown";
-        if (!showGrants) return;
-        if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-          return;
-        }
-        // Generate a unique location ID
-        const locationID = grantFeature.id;
-
-        // Initialize locationMap entry if it doesn't exist
-        if (!locationMap.has(locationID)) {
-          locationMap.set(locationID, {
-            name: location,
-            display_name: grantFeature.properties.display_name,
-            country: grantFeature.properties.country,
-            place_rank: grantFeature.properties.place_rank,
-            geometryType: geometry.type,
-            coordinates: geometry.coordinates,
-            grantIDs: [],
-            expertIDs: [],
-          });
-        }
-
-        // Process each grant entry
-        entries.forEach((entry) => {
-          const matchedFields = getMatchedFields(searchKeyword, entry);
-          if (searchKeyword && matchedFields.length === 0) return;
-
-          // Generate a unique grant ID
-          const grantID = `grant_${entry.id}`;
-          // Add grant to grantsMap
-          grantsMap.set(grantID, {
-            grantID: entry.id || 'Unknown grantID',
-            title: entry.title || "Untitled Grant",
-            funder: entry.funder || "Unknown",
-            startDate: entry.start_date || "Unknown",
-            endDate: entry.end_date || "Unknown",
-            confidence: entry.confidence || "Unknown",
-            locationID,
-            relatedExpertIDs: [],
-            matchedFields,
-          });
-
-          // Add grant ID to locationMap
-          locationMap.get(locationID).grantIDs.push(grantID);
-
-          // Process related expert
-          if (entry.relatedExperts) {
-            entry.relatedExperts.forEach((expert) => {
-              const expertName = expert.fullName;
-              const expertURL = expert.url;
-
-              // Generate a unique expert ID if the expert doesn't already exist
-              let expertID = Array.from(expertsMap.entries()).find(
-                ([, value]) => value.name === expertName
-              )?.[0];
-
-              if (!expertID) {
-                expertID = `expert_${expert.id}`;
-                expertsMap.set(expertID, {
-                  id: expert.id || 'Unknown ID',
-                  name: expertName || "Unknown",
-                  url: expertURL || "#",
-                  locationIDs: [],
-                  grantIDs: [],
-                });
-              }
-
-              // Add expert ID to grantsMap
-              if (!grantsMap.get(grantID).relatedExpertIDs.includes(expertID)) {
-                grantsMap.get(grantID).relatedExpertIDs.push(expertID);
-              }
-              // Add location ID and grant ID to expertsMap
-              const expertEntry = expertsMap.get(expertID);
-              if (!expertEntry.locationIDs.includes(locationID)) {
-                expertEntry.locationIDs.push(locationID);
-              }
-              if (!expertEntry.grantIDs.includes(grantID)) {
-                expertEntry.grantIDs.push(grantID);
-              }
-
-              // Add expert ID to locationMap
-              if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
-                locationMap.get(locationID).expertIDs.push(expertID);
-              }
-
-            });
-          }
-        });
-      });
-    });
+  
     // Render polygons
     renderPolygons({
       locationMap,
@@ -583,9 +453,9 @@ const GrantLayer = ({
       map.removeLayer(grantMarkerGroup);
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
-      map.off("zoomend", handleZoomEnd);
+      // map.off("zoomend", handleZoomEnd);
     };
-  }, [map, filteredGrants, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
+  }, [map, locationMap, grantsMap, expertsMap, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
 
   return null;
 };

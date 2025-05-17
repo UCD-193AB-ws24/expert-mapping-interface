@@ -68,7 +68,7 @@ const renderPolygons = ({
       ring.map(([lng, lat]) => [lat, lng])
     );
 
-    setLocationName(locationID);
+    setLocationName(locationData.name);
     // Initialize sets to count unique experts
     const workExpertSet = new Set();
     const grantExpertSet = new Set();
@@ -299,7 +299,7 @@ const renderPoints = ({
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
 
-    setLocationName(locationID);
+    setLocationName(locationData.name);
 
     // Get expert count for each work and grant per location
     // Count experts from workIDs
@@ -469,78 +469,59 @@ const renderPoints = ({
 };
 
 const CombinedLayer = ({
-  overlappingLocations,
+  locationMap,
+  grantsMap,
+  worksMap,
+  expertsMap,
   showWorks,
   showGrants,
   setSelectedWorks,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
-  setCombinedKeys,
-  combinedKeys,
-  searchKeyword,
   setLocationName,
 
 }) => {
-  // Access the Leaflet map instance from react-leaflet's useMap hook
   const map = useMap();
-  const [filteredOverlappingLocations, setFilteredOverlappingLocations] = useState(overlappingLocations);
-
   // Define handleZoomEnd outside the useEffect
-  const handleZoomEnd = () => {
-    const zoomLevel = map.getZoom();
-    console.log("Zoom level in GrantLayer:", zoomLevel);
+  // const handleZoomEnd = () => {
+  //   const zoomLevel = map.getZoom();
+  //   console.log("Zoom level in GrantLayer:", zoomLevel);
 
-    const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
-    console.log("Zoom Filtered Works:", zoomFilteredFeatures);
+  //   const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
+  //   console.log("Zoom Filtered Works:", zoomFilteredFeatures);
 
-    setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
-  };
+  //   setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
+  // };
 
-  useEffect(() => {
-    if (!map || !overlappingLocations) {
-      console.error("Error: No Works found!");
-      return;
-    }
+  // useEffect(() => {
+  //   if (!map || !overlappingLocations) {
+  //     console.error("Error: No Works found!");
+  //     return;
+  //   }
 
-    const handleZoomEnd = () => {
-      const zoomLevel = map.getZoom();
-      console.log("Zoom level in GrantLayer:", zoomLevel);
-      const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
-      console.log("Zoom Filtered Works:", zoomFilteredFeatures);
-      setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
-    };
+  //   const handleZoomEnd = () => {
+  //     const zoomLevel = map.getZoom();
+  //     console.log("Zoom level in GrantLayer:", zoomLevel);
+  //     const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
+  //     console.log("Zoom Filtered Works:", zoomFilteredFeatures);
+  //     setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
+  //   };
 
-    map.on("zoomend", handleZoomEnd);
+  //   map.on("zoomend", handleZoomEnd);
 
-    // Apply the filter initially
-    handleZoomEnd();
+  //   // Apply the filter initially
+  //   handleZoomEnd();
 
-    return () => {
-      map.off("zoomend", handleZoomEnd);
-    };
-  }, [map, overlappingLocations]);
+  //   return () => {
+  //     map.off("zoomend", handleZoomEnd);
+  //   };
+  // }, [map, overlappingLocations]);
 
 
   useEffect(() => {
     // Exit early if map or overlappingLocations is not available
-    if (!map || !filteredOverlappingLocations) return;
-    // Update the combinedKeys state if overlapping locations have changed
-    const newCombinedKeys = new Set(overlappingLocations);
-    const currentKeysString = JSON.stringify(Array.from(newCombinedKeys));
-    const existingKeysString = JSON.stringify(Array.from(combinedKeys));
-
-    if (currentKeysString !== existingKeysString) {
-      console.log("Updating combinedKeys:", overlappingLocations);
-      setCombinedKeys(newCombinedKeys);
-    } else {
-      console.log("CombinedKeys unchanged.");
-    }
-
-    const locationMap = new Map();
-    const grantsMap = new Map();
-    const expertsMap = new Map();
-    const worksMap = new Map();
+    if (!map || !locationMap || !expertsMap || !worksMap || !grantsMap) return;
 
     const comboMarkerGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
@@ -564,189 +545,6 @@ const CombinedLayer = ({
 
     if (showWorks && showGrants) {
       // Render overlapping locations
-      filteredOverlappingLocations.forEach((locationData) => {
-        const { location, worksFeatures, grantsFeatures } = locationData;
-        const locationID = location;
-
-        // Check if workFeatures and grantFeatures are defined and not empty
-        if (!worksFeatures || worksFeatures.length === 0) {
-          console.warn(`No workFeatures found for locationID: ${locationID}`);
-          return;
-        }
-        if (!grantsFeatures || grantsFeatures.length === 0) {
-          console.warn(`No grantFeatures found for locationID: ${locationID}`);
-          return;
-        }
-
-        if (!locationMap.has(locationID)) {
-          locationMap.set(locationID, {
-            geometryType: worksFeatures[0].geometry.type,
-            coordinates: worksFeatures[0].geometry.coordinates,
-            locationID: worksFeatures[0].properties.locationID,
-            location: locationID,
-            display_name: worksFeatures[0].properties.display_name,
-            country: worksFeatures[0].properties.country,
-            place_rank: worksFeatures[0].properties.place_rank,
-            workIDs: [],
-            grantIDs: [],
-            grantExpertIDs: [],
-            workExpertIDs: [],
-          });
-        }
-
-        worksFeatures.forEach((workFeature) => {
-          const entries = workFeature.properties.entries || [];
-
-          if (!showWorks || !showGrants) return;
-
-          // Process each work entry
-          entries.forEach((entry) => {
-            // Generate a unique work ID
-            const workID = `work_${entry.id}`;
-
-            const matchedFields = [];
-            if (searchKeyword) {
-              const keywordLower = searchKeyword.toLowerCase();
-              if ((entry.title || "").toLowerCase().includes(keywordLower)) matchedFields.push("title");
-              if ((entry.abstract || "").toLowerCase().includes(keywordLower)) matchedFields.push("abstract");
-              if ((entry.issued || "").toLowerCase().includes(keywordLower)) matchedFields.push("issued");
-              if ((entry.confidence || "").toLowerCase().includes(keywordLower)) matchedFields.push("confidence");
-            }
-
-            worksMap.set(workID, {
-              workID: entry.id,
-              title: entry.title || "No Title",
-              abstract: entry.abstract || "No Abstract",
-              issued: entry.issued || "Unknown",
-              confidence: entry.confidence || "Unknown",
-              locationID,
-              relatedExpertIDs: [],
-              matchedFields,
-            });
-
-            // Add work ID to locationMap
-            locationMap.get(locationID).workIDs.push(workID);
-
-            // Process related experts
-            (entry.relatedExperts || []).forEach((expert) => {
-              // Generate a unique expert ID if the expert doesn't already exist
-              let expertID = Array.from(expertsMap.entries()).find(
-                ([, value]) => value.fullName === expert.fullName
-              )?.[0];
-
-              if (!expertID) {
-                expertID = `expert_${expert.id}`;
-                expertsMap.set(expertID, {
-                  id: expert.id,
-                  name: expert.fullName || "Unknown",
-                  url: expert.url || "#",
-                  locationIDs: [],
-                  workIDs: [],
-                  grantIDs: [],
-                });
-              }
-
-              // Add expert ID to worksMap
-              worksMap.get(workID).relatedExpertIDs.push(expertID);
-
-              // Add location ID and work ID to expertsMap
-              const expertEntry = expertsMap.get(expertID);
-              if (!expertEntry.locationIDs.includes(locationID)) {
-                expertEntry.locationIDs.push(locationID);
-              }
-              if (!expertEntry.workIDs.includes(workID)) {
-                expertEntry.workIDs.push(workID);
-              }
-
-              // Add expert ID to locationMap
-              if (!locationMap.get(locationID).workExpertIDs.includes(expertID)) {
-                locationMap.get(locationID).workExpertIDs.push(expertID);
-              }
-            });
-          });
-        });
-
-        grantsFeatures.forEach((grantFeature) => {
-          const entries = grantFeature.properties.entries || [];
-
-          if (!showWorks || !showGrants) return;
-
-          // Process each grant entry
-          entries.forEach((entry) => {
-            // Generate a unique grant ID
-            const grantID = `grant_${entry.id}`;
-            const matchedFields = [];
-            if (searchKeyword) {
-              const keywordLower = searchKeyword.toLowerCase();
-              if ((entry.title || "").toLowerCase().includes(keywordLower)) matchedFields.push("title");
-              if ((entry.funder || "").toLowerCase().includes(keywordLower)) matchedFields.push("funder");
-              if ((entry.start_date || "").toLowerCase().includes(keywordLower)) matchedFields.push("startDate");
-              if ((entry.end_date || "").toLowerCase().includes(keywordLower)) matchedFields.push("endDate");
-              if ((entry.confidence || "").toLowerCase().includes(keywordLower)) matchedFields.push("confidence");
-            }
-
-            grantsMap.set(grantID, {
-              grantID: entry.id || 'Unknown grantID',
-              title: entry.title || "Untitled Grant",
-              funder: entry.funder || "Unknown",
-              startDate: entry.start_date || "Unknown",
-              endDate: entry.end_date || "Unknown",
-              confidence: entry.confidence || "Unknown",
-              locationID,
-              relatedExpertIDs: [],
-              matchedFields,
-            });
-
-            // Add grant ID to locationMap
-            locationMap.get(locationID).grantIDs.push(grantID);
-
-            // Process related expert
-            if (entry.relatedExperts) {
-              entry.relatedExperts.forEach((expert) => {
-                const expertName = expert.fullName;
-                const expertURL = expert.url;
-
-                // Generate a unique expert ID if the expert doesn't already exist
-                let expertID = Array.from(expertsMap.entries()).find(
-                  ([, value]) => value.name === expertName
-                )?.[0];
-
-                if (!expertID) {
-                  expertID = `expert_${expert.id}`;
-                  expertsMap.set(expertID, {
-                    id: expert.id || 'Unknown ID',
-                    name: expertName || "Unknown",
-                    url: expertURL || "#",
-                    locationIDs: [],
-                    grantIDs: [],
-                  });
-                }
-
-                // Add expert ID to grantsMap
-                if (!grantsMap.get(grantID).relatedExpertIDs.includes(expertID)) {
-                  grantsMap.get(grantID).relatedExpertIDs.push(expertID);
-                }
-                // Add location ID and grant ID to expertsMap
-                const expertEntry = expertsMap.get(expertID);
-                if (!expertEntry.locationIDs.includes(locationID)) {
-                  expertEntry.locationIDs.push(locationID);
-                }
-                if (!expertEntry.grantIDs.includes(grantID)) {
-                  expertEntry.grantIDs.push(grantID);
-                }
-
-                // Add expert ID to locationMap
-                if (!locationMap.get(locationID).grantExpertIDs.includes(expertID)) {
-                  locationMap.get(locationID).grantExpertIDs.push(expertID);
-                }
-
-              });
-            }
-          });
-        });
-
-      });
-
       renderPolygons({
         locationMap,
         worksMap,
@@ -777,7 +575,6 @@ const CombinedLayer = ({
         setPanelType,
         searchKeyword,
       });
-
     }
 
     // Cleanup function to remove layers and markers
@@ -785,19 +582,22 @@ const CombinedLayer = ({
       map.removeLayer(comboMarkerGroup);
       comboLayers.forEach((layer) => map.removeLayer(layer));
       comboPolyMarkers.forEach((marker) => map.removeLayer(marker));
-      map.off("zoomend", handleZoomEnd);
+      // map.off("zoomend", handleZoomEnd);
     };
   }, [
     map,
-    filteredOverlappingLocations,
+    locationMap,
+    grantsMap,
+    worksMap,
+    expertsMap,
     showWorks,
     showGrants,
-    setCombinedKeys,
-    combinedKeys,
+    setSelectedWorks,
+    setSelectedGrants,
+    setPanelOpen,
+    setPanelType,
     setLocationName,
   ]);
-
-
   return null;
 };
 

@@ -1,6 +1,6 @@
 
 /**
- * This file contains the `processGeoJSONData` function, which processes two GeoJSON datasets
+ * This file contains the `splitFeaturesByLocation` function, which processes two GeoJSON datasets
  * (workGeoJSON and grantGeoJSON) to determine overlapping and non-overlapping locations
  * based on their polygon features. It dynamically returns data based on the provided flags.
  *
@@ -16,7 +16,7 @@
  * - nonOverlappingGrants: An array of locations where only grants exist (or grants and overlapping locations if showWorks is false).
  */
 
-const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) => {
+export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, showGrants) => {
     // Validate inputs and provide default values
     if (!workGeoJSON || !workGeoJSON.features) {
         console.warn("Invalid or missing workGeoJSON. Defaulting to an empty GeoJSON object.");
@@ -56,6 +56,7 @@ const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) =>
     // Determine overlapping and non-overlapping locations
     workPolygons.forEach((worksFeatures, location) => {
         if (grantPolygons.has(location)) {
+            console.log("Overlapping location found...");
             overlappingLocations.push({
                 location,
                 worksFeatures,
@@ -80,4 +81,3 @@ const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) =>
     };
 };
 
-export default processGeoJSONData;

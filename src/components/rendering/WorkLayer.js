@@ -21,9 +21,9 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
-import { filterFeaturesByZoom } from "./filters/zoomFilter";
-import { getMatchedFields } from "./filters/searchFilter";
+// import { filterFeaturesByZoom } from "./filters/zoomFilter";
 
+// import { prepareWorkPanelData } from "./utils/preparePanelData";
 /**
  * Prepares data for the side panel by collecting expert and work information for a specific location.
  */
@@ -342,63 +342,64 @@ const renderPoints = ({
  * WorkLayer Component
  */
 const WorkLayer = ({
-  nonOverlappingWorks = [],
+  locationMap,
+  worksMap,
+  expertsMap,
   showWorks,
   showGrants,
   setSelectedWorks,
   setPanelOpen,
   setPanelType,
-  combinedKeys,
-  searchKeyword,
 }) => {
   const map = useMap();
-  const [filteredWorks, setFilteredWorks] = useState(nonOverlappingWorks);
+  
 
   // Define handleZoomEnd outside the useEffect
-  const handleZoomEnd = () => {
-    if (!map || !nonOverlappingWorks) return;
+  // const handleZoomEnd = () => {
+  //   if (!map || !nonOverlappingWorks) return;
 
-    const zoomLevel = map.getZoom();
-    console.log("Zoom level in WorkLayer:", zoomLevel);
+  //   const zoomLevel = map.getZoom();
+  //   console.log("Zoom level in WorkLayer:", zoomLevel);
 
-    const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
-    console.log("Zoom Filtered Works:", zoomFilteredWorks);
+  //   const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
+  //   console.log("Zoom Filtered Works:", zoomFilteredWorks);
 
-    setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
-  };
+  //   setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
+  // };
+
+  // useEffect(() => {
+  //   if (!map || !nonOverlappingWorks) {
+  //     console.error("Error: No Works found!");
+  //     return;
+  //   }
+
+  //   const handleZoomEnd = () => {
+  //     const zoomLevel = map.getZoom();
+  //     console.log("Zoom level in GrantLayer:", zoomLevel);
+
+  //     const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
+  //     console.log("Zoom Filtered Works:", zoomFilteredWorks);
+
+  //     setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
+  //   };
+
+  //   map.on("zoomend", handleZoomEnd);
+
+  //   // Apply the filter initially
+  //   handleZoomEnd();
+
+  //   return () => {
+  //     map.off("zoomend", handleZoomEnd);
+  //   };
+  // }, [map, nonOverlappingWorks]);
 
   useEffect(() => {
-    if (!map || !nonOverlappingWorks) {
-      console.error("Error: No Works found!");
-      return;
-    }
-
-    const handleZoomEnd = () => {
-      const zoomLevel = map.getZoom();
-      console.log("Zoom level in GrantLayer:", zoomLevel);
-
-      const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
-      console.log("Zoom Filtered Works:", zoomFilteredWorks);
-
-      setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
-    };
-
-    map.on("zoomend", handleZoomEnd);
-
-    // Apply the filter initially
-    handleZoomEnd();
-
-    return () => {
-      map.off("zoomend", handleZoomEnd);
-    };
-  }, [map, nonOverlappingWorks]);
-
-  useEffect(() => {
-    if (!map || !filteredWorks || !filteredWorks.length) {
+    if (!map || !locationMap || !worksMap || !expertsMap || !showWorks) {
       console.error('Error: No works found!');
       return;
     }
-
+    const polygonLayers = [];
+    const polygonMarkers = [];
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 100,
@@ -414,107 +415,6 @@ const WorkLayer = ({
           iconSize: L.point(40, 40),
         });
       },
-    });
-
-    const locationMap = new Map();
-    const worksMap = new Map();
-    const expertsMap = new Map();
-    const polygonLayers = [];
-    const polygonMarkers = [];
-
-    filteredWorks.forEach((workLocation) => {
-      const { location, worksFeatures } = workLocation; // Destructure the object
-
-      // Iterate over worksFeatures if needed
-      worksFeatures.forEach((workFeature) => {
-        // Add any additional processing logic here
-        const geometry = workFeature.geometry;
-        const entries = workFeature.properties.entries || [];
-        const location = workFeature.properties.location || "Unknown";
-
-        if (!showWorks) return;
-        // Skip rendering if the location overlaps with combinedKeys
-        if (showWorks && showGrants && [...combinedKeys].some(key => key === location)) {
-          return;
-        }
-        // Generate a unique location ID
-        const locationID = workFeature.properties.locationID;
-
-        // Initialize locationMap entry if it doesn't exist
-        if (!locationMap.has(locationID)) {
-          locationMap.set(locationID, {
-            name: location, // Store the name of the location
-            display_name: workFeature.properties.display_name || 'Unknown Name',
-            country: workFeature.properties.country || 'Unknown Country',
-            place_rank: workFeature.properties.place_rank || 'Unknown Rank',
-            geometryType: geometry.type,
-            coordinates: geometry.coordinates,
-            workIDs: [],
-            expertIDs: [],
-          });
-        }
-
-
-
-        // Process each work entry
-        entries.forEach((entry) => {
-          const matchedFields = getMatchedFields(searchKeyword, entry);
-          if (searchKeyword && matchedFields.length === 0) return;
-          // Generate a unique work ID
-          const workID = `work_${entry.id}`;
-
-          // Add work to worksMap
-          worksMap.set(workID, {
-            workID: entry.id,
-            title: entry.title || "No Title",
-            abstract: entry.abstract || "No Abstract",
-            issued: entry.issued || "Unknown",
-            confidence: entry.confidence || "Unknown",
-            locationID,
-            relatedExpertIDs: [],
-            matchedFields,
-          });
-
-          // Add work ID to locationMap
-          locationMap.get(locationID).workIDs.push(workID);
-
-          // Process related experts
-          (entry.relatedExperts || []).forEach((expert) => {
-            // Generate a unique expert ID if the expert doesn't already exist
-            let expertID = Array.from(expertsMap.entries()).find(
-              ([, value]) => value.fullName === expert.fullName
-            )?.[0];
-
-            if (!expertID) {
-              expertID = `expert_${expert.id}`;
-              expertsMap.set(expertID, {
-                id: expert.id,
-                name: expert.fullName || "Unknown",
-                url: expert.url || "#",
-                locationIDs: [],
-                workIDs: [],
-              });
-            }
-
-            // Add expert ID to worksMap
-            worksMap.get(workID).relatedExpertIDs.push(expertID);
-
-            // Add location ID and work ID to expertsMap
-            const expertEntry = expertsMap.get(expertID);
-            if (!expertEntry.locationIDs.includes(locationID)) {
-              expertEntry.locationIDs.push(locationID);
-            }
-            if (!expertEntry.workIDs.includes(workID)) {
-              expertEntry.workIDs.push(workID);
-            }
-
-            // Add expert ID to locationMap
-            if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
-              locationMap.get(locationID).expertIDs.push(expertID);
-            }
-          });
-        });
-      });
     });
     // Render polygons
     renderPolygons({
@@ -546,11 +446,13 @@ const WorkLayer = ({
       map.removeLayer(markerClusterGroup);
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
-      map.off("zoomend", handleZoomEnd);
+      // map.off("zoomend", handleZoomEnd);
     };
   }, [
     map,
-    filteredWorks,
+    locationMap,
+    worksMap,
+    expertsMap,
     showWorks,
     showGrants,
     setSelectedWorks,
