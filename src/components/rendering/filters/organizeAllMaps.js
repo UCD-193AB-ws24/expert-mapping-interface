@@ -158,7 +158,6 @@ export function organizeAllMaps({
                   expertsMap.get(expertID).locationIDs.push(locationID);
                 }
                 if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
-                  if(type === "both"){console.log(`grantID ${grantID} with expertID ${expertID} added to ${locationID}`);}
                   locationMap.get(locationID).expertIDs.push(expertID);
                 }
                 

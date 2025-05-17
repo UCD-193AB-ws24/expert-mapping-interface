@@ -129,14 +129,24 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
    * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
    */
   useEffect(() => {
-    const map = mapRef.current;
-    if (map) {
-      map.on("zoomend", () => {
-        setZoomLevel(map.getZoom());
-        console.log("Current zoom level:", map.getZoom());
-      });
-    }
-  }, []);
+  const map = mapRef.current;
+  if (!map) return;
+
+  const handleZoom = () => {
+    setZoomLevel(map.getZoom());
+    console.log("Current zoom level:", map.getZoom());
+  };
+
+  map.on("zoomend", handleZoom);
+
+  // Set initial zoom level
+  setZoomLevel(map.getZoom());
+
+  // Cleanup
+  return () => {
+    map.off("zoomend", handleZoom);
+  };
+}, [mapRef.current]);
 
 
   // 2. Apply filters in memory
@@ -191,7 +201,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     showGrants
   ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
   
-  console.log("Overlapping Locations:", overlappingLocations);
 
   // 4. Filter data based on zoom level
   const zoomFilteredNonOverlappingGrants = useMemo(() =>
@@ -209,7 +218,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
   [overlappingLocations, zoomLevel]
   );
 
-  console.log("ZoomFiltered Overlapping Locations:", zoomFilteredOverlappingLocations);
   // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
   const {
     combined, // { locationMap, worksMap, grantsMap, expertsMap }
@@ -221,7 +229,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
     searchKeyword,
   });
-  console.log("Combined LocationMap, worksMap, grantsMap, expertsMap:", combined);
+  
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>

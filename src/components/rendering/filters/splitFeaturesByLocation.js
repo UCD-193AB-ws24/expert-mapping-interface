@@ -71,7 +71,6 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
     // Determine overlapping and non-overlapping locations
     workPolygons.forEach((worksFeatures, location) => {
         if (grantPolygons.has(location)) {
-            console.log("Overlapping location found...");
             overlappingLocations.push({
                 location,
                 worksFeatures,
@@ -91,7 +90,6 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
     // Determine overlapping and non-overlapping locations
     workPoints.forEach((worksFeatures, location) => {
         if (grantPoints.has(location)) {
-            console.log("Overlapping location found...");
             overlappingLocations.push({
                 location,
                 worksFeatures,
