@@ -7,7 +7,7 @@ const getPlaceRankRange = (zoomLevel) => {
 
 const filterFeaturesByZoom = (features = [], zoomLevel, featureType = "grantsFeatures") => {
   const placeRankRange = getPlaceRankRange(zoomLevel);
-  console.log(`Filtering features for zoom level ${zoomLevel}, place rank range: ${placeRankRange}`);
+  // console.log(`Filtering features for zoom level ${zoomLevel}, place rank range: ${placeRankRange}`);
 
   const filteredArray = []; // Manually construct the final array
 
@@ -23,9 +23,7 @@ const filterFeaturesByZoom = (features = [], zoomLevel, featureType = "grantsFea
       const placeRank = parseInt(item.properties?.place_rank, 10);
       const isInRange = placeRank >= placeRankRange[0] && placeRank <= placeRankRange[1];
 
-      console.log(
-        `Checking feature at location ${feature.location}, place_rank: ${placeRank}, in range: ${isInRange}`
-      );
+      // console.log( `Checking feature at location ${feature.location}, place_rank: ${placeRank}, in range: ${isInRange}`);
 
       return isInRange;
     });

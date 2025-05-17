@@ -1,6 +1,6 @@
 
 /**
- * This file contains the `processGeoJSONData` function, which processes two GeoJSON datasets
+ * This file contains the `splitFeaturesByLocation` function, which processes two GeoJSON datasets
  * (workGeoJSON and grantGeoJSON) to determine overlapping and non-overlapping locations
  * based on their polygon features. It dynamically returns data based on the provided flags.
  *
@@ -16,7 +16,7 @@
  * - nonOverlappingGrants: An array of locations where only grants exist (or grants and overlapping locations if showWorks is false).
  */
 
-const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) => {
+export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, showGrants) => {
     // Validate inputs and provide default values
     if (!workGeoJSON || !workGeoJSON.features) {
         console.warn("Invalid or missing workGeoJSON. Defaulting to an empty GeoJSON object.");
@@ -29,6 +29,8 @@ const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) =>
     
     const workPolygons = new Map();
     const grantPolygons = new Map();
+    const workPoints = new Map();
+    const grantPoints = new Map();
     const overlappingLocations = [];
     const nonOverlappingWorks = [];
     const nonOverlappingGrants = [];
@@ -41,6 +43,13 @@ const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) =>
             if (!workPolygons.has(location)) workPolygons.set(location, []);
             workPolygons.get(location).push(feature);
         }
+        else
+        {
+            const location = feature.properties.location || "";
+            if (!location) return;
+            if (!workPoints.has(location)) workPoints.set(location, []);
+            workPoints.get(location).push(feature);
+        }
     });
 
     // Collect grant polygons by location
@@ -50,6 +59,12 @@ const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) =>
             if (!location) return;
             if (!grantPolygons.has(location)) grantPolygons.set(location, []);
             grantPolygons.get(location).push(feature);
+        }
+        else{
+            const location = feature.properties.location || "";
+            if (!location) return;
+            if (!grantPoints.has(location)) grantPoints.set(location, []);
+            grantPoints.get(location).push(feature);
         }
     });
 
@@ -72,6 +87,25 @@ const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) =>
         }
     });
 
+    // Determine overlapping and non-overlapping locations
+    workPoints.forEach((worksFeatures, location) => {
+        if (grantPoints.has(location)) {
+            overlappingLocations.push({
+                location,
+                worksFeatures,
+                grantsFeatures: grantPoints.get(location),
+            });
+        } else {
+            nonOverlappingWorks.push({ location, worksFeatures });
+        }
+    });
+
+    grantPoints.forEach((grantsFeatures, location) => {
+        if (!workPoints.has(location)) {
+            nonOverlappingGrants.push({ location, grantsFeatures });
+        }
+    });
+
     // Return data dynamically based on flags
     return {
         overlappingLocations: showWorks && showGrants ? overlappingLocations : [],
@@ -80,4 +114,3 @@ const processGeoJSONData = (workGeoJSON, grantGeoJSON, showWorks, showGrants) =>
     };
 };
 
-export default processGeoJSONData;

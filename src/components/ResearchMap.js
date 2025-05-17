@@ -17,21 +17,23 @@
  * - searchKeyword: String used to filter data based on a search term.
  * - selectedDateRange: Array of two numbers representing the selected year range for filtering data by date.
  *
- * Marina Mata, 2025
+ * Marina Mata, Alyssa Vallejo 2025
  */
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import MapWrapper from "./MapContainer";
-import processGeoJSONData from "./rendering/ProcessGeoJSON";
 import WorkLayer from "./rendering/WorkLayer";
 import GrantLayer from "./rendering/GrantLayer";
 import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel } from "./rendering/Panels";
 import { CombinedPanel } from "./rendering/CombinedPanel";
 import { matchesKeyword } from "./rendering/filters/searchFilter";
-
+import { organizeAllMaps } from "./rendering/filters/organizeAllMaps";
+import { filterFeaturesByZoom, filterOverlappingLocationsByZoom } from "./rendering/filters/zoomFilter";
+import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
+import { splitFeaturesByLocation } from "./rendering/filters/splitFeaturesByLocation";
 /**
  * ResearchMap Component
  * @description Main map interface for visualizing research-related data.
@@ -41,11 +43,10 @@ import { matchesKeyword } from "./rendering/filters/searchFilter";
  * @param {Array<number>} selectedDateRange - Array of two numbers representing the selected year range for filtering data.
  */
 const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }) => {
-  const [geoData, setGeoData] = useState(null);
-  const [grantGeoJSON, setGrantGeoJSON] = useState(null);
-  const [workGeoJSON, setWorkGeoJSON] = useState(null);
+
+  const [rawGrantGeoJSON, setRawGrantGeoJSON] = useState(null);
+  const [rawWorkGeoJSON, setRawWorkGeoJSON] = useState(null);
   const [selectedWorks, setSelectedWorks] = useState([]);
-  // const [selectedPointExperts, setSelectedPointExperts] = useState([]);
   const [selectedGrants, setSelectedGrants] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelType, setPanelType] = useState(null);
@@ -105,8 +106,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               },
               })),
             };
-            setWorkGeoJSON(processedWorksData);
-            setGrantGeoJSON(processedGrantsData);
+            setRawWorkGeoJSON(processedWorksData);
+            setRawGrantGeoJSON(processedGrantsData);
             setIsLoading(false);
           })
           .catch((error) => {
@@ -128,134 +129,107 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
    * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
    */
   useEffect(() => {
-    const map = mapRef.current;
-    if (map) {
-      map.on("zoomend", () => {
-        setZoomLevel(map.getZoom());
-        console.log("Current zoom level:", map.getZoom());
-      });
-    }
-  }, []);
+  const map = mapRef.current;
+  if (!map) return;
 
-  /**
-    * Helper function to filter works by issued year.
-    * @param {object} entry - A work entry object.
-    * @returns {boolean} True if the work matches the selected date range, otherwise false.
-    */
-  const isWorkInDate = (entry) => {
-    if (!selectedDateRange || selectedDateRange.length !== 2) return true;
-    const issuedYear = parseInt(entry.issued, 10);
-    return issuedYear >= selectedDateRange[0] && issuedYear <= selectedDateRange[1];
+  const handleZoom = () => {
+    setZoomLevel(map.getZoom());
+    console.log("Current zoom level:", map.getZoom());
   };
 
-  /**
-   * Helper function to filter grants by start or end date.
-   * @param {object} entry - A grant entry object.
-   * @returns {boolean} True if the grant matches the selected date range, otherwise false.
-   */
-  const isGrantInDate = (entry) => {
-    if (!selectedDateRange || selectedDateRange.length !== 2) return true;
-    const start = parseInt(entry.start_date, 10);
-    const end = parseInt(entry.end_date, 10);
-    const [minYear, maxYear] = selectedDateRange;
-    return (
-      (!isNaN(start) && start >= minYear && start <= maxYear) ||
-      (!isNaN(end) && end >= minYear && end <= maxYear)
-    );
+  map.on("zoomend", handleZoom);
+
+  // Set initial zoom level
+  setZoomLevel(map.getZoom());
+
+  // Cleanup
+  return () => {
+    map.off("zoomend", handleZoom);
   };
+}, [mapRef.current]);
 
-  // Filter workGeoJSON by date
-  const dateFilteredWorkGeoJSON = workGeoJSON
-    ? {
-      ...workGeoJSON,
-      features: workGeoJSON.features
-        .map((feature) => {
-          const filteredEntries = (feature.properties.entries || []).filter(isWorkInDate);
-          return {
-            ...feature,
-            properties: {
-              ...feature.properties,
-              entries: filteredEntries,
-            },
-          };
-        })
-        .filter((f) => f.properties.entries.length > 0)
-    }
-    : null;
 
-  // Filter grantGeoJSON by date
-  const dateFilteredGrantGeoJSON = grantGeoJSON
-    ? {
-      ...grantGeoJSON,
-      features: grantGeoJSON.features
-        .map((feature) => {
-          // pass isGrantInDate directly
-          const filteredEntries = (feature.properties.entries || []).filter(isGrantInDate);
-          return {
-            ...feature,
-            properties: {
-              ...feature.properties,
-              entries: filteredEntries,
-            },
-          };
-        })
-        .filter(f => f.properties.entries && f.properties.entries.length > 0)
-    }
-    : null;
-  ;
+  // 2. Apply filters in memory
+  const filteredWorkGeoJSON = useMemo(() => {
+    if (!rawWorkGeoJSON) return null;
+    // Apply date and keyword filters
+    return {
+      ...rawWorkGeoJSON,
+      features: rawWorkGeoJSON.features
+        .map(feature => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: (feature.properties.entries || [])
+              .filter(entry => isWorkInDate(entry, selectedDateRange))
+              .filter(entry => matchesKeyword(searchKeyword, entry))
+          }
+        }))
+        .filter(f => f.properties.entries.length > 0)
+    };
+  }, [rawWorkGeoJSON, selectedDateRange, searchKeyword]);
 
-  // Apply keyword filter on top of date filter
-  const keywordFilteredWorkGeoJSON = dateFilteredWorkGeoJSON
-    ? {
-      ...dateFilteredWorkGeoJSON,
-      features: dateFilteredWorkGeoJSON.features
-        .map((feature) => {
-          const filteredEntries = (feature.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, entry));
-          return {
-            ...feature,
-            properties: {
-              ...feature.properties,
-              entries: filteredEntries,
-            },
-          };
-        })
-        .filter((f) => f.properties.entries.length > 0)
-    }
-    : null;
+  const filteredGrantGeoJSON = useMemo(() => {
+  if (!rawGrantGeoJSON) return null;
+  // Apply date and keyword filters
+    return {
+      ...rawGrantGeoJSON,
+      features: rawGrantGeoJSON.features
+        .map(feature => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: (feature.properties.entries || [])
+              .filter(entry => isGrantInDate(entry, selectedDateRange))
+              .filter(entry => matchesKeyword(searchKeyword, entry))
+          }
+        }))
+        .filter(f => f.properties.entries.length > 0)
+    };
+  }, [rawGrantGeoJSON, selectedDateRange, searchKeyword]);
 
-  // Apply keyword filter on top of date filter
-  const keywordFilteredGrantGeoJSON = dateFilteredGrantGeoJSON
-    ? {
-      ...dateFilteredGrantGeoJSON,
-      features: dateFilteredGrantGeoJSON.features
-        .map((feature) => {
-          // pass isGrantInDate directly
-          const filteredEntries = (feature.properties.entries || []).filter(entry => matchesKeyword(searchKeyword, entry));
-          return {
-            ...feature,
-            properties: {
-              ...feature.properties,
-              entries: filteredEntries,
-            },
-          };
-        })
-        .filter(f => f.properties.entries && f.properties.entries.length > 0)
-    }
-    : null;
-  ;
-
-  // Validate filtered GeoJSON data before passing to processGeoJSONData
-  const validWorkGeoJSON = keywordFilteredWorkGeoJSON || { type: "FeatureCollection", features: [] };
-  const validGrantGeoJSON = keywordFilteredGrantGeoJSON || { type: "FeatureCollection", features: [] };
-
-  // Call processGeoJSONData with validated inputs
-  const { overlappingLocations, nonOverlappingWorks, nonOverlappingGrants } = processGeoJSONData(
-    validWorkGeoJSON,
-    validGrantGeoJSON,
+ // 3. Filter data based on grants or works, or both
+  const {
+    overlappingLocations, // features with both works and grants
+    nonOverlappingWorks,  // features with only works
+    nonOverlappingGrants, // features with only grants
+    // ...any maps you need
+  } = useMemo(() => splitFeaturesByLocation(
+    filteredWorkGeoJSON,
+    filteredGrantGeoJSON,
     showWorks,
     showGrants
+  ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
+  
+
+  // 4. Filter data based on zoom level
+  const zoomFilteredNonOverlappingGrants = useMemo(() =>
+  filterFeaturesByZoom(nonOverlappingGrants, zoomLevel),
+  [nonOverlappingGrants, zoomLevel]
   );
 
+  const zoomFilteredNonOverlappingWorks = useMemo(() =>
+  filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures"),
+  [nonOverlappingWorks, zoomLevel]
+  );
+  
+  const zoomFilteredOverlappingLocations = useMemo(() =>
+  filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel, "workFeatures"),
+  [overlappingLocations, zoomLevel]
+  );
+
+  // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
+  const {
+    combined, // { locationMap, worksMap, grantsMap, expertsMap }
+    works,    // { locationMap, worksMap, expertsMap }
+    grants,   // { locationMap, grantsMap, expertsMap }
+  } = organizeAllMaps({
+    overlappingFeatures: zoomFilteredOverlappingLocations || [],
+    workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
+    grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
+    searchKeyword,
+  });
+  
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
@@ -293,46 +267,45 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           {/* Combined location layer */}
           {((showWorks && showGrants) || searchKeyword) && (
             <CombinedLayer
-              overlappingLocations={overlappingLocations}
+              locationMap={combined.locationMap}
+              worksMap={combined.worksMap}
+              grantsMap={combined.grantsMap}
+              expertsMap={combined.expertsMap}
               showWorks={showWorks}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
               setSelectedGrants={setSelectedGrants}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
-              setCombinedKeys={setCombinedKeys}
-              combinedKeys={combinedKeys}
               setLocationName={setLocationName}
-              searchKeyword={searchKeyword}
             />
           )}
 
           {/* Works layer */}
-          {(showWorks || searchKeyword) && (
+          {(showWorks) && (
             <WorkLayer
-              nonOverlappingWorks={nonOverlappingWorks}
+              locationMap={works.locationMap}
+              worksMap={works.worksMap}
+              expertsMap={works.expertsMap}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
-              searchKeyword={searchKeyword}
               setSelectedWorks={setSelectedWorks}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
-              combinedKeys={combinedKeys}
-
             />
           )}
+
           {/* Grants layer */}
-          {(showGrants || searchKeyword) && (
+          {(showGrants) && (
             <GrantLayer
-              nonOverlappingGrants={nonOverlappingGrants}
+              locationMap={grants.locationMap}
+              grantsMap={grants.grantsMap}
+              expertsMap={grants.expertsMap}
               showWorks={showWorks}
               showGrants={showGrants || !showWorks}
-              searchKeyword={searchKeyword}
               setSelectedGrants={setSelectedGrants}
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
-              combinedKeys={combinedKeys}
-
             />
           )}
         </MapWrapper>
