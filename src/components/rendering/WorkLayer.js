@@ -303,7 +303,7 @@ const renderPoints = ({
             e.preventDefault();
             e.stopPropagation();
 
-            const panelData = preparePanelData(
+            const panelData = prepareWorkPanelData(
               locationData.expertIDs,
               locationData.workIDs,
               expertsMap,
@@ -346,7 +346,6 @@ const WorkLayer = ({
   worksMap,
   expertsMap,
   showWorks,
-  showGrants,
   setSelectedWorks,
   setPanelOpen,
   setPanelType,
@@ -454,7 +453,6 @@ const WorkLayer = ({
     worksMap,
     expertsMap,
     showWorks,
-    showGrants,
     setSelectedWorks,
     setPanelOpen,
     setPanelType,]);

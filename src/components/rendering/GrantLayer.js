@@ -26,70 +26,7 @@ import { useEffect, useState } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { createMultiGrantPopup, createMatchedGrantPopup } from "./Popups";
-// import { filterFeaturesByZoom } from "./filters/zoomFilter";
-// import { getMatchedFields } from "./filters/searchFilter";
 import { prepareGrantPanelData } from "./utils/preparePanelData";
-
-// const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID) => {
-//   return expertIDs.map((expertID) => {
-//     const expert = expertsMap.get(expertID);
-//     if (!expert) {
-//       console.warn(`Expert with ID ${expertID} not found in expertsMap.`);
-//       return null;
-//     }
-
-//     // Ensure the URL is a full URL
-//     const fullUrl = expert.url.startsWith("http")
-//       ? expert.url
-//       : `https://experts.ucdavis.edu/${expert.url}`;
-
-//     // Find grants associated with this expert and the current location
-//     const associatedGrants = grantIDs
-//       .map((grantID) => {
-//         const grant = grantsMap.get(grantID);
-//         if (!grant) {
-//           console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
-//           return null;
-//         }
-//         return grant;
-//       })
-
-//       // Filter grants based on the expert ID and location ID
-//       .filter((grant) => {
-//         if (!grant) return false;
-//         if (!grant.relatedExpertIDs) {
-//           console.warn(`Grant with ID ${grant.grantID} has no relatedExpertIDs.`);
-//           return false;
-//         }
-//         if (!grant.relatedExpertIDs.includes(expertID)) {
-//           console.warn(
-//             `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertIDs}, which does not match expertID ${expertID}.`
-//           );
-//           return false;
-//         }
-//         if (!grant.locationID.includes(locationID)) {
-//           console.warn(
-//             `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
-//           );
-//           return false;
-//         }
-//         return true;
-//       });
-
-//     return {
-//       name: expert.name || "Unknown",
-//       url: fullUrl, // Use the full URL
-//       grants: associatedGrants.map((grant) => ({
-//         title: grant.title || "Untitled Grant",
-//         funder: grant.funder || "Unknown",
-//         startDate: grant.startDate || "Unknown",
-//         endDate: grant.endDate || "Unknown",
-//         confidence: grant.confidence || "Unknown",
-//         matchedFields: grant.matchedFields || [],
-//       })),
-//     };
-//   }).filter((expert) => expert); // Filter out null experts
-// };
 
 
 const renderPolygons = ({
@@ -379,24 +316,13 @@ const GrantLayer = ({
   locationMap,
   grantsMap,
   expertsMap,
-  showWorks,
   showGrants,
   setSelectedGrants,
   setPanelOpen,
   setPanelType,
 }) => {
   const map = useMap();
-  // Handle zoom filtering
-  // const handleZoomEnd = () => {
-  //   if (!map || !nonOverlappingGrants) return;
-
-  //   const zoomLevel = map.getZoom();
-
-  //   const zoomFilteredGrants = filterFeaturesByZoom(nonOverlappingGrants, zoomLevel, "grantsFeatures");
-
-  //   setFilteredGrants(zoomFilteredGrants); // Update the filtered grants state
-  // };
-
+  
   useEffect(() => {
     if (!map || !locationMap || !grantsMap || !expertsMap || !showGrants) {
       console.error("Error: No grants found!");
