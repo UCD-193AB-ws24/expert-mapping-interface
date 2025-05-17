@@ -30,8 +30,8 @@ import ReactSlider from "react-slider";
 import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
 
 function App() {
-  const [showGrants, setShowGrants] = useState(false);
-  const [showWorks, setShowWorks] = useState(false);
+  const [showGrants, setShowGrants] = useState(true);
+  const [showWorks, setShowWorks] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedDateRange, setSelectedDateRange] = useState([1990, 2025]);
   const [isTogglesOpen, setIsTogglesOpen] = useState(true);

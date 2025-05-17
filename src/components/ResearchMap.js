@@ -21,7 +21,6 @@
  */
 
 import React, { useRef, useState, useEffect, useMemo } from "react";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import MapWrapper from "./MapContainer";
 import WorkLayer from "./rendering/WorkLayer";
@@ -52,7 +51,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
   const [panelType, setPanelType] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [combinedKeys, setCombinedKeys] = useState(new Set());
   const mapRef = useRef(null);
   const [locationName, setLocationName] = useState("Unknown");
   const [zoomLevel, setZoomLevel] = useState(2);
