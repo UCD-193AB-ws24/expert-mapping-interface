@@ -27,13 +27,13 @@ import MapWrapper from "./MapContainer";
 import WorkLayer from "./rendering/WorkLayer";
 import GrantLayer from "./rendering/GrantLayer";
 import CombinedLayer from "./rendering/CombinedLayer";
-import { WorksPanel, GrantsPanel } from "./rendering/Panels";
-import { CombinedPanel } from "./rendering/CombinedPanel";
+import { WorksPanel, GrantsPanel, CombinedPanel } from "./rendering/Panels";
 import { matchesKeyword } from "./rendering/filters/searchFilter";
 import { organizeAllMaps } from "./rendering/filters/organizeAllMaps";
 import { filterFeaturesByZoom, filterOverlappingLocationsByZoom } from "./rendering/filters/zoomFilter";
 import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
 import { splitFeaturesByLocation } from "./rendering/filters/splitFeaturesByLocation";
+import { isHighConfidence } from "./rendering/filters/confidenceFilter";
 /**
  * ResearchMap Component
  * @description Main map interface for visualizing research-related data.
@@ -161,6 +161,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           properties: {
             ...feature.properties,
             entries: (feature.properties.entries || [])
+              .filter(isHighConfidence)
               .filter(entry => isWorkInDate(entry, selectedDateRange))
               .filter(entry => matchesKeyword(searchKeyword, entry))
           }
