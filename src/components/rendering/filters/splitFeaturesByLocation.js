@@ -29,6 +29,8 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
     
     const workPolygons = new Map();
     const grantPolygons = new Map();
+    const workPoints = new Map();
+    const grantPoints = new Map();
     const overlappingLocations = [];
     const nonOverlappingWorks = [];
     const nonOverlappingGrants = [];
@@ -41,6 +43,13 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
             if (!workPolygons.has(location)) workPolygons.set(location, []);
             workPolygons.get(location).push(feature);
         }
+        else
+        {
+            const location = feature.properties.location || "";
+            if (!location) return;
+            if (!workPoints.has(location)) workPoints.set(location, []);
+            workPoints.get(location).push(feature);
+        }
     });
 
     // Collect grant polygons by location
@@ -50,6 +59,12 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
             if (!location) return;
             if (!grantPolygons.has(location)) grantPolygons.set(location, []);
             grantPolygons.get(location).push(feature);
+        }
+        else{
+            const location = feature.properties.location || "";
+            if (!location) return;
+            if (!grantPoints.has(location)) grantPoints.set(location, []);
+            grantPoints.get(location).push(feature);
         }
     });
 
@@ -69,6 +84,26 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
 
     grantPolygons.forEach((grantsFeatures, location) => {
         if (!workPolygons.has(location)) {
+            nonOverlappingGrants.push({ location, grantsFeatures });
+        }
+    });
+
+    // Determine overlapping and non-overlapping locations
+    workPoints.forEach((worksFeatures, location) => {
+        if (grantPoints.has(location)) {
+            console.log("Overlapping location found...");
+            overlappingLocations.push({
+                location,
+                worksFeatures,
+                grantsFeatures: grantPoints.get(location),
+            });
+        } else {
+            nonOverlappingWorks.push({ location, worksFeatures });
+        }
+    });
+
+    grantPoints.forEach((grantsFeatures, location) => {
+        if (!workPoints.has(location)) {
             nonOverlappingGrants.push({ location, grantsFeatures });
         }
     });

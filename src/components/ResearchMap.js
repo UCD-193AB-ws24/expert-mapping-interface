@@ -190,7 +190,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     showWorks,
     showGrants
   ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
+  
   console.log("Overlapping Locations:", overlappingLocations);
+
   // 4. Filter data based on zoom level
   const zoomFilteredNonOverlappingGrants = useMemo(() =>
   filterFeaturesByZoom(nonOverlappingGrants, zoomLevel),
@@ -206,7 +208,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
   filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel, "workFeatures"),
   [overlappingLocations, zoomLevel]
   );
-  // console.log("ZoomFiltered Overlapping Locations:", zoomFilteredNonOverlappingGrants);
+
+  console.log("ZoomFiltered Overlapping Locations:", zoomFilteredOverlappingLocations);
   // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
   const {
     combined, // { locationMap, worksMap, grantsMap, expertsMap }
@@ -216,8 +219,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
     overlappingFeatures: zoomFilteredOverlappingLocations || [],
     workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
     grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
+    searchKeyword,
   });
-  console.log(combined);
+  console.log("Combined LocationMap, worksMap, grantsMap, expertsMap:", combined);
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
@@ -258,6 +262,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               locationMap={combined.locationMap}
               worksMap={combined.worksMap}
               grantsMap={combined.grantsMap}
+              expertsMap={combined.expertsMap}
               showWorks={showWorks}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}

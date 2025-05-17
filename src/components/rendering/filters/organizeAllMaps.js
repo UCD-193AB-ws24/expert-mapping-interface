@@ -1,9 +1,12 @@
+import { getMatchedFields } from "./searchFilter";
+
 export function organizeAllMaps({
   overlappingFeatures, // [{ location, worksFeatures, grantsFeatures }]
   workOnlyFeatures,    // [{ location, worksFeatures }]
-  grantOnlyFeatures    // [{ location, grantsFeatures }]
+  grantOnlyFeatures,    // [{ location, grantsFeatures }]
+  searchKeyword
 }) {
-  function buildMaps(features, type) {
+  function buildMaps(features, type, searchKeyword) {
     const locationMap = new Map();
     const worksMap = new Map();
     const grantsMap = new Map();
@@ -44,6 +47,11 @@ export function organizeAllMaps({
         locObj.worksFeatures.forEach((feature) => {
           const entries = feature.properties.entries || [];
           entries.forEach((entry) => {
+            const matchedFields = getMatchedFields(searchKeyword, entry);
+            if (searchKeyword && matchedFields.length === 0) {
+              console.warn("Error with matched fields...");
+              return;
+            }
             const workID = `work_${entry.id}`;
             worksMap.set(workID, {
               workID: entry.id || 'Unknown workID',
@@ -53,6 +61,7 @@ export function organizeAllMaps({
               confidence: entry.confidence || "Unknown",
               locationID,
               relatedExpertIDs: [],
+              matchedFields,
             });
             locationMap.get(locationID).workIDs.push(workID);
 
@@ -99,6 +108,11 @@ export function organizeAllMaps({
         locObj.grantsFeatures.forEach((feature) => {
           const entries = feature.properties.entries || [];
           entries.forEach((entry) => {
+            const matchedFields = getMatchedFields(searchKeyword, entry);
+            if (searchKeyword && matchedFields.length === 0) {
+              console.warn("Error with matched fields...");
+              return;
+            }
             const grantID = `grant_${entry.id}`;
             grantsMap.set(grantID, {
               grantID: entry.id || 'Unknown grantID',
@@ -109,7 +123,9 @@ export function organizeAllMaps({
               confidence: entry.confidence || "Unknown",
               locationID,
               relatedExpertIDs: [],
+              matchedFields,
             });
+
             locationMap.get(locationID).grantIDs.push(grantID);
 
             // Handle experts (same as before)
@@ -142,8 +158,10 @@ export function organizeAllMaps({
                   expertsMap.get(expertID).locationIDs.push(locationID);
                 }
                 if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
+                  if(type === "both"){console.log(`grantID ${grantID} with expertID ${expertID} added to ${locationID}`);}
                   locationMap.get(locationID).expertIDs.push(expertID);
                 }
+                
               });
             }
           });
@@ -155,8 +173,8 @@ export function organizeAllMaps({
   }
 
   return {
-    combined: buildMaps(overlappingFeatures, "both"),
-    works: buildMaps(workOnlyFeatures, "work"),
-    grants: buildMaps(grantOnlyFeatures, "grant"),
+    combined: buildMaps(overlappingFeatures, "both", searchKeyword),
+    works: buildMaps(workOnlyFeatures, "work", searchKeyword),
+    grants: buildMaps(grantOnlyFeatures, "grant", searchKeyword),
   };
 }

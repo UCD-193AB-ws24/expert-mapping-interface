@@ -29,7 +29,7 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { createCombinedPopup, createMatchedCombinedPolygonPopup } from "./Popups";
 import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
-import { filterOverlappingLocationsByZoom } from "./filters/zoomFilter";
+// import { filterOverlappingLocationsByZoom } from "./filters/zoomFilter";
 
 const renderPolygons = ({
   locationMap,
@@ -43,9 +43,9 @@ const renderPolygons = ({
   setPanelOpen,
   setPanelType,
   comboLayers,
-  comboPolyMarkers,
-  searchKeyword
+  comboPolyMarkers
 }) => {
+  const matchedFieldsSet = new Set();
   // Sort polygons by area (largest to smallest)
   const sortedPolygons = Array.from(locationMap.entries())
     .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
@@ -70,8 +70,8 @@ const renderPolygons = ({
 
     setLocationName(locationData.name);
     // Initialize sets to count unique experts
-    const workExpertSet = new Set();
-    const grantExpertSet = new Set();
+    const workExpertIDs = new Set();
+    const grantExpertIDs = new Set();
 
     // Count experts from workIDs
     locationData.workIDs.forEach((workID) => {
@@ -83,7 +83,7 @@ const renderPolygons = ({
 
       (work.relatedExpertIDs || []).forEach((expertID) => {
         if (expertsMap.has(expertID)) {
-          workExpertSet.add(expertID);
+          workExpertIDs.add(expertID);
         }
       });
     });
@@ -98,25 +98,24 @@ const renderPolygons = ({
 
       (grant.relatedExpertIDs || []).forEach((expertID) => {
         if (expertsMap.has(expertID)) {
-          grantExpertSet.add(expertID);
+          grantExpertIDs.add(expertID);
         }
       });
     });
 
-    const work2expertCount = workExpertSet.size;
-    const grant2expertCount = grantExpertSet.size;
+    const work2expertCount = workExpertIDs.size;
+    const grant2expertCount = grantExpertIDs.size;
 
-    if ((locationData.workExpertIDs.length + locationData.grantExpertIDs.length) !== (work2expertCount + grant2expertCount)) {
-      console.log('Num of experts w/ works:', locationData.workExpertIDs.length);
-      console.log('Num of experts w/ grants:', locationData.grantExpertIDs.length);
-      console.log('workExpertSet:', work2expertCount);
-      console.log('grantExpertSet:', grant2expertCount);
-      console.warn(`Error in data consistency for locationID: ${locationID}`);
-      return;
-    }
+    // if ((locationData.expertIDs.length) !== (work2expertCount + grant2expertCount)) {
+    //   console.log('Num of experts w/ works:', work2expertCount);
+    //   console.log('Num of experts w/ grants:', grant2expertCount);
+    //   console.log('Total Number of expertIDs:', locationData.expertIDs.length);
+    //   console.warn(`Error in data consistency for locationID: ${locationID}`);
+    //   return;
+    // }
 
     // Skip rendering if no experts are found
-    if (work2expertCount === 0 && grant2expertCount === 0 || locationData.workExpertIDs.length === 0 && locationData.grantExpertIDs.length === 0) {
+    if (work2expertCount === 0 && grant2expertCount === 0) {
       console.warn(`No experts found for locationID: ${locationID}`);
       return;
     }
@@ -164,7 +163,6 @@ const renderPolygons = ({
 
     marker.on("mouseover", () => {
       if (closeTimeout) clearTimeout(closeTimeout);
-      const matchedFieldsSet = new Set();
 
       // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
@@ -185,7 +183,7 @@ const renderPolygons = ({
 
       // Create popup content
       const content =
-        searchKeyword && matchedFields.length > 0
+        matchedFields.length > 0
           ? createMatchedCombinedPolygonPopup(
             work2expertCount,
             grant2expertCount,
@@ -237,14 +235,14 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const grantPanelData = prepareGrantPanelData(
-              locationData.grantExpertIDs,
+              Array.from(grantExpertIDs),
               locationData.grantIDs,
               grantsMap,
               expertsMap,
               locationID
             );
             const workPanelData = prepareWorkPanelData(
-              locationData.workExpertIDs,
+              Array.from(workExpertIDs),
               locationData.workIDs,
               expertsMap,
               worksMap,
@@ -288,8 +286,8 @@ const renderPoints = ({
   setLocationName,
   setPanelOpen,
   setPanelType,
-  searchKeyword,
 }) => {
+  const matchedFieldsSet = new Set();
   // Iterate through each location in the location map
   locationMap.forEach((locationData, locationID) => {
     // Skip locations that are not points or have no works or grants
@@ -312,7 +310,7 @@ const renderPoints = ({
 
       (work.relatedExpertIDs || []).forEach((expertID) => {
         if (expertsMap.has(expertID)) {
-          workExpertSet.add(expertID);
+          workExpertIDs.add(expertID);
         }
       });
     });
@@ -326,13 +324,13 @@ const renderPoints = ({
 
       (grant.relatedExpertIDs || []).forEach((expertID) => {
         if (expertsMap.has(expertID)) {
-          grantExpertSet.add(expertID);
+          grantExpertIDs.add(expertID);
         }
       });
     });
 
-    const work2expertCount = workExpertSet.size;
-    const grant2expertCount = grantExpertSet.size;
+    const work2expertCount = workExpertIDs.size;
+    const grant2expertCount = grantExpertIDs.size;
     const totalExpertCount = work2expertCount + grant2expertCount;
 
     // Create a marker for the location
@@ -350,8 +348,8 @@ const renderPoints = ({
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (closePointTimeout) clearTimeout(closePointTimeout);
-      const matchedFieldsSet = new Set();
-
+      
+      
       // Collect matched fields from works
       locationData.workIDs.forEach((workID) => {
         const work = worksMap.get(workID);
@@ -372,7 +370,7 @@ const renderPoints = ({
 
       // Create popup content
       const content =
-        searchKeyword && matchedFields.length > 0
+        matchedFields.length > 0
           ? createMatchedCombinedPolygonPopup(
             work2expertCount,
             grant2expertCount,
@@ -558,7 +556,6 @@ const CombinedLayer = ({
         setPanelType,
         comboLayers,
         comboPolyMarkers,
-        searchKeyword,
       });
 
       renderPoints({
@@ -573,7 +570,6 @@ const CombinedLayer = ({
         setLocationName,
         setPanelOpen,
         setPanelType,
-        searchKeyword,
       });
     }
 

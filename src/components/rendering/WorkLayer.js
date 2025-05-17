@@ -23,42 +23,42 @@ import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
 // import { filterFeaturesByZoom } from "./filters/zoomFilter";
 
-// import { prepareWorkPanelData } from "./utils/preparePanelData";
+import { prepareWorkPanelData } from "./utils/preparePanelData";
 /**
  * Prepares data for the side panel by collecting expert and work information for a specific location.
  */
-const preparePanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID) => {
-  return expertIDs.map((expertID) => {
-    const expert = expertsMap.get(expertID);
-    if (!expert) return null;
+// const preparePanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID) => {
+//   return expertIDs.map((expertID) => {
+//     const expert = expertsMap.get(expertID);
+//     if (!expert) return null;
 
-    // Ensure the URL is a full URL
-    const fullUrl = expert.url.startsWith("http")
-      ? expert.url
-      : `https://experts.ucdavis.edu/${expert.url}`;
+//     // Ensure the URL is a full URL
+//     const fullUrl = expert.url.startsWith("http")
+//       ? expert.url
+//       : `https://experts.ucdavis.edu/${expert.url}`;
 
-    // Find works associated with this expert and the current location
-    const associatedWorks = workIDs
-      .map((workID) => worksMap.get(workID))
-      .filter(
-        (work) =>
-          work &&
-          work.relatedExpertIDs.includes(expertID) && // Work is associated with this expert
-          work.locationID === locationID // Work matches the current location
-      );
+//     // Find works associated with this expert and the current location
+//     const associatedWorks = workIDs
+//       .map((workID) => worksMap.get(workID))
+//       .filter(
+//         (work) =>
+//           work &&
+//           work.relatedExpertIDs.includes(expertID) && // Work is associated with this expert
+//           work.locationID === locationID // Work matches the current location
+//       );
 
-    return {
-      name: expert.name || "Unknown",
-      url: fullUrl, // Use the full URL
-      works: associatedWorks.map((work) => ({
-        title: work.title || "Untitled Work",
-        issued: work.issued || "Unknown",
-        confidence: work.confidence || "Unknown",
-        matchedFields: work.matchedFields || [],
-      })),
-    };
-  }).filter((expert) => expert); // Filter out null experts
-};
+//     return {
+//       name: expert.name || "Unknown",
+//       url: fullUrl, // Use the full URL
+//       works: associatedWorks.map((work) => ({
+//         title: work.title || "Untitled Work",
+//         issued: work.issued || "Unknown",
+//         confidence: work.confidence || "Unknown",
+//         matchedFields: work.matchedFields || [],
+//       })),
+//     };
+//   }).filter((expert) => expert); // Filter out null experts
+// };
 
 /**
  * Renders polygons on the map.
@@ -186,7 +186,7 @@ const renderPolygons = ({
             e.preventDefault();
             e.stopPropagation();
 
-            const panelData = preparePanelData(
+            const panelData = prepareWorkPanelData(
               locationData.expertIDs,
               locationData.workIDs,
               expertsMap,
