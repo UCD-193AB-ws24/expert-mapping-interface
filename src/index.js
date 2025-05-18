@@ -14,8 +14,8 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './styles/index.css';
-import App from './App';
+import './frontend/styles/index.css';
+import App from './frontend/App';
 
 // Render the main App component into the root DOM element
 ReactDOM.render(

@@ -6,7 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-COPY . .
+# Copy only backend code
+COPY src/backend ./src/backend
 
 EXPOSE 3001
-CMD ["node", "src/server.js"]
+CMD ["node", "src/backend/server.js"]
