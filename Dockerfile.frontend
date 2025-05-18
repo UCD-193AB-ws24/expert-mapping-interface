@@ -9,6 +9,7 @@ RUN npm install
 # Copy only frontend code
 COPY src/frontend ./src/frontend
 COPY public ./public
+COPY src/index.js ./src/index.js
 
 EXPOSE 3000
 CMD ["npm", "start"]
