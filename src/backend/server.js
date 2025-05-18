@@ -17,26 +17,9 @@ const { pool } = require('./postgis/config');
 const app = express();
 const PORT = 3001;
 
-const { createClient } = require('redis');
+const { createRedisClient } = require('./etl/aggieExpertsAPI/utils/redisUtils');
 
-// Redis event handlers
-const host = process.env.SERVER_HOST;
-const port = process.env.REDIS_PORT;
-
-const redisClient = createClient({
-    socket: { host, port }
-});
-
-redisClient.on('error', (err) => {
-  console.error('❌ Redis error:', err);
-  process.exit(1);
-});
-redisClient.on('connect', () => {
-  console.log('✅ Redis connected successfully');
-});
-redisClient.on('end', () => {
-  console.log('🔌 Redis connection closed')
-});
+const redisClient = createRedisClient
 
 (async () => {
   try {
@@ -329,10 +312,9 @@ app.get('/api/grants', async (req, res) => {
   }
 });
 
-
 // SERVER CONFIG
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Backend Server Running!`);
 });
 
 // Add graceful shutdown handlers
