@@ -1,4 +1,4 @@
 node_modules
 dump.rdb
 .env
-src/components/depreceated
+docker-compose.yml
