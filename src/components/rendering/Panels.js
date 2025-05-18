@@ -60,20 +60,7 @@ const getConfidenceStyle = (confidenceValue) => {
 
 // Displays a side panel with a list of works associated with a specific location.
 // Includes keyword filtering and expandable lists for works.
-export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => {
-  const lowerKeyword = (keyword || "").toLowerCase().trim();
-
-  // Apply keyword filtering
-  const filteredExperts = works.filter((expert) => {
-    if (!keyword) return true;
-    const searchableText = [
-      expert.name,
-      ...expert.works.map((work) => work.title),
-    ]
-      .join(" ")
-      .toLowerCase();
-    return searchableText.includes(lowerKeyword);
-  });
+export const WorksPanel = ({ works = [], onClose}) => {
 
   // State to track which expert's works are expanded
   const [expandedExpertIndex, setExpandedExpertIndex] = useState(null);
@@ -117,12 +104,12 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
 
       {/* Panel Header */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#3879C7" }}>
-        <strong>{filteredExperts.length} Expert{filteredExperts.length !== 1 ? "s" : ""} at this Location</strong>
+        <strong>{works.length} Expert{works.length !== 1 ? "s" : ""} at this Location</strong>
       </h2>
 
       {/* List of Experts */}
       <ul style={{ padding: 0, listStyle: "none" }}>
-        {filteredExperts.map((expert, index) => (
+        {works.map((expert, index) => (
           <li
             key={index}
             style={{
@@ -246,20 +233,7 @@ export const WorksPanel = ({ works = [], onClose, panelType, keyword = "" }) => 
 
 // Displays a side panel with a list of grants associated with a specific location.
 // Includes keyword filtering and expandable lists for grants.
-export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
-  const lowerKeyword = (keyword || "").toLowerCase().trim();
-
-  // Apply keyword filtering
-  const filteredExperts = grants.filter((expert) => {
-    if (!keyword) return true;
-    const searchableText = [
-      expert.name,
-      ...expert.grants.map((grant) => grant.title),
-    ]
-      .join(" ")
-      .toLowerCase();
-    return searchableText.includes(lowerKeyword);
-  });
+export const GrantsPanel = ({ grants = [], onClose}) => {
 
   // State to track which expert's grants are expanded
   const [expandedExpertIndex, setExpandedExpertIndex] = useState(null);
@@ -303,12 +277,12 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
 
       {/* Panel Header */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#eda012" }}>
-        <strong>{filteredExperts.length} Expert{filteredExperts.length !== 1 ? "s" : ""} at this Location </strong>
+        <strong>{grants.length} Expert{grants.length !== 1 ? "s" : ""} at this Location </strong>
       </h2>
 
       {/* List of Experts */}
       <ul style={{ padding: 0, listStyle: "none" }}>
-        {filteredExperts.map((expert, index) => (
+        {grants.map((expert, index) => (
           <li
             key={index}
             style={{
@@ -436,22 +410,25 @@ export const GrantsPanel = ({ grants = [], onClose, keyword = "" }) => {
 
 // Displays a side panel with two tabs: "Works" and "Grants" for a specific location.
 // Includes keyword filtering, confidence level styling, and expandable lists for works and grants
-export const CombinedPanel = ({ works, grants, locationName, onClose, keyword }) => {
-  const lowerKeyword = (keyword || "").toLowerCase().trim();
-
-  const filteredWorks = works.filter(entry =>
-    JSON.stringify(entry).toLowerCase().includes(lowerKeyword)
-  );
-
-  const filteredGrants = grants.filter(entry =>
-    JSON.stringify(entry).toLowerCase().includes(lowerKeyword)
-  );
-
-
+export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
   // State to track the currently active tab ("works" or "grants")
-  const [activeTab, setActiveTab] = useState("works");
+    const [activeTab, setActiveTab] = useState("works");
+  
+    // State to track which expert's works and grants are expanded
+    const [expandedWorkIndex, setExpandedWorkIndex] = useState(null);
+    const [expandedGrantIndex, setExpandedGrantIndex] = useState(null);
+  
+    // Toggle functions for works and grants
+    const toggleWorkDetails = (index) => {
+      setExpandedWorkIndex(expandedWorkIndex === index ? null : index);
+    };
+  
+    const toggleGrantDetails = (index) => {
+      setExpandedGrantIndex(expandedGrantIndex === index ? null : index);
+    };
+  
 
-  return (
+   return (
     <div style={{
       position: "fixed",
       right: 0,
@@ -483,8 +460,8 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       </button>
 
       {/* Location Header */}
-      <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#6CCA98" }}>
-        Location: {locationName}
+      <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#659c39" }}>
+        <strong>Location: {locationName}</strong>
       </h2>
 
       {/* Tab Navigation */}
@@ -504,7 +481,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
             fontWeight: "bold"
           }}
         >
-          Works ({filteredWorks.length})
+          Works ({works.length})
         </button>
 
         {/* Grants Tab Button */}
@@ -522,14 +499,15 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
             fontWeight: "bold"
           }}
         >
-          Grants ({filteredGrants.length})
+          Grants ({grants.length})
         </button>
       </div>
 
       {/* Works Tab Content */}
       {activeTab === "works" && (
         <ul style={{ padding: 0, listStyle: "none" }}>
-          {filteredExperts.map((expert, index) => (
+          {works.map((expert, index) => (
+
             <li
               key={index}
               style={{
@@ -551,7 +529,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                   color: "#3879C7",
                 }}
               >
-                {expert.name}
+                {expert.name || "Unknown Expert"}
               </div>
               <div style={{ marginTop: "10px", }}>
                 {expert.works.length > 0 && (
@@ -564,13 +542,21 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                       <span style={getConfidenceStyle(expert.works[0].confidence).style}>
                         {getConfidenceStyle(expert.works[0].confidence).label}
                       </span>
-
+                      <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
+                      (We are {expert.works[0].confidence}% confident that the extracted location is located in this area of the map.)
+                      </div>
                     </div>
+                    {expert.works[0].matchedFields?.length > 0 && (
+                      <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                        Matched on: {expert.works[0].matchedFields.join(", ")}
+                      </div>
+                    )}
+
 
                     {/* Show dropdown button if there are more works */}
                     {expert.works.length > 1 && (
                       <button
-                        onClick={() => toggleWorksVisibility(index)}
+                        onClick={() => toggleWorkDetails(index)}
                         style={{
                           marginTop: "10px",
                           padding: "5px 10px",
@@ -578,16 +564,16 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                           color: "white",
                           border: "none",
                           borderRadius: "5px",
-                          cursor: "pointer",
+                          cursor: "pointerexpert",
                           fontSize: "14px",
                         }}
                       >
-                        {expandedExpertIndex === index ? "Hide More Works" : "Show More Works"}
+                        {expandedWorkIndex === index ? "Hide More Works" : "Show More Works"}
                       </button>
                     )}
 
                     {/* Show additional works if expanded */}
-                    {expandedExpertIndex === index && (
+                    {expandedWorkIndex === index && (
                       <ul style={{ marginTop: "10px", }}>
                         {expert.works.slice(1).map((work, workIndex) => {
                           const { label, style } = getConfidenceStyle(work.confidence);
@@ -597,6 +583,11 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                               <strong>Issued:</strong> {work.issued} <br />
                               <strong>Confidence:</strong>{" "}
                               <span style={style}>{label}</span>
+                              {work.matchedFields?.length > 0 && (
+                                <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                                  Matched on: {work.matchedFields.join(", ")}
+                                </div>
+                              )}
                             </li>
                           );
                         })}
@@ -634,7 +625,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
       {/* Grants Tab Content */}
       {activeTab === "grants" && (
         <ul style={{ padding: 0, listStyle: "none" }}>
-          {filteredExperts.map((expert, index) => (
+          {grants.map((expert, index) => (
             <li
               key={index}
               style={{
@@ -653,15 +644,16 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                 style={{
                   fontWeight: "bold",
                   fontSize: "16px",
-                  color: "#eda012",
+                  color: "#f59e0b",
                 }}
               >
                 {expert.name || "Unknown Expert"}
               </div>
-
               {/* Show the first grant by default */}
               <div style={{ marginTop: "10px", color: "#333" }}>
-                <strong>Title:</strong> {expert.grants[0].title || "Untitled Grant"} <br />
+                <strong>
+                  {expert.grants.length === 1 ? "Grant Title" : "Grant Titles"}:
+                </strong> {expert.grants[0].title || "Untitled Grant"} <br />
                 <strong>Funder:</strong> {expert.grants[0].funder || "Unknown"} <br />
                 <strong>Start Date:</strong> {expert.grants[0].startDate || "Unknown"} <br />
                 <strong>End Date:</strong> {expert.grants[0].endDate || "Unknown"} <br />
@@ -669,7 +661,16 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                 <span style={getConfidenceStyle(expert.grants[0].confidence).style}>
                   {getConfidenceStyle(expert.grants[0].confidence).label}
                 </span>
+                <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
+                (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
+                </div>
               </div>
+
+              {expert.grants[0].matchedFields?.length > 0 && (
+                <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                  Matched on: {expert.grants[0].matchedFields.join(", ")}
+                </div>
+              )}
 
               {/* Show dropdown button if there are more grants */}
               {expert.grants.length > 1 && (
@@ -686,14 +687,14 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                     fontSize: "14px",
                   }}
                 >
-                  {expandedExpertIndex === index
+                  {expandedGrantIndex === index
                     ? "Hide More Grants"
                     : "Show More Grants"}
                 </button>
               )}
 
               {/* Show additional grants if expanded */}
-              {expandedExpertIndex === index && (
+              {expandedGrantIndex === index && (
                 <ul style={{ marginTop: "10px", }}>
                   {expert.grants.slice(1).map((grant, grantIndex) => (
                     <li key={grantIndex} style={{ marginBottom: "10px" }}>
@@ -705,6 +706,13 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                       <span style={getConfidenceStyle(grant.confidence).style}>
                         {getConfidenceStyle(grant.confidence).label}
                       </span>
+
+                      {grant.matchedFields?.length > 0 && (
+                        <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
+                          Matched on: {grant.matchedFields.join(", ")}
+                        </div>
+                      )}
+
                     </li>
                   ))}
                 </ul>
@@ -719,7 +727,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose, keyword })
                   display: "block",
                   marginTop: "12px",
                   padding: "8px 10px",
-                  background: "#eda012",
+                  background: "#f59e0b",
                   color: "white",
                   textAlign: "center",
                   borderRadius: "5px",
