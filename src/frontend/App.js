@@ -195,6 +195,13 @@ function App() {
                     <li>Issued year, start or end date</li>
                     <li>Expert names</li>
                   </ul>
+                  <p className="mt-2 text-gray-700">
+                    The system uses detects close matches even when there are typos or small differences in wording. For example, typing <em>"healh"</em> will still find results for <em>"health"</em>.
+                  </p>
+                  <p className="mt-1 text-gray-700">
+                    Searches are case-insensitive and work best with short keywords (1–3 words). You can also use full names or partial phrases to explore related experts or grants.
+                  </p>
+
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#022851] mb-1">Date Filter</h3>

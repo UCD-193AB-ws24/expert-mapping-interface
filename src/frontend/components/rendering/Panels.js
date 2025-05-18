@@ -60,7 +60,7 @@ const getConfidenceStyle = (confidenceValue) => {
 
 // Displays a side panel with a list of works associated with a specific location.
 // Includes keyword filtering and expandable lists for works.
-export const WorksPanel = ({ works = [], onClose}) => {
+export const WorksPanel = ({ works = [], onClose }) => {
 
   // State to track which expert's works are expanded
   const [expandedExpertIndex, setExpandedExpertIndex] = useState(null);
@@ -157,6 +157,7 @@ export const WorksPanel = ({ works = [], onClose}) => {
                     </div>
                   )}
 
+
                   {/* Show dropdown button if there are more works */}
                   {expert.works.length > 1 && (
                     <button
@@ -233,7 +234,7 @@ export const WorksPanel = ({ works = [], onClose}) => {
 
 // Displays a side panel with a list of grants associated with a specific location.
 // Includes keyword filtering and expandable lists for grants.
-export const GrantsPanel = ({ grants = [], onClose}) => {
+export const GrantsPanel = ({ grants = [], onClose }) => {
 
   // State to track which expert's grants are expanded
   const [expandedExpertIndex, setExpandedExpertIndex] = useState(null);
@@ -368,13 +369,15 @@ export const GrantsPanel = ({ grants = [], onClose}) => {
                       {getConfidenceStyle(grant.confidence).label}
                     </span>
                     <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                    (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
+                      (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
                     </div>
                     {grant.matchedFields?.length > 0 && (
                       <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
                         Matched on: {grant.matchedFields.join(", ")}
                       </div>
                     )}
+
+
                   </li>
                 ))}
               </ul>
@@ -410,25 +413,25 @@ export const GrantsPanel = ({ grants = [], onClose}) => {
 
 // Displays a side panel with two tabs: "Works" and "Grants" for a specific location.
 // Includes keyword filtering, confidence level styling, and expandable lists for works and grants
-export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
+export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
   // State to track the currently active tab ("works" or "grants")
-    const [activeTab, setActiveTab] = useState("works");
-  
-    // State to track which expert's works and grants are expanded
-    const [expandedWorkIndex, setExpandedWorkIndex] = useState(null);
-    const [expandedGrantIndex, setExpandedGrantIndex] = useState(null);
-  
-    // Toggle functions for works and grants
-    const toggleWorkDetails = (index) => {
-      setExpandedWorkIndex(expandedWorkIndex === index ? null : index);
-    };
-  
-    const toggleGrantDetails = (index) => {
-      setExpandedGrantIndex(expandedGrantIndex === index ? null : index);
-    };
-  
+  const [activeTab, setActiveTab] = useState("works");
 
-   return (
+  // State to track which expert's works and grants are expanded
+  const [expandedWorkIndex, setExpandedWorkIndex] = useState(null);
+  const [expandedGrantIndex, setExpandedGrantIndex] = useState(null);
+
+  // Toggle functions for works and grants
+  const toggleWorkDetails = (index) => {
+    setExpandedWorkIndex(expandedWorkIndex === index ? null : index);
+  };
+
+  const toggleGrantDetails = (index) => {
+    setExpandedGrantIndex(expandedGrantIndex === index ? null : index);
+  };
+
+
+  return (
     <div style={{
       position: "fixed",
       right: 0,
@@ -543,7 +546,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
                         {getConfidenceStyle(expert.works[0].confidence).label}
                       </span>
                       <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                      (We are {expert.works[0].confidence}% confident that the extracted location is located in this area of the map.)
+                        (We are {expert.works[0].confidence}% confident that the extracted location is located in this area of the map.)
                       </div>
                     </div>
                     {expert.works[0].matchedFields?.length > 0 && (
@@ -551,6 +554,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
                         Matched on: {expert.works[0].matchedFields.join(", ")}
                       </div>
                     )}
+
 
 
                     {/* Show dropdown button if there are more works */}
@@ -588,6 +592,8 @@ export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
                                   Matched on: {work.matchedFields.join(", ")}
                                 </div>
                               )}
+
+
                             </li>
                           );
                         })}
@@ -662,7 +668,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
                   {getConfidenceStyle(expert.grants[0].confidence).label}
                 </span>
                 <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
-                (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
+                  (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
                 </div>
               </div>
 
@@ -671,6 +677,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
                   Matched on: {expert.grants[0].matchedFields.join(", ")}
                 </div>
               )}
+
 
               {/* Show dropdown button if there are more grants */}
               {expert.grants.length > 1 && (
@@ -712,6 +719,8 @@ export const CombinedPanel = ({ works, grants, locationName, onClose}) => {
                           Matched on: {grant.matchedFields.join(", ")}
                         </div>
                       )}
+
+
 
                     </li>
                   ))}

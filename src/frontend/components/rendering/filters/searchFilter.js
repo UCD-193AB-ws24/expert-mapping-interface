@@ -1,119 +1,134 @@
 /**
  * @file searchFilter.js
  * @description Utility functions for filtering and searching entries based on keywords.
- *              Includes support for exact matches, multi-word fuzzy terms, plurals and related experts.
+ *              Includes support for exact matches, multi-word fuzzy terms, plurals, and related experts.
  *
  * FUNCTIONS:
  * - getRelatedExperts(entry): Normalizes related experts for both works and grants.
+ * - getFuzzyScoreExplanation(score): Provides a human-readable explanation for a fuzzy match score.
  * - matchesKeyword(keyword, entry): Checks if a given entry matches the provided keyword.
  * - getMatchedFields(keyword, entry): Returns a list of fields in the entry where the keyword matched.
  *
  * Marina Mata, 2025
  */
 
+import Fuse from "fuse.js";
 
-//Normalize related experts for both works and grants.
+/**
+ * Normalizes related experts for both works and grants.
+ * @param {Object} entry - The entry object containing expert-related data.
+ * @returns {Array} - An array of related experts. If `relatedExperts` is present, it returns the array.
+ *                    If `relatedExpert` is present, it wraps it in an array. Otherwise, it returns an empty array.
+ */
 export const getRelatedExperts = (entry) => {
   if (entry.relatedExperts) return entry.relatedExperts;
   if (entry.relatedExpert) return [entry.relatedExpert];
   return [];
 };
 
+/**
+ * Provides a human-readable explanation for a fuzzy match score.
+ * @param {Number} score - The fuzzy match score (0.0 to 1.0).
+ * @returns {String} - A string describing the match quality:
+ *                     - "exact or nearly exact match" for scores < 0.1.
+ *                     - "very close match (1-2 letter difference)" for scores < 0.2.
+ *                     - "moderate match" for scores < 0.3.
+ *                     - "low match" for scores >= 0.3.
+ */
 
-//Check if the given entry matches the keyword.
+/**
+ * Checks if a given entry matches the provided keyword using fuzzy search.
+ * @param {String} keyword - The search keyword.
+ * @param {Object} entry - The entry object to be searched.
+ * @returns {Boolean} - `true` if the keyword matches any field in the entry, `false` otherwise.
+ */
 export const matchesKeyword = (keyword, entry) => {
+  if (!keyword?.trim() || !entry) return true;
+
+  console.log("Testing matchesKeyword for entry:", entry);
+  console.log("Keyword:", keyword);
+
   const relatedExperts = getRelatedExperts(entry);
-  if (!relatedExperts.length) return false;
 
-  if (!keyword?.trim()) return true;
+  // Prepare searchable fields from the entry
+  const searchableFields = [
+    { name: 'title', value: entry.title },
+    { name: 'abstract', value: entry.abstract },
+    { name: 'issued', value: entry.issued },
+    { name: 'funder', value: entry.funder },
+    { name: 'startDate', value: entry.startDate },
+    { name: 'endDate', value: entry.endDate },
+    { name: 'confidence', value: entry.confidence },
+    ...relatedExperts.map((e) => ({
+      name: 'relatedExperts',
+      value: e.fullName || e.name,
+    })),
+  ].filter(f => f.value); // Filter out fields with no value
 
-  const lowerKeyword = keyword.toLowerCase();
-  const quoteMatch = keyword.match(/^"(.*)"$/);
-  const rawTerms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
+  console.log("Searchable Fields:", searchableFields);
 
-  // Basic plural stemmer
-  const normalizeTerm = (word) =>
-    word.endsWith("ies")
-      ? word.slice(0, -3) + "y" //If the word ends in "ies" (e.g., "studies"), it becomes "study"
-      : word.endsWith("es")
-        ? word.slice(0, -2) //If the word ends in "es" (e.g., "boxes"), it becomes "box"
-        : word.endsWith("s") 
-          ? word.slice(0, -1) //If the word ends in "s" (e.g., "cats"), it becomes "cat"
-          : word; //If none of the above match, it returns the word unchanged.
+  // Configure Fuse.js for fuzzy searching
+  const fuse = new Fuse(searchableFields, {
+    keys: ['value'],
+    threshold: 0.7, // Controls match tolerance (higher = more lenient)
+    ignoreLocation: true, // Ignore match position in the string
+    minMatchCharLength: 1, // Allow matching short words
+  });
 
-  const terms = rawTerms.map(normalizeTerm);
+  const results = fuse.search(keyword);
+  console.log(`[Fuse] "${keyword}" results:`, results);
 
+  if (results.length === 0) {
+    console.log("No matches found for entry:", entry);
+    console.log("Searchable Fields for this entry:", searchableFields);
+  }
 
-  // Fields to search across (excluding authors[] or deeply nested fields)
-  const searchable = [
-    entry.title,
-    entry.abstract,
-    entry.issued,
-    entry.funder,
-    entry.startDate,
-    entry.endDate,
-    entry.confidence,
-    ...relatedExperts.map((e) => e.fullName || e.name),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase()
-    .split(/\s+/)
-    .map(normalizeTerm)
-    .join(" ");
-
-  return terms.every((term) => searchable.includes(term));
+  return results.length > 0;
 };
 
-
-//Returns a list of fields in the entry where the keyword matched.
+/**
+ * Returns a list of fields in the entry where the keyword matched.
+ * @param {String} keyword - The search keyword.
+ * @param {Object} entry - The entry object to be searched.
+ * @returns {Array} - An array of field names where the keyword matched.
+ */
 export const getMatchedFields = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return [];
 
   const relatedExperts = getRelatedExperts(entry);
-  const lowerKeyword = keyword.toLowerCase();
-  const quoteMatch = keyword.match(/^"(.*)"$/);
-  const rawTerms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
 
-  const normalizeTerm = (word) =>
-    word.endsWith("ies")
-      ? word.slice(0, -3) + "y" //If the word ends in "ies" (e.g., "studies"), it becomes "study"
-      : word.endsWith("es")
-        ? word.slice(0, -2) //If the word ends in "es" (e.g., "boxes"), it becomes "box"
-        : word.endsWith("s")
-          ? word.slice(0, -1) //If the word ends in "s" (e.g., "cats"), it becomes "cat"
-          : word; //If none of the above match, it returns the word unchanged.
-
-  const terms = rawTerms.map(normalizeTerm);
-  const matched = [];
-
-  const check = (field, name) => {
-    if (!field) return;
-    const text = field.toString().toLowerCase();
-    if (terms.every((term) => text.includes(term))) {
-      matched.push(name);
-    }
+  // Prepare field data for searching
+  const fieldData = {
+    title: entry.title,
+    abstract: entry.abstract,
+    issued: entry.issued,
+    funder: entry.funder,
+    startDate: entry.startDate,
+    endDate: entry.endDate,
+    confidence: entry.confidence,
+    relatedExperts: relatedExperts.map(e => e.fullName || e.name).join(" "),
   };
 
-  check(entry.title, "title");
-  check(entry.abstract, "abstract");
-  check(entry.issued, "issued");
-  check(entry.funder, "funder");
-  check(entry.startDate, "startDate");
-  check(entry.endDate, "endDate");
-  check(entry.confidence, "confidence");
+  // Configure Fuse.js for fuzzy searching
+  const fuse = new Fuse(
+    Object.entries(fieldData).map(([key, value]) => ({ key, value })),
+    {
+      keys: ["value"],
+      includeMatches: true, // Include match details in the results
+      threshold: 0.5, // More strict than `matchesKeyword`
+      minMatchCharLength: 3, // Ignore very short words
+    }
+  );
 
-  if (
-    relatedExperts.length &&
-    relatedExperts.some((e) => {
-      const name = (e.fullName || e.name || "").toLowerCase();
-      const normalized = name.split(/\s+/).map(normalizeTerm).join(" ");
-      return terms.every((term) => normalized.includes(term));
-    })
-  ) {
-    matched.push("relatedExperts");
+  const results = fuse.search(keyword);
+
+  // Collect matched field names
+  const matchedFields = new Set();
+  for (const result of results) {
+    if (result?.item?.key) {
+      matchedFields.add(result.item.key);
+    }
   }
 
-  return matched;
+  return Array.from(matchedFields);
 };
-
