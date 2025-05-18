@@ -97,7 +97,6 @@ export const getMatchedFields = (keyword, entry) => {
 
   const relatedExperts = getRelatedExperts(entry);
 
-  // Prepare field data for searching
   const fieldData = {
     title: entry.title,
     abstract: entry.abstract,
@@ -109,26 +108,21 @@ export const getMatchedFields = (keyword, entry) => {
     relatedExperts: relatedExperts.map(e => e.fullName || e.name).join(" "),
   };
 
-  // Configure Fuse.js for fuzzy searching
   const fuse = new Fuse(
-    Object.entries(fieldData).map(([key, value]) => ({ key, value })),
+    Object.entries(fieldData).map(([key, value]) => ({ field: key, value })),
     {
       keys: ["value"],
-      includeMatches: true, // Include match details in the results
-      threshold: 0.5, // More strict than `matchesKeyword`
-      minMatchCharLength: 3, // Ignore very short words
+      includeMatches: true,
+      threshold: 0.5,
+      minMatchCharLength: 3,
     }
   );
 
   const results = fuse.search(keyword);
 
-  // Collect matched field names
-  const matchedFields = new Set();
-  for (const result of results) {
-    if (result?.item?.key) {
-      matchedFields.add(result.item.key);
-    }
-  }
-
-  return Array.from(matchedFields);
+  return results.map(result => ({
+    field: result.item.field,
+    value: result.item.value,
+    keyword: keyword,
+  }));
 };

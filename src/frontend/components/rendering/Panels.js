@@ -153,9 +153,13 @@ export const WorksPanel = ({ works = [], onClose }) => {
                   </div>
                   {expert.works[0].matchedFields?.length > 0 && (
                     <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                      Matched on: {expert.works[0].matchedFields.join(", ")}
+                      <div><strong>Matched value:</strong> "{expert.works[0].matchedFields[0].value}"</div>
+                      <div>
+                        Matched on: {expert.works[0].matchedFields.map(f => f.field).join(", ")}
+                      </div>
                     </div>
                   )}
+
 
 
                   {/* Show dropdown button if there are more works */}
@@ -188,11 +192,15 @@ export const WorksPanel = ({ works = [], onClose }) => {
                             <strong>Issued:</strong> {work.issued} <br />
                             <strong>Confidence:</strong>{" "}
                             <span style={style}>{label}</span>
-                            {work.matchedFields?.length > 0 && (
+                            {Array.isArray(work.matchedFields) && work.matchedFields.length > 0 && (
                               <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                                Matched on: {work.matchedFields.join(", ")}
+                                <div><strong>Matched value:</strong> "{work.matchedFields[0].value}"</div>
+                                <div>
+                                  Matched on: {work.matchedFields.map(f => f.field).join(", ")}
+                                </div>
                               </div>
                             )}
+
                           </li>
 
                         );
@@ -326,13 +334,14 @@ export const GrantsPanel = ({ grants = [], onClose }) => {
               </div>
             </div>
 
-            {expert.grants[0].matchedFields?.length > 0 && (
+            {Array.isArray(expert.grants[0].matchedFields) && expert.grants[0].matchedFields.length > 0 && (
               <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                Matched on: {expert.grants[0].matchedFields.join(", ")}
+                <div><strong>Matched value:</strong> "{expert.grants[0].matchedFields[0].value}"</div>
+                <div>
+                  Matched on: {expert.grants[0].matchedFields.map(f => f.field).join(", ")}
+                </div>
               </div>
             )}
-
-
 
             {/* Show dropdown button if there are more grants */}
             {expert.grants.length > 1 && (
@@ -371,13 +380,14 @@ export const GrantsPanel = ({ grants = [], onClose }) => {
                     <div style={{ fontSize: "0.85em", color: "#666", marginTop: "2px" }}>
                       (We are {expert.grants[0].confidence}% confident that the extracted location is located in this area of the map.)
                     </div>
-                    {grant.matchedFields?.length > 0 && (
+                    {Array.isArray(grant.matchedFields) && grant.matchedFields.length > 0 && (
                       <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                        Matched on: {grant.matchedFields.join(", ")}
+                        <div><strong>Matched value:</strong> "{grant.matchedFields[0].value}"</div>
+                        <div>
+                          Matched on: {grant.matchedFields.map(f => f.field).join(", ")}
+                        </div>
                       </div>
                     )}
-
-
                   </li>
                 ))}
               </ul>
@@ -551,9 +561,14 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
                     </div>
                     {expert.works[0].matchedFields?.length > 0 && (
                       <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                        Matched on: {expert.works[0].matchedFields.join(", ")}
+                        <div><strong>Matched value:</strong> "{expert.works[0].matchedFields[0].value}"</div>
+                        <div>
+                          Matched on: {expert.works[0].matchedFields.map(f => f.field).join(", ")}
+                        </div>
                       </div>
                     )}
+
+
 
 
 
@@ -587,11 +602,15 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
                               <strong>Issued:</strong> {work.issued} <br />
                               <strong>Confidence:</strong>{" "}
                               <span style={style}>{label}</span>
-                              {work.matchedFields?.length > 0 && (
+                              {Array.isArray(work.matchedFields) && work.matchedFields.length > 0 && (
                                 <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                                  Matched on: {work.matchedFields.join(", ")}
+                                  <div><strong>Matched value:</strong> "{work.matchedFields[0].value}"</div>
+                                  <div>
+                                    Matched on: {work.matchedFields.map(f => f.field).join(", ")}
+                                  </div>
                                 </div>
                               )}
+
 
 
                             </li>
@@ -672,12 +691,14 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
                 </div>
               </div>
 
-              {expert.grants[0].matchedFields?.length > 0 && (
+              {Array.isArray(grant.matchedFields) && grant.matchedFields.length > 0 && (
                 <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                  Matched on: {expert.grants[0].matchedFields.join(", ")}
+                  <div><strong>Matched value:</strong> "{grant.matchedFields[0].value}"</div>
+                  <div>
+                    Matched on: {grant.matchedFields.map(f => f.field).join(", ")}
+                  </div>
                 </div>
               )}
-
 
               {/* Show dropdown button if there are more grants */}
               {expert.grants.length > 1 && (
@@ -713,14 +734,14 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
                       <span style={getConfidenceStyle(grant.confidence).style}>
                         {getConfidenceStyle(grant.confidence).label}
                       </span>
-
-                      {grant.matchedFields?.length > 0 && (
+                      {Array.isArray(grant.matchedFields) && grant.matchedFields.length > 0 && (
                         <div style={{ marginTop: "5px", fontStyle: "italic", color: "#555" }}>
-                          Matched on: {grant.matchedFields.join(", ")}
+                          <div><strong>Matched value:</strong> "{grant.matchedFields[0].value}"</div>
+                          <div>
+                            Matched on: {grant.matchedFields.map(f => f.field).join(", ")}
+                          </div>
                         </div>
                       )}
-
-
 
                     </li>
                   ))}
