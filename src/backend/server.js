@@ -17,9 +17,9 @@ const { pool } = require('./postgis/config');
 const app = express();
 const PORT = 3001;
 
-const { createRedisClient } = require('./etl/aggieExpertsAPI/utils/redisUtils');
+const { createRedisClient } = require('./etl/aggieExpertsAPI/utils/redisUtils.js');
 
-const redisClient = createRedisClient
+const redisClient = createRedisClient();
 
 (async () => {
   try {
