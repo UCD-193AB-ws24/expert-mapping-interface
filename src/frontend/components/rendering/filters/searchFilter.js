@@ -5,7 +5,6 @@
  *
  * FUNCTIONS:
  * - getRelatedExperts(entry): Normalizes related experts for both works and grants.
- * - getFuzzyScoreExplanation(score): Provides a human-readable explanation for a fuzzy match score.
  * - matchesKeyword(keyword, entry): Checks if a given entry matches the provided keyword.
  * - getMatchedFields(keyword, entry): Returns a list of fields in the entry where the keyword matched.
  *
@@ -25,16 +24,6 @@ export const getRelatedExperts = (entry) => {
   if (entry.relatedExpert) return [entry.relatedExpert];
   return [];
 };
-
-/**
- * Provides a human-readable explanation for a fuzzy match score.
- * @param {Number} score - The fuzzy match score (0.0 to 1.0).
- * @returns {String} - A string describing the match quality:
- *                     - "exact or nearly exact match" for scores < 0.1.
- *                     - "very close match (1-2 letter difference)" for scores < 0.2.
- *                     - "moderate match" for scores < 0.3.
- *                     - "low match" for scores >= 0.3.
- */
 
 /**
  * Checks if a given entry matches the provided keyword using fuzzy search.
@@ -70,7 +59,7 @@ export const matchesKeyword = (keyword, entry) => {
   // Configure Fuse.js for fuzzy searching
   const fuse = new Fuse(searchableFields, {
     keys: ['value'],
-    threshold: 0.7, // Controls match tolerance (higher = more lenient)
+    threshold: 0.2, // Controls match tolerance (higher = more lenient)
     ignoreLocation: true, // Ignore match position in the string
     minMatchCharLength: 1, // Allow matching short words
   });
@@ -90,13 +79,15 @@ export const matchesKeyword = (keyword, entry) => {
  * Returns a list of fields in the entry where the keyword matched.
  * @param {String} keyword - The search keyword.
  * @param {Object} entry - The entry object to be searched.
- * @returns {Array} - An array of field names where the keyword matched.
+ * @returns {Array} - An array of objects containing the field name and the matched text.
+ *                    Each object has the structure: { field: <field name>, match: <matched text> }.
  */
 export const getMatchedFields = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return [];
 
   const relatedExperts = getRelatedExperts(entry);
 
+  // Prepare field data for searching
   const fieldData = {
     title: entry.title,
     abstract: entry.abstract,
@@ -108,21 +99,34 @@ export const getMatchedFields = (keyword, entry) => {
     relatedExperts: relatedExperts.map(e => e.fullName || e.name).join(" "),
   };
 
+  // Configure Fuse.js for fuzzy searching
   const fuse = new Fuse(
-    Object.entries(fieldData).map(([key, value]) => ({ field: key, value })),
+    Object.entries(fieldData).map(([key, value]) => ({ key, value })),
     {
       keys: ["value"],
-      includeMatches: true,
-      threshold: 0.5,
-      minMatchCharLength: 3,
+      includeMatches: true, // Include match details in the results
+      threshold: 0.6, // Controls match tolerance (lower = stricter)
+      minMatchCharLength: 3, // Ignore very short words
     }
   );
 
   const results = fuse.search(keyword);
 
-  return results.map(result => ({
-    field: result.item.field,
-    value: result.item.value,
-    keyword: keyword,
-  }));
+  // Collect matched field names and matched text
+  const matchedFields = [];
+  for (const result of results) {
+    if (result?.item?.key && result?.matches?.length > 0) {
+      const field = result.item.key;
+      const matchText = result.matches[0]?.value?.substring(
+        result.matches[0]?.indices[0][0],
+        result.matches[0]?.indices[0][1] + 1
+      );
+      matchedFields.push({
+        field,
+        match: matchText,
+      });
+    }
+  }
+
+  return matchedFields;
 };

@@ -5,63 +5,31 @@
  *              and handling interactions such as hover and click events. The component also filters works based on zoom level
  *              and search keywords.
  *
- * FUNCTIONS:
- * - preparePanelData: Prepares data for the side panel by collecting expert and work information.
+ * Features:
+ * - Renders polygons and points for works-related data.
+ * - Displays interactive popups with expert and work information.
+ * - Updates the side panel with detailed data for selected works.
+ * - Handles cleanup of map layers and markers on component unmount.
+ *
+ * Functions:
  * - renderPolygons: Renders polygons on the map for locations with works.
  * - renderPoints: Renders points on the map with clustering logic for locations with works.
- *
- * COMPONENTS:
- * - WorkLayer: React component that integrates the above functions to render works data on the map.
+ * - WorkLayer: Main component that integrates the rendering logic and manages map layers.
  *
  * Marina Mata, 2025
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
-// import { filterFeaturesByZoom } from "./filters/zoomFilter";
-
 import { prepareWorkPanelData } from "./utils/preparePanelData";
-/**
- * Prepares data for the side panel by collecting expert and work information for a specific location.
- */
-// const preparePanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID) => {
-//   return expertIDs.map((expertID) => {
-//     const expert = expertsMap.get(expertID);
-//     if (!expert) return null;
-
-//     // Ensure the URL is a full URL
-//     const fullUrl = expert.url.startsWith("http")
-//       ? expert.url
-//       : `https://experts.ucdavis.edu/${expert.url}`;
-
-//     // Find works associated with this expert and the current location
-//     const associatedWorks = workIDs
-//       .map((workID) => worksMap.get(workID))
-//       .filter(
-//         (work) =>
-//           work &&
-//           work.relatedExpertIDs.includes(expertID) && // Work is associated with this expert
-//           work.locationID === locationID // Work matches the current location
-//       );
-
-//     return {
-//       name: expert.name || "Unknown",
-//       url: fullUrl, // Use the full URL
-//       works: associatedWorks.map((work) => ({
-//         title: work.title || "Untitled Work",
-//         issued: work.issued || "Unknown",
-//         confidence: work.confidence || "Unknown",
-//         matchedFields: work.matchedFields || [],
-//       })),
-//     };
-//   }).filter((expert) => expert); // Filter out null experts
-// };
 
 /**
- * Renders polygons on the map.
+ * Renders polygons on the map for locations with works.
+ * Each polygon represents a location with works-related data.
+ * Interactive popups display expert and work information.
  */
 const renderPolygons = ({
   locationMap,
@@ -213,12 +181,14 @@ const renderPolygons = ({
           workPolyPopup = null;
         }
       }, 100);
-    });;
+    });
   });
 };
 
 /**
  * Renders points on the map with clustering logic.
+ * Each point represents a location with works-related data.
+ * Interactive popups display expert and work information.
  */
 const renderPoints = ({
   locationMap,
@@ -267,7 +237,6 @@ const renderPoints = ({
         locationData.workIDs.length,
         matchedFields
       );
-
 
       if (workPointPopup) workPointPopup.remove();
       workPointPopup = L.popup({
@@ -339,7 +308,8 @@ const renderPoints = ({
 };
 
 /**
- * WorkLayer Component
+ * The `WorkLayer` component renders works-related polygons and points on a Leaflet map.
+ * It integrates the rendering logic for polygons and points and manages map layers and markers.
  */
 const WorkLayer = ({
   locationMap,
@@ -351,46 +321,6 @@ const WorkLayer = ({
   setPanelType,
 }) => {
   const map = useMap();
-  
-
-  // Define handleZoomEnd outside the useEffect
-  // const handleZoomEnd = () => {
-  //   if (!map || !nonOverlappingWorks) return;
-
-  //   const zoomLevel = map.getZoom();
-  //   console.log("Zoom level in WorkLayer:", zoomLevel);
-
-  //   const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
-  //   console.log("Zoom Filtered Works:", zoomFilteredWorks);
-
-  //   setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
-  // };
-
-  // useEffect(() => {
-  //   if (!map || !nonOverlappingWorks) {
-  //     console.error("Error: No Works found!");
-  //     return;
-  //   }
-
-  //   const handleZoomEnd = () => {
-  //     const zoomLevel = map.getZoom();
-  //     console.log("Zoom level in GrantLayer:", zoomLevel);
-
-  //     const zoomFilteredWorks = filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures");
-  //     console.log("Zoom Filtered Works:", zoomFilteredWorks);
-
-  //     setFilteredWorks(zoomFilteredWorks); // Update the filtered works state
-  //   };
-
-  //   map.on("zoomend", handleZoomEnd);
-
-  //   // Apply the filter initially
-  //   handleZoomEnd();
-
-  //   return () => {
-  //     map.off("zoomend", handleZoomEnd);
-  //   };
-  // }, [map, nonOverlappingWorks]);
 
   useEffect(() => {
     if (!map || !locationMap || !worksMap || !expertsMap || !showWorks) {
@@ -445,7 +375,6 @@ const WorkLayer = ({
       map.removeLayer(markerClusterGroup);
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
-      // map.off("zoomend", handleZoomEnd);
     };
   }, [
     map,
@@ -455,7 +384,9 @@ const WorkLayer = ({
     showWorks,
     setSelectedWorks,
     setPanelOpen,
-    setPanelType,]);
+    setPanelType,
+  ]);
+
   return null;
 };
 
