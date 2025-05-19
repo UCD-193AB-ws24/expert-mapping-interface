@@ -4,22 +4,16 @@
  *              between works and grants for specific locations. It handles interactive popups, zoom filtering,
  *              and updates the state for selected experts, grants, and the side panel.
  *
- * FUNCTIONS:
+ * Features:
+ * - Renders overlapping polygons and points for works and grants.
+ * - Displays interactive popups with expert and grant information.
+ * - Updates the side panel with detailed data for selected locations.
+ * - Handles cleanup of map layers and markers on component unmount.
+ *
+ * Functions:
  * - renderPolygons: Renders overlapping polygons for works and grants, including interactive popups.
  * - renderPoints: Renders overlapping points for works and grants, including interactive popups.
- *
- * PROPS:
- * - overlappingLocations: Array of overlapping locations with works and grants data.
- * - showWorks: Boolean indicating whether to display work polygons and points.
- * - showGrants: Boolean indicating whether to display grant polygons and points.
- * - setSelectedWorks: Function to update the selected works for the side panel.
- * - setSelectedGrants: Function to update the selected grants for the side panel.
- * - setPanelOpen: Function to control whether the side panel is open.
- * - setPanelType: Function to set the type of content displayed in the side panel.
- * - setCombinedKeys: Function to update the set of overlapping locations.
- * - combinedKeys: Set of currently overlapping locations.
- * - searchKeyword: Keyword used for filtering works and grants.
- * - setLocationName: Function to set the name of the location for the side panel.
+ * - CombinedLayer: Main component that integrates the rendering logic and manages map layers.
  *
  * Marina Mata, 2025
  */
@@ -29,8 +23,13 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { createCombinedPopup, createMatchedCombinedPolygonPopup } from "./Popups";
 import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
-// import { filterOverlappingLocationsByZoom } from "./filters/zoomFilter";
 
+
+/**
+ * Renders overlapping polygons for works and grants on the map.
+ * Each polygon represents a location with overlapping works and grants.
+ * Interactive popups display expert and grant information.
+ **/
 const renderPolygons = ({
   locationMap,
   worksMap,
@@ -105,14 +104,6 @@ const renderPolygons = ({
 
     const work2expertCount = workExpertIDs.size;
     const grant2expertCount = grantExpertIDs.size;
-
-    // if ((locationData.expertIDs.length) !== (work2expertCount + grant2expertCount)) {
-    //   console.log('Num of experts w/ works:', work2expertCount);
-    //   console.log('Num of experts w/ grants:', grant2expertCount);
-    //   console.log('Total Number of expertIDs:', locationData.expertIDs.length);
-    //   console.warn(`Error in data consistency for locationID: ${locationID}`);
-    //   return;
-    // }
 
     // Skip rendering if no experts are found
     if (work2expertCount === 0 && grant2expertCount === 0) {
@@ -274,6 +265,11 @@ const renderPolygons = ({
   });
 };
 
+/**
+ * Renders overlapping points for works and grants on the map.
+ * Each point represents a location with overlapping works and grants.
+ * Interactive popups display expert and grant information.
+ **/
 const renderPoints = ({
   locationMap,
   worksMap,
@@ -348,8 +344,8 @@ const renderPoints = ({
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (closePointTimeout) clearTimeout(closePointTimeout);
-      
-      
+
+
       // Collect matched fields from works
       locationData.workIDs.forEach((workID) => {
         const work = worksMap.get(workID);
@@ -466,6 +462,10 @@ const renderPoints = ({
   map.addLayer(comboMarkerGroup);
 };
 
+/**
+ * The `CombinedLayer` component renders overlapping polygons and points for works and grants on a Leaflet map.
+ * It integrates the rendering logic for polygons and points and manages map layers and markers.
+ **/
 const CombinedLayer = ({
   locationMap,
   grantsMap,
@@ -481,41 +481,6 @@ const CombinedLayer = ({
 
 }) => {
   const map = useMap();
-  // Define handleZoomEnd outside the useEffect
-  // const handleZoomEnd = () => {
-  //   const zoomLevel = map.getZoom();
-  //   console.log("Zoom level in GrantLayer:", zoomLevel);
-
-  //   const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
-  //   console.log("Zoom Filtered Works:", zoomFilteredFeatures);
-
-  //   setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
-  // };
-
-  // useEffect(() => {
-  //   if (!map || !overlappingLocations) {
-  //     console.error("Error: No Works found!");
-  //     return;
-  //   }
-
-  //   const handleZoomEnd = () => {
-  //     const zoomLevel = map.getZoom();
-  //     console.log("Zoom level in GrantLayer:", zoomLevel);
-  //     const zoomFilteredFeatures = filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel);
-  //     console.log("Zoom Filtered Works:", zoomFilteredFeatures);
-  //     setFilteredOverlappingLocations(zoomFilteredFeatures); // Update the filtered works state
-  //   };
-
-  //   map.on("zoomend", handleZoomEnd);
-
-  //   // Apply the filter initially
-  //   handleZoomEnd();
-
-  //   return () => {
-  //     map.off("zoomend", handleZoomEnd);
-  //   };
-  // }, [map, overlappingLocations]);
-
 
   useEffect(() => {
     // Exit early if map or overlappingLocations is not available

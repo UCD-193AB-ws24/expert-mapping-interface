@@ -15,34 +15,41 @@
  * - ResearchMap: Displays the interactive map with works and grants data.
  * - ReactSlider: Provides a slider for selecting a date range.
  *
- * State Variables:
- * - showGrants: Boolean to toggle the display of grant-related data.
- * - showWorks: Boolean to toggle the display of works-related data.
- * - searchKeyword: String used to filter data based on a search term.
- * - selectedDateRange: Array of two numbers representing the selected year range for filtering data.
- *
  * Marina Mata, 2025
  */
+
 import React, { useState } from "react";
 import "./styles/index.css";
 import ResearchMap from "./components/ResearchMap";
 import ReactSlider from "react-slider";
 import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
 
+/**
+ * The main `App` component that serves as the entry point for the application.
+ * It provides the layout and functionality for interacting with the research map.
+ *
+ * @returns {JSX.Element} The rendered `App` component.
+ */
 function App() {
-  const [showGrants, setShowGrants] = useState(true);
-  const [showWorks, setShowWorks] = useState(true);
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedDateRange, setSelectedDateRange] = useState([1990, 2025]);
-  const [isTogglesOpen, setIsTogglesOpen] = useState(true);
-  const [isDateSliderOpen, setIsDateSliderOpen] = useState(true);
+  // State variables
+  const [showGrants, setShowGrants] = useState(true); // Toggles visibility of grants on the map
+  const [showWorks, setShowWorks] = useState(true); // Toggles visibility of works on the map
+  const [searchKeyword, setSearchKeyword] = useState(""); // Stores the search keyword
+  const [selectedDateRange, setSelectedDateRange] = useState([1990, 2025]); // Stores the selected date range
+  const [isTogglesOpen, setIsTogglesOpen] = useState(true); // Toggles the visibility of the "Toggles" section
+  const [isDateSliderOpen, setIsDateSliderOpen] = useState(true); // Toggles the visibility of the date slider
 
+  /**
+   * Handles changes to the search input field.
+   * @param {Object} e - The event object from the input field.
+   */
   const handleSearchChange = (e) => {
     setSearchKeyword(e.target.value);
   };
 
   return (
     <div className="App flex flex-col min-h-screen" style={{ backgroundColor: "#FFFFFF" }}>
+      {/* Header Section */}
       <header className="flex items-center py-2 px-10 bg-white shadow-md fixed top-0 left-0 w-full z-50">
         <div className="flex items-center space-x-6">
           <img src={aggieExpertsLogo} alt="Aggie Experts Logo" className="h-16 w-auto ml-4" />
@@ -51,6 +58,8 @@ function App() {
           </h1>
         </div>
       </header>
+
+      {/* Navigation Section */}
       <nav className="flex flex-wrap items-center bg-[#022851] px-4 py-2 fixed top-[80px] left-0 w-full z-50" aria-label="Main navigation">
         <div className="flex space-x-6 mb-2 sm:mb-0">
           <a href="https://experts.ucdavis.edu/browse/expert/a" className="text-lg text-white hover:underline">Experts</a>
@@ -75,8 +84,11 @@ function App() {
           </button>
         </div>
       </nav>
+
+      {/* Main Content Section */}
       <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
         <div className="map-container flex w-full h-full">
+          {/* Map Section */}
           <div id="map" className="flex-1 min-w-0 relative order-1" aria-label="Interactive map showing expert and grant locations">
             <ResearchMap
               showGrants={showGrants}
@@ -85,11 +97,13 @@ function App() {
               selectedDateRange={selectedDateRange}
             />
           </div>
+
+          {/* Sidebar Section */}
           <aside className="p-4 bg-white border-l border-gray-200 overflow-y-auto mt-4"
             style={{ width: "360px", minWidth: "320px", maxWidth: "100%" }}
             aria-label="Search and filter controls"
           >
-
+            {/* Toggles Section */}
             <div className="mb-4">
               <button
                 onClick={() => setIsTogglesOpen(!isTogglesOpen)}
@@ -128,6 +142,8 @@ function App() {
                 </div>
               )}
             </div>
+
+            {/* Date Filter Section */}
             <div className="mb-4">
               <button
                 onClick={() => setIsDateSliderOpen(!isDateSliderOpen)}
@@ -159,6 +175,8 @@ function App() {
                 </div>
               )}
             </div>
+
+            {/* Map Guide Section */}
             <details open className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
               <summary className="flex items-center justify-between font-semibold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
                 <span style={{ color: "#2f6bb3", fontWeight: 500 }}>
@@ -195,6 +213,9 @@ function App() {
                     <li>Issued year, start or end date</li>
                     <li>Expert names</li>
                   </ul>
+                  <p className="mt-2 text-gray-700">
+                  The system detects close matches — plurals and minor spelling errors are okay. One to two letter typos are accepted.
+                  </p>
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#022851] mb-1">Date Filter</h3>
@@ -205,6 +226,8 @@ function App() {
           </aside>
         </div>
       </main>
+
+      {/* Footer Section */}
       <footer className="w-full h-10 bg-[#022851]" role="contentinfo"></footer>
     </div>
   );

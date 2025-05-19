@@ -1,119 +1,146 @@
 /**
  * @file searchFilter.js
  * @description Utility functions for filtering and searching entries based on keywords.
- *              Includes support for exact matches, multi-word fuzzy terms, plurals and related experts.
+ *              Includes support for exact matches and limited fuzzy matching using Levenshtein distance.
  *
- * FUNCTIONS:
- * - getRelatedExperts(entry): Normalizes related experts for both works and grants.
- * - matchesKeyword(keyword, entry): Checks if a given entry matches the provided keyword.
- * - getMatchedFields(keyword, entry): Returns a list of fields in the entry where the keyword matched.
- *
+ * Features:
+ * - Exact substring matching for keywords.
+ * - Fuzzy matching using Levenshtein distance for typo tolerance.
+ * - Normalization of terms to handle plural forms and variations.
+ * - Support for searching across multiple fields, including related experts.
+
  * Marina Mata, 2025
  */
 
+import { distance } from 'fastest-levenshtein';
 
-//Normalize related experts for both works and grants.
+/**
+ * Retrieves related experts from an entry.
+ * Supports both `relatedExperts` (array) and `relatedExpert` (single object).
+ *
+ * @param {Object} entry - The entry containing related experts.
+ * @returns {Array} An array of related experts.
+ */
 export const getRelatedExperts = (entry) => {
   if (entry.relatedExperts) return entry.relatedExperts;
   if (entry.relatedExpert) return [entry.relatedExpert];
   return [];
 };
 
+/**
+ * Normalizes a term by handling plural forms and suffixes.
+ * Converts terms like "studies" to "study", "houses" to "house", etc.
+ *
+ * @param {string} word - The term to normalize.
+ * @returns {string} The normalized term.
+ */
+const normalizeTerm = (word) =>
+  word.endsWith("ies") ? word.slice(0, -3) + "y" :
+  word.endsWith("es") ? word.slice(0, -2) :
+  word.endsWith("s")  ? word.slice(0, -1) :
+  word;
 
-//Check if the given entry matches the keyword.
-export const matchesKeyword = (keyword, entry) => {
-  const relatedExperts = getRelatedExperts(entry);
-  if (!relatedExperts.length) return false;
-
-  if (!keyword?.trim()) return true;
-
-  const lowerKeyword = keyword.toLowerCase();
-  const quoteMatch = keyword.match(/^"(.*)"$/);
-  const rawTerms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
-
-  // Basic plural stemmer
-  const normalizeTerm = (word) =>
-    word.endsWith("ies")
-      ? word.slice(0, -3) + "y" //If the word ends in "ies" (e.g., "studies"), it becomes "study"
-      : word.endsWith("es")
-        ? word.slice(0, -2) //If the word ends in "es" (e.g., "boxes"), it becomes "box"
-        : word.endsWith("s") 
-          ? word.slice(0, -1) //If the word ends in "s" (e.g., "cats"), it becomes "cat"
-          : word; //If none of the above match, it returns the word unchanged.
-
-  const terms = rawTerms.map(normalizeTerm);
-
-
-  // Fields to search across (excluding authors[] or deeply nested fields)
-  const searchable = [
-    entry.title,
-    entry.abstract,
-    entry.issued,
-    entry.funder,
-    entry.startDate,
-    entry.endDate,
-    entry.confidence,
-    ...relatedExperts.map((e) => e.fullName || e.name),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase()
-    .split(/\s+/)
-    .map(normalizeTerm)
-    .join(" ");
-
-  return terms.every((term) => searchable.includes(term));
+/**
+ * Calculates the maximum allowed Levenshtein distance for fuzzy matching.
+ * The distance is based on 25% of the length of the longer string.
+ *
+ * @param {string} word - The first string.
+ * @param {string} keyword - The second string (keyword).
+ * @returns {number} The maximum allowed distance.
+ */
+const maxAllowedDistance = (word, keyword) => {
+  const len = Math.max(word.length, keyword.length);
+  return Math.floor(len * 0.25); // 25% of word length
 };
 
+/**
+ * Determines if a keyword matches any field in an entry.
+ * Supports both exact substring matching and fuzzy matching with Levenshtein distance.
+ *
+ * @param {string} keyword - The keyword to search for.
+ * @param {Object} entry - The entry to search within.
+ * @returns {boolean} `true` if the keyword matches any field, otherwise `false`.
+ */
+export const matchesKeyword = (keyword, entry) => {
+  if (!keyword?.trim() || !entry) return true;
 
-//Returns a list of fields in the entry where the keyword matched.
+  const normalizedKeyword = normalizeTerm(keyword.toLowerCase());
+
+  // Prepare searchable fields
+  const fields = [
+    entry.title,
+    entry.abstract,
+    entry.funder,
+    ...(entry.relatedExperts || []).map(e => e.fullName || e.name),
+  ].filter(Boolean); // Remove null/undefined fields
+
+  for (const field of fields) {
+    const lowerField = field.toLowerCase();
+
+    // Exact match (substring)
+    if (lowerField.includes(normalizedKeyword)) return true;
+
+    // Fuzzy match: Check word-by-word with Levenshtein distance
+    const words = lowerField.split(/\W+/);
+    for (const word of words) {
+      const normalizedWord = normalizeTerm(word);
+      if (distance(normalizedWord, normalizedKeyword) <= maxAllowedDistance(normalizedWord, normalizedKeyword)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Retrieves fields that match a keyword, including exact and fuzzy matches.
+ * Returns an array of matched fields with the field name and matched value.
+ *
+ * @param {string} keyword - The keyword to search for.
+ * @param {Object} entry - The entry to search within.
+ * @returns {Array} An array of matched fields, each containing the field name and matched value.
+ */
 export const getMatchedFields = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return [];
 
+  const normalizedKeyword = normalizeTerm(keyword.toLowerCase());
   const relatedExperts = getRelatedExperts(entry);
-  const lowerKeyword = keyword.toLowerCase();
-  const quoteMatch = keyword.match(/^"(.*)"$/);
-  const rawTerms = quoteMatch ? [quoteMatch[1].toLowerCase()] : lowerKeyword.split(/\s+/);
 
-  const normalizeTerm = (word) =>
-    word.endsWith("ies")
-      ? word.slice(0, -3) + "y" //If the word ends in "ies" (e.g., "studies"), it becomes "study"
-      : word.endsWith("es")
-        ? word.slice(0, -2) //If the word ends in "es" (e.g., "boxes"), it becomes "box"
-        : word.endsWith("s")
-          ? word.slice(0, -1) //If the word ends in "s" (e.g., "cats"), it becomes "cat"
-          : word; //If none of the above match, it returns the word unchanged.
-
-  const terms = rawTerms.map(normalizeTerm);
-  const matched = [];
-
-  const check = (field, name) => {
-    if (!field) return;
-    const text = field.toString().toLowerCase();
-    if (terms.every((term) => text.includes(term))) {
-      matched.push(name);
-    }
+  // Prepare field data for searching
+  const fieldData = {
+    title: entry.title,
+    abstract: entry.abstract,
+    issued: entry.issued,
+    funder: entry.funder,
+    startDate: entry.startDate,
+    endDate: entry.endDate,
+    confidence: entry.confidence,
+    relatedExperts: relatedExperts.map(e => e.fullName || e.name).join(" "),
   };
 
-  check(entry.title, "title");
-  check(entry.abstract, "abstract");
-  check(entry.issued, "issued");
-  check(entry.funder, "funder");
-  check(entry.startDate, "startDate");
-  check(entry.endDate, "endDate");
-  check(entry.confidence, "confidence");
+  const matchedFields = [];
 
-  if (
-    relatedExperts.length &&
-    relatedExperts.some((e) => {
-      const name = (e.fullName || e.name || "").toLowerCase();
-      const normalized = name.split(/\s+/).map(normalizeTerm).join(" ");
-      return terms.every((term) => normalized.includes(term));
-    })
-  ) {
-    matched.push("relatedExperts");
+  for (const [field, value] of Object.entries(fieldData)) {
+    if (!value) continue;
+
+    const lowerValue = value.toLowerCase();
+
+    // Exact match (substring)
+    if (lowerValue.includes(normalizedKeyword)) {
+      matchedFields.push({ field, match: keyword });
+      continue;
+    }
+
+    // Fuzzy match: Check word-by-word with Levenshtein distance
+    const words = lowerValue.split(/\W+/);
+    const match = words.find(word => {
+      const normalizedWord = normalizeTerm(word);
+      return distance(normalizedWord, normalizedKeyword) <= maxAllowedDistance(normalizedWord, normalizedKeyword);
+    });
+
+    if (match) matchedFields.push({ field, match });
   }
 
-  return matched;
+  return matchedFields;
 };
-
