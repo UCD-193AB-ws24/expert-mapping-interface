@@ -200,15 +200,11 @@ async function validateLocation(location) {
   // Some manual name changes
   const manual_names = {
     "Latin America": "South America",
-    "South America": "South America",
-    "North America": "North America",
     "CA": "California",
   };
 
   if (location in manual_names) {
     location = manual_names[location];
-  } else if (location.includes("America")) {
-    location = "America";
   }
 
   // Get location info from Nominatim
@@ -228,7 +224,7 @@ async function validateLocation(location) {
   // Handle Nominatim API giving too specific location
   if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
     if (location_info.place_rank >= 30) {
-      const simplify_loc = location.replace(/,.*/, '');
+      const simplify_loc = location.replace(/.*?,\s*/, '');
       location_info = await getLocationInfo(simplify_loc);
     }
   }
