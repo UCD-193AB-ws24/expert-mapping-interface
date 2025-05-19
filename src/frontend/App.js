@@ -65,7 +65,7 @@ function App() {
           <a href="https://experts.ucdavis.edu/browse/expert/a" className="text-lg text-white hover:underline">Experts</a>
           <a href="https://experts.ucdavis.edu/browse/grant/1" className="text-lg text-white hover:underline">Grants</a>
         </div>
-        <div className="relative searchbar ml-auto" style={{ maxWidth: "200px" }}>
+        <div className="relative searchbar ml-auto" style={{ maxWidth: "320px" }}>
           <label htmlFor="search-input" className="sr-only">Search keyword</label>
           <input
             id="search-input"
