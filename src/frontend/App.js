@@ -214,7 +214,7 @@ function App() {
                     <li>Expert names</li>
                   </ul>
                   <p className="mt-2 text-gray-700">
-                    The system detects close matches even when there are typos or small differences in wording. For example, typing <em>"healh"</em> will still find results for <em>"health"</em>.
+                  The system detects close matches — plurals and minor spelling errors are okay. One to two letter typos are accepted.
                   </p>
                 </div>
                 <div>
