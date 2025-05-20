@@ -7,7 +7,7 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const { cacheEntities } = require('./services/expertProfileCache');
+const { cacheEntities } = require('./utils/expertProfileCache');
 const { fetchExpertProfiles } = require('./services/fetchExpertProfiles');
 const { formatTime } = require('./utils/timingUtils');
 

@@ -5,7 +5,7 @@
  * Zoey Vo, 2025
  */
 
-const { cacheItems, getCachedItems, createRedisClient } = require('../utils/redisUtils');
+const { cacheItems, getCachedItems, createRedisClient } = require('./redisUtils');
 
 // Expert Profile Cache Configuration
 const expertConfig = {

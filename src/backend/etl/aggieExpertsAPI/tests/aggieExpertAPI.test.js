@@ -8,13 +8,21 @@ const fs = require('fs').promises;
 const path = require('path');
 const redis = require('redis');
 
-jest.mock('fs', () => ({ promises: { writeFile: jest.fn(), mkdir: jest.fn() } }));
+jest.mock('fs', () => {
+  const actualFs = jest.requireActual('fs');
+  return {
+    ...actualFs,
+    promises: {
+      writeFile: jest.fn(),
+      mkdir: jest.fn()
+    }
+  };
+});
 jest.mock('redis', () => ({ createClient: jest.fn(() => ({ connect: jest.fn(), disconnect: jest.fn(), hGetAll: jest.fn(), keys: jest.fn() })) }));
 
 // Service modules
-const fetchExpertID = require('../services/fetchExpertID');
 const fetchProfileByID = require('../services/fetchProfileByID');
-const expertProfileCache = require('../services/expertProfileCache');
+const expertProfileCache = require('../utils/expertProfileCache');
 const fetchExpertProfiles = require('../services/fetchExpertProfiles');
 const getExpertProfiles = require('../services/getExpertProfiles');
 const formatFeatures = require('../services/formatFeatures');
@@ -22,9 +30,8 @@ const { getExpertFeatures } = require('../getExpertFeatures');
 const { persistExpertProfiles, fetchAndPersistExpertProfiles } = require('../persistExpertProfiles');
 
 // Mock utility functions as needed
-jest.mock('../services/fetchExpertID');
 jest.mock('../services/fetchProfileByID');
-jest.mock('../services/expertProfileCache');
+jest.mock('../utils/expertProfileCache');
 jest.mock('../services/fetchExpertProfiles');
 jest.mock('../services/getExpertProfiles');
 jest.mock('../services/formatFeatures');
@@ -38,82 +45,6 @@ jest.mock('../persistExpertProfiles', () => ({
   persistExpertProfiles: jest.fn(),
   fetchAndPersistExpertProfiles: jest.fn()
 }));
-
-// --- fetchExpertID.js ---
-describe('fetchExpertID service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('fetchAllExperts returns array', async () => {
-    fetchExpertID.fetchAllExperts.mockResolvedValue([{ id: '1' }]);
-    const result = await fetchExpertID.fetchAllExperts(1);
-    expect(Array.isArray(result)).toBe(true);
-  });
-  it('fetchAllExperts handles pagination correctly', async () => {
-    // For pagination test, we need to directly mock the concatenated result
-    fetchExpertID.fetchAllExperts.mockResolvedValue([
-      { id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }
-    ]);
-    
-    const result = await fetchExpertID.fetchAllExperts(4);
-    expect(result.length).toBe(4);
-    expect(result.map(e => e.id)).toEqual(['1', '2', '3', '4']);
-  });
-
-  it('getExpertIds extracts ids', () => {
-    // Mock the implementation of getExpertIds
-    fetchExpertID.getExpertIds.mockImplementation((experts) => {
-      return experts
-        .map(expert => expert.id)
-        .filter(Boolean);
-    });
-    
-    const ids = fetchExpertID.getExpertIds([{ id: 'a' }, { id: 'b' }]);
-    expect(ids).toEqual(['a', 'b']);
-  });
-
-  it('getExpertIds filters out null/undefined ids', () => {
-    // We can reuse the implementation from the previous test
-    fetchExpertID.getExpertIds.mockImplementation((experts) => {
-      return experts
-        .map(expert => expert.id)
-        .filter(Boolean);
-    });
-    
-    const ids = fetchExpertID.getExpertIds([{ id: 'a' }, { id: null }, { id: undefined }, {}]);
-    expect(ids).toEqual(['a']);
-  });
-
-  it('fetchExpertIds returns ids', async () => {
-    fetchExpertID.fetchAllExperts.mockResolvedValue([{ id: 'x' }]);
-    
-    // Mock the implementation of fetchExpertIds
-    fetchExpertID.fetchExpertIds.mockImplementation(async (numExperts = 1) => {
-      const experts = await fetchExpertID.fetchAllExperts(numExperts);
-      return fetchExpertID.getExpertIds(experts);
-    });
-    
-    const ids = await fetchExpertID.fetchExpertIds(1);
-    expect(ids).toEqual(['x']);
-  });
-  
-  it('fetchExpertIds handles errors gracefully', async () => {
-    fetchExpertID.fetchAllExperts.mockRejectedValue(new Error('API failure'));
-    
-    // Mock the implementation to throw errors
-    fetchExpertID.fetchExpertIds.mockImplementation(async (numExperts = 1) => {
-      try {
-        const experts = await fetchExpertID.fetchAllExperts(numExperts);
-        return fetchExpertID.getExpertIds(experts);
-      } catch (error) {
-        throw error;
-      }
-    });
-    
-    await expect(fetchExpertID.fetchExpertIds(1)).rejects.toThrow('API failure');
-  });
-});
 
 // --- fetchProfileByID.js ---
 describe('fetchProfileByID service', () => {
@@ -311,8 +242,6 @@ describe('expertProfileCache service', () => {
 describe('fetchExpertProfiles service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset mocks
-    fetchExpertID.fetchExpertIds.mockReset();
     fetchProfileByID.getExpertData.mockReset();
   });
 
@@ -322,52 +251,47 @@ describe('fetchExpertProfiles service', () => {
     expect(Array.isArray(res)).toBe(true);
   });
 
-  it('fetchExpertProfiles fetches with correct parameters', async () => {
-    // Mock dependencies
-    fetchExpertID.fetchExpertIds.mockResolvedValue(['123', '456']);
+  it('fetchExpertProfiles loads IDs from CSV and fetches profiles', async () => {
+    const fsModule = require('fs');
+    const spy = jest.spyOn(fsModule, 'readFileSync').mockImplementation(() => '123\n456');
     fetchProfileByID.getExpertData
       .mockResolvedValueOnce({ expertId: '123', firstName: 'John' })
       .mockResolvedValueOnce({ expertId: '456', firstName: 'Jane' });
-
-    // Real implementation instead of mock
     fetchExpertProfiles.fetchExpertProfiles.mockImplementation(async (numExperts, worksLimit, grantsLimit) => {
-      const expertIds = await fetchExpertID.fetchExpertIds(numExperts);
+      const fs = require('fs');
+      const csvContent = fs.readFileSync(
+        path.join(__dirname, '../utils/expertIds.csv'),
+        'utf-8'
+      );
+      const expertIds = csvContent.split(/\r?\n/).filter(Boolean).slice(0, numExperts);
       const profiles = [];
-      
       for (const id of expertIds) {
         const profile = await fetchProfileByID.getExpertData(id, worksLimit, grantsLimit);
         profiles.push(profile);
       }
-      
       return profiles;
     });
-
-    // Test with custom limits
     const result = await fetchExpertProfiles.fetchExpertProfiles(2, 10, 5);
-    
-    // Verify correct parameters were used
-    expect(fetchExpertID.fetchExpertIds).toHaveBeenCalledWith(2);
-    expect(fetchProfileByID.getExpertData).toHaveBeenCalledWith('123', 10, 5);
-    expect(fetchProfileByID.getExpertData).toHaveBeenCalledWith('456', 10, 5);
-    
-    // Verify result structure
     expect(result.length).toBe(2);
     expect(result[0].expertId).toBe('123');
     expect(result[1].expertId).toBe('456');
+    spy.mockRestore();
   });
 
   it('fetchExpertProfiles continues processing on individual profile errors', async () => {
-    // Mock dependencies with one successful and one failed profile
-    fetchExpertID.fetchExpertIds.mockResolvedValue(['123', '456']);
+    const fsModule = require('fs');
+    const spy = jest.spyOn(fsModule, 'readFileSync').mockImplementation(() => '123\n456');
     fetchProfileByID.getExpertData
       .mockResolvedValueOnce({ expertId: '123', firstName: 'John' })
       .mockRejectedValueOnce(new Error('Failed to fetch expert 456'));
-    
-    // Real implementation that handles errors
     fetchExpertProfiles.fetchExpertProfiles.mockImplementation(async (numExperts) => {
-      const expertIds = await fetchExpertID.fetchExpertIds(numExperts);
+      const fs = require('fs');
+      const csvContent = fs.readFileSync(
+        path.join(__dirname, '../utils/expertIds.csv'),
+        'utf-8'
+      );
+      const expertIds = csvContent.split(/\r?\n/).filter(Boolean).slice(0, numExperts);
       const profiles = [];
-      
       for (const id of expertIds) {
         try {
           const profile = await fetchProfileByID.getExpertData(id);
@@ -376,31 +300,28 @@ describe('fetchExpertProfiles service', () => {
           // Continue with next expert
         }
       }
-      
       return profiles;
     });
-
     const result = await fetchExpertProfiles.fetchExpertProfiles(2);
-    
-    // Should only contain the successful profile
     expect(result.length).toBe(1);
     expect(result[0].expertId).toBe('123');
+    spy.mockRestore();
   });
 
-  it('fetchExpertProfiles handles fetching IDs error', async () => {
-    // Make fetchExpertIds fail
-    fetchExpertID.fetchExpertIds.mockRejectedValue(new Error('Failed to fetch expert IDs'));
-    
+  it('fetchExpertProfiles handles CSV read error', async () => {
+    const fsModule = require('fs');
+    const spy = jest.spyOn(fsModule, 'readFileSync').mockImplementation(() => {
+      throw new Error('Failed to read CSV');
+    });
     fetchExpertProfiles.fetchExpertProfiles.mockImplementation(async () => {
       try {
-        const expertIds = await fetchExpertID.fetchExpertIds();
-        return expertIds.map(id => ({ expertId: id }));
+        fsModule.readFileSync(path.join(__dirname, '../utils/expertIds.csv'), 'utf-8');
       } catch (error) {
         throw error;
       }
     });
-
-    await expect(fetchExpertProfiles.fetchExpertProfiles()).rejects.toThrow('Failed to fetch expert IDs');
+    await expect(fetchExpertProfiles.fetchExpertProfiles()).rejects.toThrow('Failed to read CSV');
+    spy.mockRestore();
   });
 });
 

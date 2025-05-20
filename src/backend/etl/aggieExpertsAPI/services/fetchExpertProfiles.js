@@ -8,18 +8,33 @@
  * Zoey Vo, 2025
  */
 
-const { fetchExpertIds } = require('./fetchExpertID');
+const fs = require('fs');
+const path = require('path');
 const { getExpertData } = require('./fetchProfileByID');
 
 /**
- * Main function to fetch and process expert profiles
+ * Reads expert IDs from the CSV file and returns an array of IDs (without the 'expert/' prefix if needed)
+ * @param {number} numExperts - Maximum number of experts to return
+ * @returns {Array<string>} Array of expert IDs
+ */
+function readExpertIdsFromCSV(numExperts = 1) {
+  const csvPath = path.join(__dirname, '../utils/expertIds.csv');
+  const content = fs.readFileSync(csvPath, 'utf-8');
+  const lines = content.split(/\r?\n/).filter(Boolean);
+  // Remove header and extract just the ID part (after 'expert/')
+  const ids = lines.slice(1).map(line => line.replace(/^expert\//, '').trim());
+  return ids.slice(0, numExperts);
+}
+
+/**
+ * Main function to fetch and process expert profiles using IDs from CSV
  * @returns {Promise<Array>} - Array of expert profiles with their works and grants
  */
 async function fetchExpertProfiles(numExperts=1, worksLimit=5, grantsLimit=5) {
   try {
-    // Step 1: Get all expert IDs
-    console.log('\nFetching expert IDs...');
-    const allExpertIds = await fetchExpertIds(numExperts);
+    // Step 1: Get all expert IDs from CSV
+    console.log('\nReading expert IDs from CSV...');
+    const allExpertIds = readExpertIdsFromCSV(numExperts);
     
     // Step 2: Get detailed profile for each expert
     console.log('\nFetching associated profiles...');
