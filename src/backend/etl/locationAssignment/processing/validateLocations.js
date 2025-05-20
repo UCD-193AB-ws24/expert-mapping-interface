@@ -21,7 +21,7 @@ const ollama = new Ollama({
 });
 
 const Groq = require('groq-sdk');
-const groq = new Groq({ apiKey: "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" });
+const groq = new Groq({ apiKey: "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" });
 
 const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
@@ -97,28 +97,32 @@ async function getLocationInfo(location) {
  * @returns {String}          - Llama's response
  */
 async function getISOcode(location) {
-  // const response = await ollama.chat({
-  //   model: 'llama3.1',
-  //   messages: [
-  //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
-  //     { "role": "user", "content": `Location: ${location}` }
-  //   ],
-  //   temperature: 0,
-  //   stream: false
-  // });
-  // return response.message.content;
+  try {
+    const response = await ollama.chat({
+      model: 'llama3.1',
+      messages: [
+        { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+        { "role": "user", "content": `Location: ${location}` }
+      ],
+      temperature: 0,
+      stream: false
+    });
+    return response.message.content;
 
-  const chatCompletion = await groq.chat.completions.create({
-    "messages": [
-      { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
-      { "role": "user", "content": `Location: ${location}` }
-    ],
-    "model": "llama-3.3-70b-versatile",
-    "temperature": 0,
-    "stream": false
-  });
+    // const chatCompletion = await groq.chat.completions.create({
+    //   "messages": [
+    //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+    //     { "role": "user", "content": `Location: ${location}` }
+    //   ],
+    //   "model": "llama-3.3-70b-versatile",
+    //   "temperature": 0,
+    //   "stream": false
+    // });
 
-  return chatCompletion.choices[0].message.content;
+    // return chatCompletion.choices[0].message.content;
+  } catch {
+    return "None";
+  }
 }
 
 /**
@@ -140,7 +144,7 @@ async function calculateConfidence(location_info, iso_location) {
   const dist = findDistance(lat1, lon1, lat2, lon2);
   const percentage = 100 - dist / MAX_DIST * 100;
 
-  return `${percentage.toFixed(1)}`;
+  return percentage.toFixed(1);
 }
 
 /**
@@ -184,7 +188,8 @@ function preprocessLocation(location) {
  * @param {String} location  - location
  * @returns   - {name: "Location name", confidence: "Confidence", country: "Country name"}
  */
-async function validateLocation(location) {
+async function validateLocation(location, llmConfidence) {
+  console.log(location);
   // Preprocess the location string
   location = preprocessLocation(location);
 
@@ -192,7 +197,7 @@ async function validateLocation(location) {
   if (location === "N/A" || location === "") {
     return {
       name: "N/A",
-      confidence: "",
+      confidence: 0,
       country: "None"
     };
   }
@@ -224,8 +229,12 @@ async function validateLocation(location) {
   // Handle Nominatim API giving too specific location
   if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
     if (location_info.place_rank >= 30) {
-      const simplify_loc = location.replace(/.*?,\s*/, '');
-      location_info = await getLocationInfo(simplify_loc);
+      if (location.includes("America")) {
+        location_info = await getLocationInfo("America");
+      } else {
+        const simplify_loc = location.replace(/,.*/, "");
+        location_info = await getLocationInfo(simplify_loc);
+      }
     }
   }
 
@@ -238,13 +247,13 @@ async function validateLocation(location) {
       if (countries[iso_llama] === undefined) {
         return {
           name: "N/A",
-          confidence: "",
+          confidence: 0,
           country: "None"
         };
       } else {
         return {
           name: countries[iso_llama],
-          confidence: "Low",
+          confidence: (llmConfidence * 0.9).toFixed(1),
           country: countries[iso_llama]
         };
       }
@@ -252,21 +261,21 @@ async function validateLocation(location) {
     } else if (String(iso_nominatim).toUpperCase() === String(iso_llama).toUpperCase()) {
       return {
         name: location_info.name,
-        confidence: await calculateConfidence(location_info, countries[iso_llama]),
+        confidence: ((await calculateConfidence(location_info, countries[iso_llama])) * (llmConfidence * 0.01)).toFixed(1),
         country: countries[iso_llama],
       };
       // Special location not linked to a country
     } else if (special_locations.includes(location_info.type)) {
       return {
         name: location_info.name,
-        confidence: "90%",
+        confidence: llmConfidence,
         country: "None"
       };
       // Unable to get Llama's ISO code, bad location
     } else if (String(iso_llama).length > 2) {
       return {
         name: location,
-        confidence: "Low",
+        confidence: 0,
         country: countries[String(iso_nominatim).toUpperCase()]
       };
       // Unmatch codes: Priortize Llama's ISO, use Nominatim if not existed
@@ -274,13 +283,13 @@ async function validateLocation(location) {
       if (countries[iso_llama] === undefined) {
         return {
           name: location,
-          confidence: "Low",
+          confidence: 0,
           country: countries[String(iso_nominatim).toUpperCase()]
         };
       } else {
         return {
           name: countries[iso_llama],
-          confidence: await calculateConfidence(location_info, countries[iso_llama]),
+          confidence: ((await calculateConfidence(location_info, countries[iso_llama])) * (llmConfidence * 0.01)).toFixed(1),
           country: countries[iso_llama]
         };
       }
@@ -288,7 +297,7 @@ async function validateLocation(location) {
   } catch (error) {
     return {
       name: "N/A",
-      confidence: "",
+      confidence: 0,
       country: "None"
     };
   }
@@ -310,7 +319,7 @@ async function validateLocations(inputPath, outputPath) {
 
     console.log(`Validating locations from ${inputPath}...`);
     for (const entry of data) {
-      const result = await validateLocation(entry.location);
+      const result = await validateLocation(entry.location, entry.llmConfidence);
       entry.location = result.name;
       entry.confidence = result.confidence;
       entry.country = result.country;
