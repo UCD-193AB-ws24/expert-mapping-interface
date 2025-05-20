@@ -4,31 +4,31 @@
  *              It handles interactive popups, zoom filtering, and updates the state for
  *              selected grants and the side panel.
  *
- * FUNCTIONS:
- * - prepareGrantPanelData: Prepares data for the side panel based on grants and experts.
+ * Features:
+ * - Renders grant-related polygons and points.
+ * - Displays interactive popups with grant and expert information.
+ * - Updates the side panel with detailed data for selected grants.
+ * - Handles cleanup of map layers and markers on component unmount.
+ *
+ * Functions:
  * - renderPolygons: Renders grant-related polygons on the map.
  * - renderPoints: Renders grant-related points on the map.
- *
- * PROPS:
- * - nonOverlappingGrants: Array of grant locations that do not overlap with works.
- * - showWorks: Boolean indicating whether to display works.
- * - showGrants: Boolean indicating whether to display grants.
- * - setSelectedGrants: Function to update the selected grants for the side panel.
- * - setPanelOpen: Function to control whether the side panel is open.
- * - setPanelType: Function to set the type of content displayed in the side panel.
- * - combinedKeys: Set of overlapping location keys.
- * - searchKeyword: Keyword used for filtering grants.
+ * - GrantLayer: Main component that integrates the rendering logic and manages map layers.
  *
  * Marina Mata, 2025
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
-import { createMultiGrantPopup, createMatchedGrantPopup } from "./Popups";
+import { createMultiGrantPopup } from "./Popups";
 import { prepareGrantPanelData } from "./utils/preparePanelData";
 
-
+/**
+ * Renders grant-related polygons on the map.
+ * Each polygon represents a location with grant data.
+ * Interactive popups display grant and expert information.
+ */
 const renderPolygons = ({
   locationMap,
   map,
@@ -118,7 +118,6 @@ const renderPolygons = ({
         matchedFields
       );
 
-
       // Remove existing popup if it exists
       if (activePopup) activePopup.remove();
 
@@ -190,6 +189,11 @@ const renderPolygons = ({
   });
 };
 
+/**
+ * Renders grant-related points on the map.
+ * Each point represents a location with grant data.
+ * Interactive popups display grant and expert information.
+ */
 const renderPoints = ({
   locationMap,
   map,
@@ -310,8 +314,10 @@ const renderPoints = ({
   map.addLayer(grantMarkerGroup);
 };
 
-
-// Main component for rendering grant-related polygons and points on the map.
+/**
+ * The `GrantLayer` component renders grant-related polygons and points on a Leaflet map.
+ * It integrates the rendering logic for polygons and points and manages map layers and markers.
+ */
 const GrantLayer = ({
   locationMap,
   grantsMap,
@@ -322,7 +328,7 @@ const GrantLayer = ({
   setPanelType,
 }) => {
   const map = useMap();
-  
+
   useEffect(() => {
     if (!map || !locationMap || !grantsMap || !expertsMap || !showGrants) {
       console.error("Error: No grants found!");
@@ -348,7 +354,7 @@ const GrantLayer = ({
 
     const polygonLayers = [];
     const polygonMarkers = [];
-  
+
     // Render polygons
     renderPolygons({
       locationMap,
@@ -379,7 +385,6 @@ const GrantLayer = ({
       map.removeLayer(grantMarkerGroup);
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
-      // map.off("zoomend", handleZoomEnd);
     };
   }, [map, locationMap, grantsMap, expertsMap, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
 
@@ -387,11 +392,3 @@ const GrantLayer = ({
 };
 
 export default GrantLayer;
-
-
-
-
-
-
-
-

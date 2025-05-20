@@ -4,6 +4,8 @@
     "axios": "^1.8.4",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "fastest-levenshtein": "^1.0.16",
+    "fuse.js": "^7.1.0",
     "groq-sdk": "^0.21.0",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",

@@ -39,17 +39,68 @@ ensureFileExists(geoGrantsPath);
  * @returns {String} - Extracted location in the format "City, Country" or similar
  */
 async function extractLocation(text) {
-  const response = await ollama.chat({
-    model: 'llama3.1',
-    messages: [
-      { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
-      { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
-      { "role": "user", "content": `Extract from this text: ${text}` }
-    ],
-    temperature: 0,
-    stream: false
-  });
-  return response.message.content;
+  try {
+    const response = await ollama.chat({
+      model: 'llama3.1',
+      messages: [
+        { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
+        { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
+        { "role": "system", "content": `Give your confidence in percentage` },
+        { "role": "system", "content": `Provide output in JSON format: {"Location": X, "Confidence": Y}` },
+        { "role": "user", "content": `Extract from this text: ${text}` }
+      ],
+      temperature: 0,
+      stream: false
+    });
+    return response.message.content;
+
+    // const chatCompletion = await groq.chat.completions.create({
+    //   "messages": [
+    //     { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
+    //     { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
+    //     { "role": "system", "content": `Give your confidence in percentage` },
+    //     { "role": "system", "content": `Provide output in JSON format: {"Location": X, "Confidence": Y}` },
+    //     { "role": "user", "content": `Extract from this text: ${text}` }
+    //   ],
+    //   "model": "llama-3.3-70b-versatile",
+    //   "temperature": 0,
+    //   "stream": false
+    // });
+
+    // return chatCompletion.choices[0].message.content;
+  } catch {
+    return null;
+  }
+}
+
+function parseLlmResult(llmResult) {
+  try {
+    const resultJSON = JSON.parse(llmResult);
+
+    if (!("Location" in resultJSON) || !("Confidence" in resultJSON)) {
+      return {
+        location: "N/A",
+        confidence: 0
+      }
+    }
+
+    if (isNaN(Number(resultJSON.Confidence))) {
+      return {
+        location: "N/A",
+        confidence: 0
+      }
+    } else {
+      return {
+        location: resultJSON.Location,
+        confidence: Number(resultJSON.Confidence)
+      }
+    }
+  } catch {
+    return {
+      location: "N/A",
+      confidence: 0
+    }
+  }
 }
 
 /**
@@ -65,10 +116,13 @@ async function processAllWorks() {
     const abstract = entry.abstract;
     const work = title + ". " + abstract;
 
-    const location = await extractLocation(work);
-    console.log(location);
+    const result = await extractLocation(work);
+    const parsedResult = parseLlmResult(result);
 
-    entry.location = location;
+    entry.location = parsedResult.location;
+    entry.llmConfidence = parsedResult.confidence;
+
+    console.log(parsedResult.location);
   }
 
   fs.writeFileSync(geoWorksPath, JSON.stringify(data, null, 2));
@@ -83,10 +137,13 @@ async function processAllGrants() {
   console.log("Extracting grants...");
 
   for (const entry of data) {
-    const location = await extractLocation(entry.title);
-    console.log(location);
+    const result = await extractLocation(entry.title);
+    const parsedResult = parseLlmResult(result);
 
-    entry.location = location;
+    entry.location = parsedResult.location;
+    entry.llmConfidence = parsedResult.confidence;
+
+    console.log(parsedResult.location);
   }
 
   fs.writeFileSync(geoGrantsPath, JSON.stringify(data, null, 2));

@@ -106,13 +106,22 @@ export function organizeAllMaps({
       // Handle grants
       if ((type === "grant" || type === "both") && Array.isArray(locObj.grantsFeatures)) {
         locObj.grantsFeatures.forEach((feature) => {
+
           const entries = feature.properties.entries || [];
-          entries.forEach((entry) => {
+
+          // Only use entries that actually matched the keyword
+          const filteredEntries = entries.filter((entry) => {
             const matchedFields = getMatchedFields(searchKeyword, entry);
-            if (searchKeyword && matchedFields.length === 0) {
-              console.warn("Error with matched fields...");
-              return;
-            }
+            entry._matchedFields = matchedFields; // store it temporarily for later use
+            return !searchKeyword || matchedFields.length > 0;
+          });
+
+          if (filteredEntries.length === 0) return;
+          console.log(`✅ ${filteredEntries.length} matched entries for grant feature at locationID ${locationID}`);
+
+
+          filteredEntries.forEach((entry) => {
+            const matchedFields = entry._matchedFields || [];
             const grantID = `grant_${entry.id}`;
             grantsMap.set(grantID, {
               grantID: entry.id || 'Unknown grantID',
@@ -125,10 +134,19 @@ export function organizeAllMaps({
               relatedExpertIDs: [],
               matchedFields,
             });
+            console.log(`✅ Matched grant: ${entry.title} at locationID ${locationID}`);
+            console.log("📌 Updated location entry:", locationMap.get(locationID));
 
-            locationMap.get(locationID).grantIDs.push(grantID);
 
-            // Handle experts (same as before)
+            // locationMap.get(locationID).grantIDs.push(grantID);
+            const locEntry = locationMap.get(locationID);
+            if (!locEntry) {
+              console.warn("Grant skipped: locationID not found in locationMap", locationID);
+              return;
+            }
+            locEntry.grantIDs.push(grantID);
+
+
             if (entry.relatedExperts) {
               entry.relatedExperts.forEach((expert) => {
                 const expertName = expert.fullName;
@@ -160,10 +178,10 @@ export function organizeAllMaps({
                 if (!locationMap.get(locationID).expertIDs.includes(expertID)) {
                   locationMap.get(locationID).expertIDs.push(expertID);
                 }
-                
               });
             }
           });
+
         });
       }
     });
