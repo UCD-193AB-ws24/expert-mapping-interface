@@ -27,22 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Generates a .env file containing connection details and API keys needed by the application using github repo secrets.
-      - name: Create .env file
-        run: |
-          # Ollama and Server configuration
-          echo "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}" >> .env
-          echo "SERVER_HOST=${{ secrets.SERVER_HOST }}" >> .env
-
-          # External PostgreSQL Database connection details
-          echo "PG_PORT=${{ secrets.PG_PORT }}" >> .env
-          echo "PG_USER=${{ secrets.PG_USER }}" >> .env
-          echo "PG_PASSWORD=${{ secrets.PG_PASSWORD }}" >> .env
-          echo "PG_DATABASE=${{ secrets.PG_DATABASE }}" >> .env
-
-          # External Redis Database connection details
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
-
       # Compiles the React frontend code into static assets for deployment.
       - name: Build project
         run: npm run build 
