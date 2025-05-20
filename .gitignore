@@ -4,7 +4,7 @@ dump.rdb
 docker-compose.yml
 src/backend/etl/aggieExpertsAPI/utils/expertIds.csv
 # Jest coverage output
-coverage/
+coverage
 coverage-*
 lcov.info
 lcov-report/
