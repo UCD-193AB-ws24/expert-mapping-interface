@@ -4,7 +4,9 @@ module.exports = {
   testMatch: [
     '<rootDir>/src/?(*/*/*/)__tests__/**/*.[jt]s?(x)',
     '<rootDir>/src/?(*/*/*/)__tests__/?(*.)+(test).[jt]s?(x)',
-    '<rootDir>/src/?(*/*/*/)?(*.)+(test).[jt]s?(x)'
+    '<rootDir>/src/?(*/*/*/)?(*.)+(test).[jt]s?(x)',
+    '<rootDir>/src/**/tests/**/*.[jt]s?(x)',
+    '<rootDir>/src/**/*.test.[jt]s?(x)'
   ],
   moduleFileExtensions: ['js', 'json', 'jsx', 'node'],
   collectCoverage: true,

@@ -5,7 +5,7 @@
  * Zoey Vo, 2025
  */
 
-const { getCachedEntities, getRecentCachedEntities } = require('./expertProfileCache');
+const { getCachedEntities, getRecentCachedEntities } = require('../utils/expertProfileCache');
 
 
 /**
