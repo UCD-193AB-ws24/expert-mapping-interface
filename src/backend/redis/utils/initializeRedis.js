@@ -61,7 +61,7 @@ async function initializeRedis(redisClient, pgClient) {
           const entryKey = `${redisKey}:entry:${i + 1}`;
           const entryData = {
             id: entry.id || '',
-            title: entry.name || '',
+            title: entry.title || '',
             issued: Array.isArray(entry.issued)
               ? JSON.stringify(entry.issued || [])
               : String(entry.issued || ''),

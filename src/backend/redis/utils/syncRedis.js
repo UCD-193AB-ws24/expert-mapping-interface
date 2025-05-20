@@ -1,4 +1,27 @@
 
+async function updateMetadata(redisClient, type) {
+  const prefix = `${type}:`;
+  const metadataKey = `${type}:metadata`;
+
+  // Fetch all keys for the given type
+  const allKeys = await redisClient.keys(`${prefix}*`);
+
+  // Filter out entry keys and the metadata key itself
+  const relevantKeys = allKeys.filter(
+    (key) => !key.includes(':entry:') && key !== metadataKey
+  );
+
+  // Update metadata
+  const metadata = {
+    total_keys: relevantKeys.length,
+    last_updated: new Date().toISOString(),
+  };
+
+  await redisClient.hSet(metadataKey, metadata);
+  console.log(`🔄 Updated ${metadataKey}:`, metadata);
+}
+
+
 function sanitizeRedisData(data) {
   const sanitizedData = {};
   for (const [key, value] of Object.entries(data)) {
@@ -78,7 +101,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
           const entryKey = `${redisKey}:entry:${i + 1}`;
           const entryData = {
             id: entry.id || '',
-            title: entry.name || '',
+            title: entry.title || '',
             issued: Array.isArray(entry.issued)
               ? JSON.stringify(entry.issued || [])
               : String(entry.issued || ''),
@@ -124,7 +147,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
           const entryKey = `${redisKey}:entry:${i + 1}`;
           const entryData = {
             id: entry.id || '',
-            title: entry.name || '',
+            title: entry.title || '',
             issued: Array.isArray(entry.issued)
               ? JSON.stringify(entry.issued || [])
               : String(entry.issued || ''),
