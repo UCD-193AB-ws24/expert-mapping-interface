@@ -262,6 +262,93 @@ const renderPolygons = ({
         }
       }, 100);
     });
+
+    // Handle click event for mobile/tablet view
+    marker.on("click", () => {
+      if (activePopup) activePopup.remove();
+
+      // Collect matched fields from works and grants
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+
+      const matchedFields = Array.from(matchedFieldsSet);
+
+      // Create popup content
+      const content =
+        matchedFields.length > 0
+          ? createMatchedCombinedPolygonPopup(
+            work2expertCount,
+            grant2expertCount,
+            locationData.display_name,
+            matchedFields
+          )
+          : createCombinedPopup(
+            work2expertCount,
+            grant2expertCount,
+            locationData.display_name,
+            matchedFields
+          );
+
+      activePopup = L.popup({
+        closeButton: true,
+        autoClose: true,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: true,
+      })
+        .setLatLng(polygon.getBounds().getCenter())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        // Add event listener for the button in the popup
+        const viewPointComboExpertsBtn = popupElement.querySelector(".view-combined-btn");
+        if (viewPointComboExpertsBtn) {
+          viewPointComboExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const grantPanelData = prepareGrantPanelData(
+              Array.from(grantExpertIDs),
+              locationData.grantIDs,
+              grantsMap,
+              expertsMap,
+              locationID
+            );
+            const workPanelData = prepareWorkPanelData(
+              Array.from(workExpertIDs),
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID
+            );
+            setSelectedGrants(grantPanelData);
+            setSelectedWorks(workPanelData);
+            setPanelType("combined");
+            setPanelOpen(true);
+
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+        }
+      }
+    });
   });
 };
 
@@ -454,6 +541,93 @@ const renderPoints = ({
           activePointPopup = null;
         }
       }, 100);
+    });
+
+    // Handle click event for tablet/mobile view
+    marker.on("click", () => {
+      if (activePointPopup) activePointPopup.remove();
+
+      // Collect matched fields from works
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+
+      // Collect matched fields from grants
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+
+      const matchedFields = Array.from(matchedFieldsSet);
+
+      // Create popup content
+      const content =
+        matchedFields.length > 0
+          ? createMatchedCombinedPolygonPopup(
+            work2expertCount,
+            grant2expertCount,
+            locationData.display_name,
+            matchedFields
+          )
+          : createCombinedPopup(
+            work2expertCount,
+            grant2expertCount,
+            locationData.display_name,
+            matchedFields
+          );
+
+      // Create a new popup
+      activePointPopup = L.popup({
+        closeButton: false,
+        autoClose: false,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: false,
+      })
+        .setLatLng(marker.getLatLng())
+        .setContent(content)
+        .openOn(map);
+      const popupElement = activePointPopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        const viewCombinedExpertsBtn = popupElement.querySelector(".view-combined-btn");
+        if (viewCombinedExpertsBtn) {
+          viewCombinedExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const grantPanelData = prepareGrantPanelData(
+              locationData.grantExpertIDs,
+              locationData.grantIDs,
+              grantsMap,
+              expertsMap,
+              locationID
+            );
+            const workPanelData = prepareWorkPanelData(
+              locationData.workExpertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID
+            );
+            setSelectedGrants(grantPanelData);
+            setSelectedWorks(workPanelData);
+            setPanelType("combined");
+            setPanelOpen(true);
+
+            if (activePointPopup) {
+              activePointPopup.close();
+              activePointPopup = null;
+            }
+          });
+        }
+      }
     });
 
     // Add the marker to the marker group

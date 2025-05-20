@@ -186,6 +186,70 @@ const renderPolygons = ({
         }
       }, 100);
     });
+
+    // Handle tablet/mobile view click
+    marker.on("click", () => {
+        // Remove any existing popup
+      if (activePopup) activePopup.remove();
+    
+      const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
+
+      const content = createMultiGrantPopup(
+        locationData.expertIDs.length,
+        locationData.grantIDs.length,
+        locationData.name,
+        matchedFields
+      );
+
+      activePopup = L.popup({
+        closeButton: true,
+        autoClose: true,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: true,
+      })
+        .setLatLng(polygon.getBounds().getCenter())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = activePopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        // Add event listener for the button inside the popup
+        const viewExpertsBtn = popupElement.querySelector(".view-g-experts-btn");
+        if (viewExpertsBtn) {
+          viewExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const panelData = prepareGrantPanelData(
+              locationData.expertIDs,
+              locationData.grantIDs,
+              grantsMap,
+              expertsMap,
+              locationID
+            );
+            setSelectedGrants(panelData);
+            setPanelType("grants");
+            setPanelOpen(true);
+
+            if (activePopup) {
+              activePopup.close();
+              activePopup = null;
+            }
+          });
+          }
+        }
+    });
+
   });
 };
 
@@ -307,6 +371,69 @@ const renderPoints = ({
           grantPointPopup = null;
         }
       }, 100);
+    });
+
+    // Handle click event for tablet/mobile view
+    marker.on("click", () => {
+      if (grantPointPopup) grantPointPopup.remove();
+
+      const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
+
+      const content = createMultiGrantPopup(
+        locationData.expertIDs.length,
+        locationData.grantIDs.length,
+        locationData.name,
+        matchedFields
+      );
+
+      // Create a new popup
+      grantPointPopup = L.popup({
+        closeButton: true,
+        autoClose: true,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: true,
+      })
+        .setLatLng(marker.getLatLng())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = grantPointPopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        // Add event listener for the button inside the popup
+        const viewWPointExpertsBtn = popupElement.querySelector(".view-g-experts-btn");
+        if (viewWPointExpertsBtn) {
+          viewWPointExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const panelData = prepareGrantPanelData(
+              locationData.grantIDs,
+              locationData.expertIDs,
+              grantsMap,
+              expertsMap,
+              locationID
+            );
+            setSelectedGrants(panelData);
+            setPanelType("grants");
+            setPanelOpen(true);
+
+            if (grantPointPopup) {
+              grantPointPopup.close();
+              grantPointPopup = null;
+            }
+          });
+        }
+      }
     });
 
     grantMarkerGroup.addLayer(marker);
