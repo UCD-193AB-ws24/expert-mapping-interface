@@ -597,9 +597,11 @@ async function main() {
  
   try {
     console.log('🔄 Syncing Redis with PostGIS data...');
-    exec('node src/backend/redis/populateRedis.js', (error, stdout, stderr) => {
+    exec('node src/backend/redis/populateRedis.js',
+    { env: { ...process.env } }, 
+    (error, stdout, stderr) => {
       if (error) {
-        console.error('❌ Error syncing Redis:', error.message);
+        console.error('❌ Error syncing Redis:', error);
         return;
       }
       if (stderr) {
@@ -607,7 +609,8 @@ async function main() {
       }
       console.log('✅ Redis sync completed successfully.');
       console.log(stdout);
-    });
+    }
+  );
   } catch (error) {
     console.error('❌ Failed to sync Redis:', error.message);
   }

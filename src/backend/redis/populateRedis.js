@@ -1,27 +1,10 @@
 require('dotenv').config();
-const { Pool } = require('pg');
-const { createClient } = require('redis');
 const { initializeRedis } = require('./utils/initializeRedis');
 const { syncRedisWithPostgres } = require('./utils/syncRedis');
+const { pool } = require('../postgis/config.js');
+const { createRedisClient } = require('../etl/aggieExpertsAPI/utils/redisUtils.js');
 
-// PostgreSQL connection
-const pool = new Pool({
-  user: process.env.PG_USER,
-  host: process.env.SERVER_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-
-const redisHost = process.env.SERVER_HOST;
-const redisPort = process.env.REDIS_PORT;
-
-const redisClient = createClient({
-  socket: {
-    host: redisHost,
-    port: redisPort
-  }
-});
+const redisClient = createRedisClient();
 
 redisClient.on('error', (err) => {
   console.error('❌ Redis error:', err);
@@ -32,6 +15,14 @@ redisClient.on('connect', () => {
 });
 redisClient.on('end', () => {
   console.log('🔌 Redis connection closed');
+  process.exit(0);
+});
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+  process.exit(1);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err);
   process.exit(1);
 });
 
@@ -87,8 +78,6 @@ async function updateMetadata(redisClient, type) {
       await syncRedisWithPostgres(pgClient, redisClient);
     }
     pgClient.release();
-
-
 
   } catch (error) {
     console.error('❌ Error during Redis synchronization:', error);
