@@ -48,7 +48,7 @@ jobs:
       
       - name: Build Docker image
         run: |
-          docker build -f ./Dockerfile.emi -t emi:ci-build .
+          docker build -f ./Dockerfile.emi -t emi:ci-build -t emi:latest .
           docker save emi:ci-build -o emi.tar
       
       - name: Upload Docker image as artifact
@@ -90,17 +90,8 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
+            cd ~/expert-mapping-interface
             docker load -i ~/emi.tar
-            # Add additional deployment commands as needed (stop old container, start new one, etc.)
-            docker stop emi-app || true
-            docker rm emi-app || true
-            docker run -d --name emi-app -p 80:3000 -p 3001:3001 \
-              -e OLLAMA_HOST=${{ secrets.OLLAMA_HOST }} \
-              -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-              -e PG_HOST=${{ secrets.PG_HOST }} \
-              -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-              -e PG_PORT=${{ secrets.PG_PORT }} \
-              -e PG_DATABASE=${{ secrets.PG_DATABASE }} \
-              -e PG_USER=${{ secrets.PG_USER }} \
-              -e PG_PASSWORD=${{ secrets.PG_PASSWORD }} \
-              emi:ci-build
+            docker tag emi:ci-build emi:latest
+            docker compose down || docker-compose down || true
+            docker compose up -d || docker-compose up -d
