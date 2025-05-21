@@ -18,6 +18,11 @@ const ollama = new Ollama({
   host: `http://${process.env.OLLAMA_HOST}:11434`,
 });
 
+const Groq = require('groq-sdk');
+const groq = new Groq({ apiKey: "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" });
+
+let useGroq = false;
+
 const worksPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "worksFeatures.json");
 const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "grantsFeatures.json");
 const geoWorksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
@@ -40,35 +45,37 @@ ensureFileExists(geoGrantsPath);
  */
 async function extractLocation(text) {
   try {
-    const response = await ollama.chat({
-      model: 'llama3.1',
-      messages: [
-        { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
-        { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
-        { "role": "system", "content": `Give your confidence in percentage` },
-        { "role": "system", "content": `Provide output in JSON format: {"Location": X, "Confidence": Y}` },
-        { "role": "user", "content": `Extract from this text: ${text}` }
-      ],
-      temperature: 0,
-      stream: false
-    });
-    return response.message.content;
-
-    // const chatCompletion = await groq.chat.completions.create({
-    //   "messages": [
-    //     { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
-    //     { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
-    //     { "role": "system", "content": `Give your confidence in percentage` },
-    //     { "role": "system", "content": `Provide output in JSON format: {"Location": X, "Confidence": Y}` },
-    //     { "role": "user", "content": `Extract from this text: ${text}` }
-    //   ],
-    //   "model": "llama-3.3-70b-versatile",
-    //   "temperature": 0,
-    //   "stream": false
-    // });
-
-    // return chatCompletion.choices[0].message.content;
+    if (useGroq) {
+      const chatCompletion = await groq.chat.completions.create({
+        "messages": [
+          { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
+          { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
+          { "role": "system", "content": `Give your confidence in percentage` },
+          { "role": "system", "content": `Provide output in JSON format: {"Location": X, "Confidence": Y}` },
+          { "role": "user", "content": `Extract from this text: ${text}` }
+        ],
+        "model": "llama-3.3-70b-versatile",
+        "temperature": 0,
+        "stream": false
+      });
+      return chatCompletion.choices[0].message.content;
+    } else {
+      const response = await ollama.chat({
+        model: 'llama3.1',
+        messages: [
+          { "role": "system", "content": `Extract geopolitical entities from provided text. Do not infer. Do not provide explanation.` },
+          { "role": "system", "content": `Output answer in the format of "City, Country" or "City, State" or "State, Country" or "Country" or "Location name". If no location was found for the text, return "N/A". Output 1 result if there are multiples.` },
+          { "role": "system", "content": `Give your confidence in percentage` },
+          { "role": "system", "content": `Provide output in JSON format: {"Location": X, "Confidence": Y}` },
+          { "role": "user", "content": `Extract from this text: ${text}` }
+        ],
+        temperature: 0,
+        stream: false
+      });
+      return response.message.content;
+    }
   } catch {
+    console.error("Error extract location");
     return null;
   }
 }
@@ -107,7 +114,9 @@ function parseLlmResult(llmResult) {
  * Process all works data to extract locations
  * Calls extractLocation() on each work and saves the results to geoExpertWorks.json
  */
-async function processAllWorks() {
+async function processAllWorks(groq) {
+  useGroq = groq;
+
   const data = JSON.parse(fs.readFileSync(worksPath, "utf-8"));
   console.log("Extracting works...");
 
@@ -132,7 +141,9 @@ async function processAllWorks() {
  * Process all grants data to extract locations
  * Calls extractLocation() on each grant and saves the results to geoExpertGrants.json
  */
-async function processAllGrants() {
+async function processAllGrants(groq) {
+  useGroq = groq;
+
   const data = JSON.parse(fs.readFileSync(grantsPath, "utf-8"));
   console.log("Extracting grants...");
 
@@ -150,8 +161,11 @@ async function processAllGrants() {
 }
 
 if (module === require.main) {
-  processAllGrants();
-  processAllWorks();
+  const args = process.argv.slice(2);
+  const groq = args.includes('--groq');
+
+  processAllGrants(groq);
+  processAllWorks(groq);
 }
 
 // Removed the main function to prevent duplicate execution of processAllWorks and processAllGrants.

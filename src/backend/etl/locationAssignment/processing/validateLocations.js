@@ -23,6 +23,8 @@ const ollama = new Ollama({
 const Groq = require('groq-sdk');
 const groq = new Groq({ apiKey: "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" });
 
+let useGroq = false;
+
 const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
 const validWorksPath = path.join(__dirname, '../works', "validatedWorks.json");
@@ -98,28 +100,29 @@ async function getLocationInfo(location) {
  */
 async function getISOcode(location) {
   try {
-    const response = await ollama.chat({
-      model: 'llama3.1',
-      messages: [
-        { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
-        { "role": "user", "content": `Location: ${location}` }
-      ],
-      temperature: 0,
-      stream: false
-    });
-    return response.message.content;
-
-    // const chatCompletion = await groq.chat.completions.create({
-    //   "messages": [
-    //     { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
-    //     { "role": "user", "content": `Location: ${location}` }
-    //   ],
-    //   "model": "llama-3.3-70b-versatile",
-    //   "temperature": 0,
-    //   "stream": false
-    // });
-
-    // return chatCompletion.choices[0].message.content;
+    if (useGroq) {
+      const chatCompletion = await groq.chat.completions.create({
+        "messages": [
+          { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+          { "role": "user", "content": `Location: ${location}` }
+        ],
+        "model": "llama-3.3-70b-versatile",
+        "temperature": 0,
+        "stream": false
+      });
+      return chatCompletion.choices[0].message.content;
+    } else {
+      const response = await ollama.chat({
+        model: 'llama3.1',
+        messages: [
+          { "role": "system", "content": `Get one ISO 3166-1 code for this location. Do not provide explanation.` },
+          { "role": "user", "content": `Location: ${location}` }
+        ],
+        temperature: 0,
+        stream: false
+      });
+      return response.message.content;
+    }
   } catch {
     return "None";
   }
@@ -358,7 +361,9 @@ async function validateLocations(inputPath, outputPath) {
   }
 }
 
-async function validateAllWorks() {
+async function validateAllWorks(groq) {
+  useGroq = groq;
+
   try {
     console.log("Validating all works...");
     await validateLocations(worksPath, validWorksPath);
@@ -369,7 +374,9 @@ async function validateAllWorks() {
   }
 }
 
-async function validateAllGrants() {
+async function validateAllGrants(groq) {
+  useGroq = groq;
+
   try {
     console.log("Validating all grants...");
     await validateLocations(grantsPath, validGrantsPath);

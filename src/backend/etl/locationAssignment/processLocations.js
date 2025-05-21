@@ -16,24 +16,27 @@ const { createLocationCoordinates } = require('./processing/geocodeLocations');
  * Run the full pipeline: extract, validate, and geocode locations for works and grants.
  */
 async function processLocations() {
+  const args = process.argv.slice(2);
+  const useGroq = args.includes('--groq');
+
   console.log("Starting location processing pipeline...");
 
   try {
     // Step 1: Extract locations
-    await processAllWorks();
+    await processAllWorks(useGroq);
     console.log("Finished processing works.");
-    await processAllGrants();
+    await processAllGrants(useGroq);
     console.log("Finished processing grants.");
 
     // Step 2: Validate and organize locations
-    await validateAllWorks();
+    await validateAllWorks(useGroq);
     console.log("Finished validating works.");
-    await validateAllGrants();
+    await validateAllGrants(useGroq);
     console.log("Finished validating grants.");
 
-    // Step 3: Geocode locations
-    await createLocationCoordinates();
-    console.log("Finished geocoding locations.");
+    // // Step 3: Geocode locations
+    // await createLocationCoordinates();
+    // console.log("Finished geocoding locations.");
 
     console.log("Location processing pipeline completed successfully.");
   } catch (error) {
