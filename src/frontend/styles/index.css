@@ -48,8 +48,8 @@ aside {
   font-size: large;
   grid-column: 2; /* Place the aside on the right */
   grid-row: 1; /* Single row layout */
-  width: 500px; /* Set a fixed width for the aside */
-  min-width: 500px; /* Ensure the aside does not shrink below this width */
+  width: 400px; /* Set a fixed width for the aside */
+  min-width: 400px; /* Ensure the aside does not shrink below this width */
   height: auto; /* Let the content determine the height */
   max-height: none; /* Remove any height restrictions */
   overflow-y: auto; /* Allow scrolling if content overflows */
@@ -93,7 +93,7 @@ summary {
     display: grid;
     grid-template-columns: 1fr; /* Single column layout */
     grid-template-rows: auto 1fr; /* Sidebar on top, map below */
-    height: calc(100vh - 80px); /* Full viewport height minus navbar */
+    height: 100%; /* Full viewport height minus navbar */
   }
 
   aside {
@@ -358,12 +358,19 @@ summary {
 /* For screens larger than 760px */
 @media (min-width: 760px) {
   .searchbar {
-    max-width: 500px; /* Make the search bar take up half of the navbar */
+    max-width: 400px; /* Make the search bar take up half of the navbar */
     flex-grow: 1; /* Allow it to grow proportionally */
   }
 
   .searchbar input {
     width: 100%; /* Ensure the input fills the container */
+  }
+}
+
+/* For very small screens (max-width: 400px) */
+@media (max-width: 400px) {
+  .searchbar {
+    max-width: 175px;
   }
 }
 

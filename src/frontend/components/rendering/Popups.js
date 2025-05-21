@@ -138,10 +138,10 @@ export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locat
     <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
     <div style='margin-top: 5px;'>
       <div style='color: #3879C7; display: inline-block; margin-right: 10px;'>
-        <strong>${works2ExpertCount}</strong> Experts with Works
+        <strong>${works2ExpertCount}</strong> Expert${works2ExpertCount === 1 ? '' : 's'} with Works
       </div>
       <div style='color: #eda012; display: inline-block;'>
-        <strong>${grants2ExpertCount}</strong> Experts with Grants
+        <strong>${grants2ExpertCount}</strong> Expert${ grants2ExpertCount === 1 ? '' : 's'} with Grants
       </div>
     </div>
     <a href='#'
@@ -163,10 +163,10 @@ export const createMatchedCombinedPolygonPopup = (
     <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
     <div style='margin-top: 5px;'>
       <div style='color: #3879C7; display: inline-block; margin-right: 10px;'>
-        <strong>${works2ExpertCount}</strong> Experts with Works
+        <strong>${works2ExpertCount}</strong> Expert${works2ExpertCount === 1 ? '' : 's'} with Works
       </div>
       <div style='color: #eda012; display: inline-block;'>
-        <strong>${grants2ExpertCount}</strong> Experts with Grants
+        <strong>${grants2ExpertCount}</strong> Expert${grants2ExpertCount === 1 ? '' : 's'} with Grants
       </div>
     </div>   
     <a href='#'

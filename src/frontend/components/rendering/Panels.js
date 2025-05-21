@@ -76,13 +76,14 @@ export const WorksPanel = ({ works = [], onClose }) => {
         right: 0,
         top: 0,
         bottom: 0,
-        width: "360px",
+        width: "100vw",
+        maxWidth: "400px",
         marginTop: "140px",
         backgroundColor: "white",
         boxShadow: "-2px 0 5px rgba(0,0,0,0.2)",
         padding: "20px",
         overflowY: "auto",
-        zIndex: 1001,
+        zIndex: 2000,
       }}
     >
       {/* Close Button */}
@@ -255,13 +256,14 @@ export const GrantsPanel = ({ grants = [], onClose }) => {
         right: 0,
         top: 0,
         bottom: 0,
-        width: "360px",
+        width: "100vw",
+        maxWidth: "400px",
         marginTop: "140px",
         backgroundColor: "white",
         boxShadow: "-2px 0 5px rgba(0,0,0,0.2)",
         padding: "20px",
         overflowY: "auto",
-        zIndex: 1001,
+        zIndex: 2000,
       }}
     >
       {/* Close Button */}
@@ -421,9 +423,10 @@ export const GrantsPanel = ({ grants = [], onClose }) => {
 
 // Displays a side panel with two tabs: "Works" and "Grants" for a specific location.
 // Includes keyword filtering, confidence level styling, and expandable lists for works and grants
-export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
+export const CombinedPanel = ({ works, grants, onClose }) => {
   // State to track the currently active tab ("works" or "grants")
   const [activeTab, setActiveTab] = useState("works");
+
 
   // State to track which expert's works and grants are expanded
   const [expandedWorkIndex, setExpandedWorkIndex] = useState(null);
@@ -442,13 +445,14 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
       right: 0,
       top: 0,
       bottom: 0,
-      width: "360px",
+      width: "100vw",
+      maxWidth: "400px",
       marginTop: "140px",
       backgroundColor: "white",
       boxShadow: "-2px 0 5px rgba(0,0,0,0.2)",
       padding: "20px",
       overflowY: "auto",
-      zIndex: 1001
+      zIndex: 2000,
     }}>
       {/* Close Button */}
       <button
@@ -469,7 +473,7 @@ export const CombinedPanel = ({ works, grants, locationName, onClose }) => {
 
       {/* Location Header */}
       <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#659c39" }}>
-        <strong>Location: {locationName}</strong>
+        <strong>Location: {works[0].location}</strong>
       </h2>
 
       {/* Tab Navigation */}

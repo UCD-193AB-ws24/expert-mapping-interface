@@ -68,13 +68,13 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
       try {
         // Fetch data from two different APIs concurrently
         Promise.all([
-          fetch(`${process.env.PUBLIC_URL}/features/workFeatures.geojson`).then((response) => {
+          fetch('http://localhost:3001/api/redis/worksQuery').then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
           }),
-          fetch(`${process.env.PUBLIC_URL}/features/grantFeatures.geojson`).then((response) => {
+          fetch('http://localhost:3001/api/redis/grantsQuery').then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -391,7 +391,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
         <CombinedPanel
           works={selectedWorks}
           grants={selectedGrants}
-          locationName={locationName}
           onClose={() => setPanelOpen(false)}
           keyword={null}
         />

@@ -74,7 +74,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       const feature_id = workData.id || workKey.split(':')[1]; 
 
       const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
-      console.log('Number of entries for this workKey:', entryKeys.length);
+      // console.log('Number of entries for this workKey:', entryKeys.length);
       const entries = [];
       
       for (const entryKey of entryKeys) {
@@ -92,7 +92,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
             ? JSON.parse(entryData.relatedExperts)
             : '[]',
         };
-        console.log('📋 Entry added:', entry);
+        // console.log('📋 Entry added:', entry);
         entries.push(entry);
       }
       

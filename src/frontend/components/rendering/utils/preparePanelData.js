@@ -1,5 +1,5 @@
 
-export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID) => {
+export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID, locationName) => {
   // Process experts
   return expertIDs.map((expertID) => {
     const expert = expertsMap.get(expertID);
@@ -45,6 +45,7 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
       });
 
     return {
+      location: locationName,
       name: expert.name || "Unknown",
       url: fullUrl, // Use the full URL
       grants: associatedGrants.map((grant) => ({
@@ -60,7 +61,7 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
 };
 
 
-export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID) => {
+export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID, locationName) => {
   return expertIDs.map((expertID) => {
     const expert = expertsMap.get(expertID);
     if (!expert) return null;
@@ -81,6 +82,7 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
       );
 
     return {
+      location: locationName, 
       name: expert.name || "Unknown",
       url: fullUrl, // Use the full URL
       works: associatedWorks.map((work) => ({

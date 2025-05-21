@@ -159,7 +159,8 @@ const renderPolygons = ({
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID // Pass the current locationID
+              locationID, // Pass the current locationID
+              locationData.display_name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -181,6 +182,69 @@ const renderPolygons = ({
           workPolyPopup = null;
         }
       }, 100);
+    });
+
+    marker.on("click", () => {
+    // Remove any existing popup
+    if (workPolyPopup) workPolyPopup.remove();
+
+    const matchedFieldsSet = new Set();
+    locationData.workIDs.forEach((workID) => {
+      const work = worksMap.get(workID);
+      if (work?.matchedFields) {
+        work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      }
+    });
+    const matchedFields = Array.from(matchedFieldsSet);
+
+    const content = createMultiExpertContent(
+      locationData.expertIDs.length,
+      locationData.name,
+      locationData.workIDs.length,
+      matchedFields
+    );
+
+    workPolyPopup = L.popup({
+      closeButton: true,      // Show close button for mobile/tablet
+      autoClose: true,        // Close when clicking elsewhere
+      maxWidth: 300,
+      className: "hoverable-popup",
+      autoPan: true,          // Pan to popup if needed
+    })
+      .setLatLng(polygon.getBounds().getCenter())
+      .setContent(content)
+      .openOn(map);
+
+    const popupElement = workPolyPopup.getElement();
+    if (popupElement) {
+      popupElement.style.pointerEvents = "auto";
+
+      // Only add the button click handler
+      const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
+      if (viewWPolyExpertsBtn) {
+        viewWPolyExpertsBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const panelData = prepareWorkPanelData(
+            locationData.expertIDs,
+            locationData.workIDs,
+            expertsMap,
+            worksMap,
+            locationID,
+            locationData.display_name
+          );
+          setSelectedWorks(panelData);
+          setPanelType("works");
+          setPanelOpen(true);
+
+          if (workPolyPopup) {
+            workPolyPopup.close();
+            workPolyPopup = null;
+          }
+        });
+      }
+    }
     });
   });
 };
@@ -277,7 +341,8 @@ const renderPoints = ({
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID // Pass the current locationID
+              locationID, // Pass the current locationID
+              locationData.display_name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -301,6 +366,68 @@ const renderPoints = ({
       }, 200);
     });
 
+    marker.on("click", () => {
+
+      if (workPointPopup) workPointPopup.remove();
+
+      const matchedFieldsSet = new Set();
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
+
+      const content = createMultiExpertContent(
+        locationData.expertIDs.length,
+        locationData.name,
+        locationData.workIDs.length,
+        matchedFields
+      );
+
+      workPointPopup = L.popup({
+        closeButton: true,
+        autoClose: true,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: true,
+      })
+        .setLatLng(marker.getLatLng())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = workPointPopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        const viewWPointExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
+        if (viewWPointExpertsBtn) {
+          viewWPointExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const panelData = prepareWorkPanelData(
+              locationData.expertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID, // Pass the current locationID
+              locationData.display_name
+            );
+            setSelectedWorks(panelData); // Pass the prepared data to the panel
+            setPanelType("works");
+            setPanelOpen(true);
+
+            if (workPointPopup) {
+              workPointPopup.close();
+              workPointPopup = null;
+            }
+          });
+        }
+      }
+    });
+    
     markerClusterGroup.addLayer(marker);
   });
 
