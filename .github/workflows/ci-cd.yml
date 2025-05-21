@@ -91,9 +91,6 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             docker load -i ~/emi.tar
-            docker tag emi:ci-build emi:latest
-            docker compose down || true
             docker compose down || true
             docker compose up -d
-            docker image prune -f
             docker image prune -f
