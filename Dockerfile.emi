@@ -8,8 +8,6 @@ RUN npm install
 
 # Copy the entire project
 COPY . .
-# Copy expertIds.csv from its actual location in the repo
-COPY src/backend/etl/aggieExpertsAPI/utils/expertIds.csv ./src/backend/etl/aggieExpertsAPI/utils/expertIds.csv
 
 EXPOSE 3000 3001
 CMD ["npm", "start"]
