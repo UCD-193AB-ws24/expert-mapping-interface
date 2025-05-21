@@ -162,7 +162,8 @@ const renderPolygons = ({
               locationData.grantIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(panelData);
             setPanelType("grants");
@@ -235,7 +236,8 @@ const renderPolygons = ({
               locationData.grantIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(panelData);
             setPanelType("grants");
@@ -348,7 +350,8 @@ const renderPoints = ({
               locationData.expertIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(panelData);
             setPanelType("grants");
@@ -421,7 +424,8 @@ const renderPoints = ({
               locationData.expertIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(panelData);
             setPanelType("grants");

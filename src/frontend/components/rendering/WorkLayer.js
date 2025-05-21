@@ -159,7 +159,8 @@ const renderPolygons = ({
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID // Pass the current locationID
+              locationID, // Pass the current locationID
+              locationData.display_name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -230,7 +231,8 @@ const renderPolygons = ({
             locationData.workIDs,
             expertsMap,
             worksMap,
-            locationID
+            locationID,
+            locationData.display_name
           );
           setSelectedWorks(panelData);
           setPanelType("works");
@@ -339,7 +341,8 @@ const renderPoints = ({
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID // Pass the current locationID
+              locationID, // Pass the current locationID
+              locationData.display_name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -409,7 +412,8 @@ const renderPoints = ({
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID // Pass the current locationID
+              locationID, // Pass the current locationID
+              locationData.display_name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");

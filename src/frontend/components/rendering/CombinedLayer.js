@@ -230,14 +230,16 @@ const renderPolygons = ({
               locationData.grantIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);
@@ -327,14 +329,16 @@ const renderPolygons = ({
               locationData.grantIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);
@@ -510,14 +514,16 @@ const renderPoints = ({
               locationData.grantIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             const workPanelData = prepareWorkPanelData(
               locationData.workExpertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);
@@ -607,14 +613,16 @@ const renderPoints = ({
               locationData.grantIDs,
               grantsMap,
               expertsMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             const workPanelData = prepareWorkPanelData(
               locationData.workExpertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
-              locationID
+              locationID,
+              locationData.display_name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);

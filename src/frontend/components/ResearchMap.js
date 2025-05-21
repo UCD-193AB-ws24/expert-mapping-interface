@@ -391,7 +391,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
         <CombinedPanel
           works={selectedWorks}
           grants={selectedGrants}
-          locationName={locationName}
           onClose={() => setPanelOpen(false)}
           keyword={null}
         />
