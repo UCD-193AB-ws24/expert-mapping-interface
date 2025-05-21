@@ -73,13 +73,13 @@ jobs:
             PG_USER=${{ secrets.PG_USER }}
             PG_PASSWORD=${{ secrets.PG_PASSWORD }}
           tags: |
-            ghcr.io/zoey/emi:latest
-            ghcr.io/zoey/emi:${{ github.sha }}
+            ghcr.io/zoeyvo/emi:latest
+            ghcr.io/zoeyvo/emi:${{ github.sha }}
       
       - name: Save Docker image as artifact
         run: |
-          docker pull ghcr.io/zoey/emi:${{ github.sha }}
-          docker save ghcr.io/zoey/emi:${{ github.sha }} -o emi.tar
+          docker pull ghcr.io/zoeyvo/emi:${{ github.sha }}
+          docker save ghcr.io/zoeyvo/emi:${{ github.sha }} -o emi.tar
       
       - name: Upload Docker image as artifact
         uses: actions/upload-artifact@v4
@@ -133,4 +133,4 @@ jobs:
               -e PG_DATABASE=${{ secrets.PG_DATABASE }} \
               -e PG_USER=${{ secrets.PG_USER }} \
               -e PG_PASSWORD=${{ secrets.PG_PASSWORD }} \
-              ghcr.io/zoey/emi:${{ github.sha }}
+              ghcr.io/zoeyvo/emi:${{ github.sha }}
