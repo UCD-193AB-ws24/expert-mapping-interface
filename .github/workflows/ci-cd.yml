@@ -48,7 +48,7 @@ jobs:
       
       - name: Build Docker image
         run: |
-          docker build -f ./Dockerfile.emi -t emi:ci-build -t emi:latest .
+          docker build -f ./Dockerfile.emi -t emi .
           docker save emi:ci-build -o emi.tar
       
       - name: Upload Docker image as artifact
@@ -90,9 +90,8 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
-            cd ~/expert-mapping-interface
-            docker compose down || true
-            docker rm -f emi-app || true
             docker load -i ~/emi.tar
             docker tag emi:ci-build emi:latest
+            docker compose down || true
             docker compose up -d
+            docker image prune -f
