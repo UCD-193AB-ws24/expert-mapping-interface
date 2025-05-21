@@ -181,8 +181,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
           properties: {
             ...feature.properties,
             entries: (feature.properties.entries || [])
+              .filter(isHighConfidence)
               .filter(entry => isGrantInDate(entry, selectedDateRange))
               .filter(entry => matchesKeyword(searchKeyword, entry))
+
           }
         }))
         .filter(f => f.properties.entries.length > 0)
