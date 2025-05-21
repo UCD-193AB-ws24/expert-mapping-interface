@@ -34,9 +34,9 @@ async function processLocations() {
     await validateAllGrants(useGroq);
     console.log("Finished validating grants.");
 
-    // // Step 3: Geocode locations
-    // await createLocationCoordinates();
-    // console.log("Finished geocoding locations.");
+    // Step 3: Geocode locations
+    await createLocationCoordinates();
+    console.log("Finished geocoding locations.");
 
     console.log("Location processing pipeline completed successfully.");
   } catch (error) {
