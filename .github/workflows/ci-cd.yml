@@ -21,7 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'      # Installs all necessary Node.js packages defined in package-lock.json.
+          cache: 'npm'
+      # Installs all necessary Node.js packages defined in package-lock.json.
       - name: Install dependencies
         run: npm install
 
@@ -32,61 +33,105 @@ jobs:
 
       # Compiles the React frontend code into static assets for deployment.
       - name: Build project
-        run: npm run build 
+        run: npm run build
         continue-on-error: false
 
-      # Saves the built React application (from the './build' directory) as an artifact.
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: ./build
-          retention-days: 1
-
-  # --- Job 2: Deploy to GitHub Pages ---
-  deploy-to-github-pages:
-    environment:
-      name: github-pages
-
-    needs: build-and-test
-
+  # --- Job 2: Build and Push Docker Image ---
+  build-docker-image:
     runs-on: ubuntu-latest
-
+    needs: build-and-test
     if: github.ref == 'refs/heads/main'
-
-    permissions:
-      pages: write # Permission to write to GitHub Pages
-      id-token: write # Permission for OIDC token authentication (secure deployment)
-
+    
     steps:
-      # Checkout code again in this job
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.emi
+          push: true
+          build-args: |
+            WEBSERVER_HOST=${{ secrets.WEBSERVER_HOST }}
+            OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            PG_HOST=${{ secrets.PG_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            PG_PORT=${{ secrets.PG_PORT }}
+            PG_DATABASE=${{ secrets.PG_DATABASE }}
+            PG_USER=${{ secrets.PG_USER }}
+            PG_PASSWORD=${{ secrets.PG_PASSWORD }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/emi:latest
+            ghcr.io/${{ github.repository_owner }}/emi:${{ github.sha }}
+      
+      - name: Save Docker image as artifact
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/emi:${{ github.sha }}
+          docker save ghcr.io/${{ github.repository_owner }}/emi:${{ github.sha }} -o emi.tar
+      
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: emi.tar
+          retention-days: 1
 
-      # Retrieves the 'build-output' artifact saved by the 'build-and-test' job.
-      - name: Download build artifact
+  # --- Job 3: Deploy Docker Image to VM ---
+  deploy-to-vm:
+    runs-on: ubuntu-latest
+    needs: [build-docker-image]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: webserver-prod
+    
+    steps:
+      - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: build-output
-          path: ./build
-
-      # Verify the build folder contents
-      - name: Check build folder
-        run: |
-          ls -la
-          ls -la build || echo "Build folder not found"
-
-      # Sets up the runner environment for deploying to GitHub Pages.
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      # Uploads the downloaded build directory specifically for the Pages deployment action.
-      - name: Upload artifact for Pages
-        uses: actions/upload-pages-artifact@v3
+          name: docker-image
+          path: ./
+      
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
         with:
-          path: './build' # Path to the directory containing the static site
-
-      # Executes the actual deployment to GitHub Pages using the uploaded artifact.
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.VM_KNOWN_HOSTS }}
+      
+      - name: SCP transfer Docker image to VM
+        run: |
+          scp -o StrictHostKeyChecking=no ./emi.tar ${{ secrets.VM_USER }}@${{ secrets.WEBSERVER_HOST }}:~/
+      
+      - name: Deploy Docker image on VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.WEBSERVER_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            docker load -i ~/emi.tar
+            # Add additional deployment commands as needed (stop old container, start new one, etc.)
+            docker stop emi-app || true
+            docker rm emi-app || true
+            docker run -d --name emi-app -p 3001:3001 \
+              -e WEBSERVER_HOST=${{ secrets.WEBSERVER_HOST }} \
+              -e OLLAMA_HOST=${{ secrets.OLLAMA_HOST }} \
+              -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
+              -e PG_HOST=${{ secrets.PG_HOST }} \
+              -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+              -e PG_PORT=${{ secrets.PG_PORT }} \
+              -e PG_DATABASE=${{ secrets.PG_DATABASE }} \
+              -e PG_USER=${{ secrets.PG_USER }} \
+              -e PG_PASSWORD=${{ secrets.PG_PASSWORD }} \
+              ghcr.io/${{ github.repository_owner }}/emi:${{ github.sha }}
