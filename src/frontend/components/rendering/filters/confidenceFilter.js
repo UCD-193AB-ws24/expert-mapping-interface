@@ -6,5 +6,5 @@
 export function isHighConfidence(entry) {
   // Parse as number in case it's a string
   const confidence = Number(entry.confidence);
-  return !isNaN(confidence) && confidence >= 80;
+  return !isNaN(confidence) && confidence >= 70;
 }
