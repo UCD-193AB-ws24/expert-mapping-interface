@@ -37,16 +37,34 @@ Data Fetching → Location Processing → GeoJSON Generation
 ### 2. Location Processing (`/locationAssignment`)
 
 - **extractLocations.js**: Uses LLM (llama3.3) to identify geographic entities from text
-- **validateLocations.js**: Standardizes location names against ISO references
+  - Prompts LLM to extract location and provide its confidence score in JSON format `Example: {"Location": "California", "Confidence": 90}`
+  - Parses and filters the LLM's response
+- **validateLocations.js**: Validates extracted location names against ISO references
+  - Uses Nominatim Geocoding API and also prompts LLM for ISO codes to cross-check and assess the extracted locations
+  - Calculates confidence metric based on the distance between 2 methods and the LLM's original confidence
 - **geocodeLocations.js**: Converts locations to geographic coordinates
 - **processLocations.js**: Manages the complete location workflow
+
+- Example: 
+  ```bash
+  node ./src/backend/etl/locationAssignment/processLocations.js
+  ```
+- Output files:
+  - **extractLocations.js**:
+    - `works/locationBasedWorks.json`: Work-centric data with additional `location` and `llmConfidence` fields
+    - `grants/locationBasedGrants.json`: Grant-centric data with additional `location` and `llmConfidence` fields
+  - **validateLocations.js**:
+    - `works/validatedWorks.json`: Locations with associated works
+    - `grants/validatedGrants.json`: Locations with associated grants
+  - **geocodeLocations.js**:
+    - `locations/locationCoordinates.geojson`: Locations with corresponding metadata and geographic polygon coordinates
 
 ### 3. GeoJSON Generation (`/geojsonGeneration`)
 
 - **generateGeoJson.js**: Creates finalized GeoJSON files to be stored in PostGIS
 - Example:
     ```bash
-    node ./src/geo/etl/geojsonGeneration/generateGeoJson.js
+    node ./src/backend/etl/geojsonGeneration/generateGeoJson.js
     ```
 - Output files:
   - `generatedWorks.geojson`:  Research work data with coordinates
