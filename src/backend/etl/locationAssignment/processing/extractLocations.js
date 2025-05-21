@@ -81,28 +81,38 @@ async function extractLocation(text) {
 }
 
 function parseLlmResult(llmResult) {
-  try {
-    const resultJSON = JSON.parse(llmResult);
+  // Parse the JSON part if response has extra information
+  const extractedJson = llmResult.match(/\{.*?\}/s);
 
-    if (!("Location" in resultJSON) || !("Confidence" in resultJSON)) {
+  if (extractedJson) {
+    try {
+      const parsedJSON = JSON.parse(extractedJson);
+
+      if (!("Location" in parsedJSON) || !("Confidence" in parsedJSON)) {
+        return {
+          location: "N/A",
+          confidence: 0
+        }
+      }
+
+      if (isNaN(Number(parsedJSON.Confidence))) {
+        return {
+          location: "N/A",
+          confidence: 0
+        }
+      }
+
+      return {
+        location: parsedJSON.Location,
+        confidence: Number(parsedJSON.Confidence)
+      }
+    } catch {
       return {
         location: "N/A",
         confidence: 0
       }
     }
-
-    if (isNaN(Number(resultJSON.Confidence))) {
-      return {
-        location: "N/A",
-        confidence: 0
-      }
-    } else {
-      return {
-        location: resultJSON.Location,
-        confidence: Number(resultJSON.Confidence)
-      }
-    }
-  } catch {
+  } else {
     return {
       location: "N/A",
       confidence: 0
