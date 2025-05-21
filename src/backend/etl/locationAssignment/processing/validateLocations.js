@@ -21,7 +21,7 @@ const ollama = new Ollama({
 });
 
 const Groq = require('groq-sdk');
-const groq = new Groq({ apiKey: "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" });
+const groq = new Groq({ apiKey: process.env.GROQ_KEY });
 
 let useGroq = false;
 
