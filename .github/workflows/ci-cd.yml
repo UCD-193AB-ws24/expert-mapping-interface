@@ -94,3 +94,4 @@ jobs:
             docker compose down || true
             docker compose up -d
             docker image prune -f
+            docker cp expertIds.csv emi-app:/app/src/backend/etl/aggieExpertsAPI/utils // only avail in vm
