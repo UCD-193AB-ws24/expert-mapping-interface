@@ -1,7 +1,7 @@
 const getPlaceRankRange = (zoomLevel) => {
   if (zoomLevel >= 2 && zoomLevel <= 3) return [3, 4];
-  if (zoomLevel === 4) return [5, 12];
-  if (zoomLevel >= 5) return [13, 30];
+  if (zoomLevel >= 4 && zoomLevel <= 6) return [5, 12];
+  if (zoomLevel >= 7) return [13, 30];
   return [Infinity, Infinity];
 };
 
