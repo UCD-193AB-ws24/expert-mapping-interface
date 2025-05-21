@@ -124,8 +124,7 @@ jobs:
             # Add additional deployment commands as needed (stop old container, start new one, etc.)
             docker stop emi-app || true
             docker rm emi-app || true
-            docker run -d --name emi-app -p 3001:3001 \
-              -e WEBSERVER_HOST=${{ secrets.WEBSERVER_HOST }} \
+            docker run -d --name emi-app -p 80:3000 -p 3001:3001 \
               -e OLLAMA_HOST=${{ secrets.OLLAMA_HOST }} \
               -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
               -e PG_HOST=${{ secrets.PG_HOST }} \
@@ -134,4 +133,4 @@ jobs:
               -e PG_DATABASE=${{ secrets.PG_DATABASE }} \
               -e PG_USER=${{ secrets.PG_USER }} \
               -e PG_PASSWORD=${{ secrets.PG_PASSWORD }} \
-              ghcr.io/${{ github.repository_owner }}/emi:${{ github.sha }}
+              ghcr.io/zoey/emi:${{ github.sha }}

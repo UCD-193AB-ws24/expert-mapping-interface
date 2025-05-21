@@ -1,7 +1,6 @@
 node_modules
 dump.rdb
 .env
-docker-compose.yml
 src/backend/etl/aggieExpertsAPI/utils/expertIds.csv
 # Jest coverage output
 coverage

@@ -1,0 +1,56 @@
+services:
+  emi-app:
+    image: emi
+    build:
+      context: .
+      dockerfile: Dockerfile.emi
+    container_name: emi-app
+    ports:
+      - "80:3000"     # Frontend
+      - "3001:3001"   # Backend
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST}
+      - REDIS_HOST=${REDIS_HOST}
+      - PG_HOST=${PG_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - PG_PORT=${PG_PORT}
+      - PG_DATABASE=${PG_DATABASE}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD_FILE=/run/secrets/pg_password
+    depends_on:
+      - redis
+      - postgis
+    command: sh -c "npm start & node src/backend/server.js"
+    secrets:
+      - pg_password
+
+  redis:
+    image: redis
+    container_name: emi-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    restart: unless-stopped
+
+  postgis:
+    image: postgis/postgis
+    container_name: emi-postgis
+    environment:
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgis-data:/var/lib/postgresql/data
+      - ./init-pg:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    secrets:
+      - pg_password
+
+secrets:
+  pg_password:
+    file: ./pg_password.txt
