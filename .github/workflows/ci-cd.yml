@@ -21,11 +21,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-
-      # Installs all necessary Node.js packages defined in package-lock.json.
+          cache: 'npm'      # Installs all necessary Node.js packages defined in package-lock.json.
       - name: Install dependencies
         run: npm install
+
+      # Run tests before building to ensure code quality
+      - name: Run tests
+        run: npm test
+        continue-on-error: false
 
       # Compiles the React frontend code into static assets for deployment.
       - name: Build project
