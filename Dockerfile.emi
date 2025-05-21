@@ -8,6 +8,8 @@ RUN npm install
 
 # Copy the entire project
 COPY . .
+# Copy expertIds.csv into the image
+COPY expertIds.csv ./
 
 EXPOSE 3000 3001
 CMD ["npm", "start"]
