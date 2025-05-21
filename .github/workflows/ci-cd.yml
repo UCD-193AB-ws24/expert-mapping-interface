@@ -91,7 +91,8 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             cd ~/expert-mapping-interface
+            docker compose down || true
+            docker rm -f emi-app || true
             docker load -i ~/emi.tar
             docker tag emi:ci-build emi:latest
-            docker compose down || docker-compose down || true
-            docker compose up -d || docker-compose up -d
+            docker compose up -d
