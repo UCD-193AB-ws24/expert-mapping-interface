@@ -74,9 +74,9 @@ export function organizeAllMaps({
                 )?.[0];
 
                 if (!expertID) {
-                  expertID = `expert_${expert.id}`;
+                  expertID = `expert_${expert.expertId}`;
                   expertsMap.set(expertID, {
-                    id: expert.id || 'Unknown ID',
+                    id: expert.expertId || 'Unknown ID',
                     name: expertName || "Unknown",
                     url: expert.url || "#",
                     locationIDs: [],
