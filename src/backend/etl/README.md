@@ -47,7 +47,7 @@ Data Fetching → Location Processing → GeoJSON Generation
 
 - Example: 
   ```bash
-  node ./src/backend/etl/locationAssignment/processLocations.js
+  node ./src/backend/etl/locationAssignment/processLocations.js [--groq] [--debug]
   ```
 - Output files:
   - **extractLocations.js**:
@@ -79,19 +79,17 @@ Data Fetching → Location Processing → GeoJSON Generation
 
 ```bash
 # 1. Fetch all data from Aggie Experts API
-node ./src/backend/etl/aggieExpertsAPI/persistExpertProfiles.js
+node ./src/backend/etl/aggieExpertsAPI/persistExpertProfiles.js [numExperts=1] [worksLimit=5] [grantsLimit=5]
 
 # 2. Match experts with works and grants
-node ./src/backend/etl/aggieExpertsAPI/getExpertFeatures.js
+node ./src/backend/etl/aggieExpertsAPI/getExpertFeatures.js [--all]
 
 # 3. Extract, validate, and geocode locations associated with matched features
-node ./src/backend/etl/locationAssignment/processLocations.js
+node ./src/backend/etl/locationAssignment/processLocations.js [--groq] [--debug]
 
 # 4. Generate GeoJSON of each feature type for visualization
 node ./src/backend/etl/geojsonGeneration/generateGeoJson.js
 ```
-
-Each component can be run individually for testing or development purposes.
 
 ![ETL Pipeline Diagram](../../assets/etl.png)
 
