@@ -378,8 +378,12 @@ const renderPoints = ({
   // Iterate through each location in the location map
   locationMap.forEach((locationData, locationID) => {
     // Skip locations that are not points or have no works or grants
-    if (locationData.geometryType !== "Point" || locationData.grantIDs.length === 0 || locationData.worksIDs.length === 0) return;
-
+    if (
+      locationData.geometryType !== "Point" ||
+      !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
+      !Array.isArray(locationData.worksIDs) || locationData.worksIDs.length === 0
+    ) return;
+    
     // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
