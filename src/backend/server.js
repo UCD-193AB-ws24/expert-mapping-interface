@@ -12,9 +12,13 @@
 require('dotenv').config();
 const express = require('express');
 const { pool } = require('./postgis/config');
+const path = require('path'); // Add path module
 
 const app = express();
 const PORT = 3001;
+
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, '../../build')));
 
 const { createRedisClient } = require('./etl/aggieExpertsAPI/utils/redisUtils.js');
 
@@ -308,6 +312,14 @@ app.get('/api/grants', async (req, res) => {
     res.status(500).json({ error: 'Internal server error', details: error.message });
   } finally {
     client.release();
+  }
+});
+
+// Catch all other routes and return the index.html file from React app
+app.get('*', (req, res) => {
+  // Only serve React app for non-API routes
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, '../../build/index.html'));
   }
 });
 

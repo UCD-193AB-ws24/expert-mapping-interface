@@ -6,8 +6,7 @@ services:
       dockerfile: Dockerfile.emi
     container_name: emi-app
     ports:
-      - "80:3000"     # Frontend
-      - "3001:3001"   # Backend
+      - "3001:3001"   # Single port for both frontend and backend
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST}
       - REDIS_HOST=${REDIS_HOST}
@@ -20,7 +19,7 @@ services:
     depends_on:
       - redis
       - postgis
-    command: sh -c "npm start & node src/backend/server.js"
+    command: sh -c "npm run build && node src/backend/server.js"
     secrets:
       - pg_password
 
