@@ -2,12 +2,11 @@
 * @file redisUtils.js
 * @description Central module for Redis configuration, utilities, 
 *              and caching operations for expert profiles
+* @usage
+*   const redisUtils = require('./utils/redisUtils');
+*   const client = redisUtils.createRedisClient();
+*   // Use client and utility functions for Redis operations
 * 
-* USAGE: Import this module to access Redis client creation, utilities, and shared caching functionality
-* 
-* REQUIREMENTS: 
-* - A .env file with REDIS_HOST and REDIS_PORT environment variables
-*
 * Zoey Vo, 2025
 */
 

@@ -1,6 +1,9 @@
 /**
  * @file getExpertFeatures.js
  * @description Retrieves expert profiles and formats them into feature collections
+ * @usage
+ *   node ./src/backend/etl/aggieExpertsAPI/getExpertFeatures.js [--all]
+ *   --all: Use all cached expert profiles (default is recent only)
  * 
  * Zoey Vo, 2025
  */
@@ -107,14 +110,10 @@ if (require.main === module) {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const useRecent = !(args.includes('--all') || args.includes('-a'));
-  const saveToFiles = args.includes('--save') || args.includes('-s');
   
   console.log(`Mode: Using ${useRecent ? 'RECENT' : 'ALL'} cached expert profiles`);
-  if (saveToFiles) {
-    console.log('Output: Will save formatted features to disk');
-  }
 
-  getExpertFeatures({ recent: useRecent, save: saveToFiles })
+  getExpertFeatures({ recent: useRecent })
     .then(result => {
       if (result.success) {
         // console.log(`\n✅ Successfully generated features from ${result.features.works.length + result.features.grants.length} items`);

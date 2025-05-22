@@ -7,9 +7,6 @@
 * - Data transformation and formatting 
 * - Logging API batch operations
 *
-* REQUIREMENTS: 
-* - A .env file in the project root with API_TOKEN=<your-api-token> for API authentication
-*
 * Zoey Vo, 2025
 */
 
