@@ -17,4 +17,3 @@ src/backend/etl/geojsonGeneration/generated*.geojson
 src/backend/etl/locationAssignment/works/*.json
 src/backend/etl/locationAssignment/grants/*.json
 src/backend/etl/locationAssignment/locations/*.geojson
-src/frontend/components/features/*.json
