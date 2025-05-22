@@ -129,7 +129,10 @@ async function processAllWorks(groq, debug = false) {
 
   const data = JSON.parse(fs.readFileSync(worksPath, "utf-8"));
   console.log("Extracting works...");
-
+  if (debugMode) {
+    console.log('\n--- Begin Extraction Debug (Works) ---\n');
+  }
+  let extractedCount = 0;
   for (const entry of data) {
     const title = entry.title;
     const abstract = entry.abstract;
@@ -140,10 +143,19 @@ async function processAllWorks(groq, debug = false) {
 
     entry.location = parsedResult.location;
     entry.llmConfidence = parsedResult.confidence;
+    // Always print the returned location
+    console.log(`Location: ${parsedResult.location}`);
+    if (parsedResult.location !== "N/A" && parsedResult.location !== "None") {
+      extractedCount++;
+    }
     if (debugMode) {
-      console.log(parsedResult.location);
+      console.log('Debug info:', parsedResult);
     }
   }
+  if (debugMode) {
+    console.log('\n--- End Extraction Debug (Works) ---\n');
+  }
+  console.log(`Extracted locations (non-N/A): ${extractedCount} / ${data.length}`);
 
   fs.writeFileSync(geoWorksPath, JSON.stringify(data, null, 2));
 }
@@ -158,17 +170,29 @@ async function processAllGrants(groq, debug = false) {
 
   const data = JSON.parse(fs.readFileSync(grantsPath, "utf-8"));
   console.log("Extracting grants...");
-
+  if (debugMode) {
+    console.log('\n--- Begin Extraction Debug (Grants) ---\n');
+  }
+  let extractedCount = 0;
   for (const entry of data) {
     const result = await extractLocation(entry.title);
     const parsedResult = parseLlmResult(result);
 
     entry.location = parsedResult.location;
     entry.llmConfidence = parsedResult.confidence;
+    // Always print the returned location
+    console.log(`Location: ${parsedResult.location}`);
+    if (parsedResult.location !== "N/A" && parsedResult.location !== "None") {
+      extractedCount++;
+    }
     if (debugMode) {
-      console.log(parsedResult.location);
+      console.log('Debug info:', parsedResult);
     }
   }
+  if (debugMode) {
+    console.log('\n--- End Extraction Debug (Grants) ---\n');
+  }
+  console.log(`Extracted locations (non-N/A): ${extractedCount} / ${data.length}`);
 
   fs.writeFileSync(geoGrantsPath, JSON.stringify(data, null, 2));
 }

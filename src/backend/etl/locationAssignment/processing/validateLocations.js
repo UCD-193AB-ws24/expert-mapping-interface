@@ -319,15 +319,33 @@ async function validateLocations(inputPath, outputPath, debug = false) {
     const data = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
 
     console.log(`Validating locations from ${inputPath}...`);
+    if (debug) {
+      console.log('\n--- Begin Validation Debug ---\n');
+    }
+    let extractedCount = 0;
+    let validatedCount = 0;
     for (const entry of data) {
       const result = await validateLocation(entry.location, entry.llmConfidence);
       entry.location = result.name;
       entry.confidence = result.confidence;
       entry.country = result.country;
-      if (debug && result.name !== "N/A" && result.name !== "None") {
-        console.log(result.name);
+      if (result.name !== "N/A" && result.name !== "None") {
+        extractedCount++;
+      }
+      if (result.name !== "N/A" && result.name !== "None") {
+        validatedCount++;
+      }
+      if (debug) {
+        const validated = result.name !== "N/A" && result.name !== "None";
+        console.log({ location: result.name, validate: validated });
       }
     }
+    if (debug) {
+      console.log('\n--- End Validation Debug ---\n');
+    }
+
+    console.log(`Extracted locations (non-N/A): ${extractedCount} / ${data.length}`);
+    console.log(`Validated locations: ${validatedCount} / ${data.length}`);
 
     console.log(`Formatting and saving validated locations to ${outputPath}...`);
     const locationMap = new Map();

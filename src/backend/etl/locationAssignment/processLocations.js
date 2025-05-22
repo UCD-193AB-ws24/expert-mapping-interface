@@ -20,6 +20,7 @@ const { formatTime } = require('../aggieExpertsAPI/utils/timingUtils');
 async function processLocations() {
   const args = process.argv.slice(2);
   const useGroq = args.includes('--groq');
+  const debug = args.includes('--debug');
 
   console.log("Starting location processing pipeline...");
 
@@ -27,18 +28,18 @@ async function processLocations() {
   try {
     // Step 1: Extract locations
     const extractStart = performance.now();
-    await processAllWorks(useGroq);
+    await processAllWorks(useGroq, debug);
     console.log("Finished processing works.");
-    await processAllGrants(useGroq);
+    await processAllGrants(useGroq, debug);
     console.log("Finished processing grants.");
     const extractEnd = performance.now();
     console.log(`Finished extracting locations. ⏱️ ${formatTime(extractEnd - extractStart)}`);
 
     // Step 2: Validate and organize locations
     const validateStart = performance.now();
-    await validateAllWorks(useGroq);
+    await validateAllWorks(useGroq, debug);
     console.log("Finished validating works.");
-    await validateAllGrants(useGroq);
+    await validateAllGrants(useGroq, debug);
     console.log("Finished validating grants.");
     const validateEnd = performance.now();
     console.log(`Finished validating locations. ⏱️ ${formatTime(validateEnd - validateStart)}`);
