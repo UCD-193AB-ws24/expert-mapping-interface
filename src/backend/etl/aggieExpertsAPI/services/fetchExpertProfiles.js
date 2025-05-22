@@ -46,9 +46,13 @@ async function fetchExpertProfiles(numExperts=1, worksLimit=5, grantsLimit=5) {
       try {
         // Get detailed data with works and grants
         const expertData = await getExpertData(expertId, worksLimit, grantsLimit);
-        
-        // Add to profiles collection
+          // Add to profiles collection
         expertProfiles.push(expertData);
+        
+        // Log progress for every 1000 experts (but not for 0)
+        if (expertProfiles.length % 1000 === 0 && expertProfiles.length > 0) {
+          console.log(`[fetched ${expertProfiles.length} experts]`);
+        }
       } catch (error) {
         console.error(`❌ Error fetching profile for expert ${expertId}:`, error.message);
         // Continue with the next expert
