@@ -50,7 +50,7 @@ async function fetchAndSave() {
       });
       
       // Save to the project root directory
-      const projectRoot = path.resolve(__dirname, '../../components/features');
+      const projectRoot = path.resolve(__dirname, '../../frontend/components/features');
       
       // Ensure the directory exists
       if (!fs.existsSync(projectRoot)) {

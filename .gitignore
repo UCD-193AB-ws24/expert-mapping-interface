@@ -3,6 +3,12 @@ dump.rdb
 build
 .env
 src/backend/etl/aggieExpertsAPI/utils/expertIds.csv
+src/backend/etl/aggieExpertsAPI/formattedFeatures/*.json
+src/backend/etl/geojsonGeneration/generated*.geojson
+src/backend/etl/locationAssignment/works/*.json
+src/backend/etl/locationAssignment/grants/*.json
+src/backend/etl/locationAssignment/locations/*.geojson
+frontend/components/features/*.json
 # Jest coverage output
 coverage
 coverage-*
