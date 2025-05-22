@@ -35,7 +35,7 @@ const redisClient = createRedisClient();
 
 let activeConnections = 0;
 
-// Remove all CORS middleware
+// Enable JSON parsing
 app.use(express.json());
 
 // Connection tracking middleware

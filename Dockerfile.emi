@@ -1,6 +1,9 @@
 # Dockerfile.emi
 FROM node:18-alpine
 
+# Install nano for text editing capability
+RUN apk add --no-cache nano
+
 WORKDIR /app
 
 COPY package*.json ./

@@ -64,17 +64,16 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
      */
   useEffect(() => {
     setIsLoading(true);
-    const loadGeoData = async () => {
-      try {
+    const loadGeoData = async () => {      try {
         // Fetch data from two different APIs concurrently
         Promise.all([
-          fetch('http://localhost:3001/api/redis/worksQuery').then((response) => {
+          fetch('/api/redis/worksQuery').then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
           }),
-          fetch('http://localhost:3001/api/redis/grantsQuery').then((response) => {
+          fetch('/api/redis/grantsQuery').then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
