@@ -20,6 +20,7 @@ const Groq = require('groq-sdk');
 const groq = new Groq({ apiKey: process.env.GROQ_KEY });
 
 let useGroq = false;
+let debugMode = false;
 
 const worksPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "worksFeatures.json");
 const grantsPath = path.join(__dirname, '../../aggieExpertsAPI/formattedFeatures', "grantsFeatures.json");
@@ -122,8 +123,9 @@ function parseLlmResult(llmResult) {
  * Process all works data to extract locations
  * Calls extractLocation() on each work and saves the results to geoExpertWorks.json
  */
-async function processAllWorks(groq) {
+async function processAllWorks(groq, debug = false) {
   useGroq = groq;
+  debugMode = debug;
 
   const data = JSON.parse(fs.readFileSync(worksPath, "utf-8"));
   console.log("Extracting works...");
@@ -138,8 +140,9 @@ async function processAllWorks(groq) {
 
     entry.location = parsedResult.location;
     entry.llmConfidence = parsedResult.confidence;
-
-    console.log(parsedResult.location);
+    if (debugMode) {
+      console.log(parsedResult.location);
+    }
   }
 
   fs.writeFileSync(geoWorksPath, JSON.stringify(data, null, 2));
@@ -149,8 +152,9 @@ async function processAllWorks(groq) {
  * Process all grants data to extract locations
  * Calls extractLocation() on each grant and saves the results to geoExpertGrants.json
  */
-async function processAllGrants(groq) {
+async function processAllGrants(groq, debug = false) {
   useGroq = groq;
+  debugMode = debug;
 
   const data = JSON.parse(fs.readFileSync(grantsPath, "utf-8"));
   console.log("Extracting grants...");
@@ -161,8 +165,9 @@ async function processAllGrants(groq) {
 
     entry.location = parsedResult.location;
     entry.llmConfidence = parsedResult.confidence;
-
-    console.log(parsedResult.location);
+    if (debugMode) {
+      console.log(parsedResult.location);
+    }
   }
 
   fs.writeFileSync(geoGrantsPath, JSON.stringify(data, null, 2));
@@ -171,9 +176,9 @@ async function processAllGrants(groq) {
 if (module === require.main) {
   const args = process.argv.slice(2);
   const groq = args.includes('--groq');
-
-  processAllGrants(groq);
-  processAllWorks(groq);
+  const debug = args.includes('--debug');
+  processAllGrants(groq, debug);
+  processAllWorks(groq, debug);
 }
 
 // Removed the main function to prevent duplicate execution of processAllWorks and processAllGrants.

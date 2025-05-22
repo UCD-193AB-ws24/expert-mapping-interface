@@ -21,6 +21,7 @@ const Groq = require('groq-sdk');
 const groq = new Groq({ apiKey: process.env.GROQ_KEY });
 
 let useGroq = false;
+let debugMode = false;
 
 const worksPath = path.join(__dirname, '../works', "locationBasedWorks.json");
 const grantsPath = path.join(__dirname, '../grants', "locationBasedGrants.json");
@@ -307,7 +308,7 @@ async function validateLocation(location, llmConfidence) {
  * Validate and organize locations, ensuring no duplicates.
  * Save the results to a JSON file.
  */
-async function validateLocations(inputPath, outputPath) {
+async function validateLocations(inputPath, outputPath, debug = false) {
   try {
     // Check if input file exists
     if (!fs.existsSync(inputPath)) {
@@ -323,6 +324,9 @@ async function validateLocations(inputPath, outputPath) {
       entry.location = result.name;
       entry.confidence = result.confidence;
       entry.country = result.country;
+      if (debug) {
+        console.log(result.name);
+      }
     }
 
     console.log(`Formatting and saving validated locations to ${outputPath}...`);
@@ -358,12 +362,12 @@ async function validateLocations(inputPath, outputPath) {
   }
 }
 
-async function validateAllWorks(groq) {
+async function validateAllWorks(groq, debug = false) {
   useGroq = groq;
-
+  debugMode = debug;
   try {
     console.log("Validating all works...");
-    await validateLocations(worksPath, validWorksPath);
+    await validateLocations(worksPath, validWorksPath, debugMode);
     return true;
   } catch (error) {
     console.error(`Error validating works: ${error.message}`);
@@ -371,12 +375,12 @@ async function validateAllWorks(groq) {
   }
 }
 
-async function validateAllGrants(groq) {
+async function validateAllGrants(groq, debug = false) {
   useGroq = groq;
-
+  debugMode = debug;
   try {
     console.log("Validating all grants...");
-    await validateLocations(grantsPath, validGrantsPath);
+    await validateLocations(grantsPath, validGrantsPath, debugMode);
     return true;
   } catch (error) {
     console.error(`Error validating grants: ${error.message}`);
@@ -389,3 +393,11 @@ module.exports = {
   validateAllWorks,
   validateAllGrants
 };
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const groq = args.includes('--groq');
+  const debug = args.includes('--debug');
+  validateAllWorks(groq, debug);
+  validateAllGrants(groq, debug);
+}
