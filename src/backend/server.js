@@ -19,7 +19,7 @@ const PORT = 3001;
 
 const cors = require('cors');
 app.use(cors({
-  origin: 'http://localhost', // or 'http://localhost:80'
+  origin: ['http://localhost', 'http://localhost:3000'], // or 'http://localhost:80'
   credentials: true
 }));
 
@@ -38,7 +38,6 @@ const redisClient = createRedisClient();
 
 let activeConnections = 0;
 
-app.use(cors());
 app.use(express.json());
 
 // Connection tracking middleware
@@ -319,9 +318,10 @@ app.get('/api/grants', async (req, res) => {
 });
 
 // SERVER CONFIG
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Backend Server Running!`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log('🚀 Backend running on port 3001');
 });
+
 
 // Add graceful shutdown handlers
 process.on('SIGTERM', gracefulShutdown);
