@@ -1,5 +1,6 @@
 node_modules
 dump.rdb
+build
 .env
 src/backend/etl/aggieExpertsAPI/utils/expertIds.csv
 # Jest coverage output

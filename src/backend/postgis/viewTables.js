@@ -1,12 +1,10 @@
 /**
-* @file viewTables.js
-* @description Provides a detailed view of the database tables, including their structure, row counts, and data samples.
-* @module geo/postgis/viewTables
-*
-* USAGE: node src/geo/postgis/viewTables.js [limit] [offset]
-*
-* Zoey Vo, 2025
-*/
+ * @file viewTables.js
+ * @description Utility for viewing and debugging PostGIS table contents.
+ * @usage node ./src/backend/postgis/viewTables.js
+ *
+ * Zoey Vo, 2025
+ */
 
 const { pool, tables } = require('./config');
 

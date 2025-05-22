@@ -1,12 +1,10 @@
 /**
-* @file uploadFeatures.js
-* @description Loads GeoJSON features into PostGIS tables for works and grants.
-* @module geo/postgis/uploadFeatures
-*
-* USAGE: node src/geo/postgis/uploadFeatures.js
-*
-* Zoey Vo, 2025
-*/
+ * @file uploadFeatures.js
+ * @description Uploads generated GeoJSONs for grants and works to PostGIS.
+ * @usage node ./src/backend/postgis/uploadFeatures.js
+ *
+ * Zoey Vo, 2025
+ */
 
 const { pool, tables } = require('./config');
 const fs = require('fs');

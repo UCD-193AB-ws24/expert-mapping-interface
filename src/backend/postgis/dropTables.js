@@ -1,12 +1,10 @@
 /**
-* @file dropTables.js
-* @description Drops all PostGIS tables, views, and related objects created for the application  
-* @module geo/postgis/dropTables 
-*
-* USAGE: node src/geo/postgis/dropTables.js
-*
-* Zoey Vo, 2025
-*/
+ * @file dropTables.js
+ * @description Drops PostGIS tables and their contents (CASCADE).
+ * @usage node ./src/backend/postgis/dropTables.js
+ *
+ * Zoey Vo, 2025
+ */
 
 const { pool, tables } = require('./config');
 

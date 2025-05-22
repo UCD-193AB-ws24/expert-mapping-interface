@@ -1,10 +1,10 @@
 /**
-* @file config.js
-* @description Configuration for PostgreSQL connection
-* @module geo/postgis/config
-*
-* Zoey Vo, 2025
-*/
+ * @file config.js
+ * @description Configuration for PostgreSQL/PostGIS connection and table names.
+ * @usage Used as a module by all PostGIS scripts for database access.
+ *
+ * Zoey Vo, 2025
+ */
 
 const path = require('path');
 require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });

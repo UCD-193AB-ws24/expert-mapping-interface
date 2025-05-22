@@ -28,7 +28,7 @@ The integration with PostGIS ensures that the system can handle large, complex g
 - Deletes tables and their contents (CASCADE)
 - Used during development or for clean reinstallation
 
-### 4.  uploadAll.js
+### 4.  uploadFeatures.js
 - Uploads generated GeoJSONs for grants and works
 - Converts GeoJSON features to PostGIS geometry format
 
@@ -43,6 +43,47 @@ The integration with PostGIS ensures that the system can handle large, complex g
   - `workFeatures.geojson`:  Research work data with coordinates
   - `grantFeatures.geojson`: Grant data with coordinates
 
+---
+
+## Output Files
+- `workFeatures.geojson`: Research work data with coordinates (for map rendering)
+- `grantFeatures.geojson`: Grant data with coordinates (for map rendering)
+
 ![ETL Pipeline Diagram](../../assets/postgis.png)
 
 *Zoey Vo, Loc Nguyen, 2025*
+
+---
+
+## 🚀 How to Run the Full PostGIS Workflow
+
+1. **Run the ETL pipeline to generate GeoJSONs:**
+   ```bash
+   # Run the full ETL pipeline (see ETL README for details)
+   node ./src/backend/etl/aggieExpertsAPI/persistExpertProfiles.js
+   node ./src/backend/etl/aggieExpertsAPI/getExpertFeatures.js
+   node ./src/backend/etl/locationAssignment/processLocations.js
+   node ./src/backend/etl/geojsonGeneration/generateGeoJson.js
+   ```
+
+2. **Create the PostGIS tables:**
+   ```bash
+   node ./src/backend/postgis/createTables.js
+   ```
+
+3. **Upload the generated GeoJSON features to PostGIS:**
+   ```bash
+   node ./src/backend/postgis/uploadFeatures.js
+   ```
+
+4. *(Optional)* **View or debug table contents:**
+   ```bash
+   node ./src/backend/postgis/viewTables.js
+   ```
+
+5. **Fetch features for use in the frontend or for inspection:**
+   ```bash
+   node ./src/backend/postgis/fetchFeatures.js
+   ```
+
+This workflow will take you from raw data extraction to a fully populated PostGIS database, ready for map-based visualization and querying.

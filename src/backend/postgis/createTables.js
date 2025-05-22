@@ -1,12 +1,10 @@
 /**
-* @file createTables.js
-* @description This script creates and initializes the PostgreSQL/PostGIS tables needed for the application.
-* @module geo/postgis/createTables
-*
-* USAGE: node src/geo/postgis/createTables.js
-* 
-* Zoey Vo, 2025
-*/
+ * @file createTables.js
+ * @description Initializes PostGIS tables and indexes for grants and works.
+ * @usage node ./src/backend/postgis/createTables.js
+ *
+ * Zoey Vo, 2025
+ */
 
 const { pool } = require('./config');
 

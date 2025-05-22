@@ -1,13 +1,11 @@
 /**
-* @file server.js
-* @description This file sets up an Express server that connects to a PostGIS database and Redis.
-*              It provides endpoints for fetching works and grants data in GeoJSON format from PostGIS and Redis.
-*
-* USAGE: node .\src\server.js
-*
-* postgis api © Zoey Vo, 2025
-* redis api © Alyssa Vallejo, 2025
-*/
+ * @file server.js
+ * @description Sets up an Express server that connects to PostGIS and Redis, providing endpoints for fetching works and grants data in GeoJSON format.
+ * @usage node ./src/backend/server.js
+ *
+ * postgis api © Zoey Vo, 2025
+ * redis api © Alyssa Vallejo, 2025
+ */
 
 require('dotenv').config();
 const express = require('express');
