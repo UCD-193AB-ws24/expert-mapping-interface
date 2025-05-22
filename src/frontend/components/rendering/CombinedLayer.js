@@ -178,13 +178,13 @@ const renderPolygons = ({
           ? createMatchedCombinedPolygonPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           )
           : createCombinedPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           );
 
@@ -231,7 +231,7 @@ const renderPolygons = ({
               grantsMap,
               expertsMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
@@ -239,7 +239,7 @@ const renderPolygons = ({
               expertsMap,
               worksMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);
@@ -292,13 +292,13 @@ const renderPolygons = ({
           ? createMatchedCombinedPolygonPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           )
           : createCombinedPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           );
 
@@ -330,7 +330,7 @@ const renderPolygons = ({
               grantsMap,
               expertsMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
@@ -338,7 +338,7 @@ const renderPolygons = ({
               expertsMap,
               worksMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);
@@ -465,13 +465,13 @@ const renderPoints = ({
           ? createMatchedCombinedPolygonPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           )
           : createCombinedPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           );
 
@@ -519,7 +519,7 @@ const renderPoints = ({
               grantsMap,
               expertsMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             const workPanelData = prepareWorkPanelData(
               locationData.workExpertIDs,
@@ -527,7 +527,7 @@ const renderPoints = ({
               expertsMap,
               worksMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);
@@ -581,13 +581,13 @@ const renderPoints = ({
           ? createMatchedCombinedPolygonPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           )
           : createCombinedPopup(
             work2expertCount,
             grant2expertCount,
-            locationData.display_name,
+            locationData.name,
             matchedFields
           );
 
@@ -618,7 +618,7 @@ const renderPoints = ({
               grantsMap,
               expertsMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             const workPanelData = prepareWorkPanelData(
               locationData.workExpertIDs,
@@ -626,7 +626,7 @@ const renderPoints = ({
               expertsMap,
               worksMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             setSelectedGrants(grantPanelData);
             setSelectedWorks(workPanelData);
