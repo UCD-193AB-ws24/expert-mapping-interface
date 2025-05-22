@@ -11,11 +11,17 @@
 
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+
 const { pool } = require('./postgis/config');
 
 const app = express();
 const PORT = 3001;
+
+const cors = require('cors');
+app.use(cors({
+  origin: 'http://localhost', // or 'http://localhost:80'
+  credentials: true
+}));
 
 const { createRedisClient } = require('./etl/aggieExpertsAPI/utils/redisUtils.js');
 
