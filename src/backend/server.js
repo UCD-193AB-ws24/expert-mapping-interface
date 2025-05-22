@@ -11,17 +11,11 @@
 
 require('dotenv').config();
 const express = require('express');
-
+const cors = require('cors');
 const { pool } = require('./postgis/config');
 
 const app = express();
 const PORT = 3001;
-
-const cors = require('cors');
-app.use(cors({
-  origin: ['http://localhost', 'http://localhost:3000'], // or 'http://localhost:80'
-  credentials: true
-}));
 
 const { createRedisClient } = require('./etl/aggieExpertsAPI/utils/redisUtils.js');
 
@@ -38,6 +32,7 @@ const redisClient = createRedisClient();
 
 let activeConnections = 0;
 
+app.use(cors());
 app.use(express.json());
 
 // Connection tracking middleware
@@ -57,7 +52,7 @@ app.use((req, res, next) => {
   });
   next();
 });
-// test comment
+
 // Fetch all works from Redis as geojson file
 app.get('/api/redis/worksQuery', async (req, res) => {
   console.log('📍 Received request for Redis data');
@@ -318,10 +313,9 @@ app.get('/api/grants', async (req, res) => {
 });
 
 // SERVER CONFIG
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log('🚀 Backend running on port 3001');
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Backend Server Running!`);
 });
-
 
 // Add graceful shutdown handlers
 process.on('SIGTERM', gracefulShutdown);
