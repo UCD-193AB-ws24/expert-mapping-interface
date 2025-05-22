@@ -1,16 +1,18 @@
-/*
-* USAGE: node .\src\geo\etl\locationAssignment\processLocations.js
-*
-* This script runs the full pipeline for processing locations in works and grants.
-* It extracts locations of the fetched entries, validates them, and geocodes them 
-* to GeoJSON features.
-*
-* Zoey Vo, Loc Nguyen, 2025 
-*/
+/**
+ * @file processLocations.js
+ * @description Runs the full pipeline for processing locations in works and grants:
+ *              1. Extracts locations from fetched entries.
+ *              2. Validates locations.
+ *              3. Geocodes them to GeoJSON features.
+ * @usage node ./src/backend/etl/locationAssignment/processLocations.js
+ *
+ * Zoey Vo, Loc Nguyen, 2025
+ */
 
 const { processAllWorks, processAllGrants } = require('./processing/extractLocations');
 const { validateAllWorks, validateAllGrants } = require('./processing/validateLocations');
 const { createLocationCoordinates } = require('./processing/geocodeLocations');
+const { formatTime } = require('../aggieExpertsAPI/utils/timingUtils');
 
 /**
  * Run the full pipeline: extract, validate, and geocode locations for works and grants.
@@ -21,26 +23,38 @@ async function processLocations() {
 
   console.log("Starting location processing pipeline...");
 
+  const startTime = performance.now();
   try {
     // Step 1: Extract locations
+    const extractStart = performance.now();
     await processAllWorks(useGroq);
     console.log("Finished processing works.");
     await processAllGrants(useGroq);
     console.log("Finished processing grants.");
+    const extractEnd = performance.now();
+    console.log(`Finished extracting locations. ⏱️ ${formatTime(extractEnd - extractStart)}`);
 
     // Step 2: Validate and organize locations
+    const validateStart = performance.now();
     await validateAllWorks(useGroq);
     console.log("Finished validating works.");
     await validateAllGrants(useGroq);
     console.log("Finished validating grants.");
+    const validateEnd = performance.now();
+    console.log(`Finished validating locations. ⏱️ ${formatTime(validateEnd - validateStart)}`);
 
     // Step 3: Geocode locations
+    const geocodeStart = performance.now();
     await createLocationCoordinates();
-    console.log("Finished geocoding locations.");
+    const geocodeEnd = performance.now();
+    console.log(`Finished geocoding locations. ⏱️ ${formatTime(geocodeEnd - geocodeStart)}`);
 
-    console.log("Location processing pipeline completed successfully.");
+    const totalEnd = performance.now();
+    console.log(`Location processing pipeline completed successfully. ⏱️ Total: ${formatTime(totalEnd - startTime)}`);
   } catch (error) {
+    const errorEnd = performance.now();
     console.error("An error occurred during the location processing pipeline:", error);
+    console.log(`⏱️ Total process time: ${formatTime(errorEnd - startTime)}`);
   }
 }
 

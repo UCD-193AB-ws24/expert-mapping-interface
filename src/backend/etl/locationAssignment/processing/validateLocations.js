@@ -1,13 +1,10 @@
 /**
-* @file validateLocations.js
-* @description
-* Validates the locations extracted by Llama in locationBasedWorks.json and locationBasedGrants.json by
-* comparing Nominatim API result and Llama's ISO 3166-1 code.
-*      
-* USAGE: node src/geo/etl/locationAssignment/processing/validateLocations.js
-*
-* Loc Nguyen, 2025
-*/
+ * @file validateLocations.js
+ * @description Validates the locations extracted by LLM in locationBasedWorks.json and locationBasedGrants.json by comparing Nominatim API result and LLM's ISO 3166-1 code.
+ * @usage node ./src/backend/etl/locationAssignment/processing/validateLocations.js
+ *
+ * Loc Nguyen, 2025
+ */
 
 const axios = require('axios');
 const path = require('path');

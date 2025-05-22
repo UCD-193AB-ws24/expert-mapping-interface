@@ -1,7 +1,8 @@
 /**
  * @file getExpertProfiles.js
- * @description Retrieves cached expert profiles and generates formatted features
- * 
+ * @description Retrieves expert profiles from file or cache for downstream processing.
+ * @usage Used as a module by getExpertFeatures.js and other ETL scripts.
+ *
  * Zoey Vo, 2025
  */
 

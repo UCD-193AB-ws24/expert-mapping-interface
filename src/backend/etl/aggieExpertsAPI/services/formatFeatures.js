@@ -1,7 +1,8 @@
 /**
- * @file format.js
- * @description Formats expert profiles into work-centric and grant-centric JSON files
- * 
+ * @file formatFeatures.js
+ * @description Converts expert profiles into structured formats focused on works and grants, establishing relationship mappings.
+ * @usage Used as a module by getExpertFeatures.js and other ETL scripts.
+ *
  * Zoey Vo, 2025
  */
 

@@ -79,16 +79,16 @@ Data Fetching → Location Processing → GeoJSON Generation
 
 ```bash
 # 1. Fetch all data from Aggie Experts API
-node ./src/geo/etl/aggieExpertsAPI/fetchFeatures.js
+node ./src/backend/etl/aggieExpertsAPI/persistExpertProfiles.js
 
 # 2. Match experts with works and grants
-node ./src/geo/etl/aggieExpertsAPI/matchFeatures.js
+node ./src/backend/etl/aggieExpertsAPI/getExpertFeatures.js
 
 # 3. Extract, validate, and geocode locations associated with matched features
-node ./src/geo/etl/locationAssignment/processLocations.js
+node ./src/backend/etl/locationAssignment/processLocations.js
 
 # 4. Generate GeoJSON of each feature type for visualization
-node ./src/geo/etl/geojsonGeneration/generateGeoJson.js
+node ./src/backend/etl/geojsonGeneration/generateGeoJson.js
 ```
 
 Each component can be run individually for testing or development purposes.

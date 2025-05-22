@@ -2,6 +2,7 @@
  * @file fetchFeatures.js
  * @description This module provides functions to retrieve and profile associated with
  * a given expert ID
+ * @usage Used as a module by fetchExpertProfiles.js and other ETL scripts.
  * 
  * Zoey Vo, Loc Nguyen, 2025
  */

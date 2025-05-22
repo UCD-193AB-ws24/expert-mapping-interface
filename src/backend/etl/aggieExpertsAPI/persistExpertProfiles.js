@@ -1,7 +1,8 @@
 /**
- * @file persist.js
- * @description Persists expert profiles to file and Redis cache
- * 
+ * @file persistExpertProfiles.js
+ * @description Persists expert profiles to file and Redis cache.
+ * @usage node ./src/backend/etl/aggieExpertsAPI/persistExpertProfiles.js [numExperts=1] [worksLimit=5] [grantsLimit=5]
+ *
  * Zoey Vo, 2025
  */
 

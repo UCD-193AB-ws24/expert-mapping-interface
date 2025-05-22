@@ -1,11 +1,10 @@
 /**
-* @file generateGeoJson.js
-* @description Generates geojson files for works and grants by merging validated works and grants with their respective location coordinates.
-*
-* USAGE: node ./src/geo/etl/geojsonGeneration/generateGeoJson.js 
-* 
-* Zoey Vo, Loc Nguyen, 2025
-*/
+ * @file generateGeoJson.js
+ * @description Generates GeoJSON files for works and grants by merging validated works and grants with their respective location coordinates.
+ * @usage node ./src/backend/etl/geojsonGeneration/generateGeoJson.js
+ *
+ * Zoey Vo, Loc Nguyen, 2025
+ */
 
 const fs = require("fs");
 const path = require("path");

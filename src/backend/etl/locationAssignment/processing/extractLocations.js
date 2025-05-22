@@ -1,12 +1,10 @@
-/** 
-* @file extractLocations.js
-* @description Extracts geopolitical locations from works and grants data using the Llama API.
-*              Processes the data and saves the extracted locations into separate JSON files.
-* 
-* USAGE: node src/geo/etl/locationAssignment/processing/extractLocations.js
-* 
-* Loc Nguyen, 2025
-*/
+/**
+ * @file extractLocations.js
+ * @description Extracts geopolitical locations from works and grants data using LLM APIs (Llama, Groq). Processes the data and saves the extracted locations into separate JSON files.
+ * @usage node ./src/backend/etl/locationAssignment/processing/extractLocations.js
+ *
+ * Loc Nguyen, 2025
+ */
 
 const path = require('path');
 const fs = require("fs");

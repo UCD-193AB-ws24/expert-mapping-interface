@@ -1,10 +1,8 @@
 /**
- * @file fetchAllExpertProfiles.js
- * @description This module retrieves and processes expert profiles by:
- *              1. Fetching a list of expert IDs from the Aggie Experts API.
- *              2. Retrieving detailed profile information, including works and grants, for each expert.
- *              3. Combining and returning the profiles with their associated data.
- * 
+ * @file fetchExpertProfiles.js
+ * @description Fetches and processes expert profiles using IDs from CSV, including works and grants.
+ * @usage Used as a module by persistExpertProfiles.js and other ETL scripts.
+ *
  * Zoey Vo, 2025
  */
 

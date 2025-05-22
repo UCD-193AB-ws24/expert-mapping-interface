@@ -1,11 +1,10 @@
 /**
-* @file geocodeLocations.js
-* @description Geocodes location names to GeoJSON features using OpenStreetMap Nominatim.
-*
-* USAGE: node .\src\geo\etl\geocodeLocation.js
-*
-* Zoey Vo, Loc Nguyen, 2025 
-*/
+ * @file geocodeLocations.js
+ * @description Geocodes location names to GeoJSON features using OpenStreetMap Nominatim.
+ * @usage node ./src/backend/etl/locationAssignment/processing/geocodeLocations.js
+ *
+ * Zoey Vo, Loc Nguyen, 2025
+ */
 
 const fs = require('fs');
 const path = require('path');
