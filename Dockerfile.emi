@@ -1,7 +1,7 @@
 # Dockerfile.emi
 FROM node:18-alpine
 
-# Install nano for text editing capability
+# Enable vm-local editing
 RUN apk add --no-cache nano
 
 WORKDIR /app
@@ -11,7 +11,6 @@ RUN npm install
 
 # Copy the entire project
 COPY . .
-# Copy expertIds.csv from its actual location in the repo
 
 # Build the React app
 RUN npm run build

@@ -2,7 +2,6 @@
   "dependencies": {
     "@types/pg": "^8.11.11",
     "axios": "^1.8.4",
-    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "fastest-levenshtein": "^1.0.16",
     "fuse.js": "^7.1.0",

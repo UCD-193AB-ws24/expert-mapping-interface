@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.emi
     container_name: emi-app
     ports:
-      - "3001:3001"   # Single port for both frontend and backend
+      - "3001:3001"   # production deployment endpoint
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST}
       - REDIS_HOST=${REDIS_HOST}
