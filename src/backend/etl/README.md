@@ -16,7 +16,6 @@ Data Fetching → Location Processing → GeoJSON Generation
 
 - **persistExpertProfiles.js**: Main controller for fetching and persisting expert profiles with works and grants to both file storage and Redis cache.
 - **getExpertFeatures.js**: Retrieves cached expert profiles and generates formatted work and grant feature collections, supporting both recent-only (default) and full dataset retrieval.
-- **services/fetchExpertID.js**: Handles the retrieval of all expert IDs from the Aggie Experts API.
 - **services/fetchProfileByID.js**: Fetches detailed information for a specific expert profile, including associated works and grants, with support for paginated data retrieval.
 - **services/expertProfileCache.js**: Oversees the caching and retrieval of expert profiles in Redis, utilizing session-based storage to monitor updates and changes over time.
 - **utils/formatFeatures.js**: Converts expert profiles into structured formats focused on works and grants, establishing relationship mappings between them.
@@ -36,7 +35,8 @@ Data Fetching → Location Processing → GeoJSON Generation
 
 ### 2. Location Processing (`/locationAssignment`)
 
-- **extractLocations.js**: Uses LLM (llama3.3) to identify geographic entities from text
+- **extractLocations.js**: Uses LLM to identify geographic entities from text
+  - Llama (llama3.1) is the default LLM for extraction and processing. If the `--groq` flag is used, the Groq API is called, which uses Llama 3.3.
   - Prompts LLM to extract location and provide its confidence score in JSON format `Example: {"Location": "California", "Confidence": 90}`
   - Parses and filters the LLM's response
 - **validateLocations.js**: Validates extracted location names against ISO references
@@ -72,7 +72,7 @@ Data Fetching → Location Processing → GeoJSON Generation
 
 ## Data Storage
 
-- **Redis**: Caching of unmatched API data
+- **Redis**: Caching of expert profiles
 - **GeoJSON files**: Final output for the map visualization component
 
 ### Run the complete ETL pipeline:
