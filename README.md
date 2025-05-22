@@ -1,111 +1,229 @@
-# UC Davis Research Around the World
+# Expert Mapping Interface (E.M.I)
 
-## Team 16 - Expert Mapping Interface (EMI)
-**Zoey Vo, Alyssa Vallejo, Marina Mata, Loc Nguyen**
+## Table of Contents
 
----
-
-## Project Overview
-
-### Introduction
-The **Aggie Experts Expert Mapping Interface (E.M.I)** addresses the challenge of visualizing research studies, grants, and scholarships among UC Davis researchers based on their affiliated geographic locations. Currently, finding relevant research or experts is limited to keyword-based text searches, which often yield ambiguous or irrelevant results.
-
-Our solution introduces an **interactive, user-friendly map** that allows users to discover spatially relevant researchers by navigating intuitively through geographic regions. Users can click on different areas to explore researchers, their work, and grants, bridging the gap between text-based searches and spatially contextualized research discovery.
-
-### Problem Statement
-Current UC Davis researcher databases rely on static search interfaces that:
-- **Lack spatial context**, making it difficult to identify region-specific experts.
-- **Suffer from ambiguity** (e.g., homonyms like “Turkey” the country vs. “turkey” the bird).
-- **Overwhelm users with unstructured data** in research-dense regions (e.g., hundreds of experts in California).
-
-### Solution: E.M.I
-The **Expert Mapping Interface** displays research expert information using:
-- **Dynamic Clustering**: Automatically groups researchers in dense areas (e.g., California) into clusters that expand on zoom.
-- **Geospatial Precision**: Pins link to researcher profiles, grants, and publications, filtered by relevance to the selected region.
-- **Multi-Scale Visualization**: Displays continental trends at a macro level and granular details (country, region, city, etc.) dynamically on zoom.
+1. [Introduction](#1-introduction)  
+2. [Access and System Requirements](#2-access-and-system-requirements)  
+3. [Features and Functionality](#3-features-and-functionality)  
+4. [System Architecture](#4-system-architecture)  
+5. [Deployment and Operations](#5-deployment-and-operations)  
+6. [Troubleshooting](#6-troubleshooting)  
+7. [Contact Information](#7-contact-information)  
+8. [Glossary](#8-glossary)  
+9. [Appendix](#9-appendix)
 
 ---
 
-## System Architecture
+## 1. Introduction
 
-### Backend
-![EMI System Architecture](src/assets/etl.png)
+### 1.1 Preface
 
-![EMI System Architecture](src/assets/postgis.png)
+The Expert Mapping Interface (E.M.I) is a web application developed for the UC Davis Library to visualize global research output by UC Davis scholars.
 
-### Frontend
-![EMI System Architecture](src/assets/frontend1.png)
+### 1.2 Overview of Product
 
-![EMI System Architecture](src/assets/frontend2.png)
----
+E.M.I allows users to explore grants and scholarly works geographically using NLP and geospatial tools.
 
-## Technology Stack
+### 1.3 Target Audience
 
-### Backend
-- **PostGIS**: Geospatial database for storing and querying researcher locations as GeoJSON. Enables complex queries (e.g., “Show all experts within 50km of Santiago, Chile”).
-- **Node.js**: RESTful API handling data fetching, filtering, and aggregation.
-- **Ollama**: Language model processing for enhanced search and query refinement.
+- Students  
+- Journalists  
+- Donors  
+- Researchers  
+- General public  
 
-### Frontend
-- **React.js**: Dynamic UI components for seamless map interactions.
-- **Leaflet**: Open-source library for rendering vector maps with smooth zoom/pan and custom layers.
-- **Tailwind CSS**: Responsive, utility-first styling aligned with UC Davis branding.
-- **Redis**: Efficient caching store for expert profiles.
+### 1.4 Guide Structure
+
+This guide includes access instructions, feature walkthroughs, system design, troubleshooting, and contact info.
 
 ---
 
-## Alpha Version Features
+## 2. Access and System Requirements
 
-### Core Features
-- **Interactive map** with clickable features (points/polygons).
-- **Researcher pins linked to Aggie Experts profiles.**
+### 2.1 System Requirements
 
-### Anti-Clutter Measures
-- **Progressive Disclosure**: Show high-level trends (e.g., “50 experts in Brazil”) on low zoom; individual pins on high zoom.
-- **Heatmap Overlay**: Visualize research density without overlapping pins.
+- Modern browser (Chrome, Firefox, Safari)  
+- Internet access  
+- Desktop or mobile device  
 
-### False Positive Mitigation
-- **Contextual Queries**: Search for “Turkey” prioritizes country-based results using geospatial context over text matching.
+### 2.2 Accessing the Interface
 
-### UC Davis Branding
-- **Cohesive UI** adhering to university style guides, integrating official colors, logos, and accessibility standards.
+Visit: [http://35.247.92.204:3001](http://35.247.92.204:3001)  
+No login or installation required.
 
 ---
 
-## User Stories (Prioritized)
-- **As a site user**, I want a highlight of the reasons for matching profiles so that I can save time looking through each profile and focus on the relevant ones.
-- **As a student**, I want search results to be accurate and organized by relevance so that I can find the best fit.
-- **As a student with a passion for research**, I want to see what research is happening in specific regions so that I can find fieldwork internships.
-- **As a potential donor**, I want to see research projects in specific fields so that I can find and support impactful work.
-- **As a journalist**, I want to see where UC Davis researchers are conducting studies so that I can write stories on impactful research in different regions of the world.
-- **As a researcher**, I want to see my works represented accurately to ensure that those interested in what I do can contact me.
-- **As a site user**, I want the results on the map to be not clustered so it will be easier for me to look through the results.
-- **As a graduate student**, I want to be able to contact researchers who have or are currently working in my field of research so that I can ask for their expert opinions or collaboration.
-- **As a site user**, I want the map to have high accuracy so that the searching process can be more convenient.
-- **As a researcher**, I want a professional profile that displays my work and contact information so that interested individuals are encouraged to reach out to me.
+## 3. Features and Functionality
+
+### 3.1 Interactive Map Overview
+
+- Global map with clusters and pins  
+- Zoom levels reveal heatmaps or individual markers  
+- Hovering shows popups  
+- Clicking shows side panel with expert info  
+
+### 3.2 Search and Filtering
+
+- **Keyword Search**: Expert name, department, titles, abstracts  
+- **Date Range Slider**  
+- **Toggles**: Show/hide grants and works  
+- Adjust filters or reload to reset  
+
+### 3.3 Cluster and Zoom Logic
+
+- Low zoom: Clustered summaries  
+- High zoom: Individual pins  
+- Heatmap for density display  
+
+### 3.4 Hovering, Side Panel, and Profile Details
+
+- Hover: Shows popup with expert/work count  
+- Click “View Experts” to see sidebar  
+- Profile links redirect to Aggie Experts  
+
+### 3.5 Tablet View
+
+- Filters and map guide appear above the map  
+- Tap markers for popups and expert panel  
+- Close guide by tapping "click to close"  
+
+### 3.6 Mobile View
+
+- Tap markers to view expert info  
+- Filters accessed via funnel button  
+- Search bar in navbar  
+- Map guide under filters button  
 
 ---
 
-## Development Considerations
+## 4. System Architecture
 
-### Cost
-- **Leaflet.js - Mapping**: Free and open source.
-- **Nominatim API - Geocoding**: Free tier and open source.
-- **Ollama - NER**: Free and open source, AWS hosting needed for scaling.
-- **PostGIS - Spatial DB**: Free and open source, AWS hosting needed for scaling.
-- **Redis - Profile Caching**: Free, AWS hosting needed for scaling.
+### 4.1 Data Flow Pipeline
 
-### Social Impact
-- **Enhancing accessibility** to UC Davis research.
-- **Facilitating grant identification and expert connections** by visualizing geospatial locations.
+- Raw data from Aggie Experts API  
+- Location entities extracted using LLaMA  
+- Nominatim for geocoding  
+- Data stored in PostGIS (GeoJSON)  
+- Redis for caching  
+- Frontend renders data using React  
+
+### 4.2 Backend Services
+
+- Node.js + Express for APIs  
+- Redis for caching  
+- PostGIS for storage  
+
+### 4.3 Frontend Interface
+
+- React.js + Leaflet for mapping  
+- Tailwind CSS  
+- Fully responsive  
+
+### 4.4 Docker and GCP Deployment
+
+- Deployed via Docker on GCP VM  
+- Containers:
+  - `emi-app` (Node.js/React)
+  - `emi-redis`
+  - `emi-postgis`
+- Uses Docker Compose  
+- Persistent volumes for Redis/PostGIS  
+- Internal Docker networking  
+- Exposed on port `3001`  
+- Start/stop with `docker compose up -d` and `docker compose down`
+
+More: [GitHub Repository](https://github.com/UCD-193AB-ws24/expert-mapping-interface)
 
 ---
 
-## License
-📜 **MIT License**
+# E.M.I - Deployment and Operations
+
+## 5. Deployment and Operations
+
+### 5.1 Local Development
+
+* Build the frontend: `npm run build`
+* Start the backend: `node src/backend/server.js`
+* Access locally at: http://localhost:3001
+
+### 5.2 Production Deployment
+
+* Push changes to the main repository branch
+* CI/CD pipeline is triggered automatically
+   * EMI Docker image is built
+   * Image is transferred to the virtual machine (VM)
+   * Image is unpacked and deployed on the VM
+* Application is available at: http://35.247.92.204:3001/
+
+### 5.3 Docker Management
+
+#### Images
+
+**Creating/Updating Postgis Image:**
+
+* **Local:**
+   * `docker build -f ./Dockerfile.emi -t emi .`
+   * `docker save -o "C:\image_path\emi.tar" emi`
+   * `scp -i .\key_path\private_key .\image_path\emi.tar <user>@35.247.92.204:~`
+* **VM:**
+   * `docker compose down`
+   * `docker rmi <emi-img-id>`
+   * `docker load -i ~/emi.tar`
+   * `docker compose up -d`
+   * `docker cp expertIds.csv emi-app:/app/src/backend/etl/aggieExpertsAPI/utils`
+
+**Creating Postgis Image:** `docker pull postgis/postgis`
+
+**Creating Redis Image:** `docker pull redis`
+
+#### Deploying
+
+* Deploy containers: `docker compose up -d`
+* View startup logs: `docker compose logs -f`
+* Inspect containers: `docker ps`
+
+#### Accessing Containers
+
+* EMI: `docker exec -it emi-app sh`
+* Redis: `docker exec -it emi-redis redis-cli`
+* PostGIS: `docker exec -it emi-postgis psql -U postgres`
+
+#### Removing
+
+* `docker compose down [-v]` (-v resets volumes)
+
+## 6. Troubleshooting
+
+* **Why is the map not loading?**
+   * The map may take a few seconds to load due to the large dataset. If it does not load after a short wait, please try reloading the page.
+* **Why are no results being returned?**
+   * Results are displayed based on the current zoom level, so try zooming in to explore the map further. Another possible reason is that the filter parameters are too specific, in which case, you can adjust the filters or reload the page to reset them.
+* **Why is the hover tooltips not working?**
+   * Ensure your browser is up to date and that you are not running any extensions that may block scripts.
+
+## 7. Contact Information
+
+* Zoey Vo — ausvo@ucdavis.edu, @zoeyvo
+* Alyssa Vallejo — anvallejo@ucdavis.edu, AV-CompSci-Mage
+* Marina Mata — mmbmata@ucdavis.edu, @marinamata
+* Loc Nguyen — lctnguyen@ucdavis.edu, @loctng
+
+## 8. Glossary
+
+* **ETL:** Extract, Transform, Load pipeline
+* **GeoJSON:** JSON format for geographic features
+* **PostGIS:** Extension of PostgreSQL for geospatial queries
+* **Redis:** In-memory data store for caching
+* **LLaMA:** Language model for extracting location entities
+
+## 9. Appendix
+
+### 9.1 Project Overview and User Stories
+
+The E.M.I was designed to replace static, ambiguous expert searches with a spatial-first experience. Users include students, donors, researchers, and journalists. Key goals include improved discovery, intuitive filters, and professional presentation of expert profiles.
+
+For technical details on the ETL pipeline, see `src/backend/etl/README.md`.
 
 ---
 
-## Conclusion & Impact
-By transforming geographic data into actionable insights, the **Aggie Experts E.M.I** empowers UC Davis to showcase its **global research footprint**, accelerate discovery, and provide accessible information. This tool not only enhances research visibility but also fosters collaboration and supports the university’s mission to make knowledge more accessible to all.
-
+*Zoey Vo, Alyssa Vallejo, Marina Mata, Loc Nguyen, 2025*
