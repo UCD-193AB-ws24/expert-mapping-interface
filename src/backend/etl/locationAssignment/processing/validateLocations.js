@@ -324,7 +324,7 @@ async function validateLocations(inputPath, outputPath, debug = false) {
       entry.location = result.name;
       entry.confidence = result.confidence;
       entry.country = result.country;
-      if (debug) {
+      if (debug && result.name !== "N/A" && result.name !== "None") {
         console.log(result.name);
       }
     }
@@ -334,7 +334,9 @@ async function validateLocations(inputPath, outputPath, debug = false) {
 
     data.forEach(entry => {
       const locationKey = entry.location.toLowerCase();
-
+      if (entry.location === "N/A" || entry.location === "None") {
+        return; // Skip invalid locations
+      }
       if (!locationMap.has(locationKey)) {
         locationMap.set(locationKey, {
           location: entry.location,
@@ -342,10 +344,8 @@ async function validateLocations(inputPath, outputPath, debug = false) {
           entries: []
         });
       }
-
       delete entry.location;
       delete entry.country;
-
       locationMap.get(locationKey).entries.push(entry);
     });
 
