@@ -11,7 +11,6 @@
 
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const { pool } = require('./postgis/config');
 
 const app = express();
@@ -32,7 +31,7 @@ const redisClient = createRedisClient();
 
 let activeConnections = 0;
 
-app.use(cors());
+// Remove all CORS middleware
 app.use(express.json());
 
 // Connection tracking middleware
