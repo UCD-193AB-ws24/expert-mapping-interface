@@ -64,7 +64,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
      */
   useEffect(() => {
     setIsLoading(true);
-    const loadGeoData = async () => {      try {
+    const loadGeoData = async () => {
+      try {
         // Fetch data from two different APIs concurrently
         Promise.all([
           fetch('/api/redis/worksQuery').then((response) => {
@@ -322,32 +323,80 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            backgroundColor: "white",
-            padding: "20px",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            padding: "30px",
+            borderRadius: "16px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+            backdropFilter: "blur(10px)",
             zIndex: 1000,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "10px",
+            gap: "20px",
           }}
         >
+          {/* Modern spinning loader */}
           <div
-            className="loading-spinner"
             style={{
-              width: "40px",
-              height: "40px",
-              border: "4px solid #f3f3f3",
-              borderTop: "4px solid #3879C7",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
+              position: "relative",
+              width: "60px",
+              height: "60px",
             }}
-          />
-          <div>Loading Map Data...</div>
+          >
+            {/* Outer ring */}
+            <div
+              style={{
+                position: "absolute",
+                width: "60px",
+                height: "60px",
+                border: "3px solid #e8f4fd",
+                borderRadius: "50%",
+              }}
+            />
+            {/* Spinning arc */}
+            <div
+              style={{
+                position: "absolute",
+                width: "60px",
+                height: "60px",
+                border: "3px solid transparent",
+                borderTopColor: "#3879C7",
+                borderRightColor: "#3879C7",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+            {/* Inner pulsing dot */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "8px",
+                height: "8px",
+                backgroundColor: "#3879C7",
+                borderRadius: "50%",
+                animation: "pulse 1.5s ease-in-out infinite",
+              }}
+            />
+          </div>
+
+          {/* Animated text */}
+          <div
+            style={{
+              fontSize: "16px",
+              fontWeight: "500",
+              color: "#3879C7",
+              animation: "fadeInOut 2s ease-in-out infinite",
+            }}
+          >
+            Loading Map Data...
+          </div>
         </div>
       )}
-      {/* Error message */}
+
+      {/* Error message (keeping your existing error styling) */}
       {error && (
         <div
           style={{
