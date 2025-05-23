@@ -98,5 +98,5 @@ jobs:
             docker cp grantsFeaturesPostgis.json emi-app:/app/src/backend/etl/geojsonGeneration/generatedFeatures/generatedGrants.geojson
             docker cp worksFeaturesPostgis.json emi-app:/app/src/backend/etl/geojsonGeneration/generatedFeatures/generatedWorks.geojson
             docker exec -it emi-app sh
-            src/backend/postgis/uploadFeatures.js
+            node src/backend/postgis/uploadFeatures.js
 
