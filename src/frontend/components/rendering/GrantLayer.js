@@ -346,8 +346,8 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              locationData.expertIDs,
               locationData.grantIDs,
+              locationData.expertIDs,
               grantsMap,
               expertsMap,
               locationID,
@@ -420,8 +420,8 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              locationData.expertIDs,
               locationData.grantIDs,
+              locationData.expertIDs,
               grantsMap,
               expertsMap,
               locationID,
