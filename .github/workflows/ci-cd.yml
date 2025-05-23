@@ -95,3 +95,8 @@ jobs:
             docker compose up -d
             docker image prune -f
             docker cp expertIds.csv emi-app:/app/src/backend/etl/aggieExpertsAPI/utils
+            docker cp grantsFeaturesPostgis.json emi-app:/app/src/backend/etl/geojsonGeneration/generatedFeatures/generatedGrants.geojson
+            docker cp worksFeaturesPostgis.json emi-app:/app/src/backend/etl/geojsonGeneration/generatedFeatures/generatedWorks.geojson
+            docker exec -it emi-app sh
+            src/backend/postgis/uploadFeatures.js
+
