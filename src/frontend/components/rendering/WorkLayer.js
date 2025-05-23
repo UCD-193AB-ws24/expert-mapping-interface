@@ -265,7 +265,11 @@ const renderPoints = ({
   worksMap,
 }) => {
   locationMap.forEach((locationData, locationID) => {
-    if (locationData.geometryType !== "Point" || locationData.expertIDs.length === 0) return; // Skip locations with 0 experts
+    if (
+      locationData.geometryType !== "Point" ||
+      !Array.isArray(locationData.expertIDs) || locationData.expertIDs.length === 0 ||
+      !Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2
+    ) return;
 
     // Swap [lng, lat] to [lat, lng]
     const [lng, lat] = locationData.coordinates;

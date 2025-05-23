@@ -271,7 +271,11 @@ const renderPoints = ({
   expertsMap,
 }) => {
   locationMap.forEach((locationData, locationID) => {
-    if (locationData.geometryType !== "Point" || locationData.grantIDs.length === 0) return;
+    if (
+      locationData.geometryType !== "Point" ||
+      !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
+      !Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2
+    ) return;
 
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
