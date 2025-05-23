@@ -44,7 +44,7 @@ app.use((req, res, next) => {
     console.log(`\n📈 Active connections: ${activeConnections}`);
     console.log(`📥 ${req.method} request to ${req.path}`);
   }
-
+  
   res.on('finish', () => {
     activeConnections--;
     if (!req.path.includes('/api/researchers')) {
@@ -62,30 +62,30 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
-    const workKeys = await redisClient.keys('work:*');
-    const features = [];
-
-    // console.log(`Found ${workKeys.length} features in Redis`);
-
+      const workKeys = await redisClient.keys('work:*');
+      const features = [];
+    
+      // console.log(`Found ${workKeys.length} features in Redis`);
+      
     for (const workKey of workKeys) {
       if (workKey.includes(':entry')) continue;
-      if (workKey.includes(':metadata')) continue;
-
+      if(workKey.includes(':metadata')) continue;
+      
       const workData = await redisClient.hGetAll(workKey);
-      const feature_id = workData.id || workKey.split(':')[1];
+      const feature_id = workData.id || workKey.split(':')[1]; 
 
       const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
       // console.log('Number of entries for this workKey:', entryKeys.length);
       const entries = [];
-
+      
       for (const entryKey of entryKeys) {
         const entryData = await redisClient.hGetAll(entryKey);
         const entry = {
           id: entryData.id || 'Unknown WorkID',
           title: entryData.title || '',
           issued: Array.isArray(entryData.issued)
-            ? JSON.parse(entryData.issued) || '[]'
-            : entryData.issued || '',
+          ? JSON.parse(entryData.issued) || '[]'
+          : entryData.issued || '',
           authors: entryData.authors ? JSON.parse(entryData.authors) : '[]',
           abstract: entryData.abstract || '',
           confidence: entryData.confidence || '',
@@ -96,7 +96,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
         // console.log('📋 Entry added:', entry);
         entries.push(entry);
       }
-
+      
       // Validate and parse geometry
       let geometry = { type: 'Point', coordinates: [] };
       try {
@@ -129,7 +129,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
         },
       });
     }
-
+    
     const metadata = await redisClient.hGetAll('work:metadata');
     if (!metadata) {
       console.error('❌ Metadata not found in Redis');
@@ -142,7 +142,6 @@ app.get('/api/redis/worksQuery', async (req, res) => {
       metadata: metadata,
     };
 
-    res.set('Cache-Control', 'public, max-age=600');
     res.json(geojson);
   } catch (error) {
     console.error('❌ Error querying Redis:', error);
@@ -158,11 +157,11 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
-    const grantKeys = await redisClient.keys('grant:*');
-    const features = [];
-
-    // console.log(`Found ${grantKeys.length} features in Redis`);
-
+      const grantKeys = await redisClient.keys('grant:*');
+      const features = [];
+    
+      // console.log(`Found ${grantKeys.length} features in Redis`);
+    
     for (const grantKey of grantKeys) {
       if (grantKey.includes(':entry')) continue;
       if (grantKey.includes(':metadata')) continue;
@@ -222,7 +221,7 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
         },
       });
     }
-
+    
     const metadata = await redisClient.hGetAll('grant:metadata');
     if (!metadata) {
       console.error('❌ Metadata not found in Redis');
@@ -235,7 +234,6 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
       metadata: metadata,
     };
 
-    res.set('Cache-Control', 'public, max-age=600');
     res.json(geojson);
   } catch (error) {
     console.error('❌ Error querying Redis:', error);
@@ -335,7 +333,7 @@ process.on('SIGINT', gracefulShutdown);
 function gracefulShutdown() {
   console.log('\n🛑 Received kill signal, shutting down gracefully');
   console.log(`ℹ️  Active connections: ${activeConnections}`);
-
+  
   server.close(async () => {
     try {
       await pool.end();
