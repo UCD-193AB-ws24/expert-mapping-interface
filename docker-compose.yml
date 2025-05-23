@@ -19,7 +19,7 @@ services:
     depends_on:
       - redis
       - postgis
-    command: sh -c "npm run build && node src/backend/server.js"
+    command: sh -c "npm run build && node src/backend/server.js" & node/src/backend/postgis/uploadFeatures.js && wait"
     secrets:
       - pg_password
 
