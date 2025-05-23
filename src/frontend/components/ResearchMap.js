@@ -41,7 +41,7 @@ import { isHighConfidence } from "./rendering/filters/confidenceFilter";
  * @param {string} searchKeyword - Keyword used to filter data.
  * @param {Array<number>} selectedDateRange - Array of two numbers representing the selected year range for filtering data.
  */
-const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }) => {
+const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, onResetFilters }) => {
 
   const [rawGrantGeoJSON, setRawGrantGeoJSON] = useState(null);
   const [rawWorkGeoJSON, setRawWorkGeoJSON] = useState(null);
@@ -244,6 +244,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
               map.setView([30, 0], 2); // or use your constants if you prefer
               setZoomLevel(2);
             }
+
+            onResetFilters();
           }}
           style={{
             position: "absolute",
