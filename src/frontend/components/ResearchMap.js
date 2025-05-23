@@ -264,7 +264,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange }
             boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
           }}
         >
-          Reset Map
+          Reset View
         </button>
 
         <MapWrapper mapRef={mapRef}>
