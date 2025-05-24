@@ -133,7 +133,6 @@ export const createMultiGrantPopup = (expertCount, grantCount, locationName = []
 // Generates HTML content for a popup displaying combined data for works and grants at a specific location.
 export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locationName, matchedFields = []) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
-    <div style='font-weight: bold; font-size: 16px; color: #659c39;'>Combined Polygon</div>
     ${matchedFields.length > 0 ? `<div style='margin-top: 5px; color: green;'>🔍 Match found</div>` : ""}
     <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
     <div style='margin-top: 5px;'>
