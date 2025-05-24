@@ -23,6 +23,7 @@ import "./styles/index.css";
 import ResearchMap from "./components/ResearchMap";
 import ReactSlider from "react-slider";
 import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
+import { useEffect } from "react";
 
 /**
  * The main `App` component that serves as the entry point for the application.
@@ -31,15 +32,27 @@ import aggieExpertsLogo from "./assets/aggie-experts-logo-primary.png";
  * @returns {JSX.Element} The rendered `App` component.
  */
 function App() {
+
   // State variables
   const [showGrants, setShowGrants] = useState(true); // Toggles visibility of grants on the map
   const [showWorks, setShowWorks] = useState(true); // Toggles visibility of works on the map
-  const [searchKeyword, setSearchKeyword] = useState(""); // Stores the search keyword
   const [selectedDateRange, setSelectedDateRange] = useState([1990, 2025]); // Stores the selected date range
+  const [inputValue, setInputValue] = useState(""); // user typing
+  const [searchKeyword, setSearchKeyword] = useState(""); // debounced value
+  
   // Mobile view state variables 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
 
+  // update the searchKeyword state after a delay instead of reloading the map on every keystroke
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setSearchKeyword(inputValue);
+    }, 200);
+    return () => clearTimeout(delayDebounce); // cancel previous timeout
+  }, [inputValue]);
+
+  // Function to reset filters to their default state
   const resetFilters = () => {
     setShowGrants(true);
     setShowWorks(true);
@@ -47,20 +60,13 @@ function App() {
     setSelectedDateRange([1990, 2025]);
   }
 
+  // Check if filters are in their default state
   const filtersAreDefault =
     showGrants &&
     showWorks &&
     searchKeyword === "" &&
     selectedDateRange[0] === 1990 &&
     selectedDateRange[1] === 2025;
-
-  /**
-   * Handles changes to the search input field.
-   * @param {Object} e - The event object from the input field.
-   */
-  const handleSearchChange = (e) => {
-    setSearchKeyword(e.target.value);
-  };
 
   return (
     <div className="App flex flex-col min-h-screen" style={{ backgroundColor: "#FFFFFF" }}>
@@ -86,8 +92,8 @@ function App() {
             id="search-input"
             type="text"
             placeholder="Search keyword"
-            value={searchKeyword}
-            onChange={handleSearchChange}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#022851]"
           />
           <button className="absolute right-3 top-1/2 transform -translate-y-1/2" aria-label="Search">
