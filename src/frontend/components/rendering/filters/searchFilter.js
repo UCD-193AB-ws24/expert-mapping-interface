@@ -12,7 +12,7 @@
  * Marina Mata, 2025
  */
 
-import { distance } from 'fastest-levenshtein';
+const { distance } = require('fastest-levenshtein');
 
 /**
  * Retrieves related experts from an entry.
@@ -21,7 +21,7 @@ import { distance } from 'fastest-levenshtein';
  * @param {Object} entry - The entry containing related experts.
  * @returns {Array} An array of related experts.
  */
-export const getRelatedExperts = (entry) => {
+const getRelatedExperts = (entry) => {
   if (entry.relatedExperts) return entry.relatedExperts;
   if (entry.relatedExpert) return [entry.relatedExpert];
   return [];
@@ -61,7 +61,7 @@ const maxAllowedDistance = (word, keyword) => {
  * @param {Object} entry - The entry to search within.
  * @returns {boolean} `true` if the keyword matches any field, otherwise `false`.
  */
-export const matchesKeyword = (keyword, entry) => {
+const matchesKeyword = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return true;
 
   const normalizedKeyword = normalizeTerm(keyword.toLowerCase());
@@ -101,7 +101,7 @@ export const matchesKeyword = (keyword, entry) => {
  * @param {Object} entry - The entry to search within.
  * @returns {Array} An array of matched fields, each containing the field name and matched value.
  */
-export const getMatchedFields = (keyword, entry) => {
+const getMatchedFields = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return [];
 
   const normalizedKeyword = normalizeTerm(keyword.toLowerCase());
@@ -143,4 +143,10 @@ export const getMatchedFields = (keyword, entry) => {
   }
 
   return matchedFields;
+};
+
+module.exports = {
+  getRelatedExperts,
+  matchesKeyword,
+  getMatchedFields
 };
