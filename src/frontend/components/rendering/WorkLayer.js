@@ -72,7 +72,7 @@ const renderPolygons = ({
     polygonLayers.push(polygon);
 
     // Calculate the center of the polygon
-    const polygonCenter = polygon.getBounds().getCenter();
+    const polygonCenter = polygon.getCenter();
 
     // Create a marker at the center of the polygon
     const marker = L.marker(polygonCenter, {
@@ -127,7 +127,7 @@ const renderPolygons = ({
         className: "hoverable-popup",
         autoPan: false,
       })
-        .setLatLng(polygon.getBounds().getCenter())
+        .setLatLng(polygon.getCenter())
         .setContent(content)
         .openOn(map);
 
