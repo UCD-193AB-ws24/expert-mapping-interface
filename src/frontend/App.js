@@ -47,6 +47,13 @@ function App() {
     setSelectedDateRange([1990, 2025]);
   }
 
+  const filtersAreDefault =
+    showGrants &&
+    showWorks &&
+    searchKeyword === "" &&
+    selectedDateRange[0] === 1990 &&
+    selectedDateRange[1] === 2025;
+
   /**
    * Handles changes to the search input field.
    * @param {Object} e - The event object from the input field.
@@ -209,7 +216,8 @@ function App() {
             <div className="mt-4">
               <button
                 onClick={resetFilters}
-                className="w-full text-center py-2 px-4 border-2 border-[#2f6bb3] text-white bg-[#2f6bb3] rounded-md font-medium transition-all duration-200 hover:bg-white hover:text-[#2f6bb3]"
+                className={`w-full text-center py-2 px-4 border-2 rounded-md font-medium transition-all duration-200 ${filtersAreDefault ? 'bg-gray-300 text-white border-gray-300 cursor-not-allowed' : 'bg-[#2f6bb3] text-white border-[#2f6bb3] hover:bg-white hover:text-[#2f6bb3]'}`}
+                disabled={filtersAreDefault}
               >
                 Reset Filters
               </button>
@@ -338,7 +346,8 @@ function App() {
                 <div className="mt-4">
                   <button
                     onClick={resetFilters}
-                    className="w-full text-center py-2 px-4 border-2 border-[#2f6bb3] text-white bg-[#2f6bb3] rounded-md font-medium transition-all duration-200 hover:bg-white hover:text-[#2f6bb3]"
+                    className={`w-full text-center py-2 px-4 border-2 rounded-md font-medium transition-all duration-200 ${filtersAreDefault ? 'bg-gray-300 text-white border-gray-300 cursor-not-allowed' : 'bg-[#2f6bb3] text-white border-[#2f6bb3] hover:bg-white hover:text-[#2f6bb3]'}`}
+                    disabled={filtersAreDefault}
                   >
                     Reset Filters
                   </button>
