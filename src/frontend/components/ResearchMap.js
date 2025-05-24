@@ -241,11 +241,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           onClick={() => {
             const map = mapRef.current;
             if (map) {
-              map.setView([30, 0], 2); // or use your constants if you prefer
+              map.setView([30, 0], 2); 
               setZoomLevel(2);
             }
-
-            onResetFilters();
           }}
           style={{
             position: "absolute",
@@ -253,7 +251,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
             right: "15px",
             zIndex: 1002,
             padding: "8px 14px",
-            backgroundColor: "#2f6bb3", // Slightly deeper shade
+            backgroundColor: "#2f6bb3", 
             color: "white",
             border: "none",
             borderRadius: "8px",
@@ -268,6 +266,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
         >
           Reset View
         </button>
+
 
         <MapWrapper mapRef={mapRef}>
           {/* Combined location layer */}

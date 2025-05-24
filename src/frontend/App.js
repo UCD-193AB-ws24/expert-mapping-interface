@@ -206,6 +206,15 @@ function App() {
               </div>
             </div>
 
+            <div className="mt-4">
+              <button
+                onClick={resetFilters}
+                className="w-full text-center py-2 px-4 border-2 border-[#2f6bb3] text-white bg-[#2f6bb3] rounded-md font-medium transition-all duration-200 hover:bg-white hover:text-[#2f6bb3]"
+              >
+                Reset Filters
+              </button>
+            </div>
+
             {/* Map Guide Section */}
             <details open className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
               <summary className="flex items-center justify-between font-bold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
@@ -326,7 +335,14 @@ function App() {
                     />
                   </div>
                 </div>
-
+                <div className="mt-4">
+                  <button
+                    onClick={resetFilters}
+                    className="w-full text-center py-2 px-4 border-2 border-[#2f6bb3] text-white bg-[#2f6bb3] rounded-md font-medium transition-all duration-200 hover:bg-white hover:text-[#2f6bb3]"
+                  >
+                    Reset Filters
+                  </button>
+                </div>
               </div>
             </div>
           )}
