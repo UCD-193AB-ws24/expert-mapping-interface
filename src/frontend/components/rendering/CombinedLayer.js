@@ -111,7 +111,13 @@ const renderPolygons = ({
       return;
     }
 
-    const totalExpertCount = work2expertCount + grant2expertCount;
+    //make a set to remove duplicate expertIDs from the total count
+    const combinedExpertIDs = new Set([
+      ...workExpertIDs,
+      ...grantExpertIDs,
+    ]);
+    const totalExpertCount = combinedExpertIDs.size;
+
 
     // Create a polygon for the location
     const polygon = L.polygon(flippedCoordinates, {
@@ -383,7 +389,7 @@ const renderPoints = ({
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
       !Array.isArray(locationData.worksIDs) || locationData.worksIDs.length === 0
     ) return;
-    
+
     // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
@@ -422,7 +428,14 @@ const renderPoints = ({
 
     const work2expertCount = workExpertIDs.size;
     const grant2expertCount = grantExpertIDs.size;
-    const totalExpertCount = work2expertCount + grant2expertCount;
+
+    //make a set to remove duplicate expertIDs from the total count
+    const combinedExpertIDs = new Set([
+      ...workExpertIDs,
+      ...grantExpertIDs,
+    ]);
+    const totalExpertCount = combinedExpertIDs.size;
+
 
     // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
