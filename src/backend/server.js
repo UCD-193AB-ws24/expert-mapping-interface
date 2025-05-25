@@ -54,32 +54,85 @@ app.use((req, res, next) => {
   next();
 });
 
+async function scanKeys(pattern, count) {
+  const keys = [];
+  let cursor = '0';
+
+  do {
+    const result = await redisClient.scan(cursor, {
+      MATCH: pattern,
+      COUNT: count
+    });
+    cursor = Number(result.cursor);
+    keys.push(...result.keys);
+  } while (cursor !== 0);
+
+  return keys;
+}
+
 // Fetch all works from Redis as geojson file
 app.get('/api/redis/worksQuery', async (req, res) => {
-  console.log('📍 Received request for Redis data');
   try {
     if (!redisClient.isOpen) {
       console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
-    const workKeys = await redisClient.keys('work:*');
-    const features = [];
 
-    // console.log(`Found ${workKeys.length} features in Redis`);
+    // Scan all work keys
+    const allWorkKeys = await scanKeys('work:*', 100);
+    const workKeys = allWorkKeys.filter(key => !key.includes(':entry') && !key.includes(':metadata'));
 
-    for (const workKey of workKeys) {
-      if (workKey.includes(':entry')) continue;
-      if (workKey.includes(':metadata')) continue;
+    if (workKeys.length === 0) {
+      return res.json({
+        type: 'FeatureCollection',
+        features: [],
+        metadata: {}
+      });
+    }
 
-      const workData = await redisClient.hGetAll(workKey);
-      const feature_id = workData.id || workKey.split(':')[1];
+    // Pipeline fetching all work data
+    const workPipeline = redisClient.multi();
+    workKeys.forEach(workKey => {
+      workPipeline.hGetAll(workKey);
+    });
+    const workDataResult = await workPipeline.exec();
 
-      const entryKeys = await redisClient.keys(`${workKey}:entry:*`);
-      // console.log('Number of entries for this workKey:', entryKeys.length);
+    // Pipeline fetching all entry keys
+    const entryKeyPipeline = redisClient.multi();
+    workKeys.forEach(workKey => {
+      entryKeyPipeline.keys(`${workKey}:entry:*`);
+    });
+    const entryKeysResults = await entryKeyPipeline.exec();
+
+    // Mapping work key with its entry keys
+    const allEntryKeys = [];
+    const workKeyEntryKeysMap = new Map();
+
+    entryKeysResults.forEach((result, index) => {
+      const workKey = workKeys[index];
+      const entryKeys = result || [];
+      workKeyEntryKeysMap.set(workKey, entryKeys);
+      allEntryKeys.push(...entryKeys);
+    });
+
+    // Pipeline fetching all entry data
+    let allEntryData = [];
+    if (allEntryKeys.length > 0) {
+      const entryPipeline = redisClient.multi();
+      allEntryKeys.forEach(entryKey => {
+        entryPipeline.hGetAll(entryKey);
+      });
+      allEntryData = await entryPipeline.exec();
+    }
+
+    // Mapping work key and its entries
+    const workKeyEntriesMap = new Map();
+    let idx = 0;
+
+    for (const [workKey, entryKeys] of workKeyEntryKeysMap.entries()) {
       const entries = [];
-
-      for (const entryKey of entryKeys) {
-        const entryData = await redisClient.hGetAll(entryKey);
+      for (let i = 0; i < entryKeys.length; i++) {
+        const entryData = allEntryData[idx] || {};
         const entry = {
           id: entryData.id || 'Unknown WorkID',
           title: entryData.title || '',
@@ -93,9 +146,20 @@ app.get('/api/redis/worksQuery', async (req, res) => {
             ? JSON.parse(entryData.relatedExperts)
             : '[]',
         };
-        // console.log('📋 Entry added:', entry);
         entries.push(entry);
+        idx++;
       }
+      workKeyEntriesMap.set(workKey, entries);
+    }
+
+
+    const features = [];
+
+    workDataResult.forEach((result, index) => {
+      const workKey = workKeys[index];
+      const workData = result || {};
+      const feature_id = workData.id || workKey.split(':')[1];
+      const entries = workKeyEntriesMap.get(workKey) || [];
 
       // Validate and parse geometry
       let geometry = { type: 'Point', coordinates: [] };
@@ -128,7 +192,7 @@ app.get('/api/redis/worksQuery', async (req, res) => {
           source: 'work',
         },
       });
-    }
+    });
 
     const metadata = await redisClient.hGetAll('work:metadata');
     if (!metadata) {
@@ -152,28 +216,67 @@ app.get('/api/redis/worksQuery', async (req, res) => {
 
 // Fetch all grants from Redis as geojson file
 app.get('/api/redis/grantsQuery', async (req, res) => {
-  console.log('📍 Received request for Redis data');
   try {
     if (!redisClient.isOpen) {
       console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
-    const grantKeys = await redisClient.keys('grant:*');
-    const features = [];
 
-    // console.log(`Found ${grantKeys.length} features in Redis`);
+    // Scan all grant keys
+    const allGrantKeys = await scanKeys('grant:*', 100);
+    const grantKeys = allGrantKeys.filter(key => !key.includes(':entry') && !key.includes(':metadata'));
 
-    for (const grantKey of grantKeys) {
-      if (grantKey.includes(':entry')) continue;
-      if (grantKey.includes(':metadata')) continue;
+    if (grantKeys.length === 0) {
+      return res.json({
+        type: 'FeatureCollection',
+        features: [],
+        metadata: {}
+      });
+    }
 
-      const grantData = await redisClient.hGetAll(grantKey);
-      const feature_id = grantData.id || grantKey.split(':')[1];
-      const entryKeys = await redisClient.keys(`${grantKey}:entry:*`);
+    // Pipeline fetching all grant data
+    const grantPipeline = redisClient.multi();
+    grantKeys.forEach(grantKey => {
+      grantPipeline.hGetAll(grantKey);
+    });
+    const grantDataResult = await grantPipeline.exec();
+
+    // Pipeline fetching all entry keys
+    const entryKeyPipeline = redisClient.multi();
+    grantKeys.forEach(grantKey => {
+      entryKeyPipeline.keys(`${grantKey}:entry:*`);
+    });
+    const entryKeysResults = await entryKeyPipeline.exec();
+
+    // Mapping grant key with its entry keys
+    const allEntryKeys = [];
+    const grantKeyEntryKeysMap = new Map();
+
+    entryKeysResults.forEach((result, index) => {
+      const grantKey = grantKeys[index];
+      const entryKeys = result || [];
+      grantKeyEntryKeysMap.set(grantKey, entryKeys);
+      allEntryKeys.push(...entryKeys);
+    });
+
+    // Pipeline fetching all entry data
+    let allEntryData = [];
+    if (allEntryKeys.length > 0) {
+      const entryPipeline = redisClient.multi();
+      allEntryKeys.forEach(entryKey => {
+        entryPipeline.hGetAll(entryKey);
+      });
+      allEntryData = await entryPipeline.exec();
+    }
+
+    // Mapping grant key and its entries
+    const grantKeyEntriesMap = new Map();
+    let idx = 0;
+
+    for (const [grantKey, entryKeys] of grantKeyEntryKeysMap.entries()) {
       const entries = [];
-      for (const entryKey of entryKeys) {
-        const entryData = await redisClient.hGetAll(entryKey);
-        // console.log(`Processing entry: ${entryKey}`);
+      for (let i = 0; i < entryKeys.length; i++) {
+        const entryData = allEntryData[idx] || {};
         const entry = {
           id: entryData.id || 'Unknown GrantID',
           title: entryData.title || '',
@@ -186,9 +289,20 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
             ? JSON.parse(entryData.relatedExperts)
             : '[]',
         };
-        // console.log('📋 Entry being added:', entry);
         entries.push(entry);
+        idx++;
       }
+      grantKeyEntriesMap.set(grantKey, entries);
+    }
+
+    const features = [];
+
+    grantDataResult.forEach((result, index) => {
+      const grantKey = grantKeys[index];
+      const grantData = result || {};
+      const feature_id = grantData.id || grantKey.split(':')[1];
+      const entries = grantKeyEntriesMap.get(grantKey) || [];
+
       // Validate and parse geometry
       let geometry = { type: 'Point', coordinates: [] };
       try {
@@ -196,8 +310,9 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           geometry = JSON.parse(grantData.geometry);
         }
       } catch (error) {
-        console.error(`❌ Error parsing geometry for workKey ${workKey}:`, error.message);
+        console.error(`❌ Error parsing geometry for grantKey ${grantKey}:`, error.message);
       }
+
       features.push({
         type: 'Feature',
         id: feature_id,
@@ -216,12 +331,10 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
           display_name: grantData.display_name || '',
           place_rank: grantData.place_rank || '',
           osm_type: grantData.osm_type || '',
-          place_rank: grantData.place_rank || '',
-          country: grantData.country || '',
           source: 'grant',
         },
       });
-    }
+    });
 
     const metadata = await redisClient.hGetAll('grant:metadata');
     if (!metadata) {
