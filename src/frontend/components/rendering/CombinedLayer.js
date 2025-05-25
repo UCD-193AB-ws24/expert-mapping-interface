@@ -396,9 +396,12 @@ const renderPoints = ({
 
     setLocationName(locationData.name);
 
+    const workExpertIDs = new Set();
+    const grantExpertIDs = new Set();
+    
     // Get expert count for each work and grant per location
     // Count experts from workIDs
-    workIDs.forEach((workID) => {
+    locationData.worksIDs.forEach((workID) => {
       const work = worksMap.get(workID);
       if (!work) {
         console.warn(`Work with ID ${workID} not found in worksMap.`);
@@ -412,7 +415,7 @@ const renderPoints = ({
       });
     });
     // Count experts from grantIDs
-    grantIDs.forEach((grantID) => {
+    locationData.grantIDs.forEach((grantID) => {
       const grant = grantsMap.get(grantID);
       if (!grant) {
         console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
