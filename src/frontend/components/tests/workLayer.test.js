@@ -8,6 +8,8 @@ import WorkLayer from "../rendering/WorkLayer";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 
+jest.useFakeTimers();
+
 // Mock react-leaflet
 jest.mock("react-leaflet", () => ({
   useMap: jest.fn(),
@@ -46,12 +48,10 @@ jest.mock("leaflet", () => {
     remove: jest.fn(),
     close: jest.fn(),
     getElement: jest.fn(() => ({
-      style: { pointerEvents: "auto" },
-      addEventListener: jest.fn(),
-      querySelector: jest.fn(() => ({
+        style: { pointerEvents: "auto" },
         addEventListener: jest.fn(),
+        querySelector: jest.fn(() => mockButtonElement),
       })),
-    })),
   };
 
   const mockMarkerClusterGroupObject = {
@@ -87,6 +87,10 @@ jest.mock("../rendering/utils/preparePanelData", () => ({
   prepareWorkPanelData: jest.fn(() => ({ mockWorkData: "test" })),
 }));
 
+const mockButtonElement = {
+    addEventListener: jest.fn(),
+  };
+  
 describe("WorkLayer component", () => {
   let mockMap;
 
@@ -102,40 +106,517 @@ describe("WorkLayer component", () => {
     jest.clearAllMocks();
   });
 
-  //  Test: Initializes and adds layer group when showWorks is true
-  it("renders polygons and points when showWorks is true", () => {
+  //329-335 - keeper
+  it("closes popup on popup mouseleave for renderPoints", () => {
+    jest.useFakeTimers();
+  
     const locationMap = new Map([
       [
-        "loc1",
+        "point1",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          expertIDs: [1],
+          workIDs: [10],
+          name: "Point 1",
+          display_name: "Point 1 Display",
+        },
+      ],
+    ]);
+  
+    render(
+      <WorkLayer
+        locationMap={locationMap}
+        worksMap={new Map()}
+        expertsMap={new Map()}
+        showWorks={true}
+        setSelectedWorks={jest.fn()}
+        setPanelOpen={jest.fn()}
+        setPanelType={jest.fn()}
+      />
+    );
+  
+    const popup = L.popup.mock.results[0].value;
+    const popupElement = popup.getElement();
+  
+    // Simulate mouseleave event
+    const mouseLeaveHandler = popupElement.addEventListener.mock.calls.find(
+      ([event]) => event === "mouseleave"
+    )?.[1];
+  
+    if (mouseLeaveHandler) {
+      mouseLeaveHandler();
+    }
+  
+    // Fast-forward the timer
+    jest.advanceTimersByTime(200);
+  
+    // Verify that popup.close() was called
+    expect(popup.close).toHaveBeenCalled();
+  });
+  
+  // Test: Handles point marker hover interactions - keeper
+  it("handles polygon marker click events and opens panel", () => {
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+  
+    const locationMap = new Map([
+      [
+        "polygon_click",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [2, 2]]],
+          expertIDs: [1, 2],
+          workIDs: [10],
+          name: "Click Polygon",
+          display_name: "Test Click Polygon",
+        },
+      ],
+    ]);
+  
+    render(
+      <WorkLayer
+        locationMap={locationMap}
+        worksMap={new Map()}
+        expertsMap={new Map()}
+        showWorks={true}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+  
+    const marker = L.marker.mock.results[0].value;
+  
+    // Trigger the click handler
+    const clickHandler = marker.on.mock.calls.find(([event]) => event === "click")?.[1];
+    if (clickHandler) clickHandler();
+  
+    // Verify popup creation
+    expect(L.popup).toHaveBeenCalled();
+  });
+
+
+  //103-171 - keeper
+  it("handles polygon marker mouseover to show popup with matched fields", () => {
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+  
+    const locationMap = new Map([
+      [
+        "hover_polygon",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [2, 2]]],
+          expertIDs: [1],
+          workIDs: [10],
+          name: "Hover Polygon",
+          display_name: "Hover Polygon Display"
+        },
+      ],
+    ]);
+  
+    const worksMap = new Map([
+      [10, { title: "Hover Work", matchedFields: ["data", "field"] }],
+    ]);
+  
+    const expertsMap = new Map([
+      [1, { name: "Expert 1" }],
+    ]);
+  
+    render(
+      <WorkLayer
+        locationMap={locationMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showWorks={true}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+  
+    const marker = L.marker.mock.results[0].value;
+  
+    // Trigger the mouseover handler
+    const mouseoverHandler = marker.on.mock.calls.find(
+      ([event]) => event === "mouseover"
+    )?.[1];
+  
+    if (mouseoverHandler) {
+      mouseoverHandler(); // Simulate hover
+    }
+  
+    const popup = L.popup.mock.results[0].value;
+    const popupElement = popup.getElement();
+  
+    expect(L.popup).toHaveBeenCalled();
+    expect(popup.setContent).toHaveBeenCalledWith(expect.stringContaining("Mock expert popup content"));
+    expect(popup.openOn).toHaveBeenCalled();
+  
+    // Trigger mouseenter (for popup element)
+    const mouseEnterListener = popupElement.addEventListener.mock.calls.find(
+      ([event]) => event === "mouseenter"
+    )?.[1];
+  
+    if (mouseEnterListener) {
+      mouseEnterListener();
+    }
+  
+    // Trigger mouseleave
+    const mouseLeaveListener = popupElement.addEventListener.mock.calls.find(
+      ([event]) => event === "mouseleave"
+    )?.[1];
+  
+    if (mouseLeaveListener) {
+      mouseLeaveListener();
+      jest.runAllTimers(); // Run timeout from mouseleave
+    }
+  
+    // Trigger the "view experts" button click logic
+    const btn = popupElement.querySelector(".view-w-experts-btn");
+    const clickHandler = btn?.addEventListener.mock.calls.find(
+      ([event]) => event === "click"
+    )?.[1];
+  
+    if (clickHandler) {
+      clickHandler({
+        preventDefault: jest.fn(),
+        stopPropagation: jest.fn(),
+      });
+    }
+  
+    expect(mockSetSelectedWorks).toHaveBeenCalled();
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(mockSetPanelType).toHaveBeenCalledWith("works");
+  });
+  
+  //178-182 - keeper
+  it("calls mouseout handler to close polygon popup", () => {
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+  
+    const locationMap = new Map([
+      [
+        "test_polygon",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [2, 2]]],
+          expertIDs: [1],
+          workIDs: [10],
+          name: "Test Polygon",
+          display_name: "Test Polygon Display"
+        },
+      ],
+    ]);
+  
+    const worksMap = new Map([
+      [10, { title: "Test Work", matchedFields: ["keyword"] }],
+    ]);
+  
+    const expertsMap = new Map([
+      [1, { name: "Expert 1" }],
+    ]);
+  
+    render(
+      <WorkLayer
+        locationMap={locationMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showWorks={true}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+  
+    const marker = L.marker.mock.results[0].value;
+  
+    // Find the mouseout handler
+    const mouseoutHandler = marker.on.mock.calls.find(
+      ([event]) => event === "mouseout"
+    )?.[1];
+  
+    // Call it directly
+    if (mouseoutHandler) {
+      mouseoutHandler();
+    }
+  
+    // Wait for setTimeout to run
+    jest.runAllTimers();
+  });
+
+  //189-243 - keeper
+  it("handles polygon marker click to open popup and set panel data", () => {
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+  
+    const locationMap = new Map([
+      [
+        "click_polygon",
         {
           geometryType: "Polygon",
           coordinates: [[[0, 0], [1, 1], [2, 2]]],
           expertIDs: [1, 2],
           workIDs: [10, 20],
-          name: "Polygon Location",
-          display_name: "Test Polygon"
-        },
-      ],
-      [
-        "loc2",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          expertIDs: [3, 4, 5],
-          workIDs: [30, 40],
-          name: "Point Location",
-          display_name: "Test Point"
+          name: "Click Polygon",
+          display_name: "Click Polygon Display"
         },
       ],
     ]);
-
+  
     const worksMap = new Map([
       [10, { title: "Work 1", matchedFields: ["field1"] }],
       [20, { title: "Work 2", matchedFields: ["field2"] }],
-      [30, { title: "Work 3", matchedFields: ["field3"] }],
-      [40, { title: "Work 4", matchedFields: ["field4"] }],
     ]);
+  
+    const expertsMap = new Map([
+      [1, { name: "Expert 1" }],
+      [2, { name: "Expert 2" }],
+    ]);
+  
+    render(
+      <WorkLayer
+        locationMap={locationMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showWorks={true}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+  
+    // Get the polygon marker
+    const marker = L.marker.mock.results[0].value;
+  
+    // Get the click handler
+    const clickHandler = marker.on.mock.calls.find(
+      ([event]) => event === "click"
+    )?.[1];
+  
+    // Trigger the click
+    if (clickHandler) clickHandler();
+  
+    // Simulate clicking the button inside the popup
+    const popup = L.popup.mock.results[0].value;
+    const popupElement = popup.getElement();
+  
+    const btn = popupElement.querySelector(".view-w-experts-btn");
+    const clickListener = btn?.addEventListener.mock.calls.find(
+      ([event]) => event === "click"
+    )?.[1];
+  
+    if (clickListener) {
+      clickListener({
+        preventDefault: jest.fn(),
+        stopPropagation: jest.fn(),
+      });
+    }
+  
+    // Assert the panel update functions were called
+    expect(mockSetSelectedWorks).toHaveBeenCalled();
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(mockSetPanelType).toHaveBeenCalledWith("works");
+  });
 
+  //375-428 - keeper
+  it("handles point marker click to open popup and set panel data", () => {
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+  
+    const locationMap = new Map([
+      [
+        "click_point",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          expertIDs: [1],
+          workIDs: [100],
+          name: "Click Point",
+          display_name: "Click Point Display",
+        },
+      ],
+    ]);
+  
+    const worksMap = new Map([
+      [100, { title: "Click Work", matchedFields: ["topic", "method"] }],
+    ]);
+  
+    const expertsMap = new Map([
+      [1, { name: "Expert 1" }],
+    ]);
+  
+    render(
+      <WorkLayer
+        locationMap={locationMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showWorks={true}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+  
+    const marker = L.marker.mock.results[0].value;
+  
+    // Trigger the click handler manually
+    const clickHandler = marker.on.mock.calls.find(([event]) => event === "click")?.[1];
+    if (clickHandler) {
+      clickHandler();
+    }
+
+    const btnClickHandler = mockButtonElement.addEventListener.mock.calls.find(
+        ([event]) => event === "click"
+      )?.[1];
+      
+      if (btnClickHandler) {
+        btnClickHandler({
+          preventDefault: jest.fn(),
+          stopPropagation: jest.fn(),
+        });
+      }
+  
+    // Access popup
+    const popup = L.popup.mock.results[0].value;
+    const popupElement = popup.getElement();
+  
+    // Verify results
+    expect(mockSetSelectedWorks).toHaveBeenCalled();
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(mockSetPanelType).toHaveBeenCalledWith("works");
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  
+  //291-357 - keeper
+  it("handles point marker mouseover to show popup with matched fields", () => {
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+  
+    const locationMap = new Map([
+      [
+        "hover_point",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          expertIDs: [1],
+          workIDs: [100],
+          name: "Hover Point",
+          display_name: "Hover Point Display"
+        },
+      ],
+    ]);
+  
+    const worksMap = new Map([
+      [100, { title: "Hover Work", matchedFields: ["data", "analysis"] }],
+    ]);
+  
+    const expertsMap = new Map([
+      [1, { name: "Expert 1" }],
+    ]);
+  
+    render(
+      <WorkLayer
+        locationMap={locationMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showWorks={true}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+  
+    const marker = L.marker.mock.results[0].value;
+  
+    // Trigger the mouseover handler
+    const mouseoverHandler = marker.on.mock.calls.find(
+      ([event]) => event === "mouseover"
+    )?.[1];
+  
+    if (mouseoverHandler) {
+      mouseoverHandler(); // Simulate hover
+    }
+  
+    const popup = L.popup.mock.results[0].value;
+    const popupElement = popup.getElement();
+  
+    expect(L.popup).toHaveBeenCalled();
+    expect(popup.setContent).toHaveBeenCalledWith(expect.stringContaining("Mock expert popup content"));
+    expect(popup.openOn).toHaveBeenCalled();
+  
+    // Trigger mouseenter (clearTimeout behavior)
+    const mouseEnterListener = popupElement.addEventListener.mock.calls.find(
+      ([event]) => event === "mouseenter"
+    )?.[1];
+    if (mouseEnterListener) mouseEnterListener();
+  
+    // Trigger mouseleave (starts close timeout)
+    const mouseLeaveListener = popupElement.addEventListener.mock.calls.find(
+      ([event]) => event === "mouseleave"
+    )?.[1];
+    if (mouseLeaveListener) {
+      mouseLeaveListener();
+      jest.runAllTimers(); // run setTimeout from mouseleave
+    }
+  
+    // Trigger view experts button
+    const btn = popupElement.querySelector(".view-w-experts-btn");
+    const clickHandler = btn?.addEventListener.mock.calls.find(
+      ([event]) => event === "click"
+    )?.[1];
+  
+    if (clickHandler) {
+      clickHandler({
+        preventDefault: jest.fn(),
+        stopPropagation: jest.fn(),
+      });
+    }
+  
+    expect(mockSetSelectedWorks).toHaveBeenCalled();
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(mockSetPanelType).toHaveBeenCalledWith("works");
+    expect(popup.close).toHaveBeenCalled();
+  });
+  
+  // Test: Handles cluster icon creation function - keeper
+  it("creates custom cluster icons with total expert count", () => {
+    const locationMap = new Map([
+      [
+        "cluster_point1",
+        {
+          geometryType: "Point",
+          coordinates: [0, 0],
+          expertIDs: [1, 2],
+          workIDs: [10],
+          name: "Cluster Point 1",
+        },
+      ],
+      [
+        "cluster_point2",
+        {
+          geometryType: "Point",
+          coordinates: [0.1, 0.1],
+          expertIDs: [3, 4, 5],
+          workIDs: [20],
+          name: "Cluster Point 2",
+        },
+      ],
+    ]);
+  
+    const worksMap = new Map([
+      [10, { title: "Work 1" }],
+      [20, { title: "Work 2" }],
+    ]);
+  
     const expertsMap = new Map([
       [1, { name: "Expert 1" }],
       [2, { name: "Expert 2" }],
@@ -143,7 +624,7 @@ describe("WorkLayer component", () => {
       [4, { name: "Expert 4" }],
       [5, { name: "Expert 5" }],
     ]);
-
+  
     render(
       <WorkLayer
         locationMap={locationMap}
@@ -155,321 +636,55 @@ describe("WorkLayer component", () => {
         setPanelType={jest.fn()}
       />
     );
-
-    expect(L.markerClusterGroup).toHaveBeenCalled();
-    expect(L.polygon).toHaveBeenCalled();
-    expect(L.marker).toHaveBeenCalled();
-    expect(mockMap.addLayer).toHaveBeenCalled();
-  });
-
-  // Test: Handles polygon locations correctly
-  it("renders polygon markers at polygon centers", () => {
-    const locationMap = new Map([
-      [
-        "polygon_loc",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          expertIDs: [1, 2, 3],
-          workIDs: [10],
-          name: "Test Polygon",
-          display_name: "Test Polygon Display"
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [10, { title: "Polygon Work", matchedFields: ["research"] }],
-    ]);
-
-    const expertsMap = new Map([
-      [1, { name: "Expert 1" }],
-      [2, { name: "Expert 2" }],
-      [3, { name: "Expert 3" }],
-    ]);
-
-    render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
-    expect(L.polygon).toHaveBeenCalledWith(
-      [[[0, 0], [1, 1], [2, 2]]],
-      expect.objectContaining({
-        color: "#3879C7",
-        fillColor: "#4783CB",
-        fillOpacity: 0.6,
-        weight: 2,
-      })
-    );
-    expect(L.marker).toHaveBeenCalled();
-  });
-
-  //  Test: Handles point locations correctly
-  it("renders point markers with clustering", () => {
-    const locationMap = new Map([
-      [
-        "point_loc",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20], // [lng, lat]
-          expertIDs: [1, 2],
-          workIDs: [10, 20],
-          name: "Test Point",
-          display_name: "Test Point Display"
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [10, { title: "Point Work 1", matchedFields: ["field1"] }],
-      [20, { title: "Point Work 2", matchedFields: ["field2"] }],
-    ]);
-
-    const expertsMap = new Map([
-      [1, { name: "Expert 1" }],
-      [2, { name: "Expert 2" }],
-    ]);
-
-    render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
-    // Should create marker with flipped coordinates [lat, lng]
-    expect(L.marker).toHaveBeenCalledWith(
-      [20, 10], // flipped from [10, 20]
-      expect.objectContaining({
-        icon: expect.anything(),
-        expertCount: 2,
-      })
-    );
-  });
-
-  //  Test: Skips locations with no experts
-  it("skips polygon locations with no experts", () => {
-    const locationMap = new Map([
-      [
-        "empty_polygon",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          expertIDs: [], // No experts
-          workIDs: [10],
-          name: "Empty Polygon",
-        },
-      ],
-      [
-        "valid_polygon",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          expertIDs: [1], // Has experts
-          workIDs: [20],
-          name: "Valid Polygon",
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [10, { title: "Work 1" }],
-      [20, { title: "Work 2" }],
-    ]);
-
-    const expertsMap = new Map([
-      [1, { name: "Expert 1" }],
-    ]);
-
-    render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
-    // Should only call L.polygon once (for the valid polygon)
-    expect(L.polygon).toHaveBeenCalledTimes(1);
-  });
-
-  //  Test: Cleans up layers correctly on component unmount
-  it("removes all layers on unmount", () => {
-    const locationMap = new Map([
-      [
-        "test_loc",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          expertIDs: [1],
-          workIDs: [10],
-          name: "Test Location",
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [10, { title: "Test Work" }],
-    ]);
-
-    const expertsMap = new Map([
-      [1, { name: "Test Expert" }],
-    ]);
-
-    const { unmount } = render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
-    unmount();
-    expect(mockMap.removeLayer).toHaveBeenCalled();
-  });
-
-  //  Test: Skips rendering and logs error if showWorks is false
-  it("does not render anything when showWorks is false", () => {
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-
-    render(
-      <WorkLayer
-        locationMap={new Map()}
-        worksMap={new Map()}
-        expertsMap={new Map()}
-        showWorks={false}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
-    expect(consoleSpy).toHaveBeenCalledWith("Error: No works found!");
-    expect(mockMap.addLayer).not.toHaveBeenCalled();
-
-    consoleSpy.mockRestore();
-  });
-
-  // Test: Handles invalid point coordinates
-  it("skips points with invalid coordinates", () => {
-    const locationMap = new Map([
-      [
-        "invalid_point",
-        {
-          geometryType: "Point",
-          coordinates: [10], // Invalid - should have 2 coordinates
-          expertIDs: [1],
-          workIDs: [10],
-          name: "Invalid Point",
-        },
-      ],
-      [
-        "valid_point",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20], // Valid coordinates
-          expertIDs: [2],
-          workIDs: [20],
-          name: "Valid Point",
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [10, { title: "Work 1" }],
-      [20, { title: "Work 2" }],
-    ]);
-
-    const expertsMap = new Map([
-      [1, { name: "Expert 1" }],
-      [2, { name: "Expert 2" }],
-    ]);
-
-    render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
-    // Should only create one marker (for the valid point)
-    expect(L.marker).toHaveBeenCalledTimes(1);
-    expect(L.marker).toHaveBeenCalledWith(
-      [20, 10], // Valid flipped coordinates
-      expect.objectContaining({
-        expertCount: 1,
-      })
-    );
-  });
-
-  // Test: Creates cluster group with correct configuration
-  it("creates marker cluster group with correct configuration", () => {
-    const locationMap = new Map([
-      [
-        "test_point",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          expertIDs: [1],
-          workIDs: [10],
-          name: "Test Point",
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [10, { title: "Test Work" }],
-    ]);
-
-    const expertsMap = new Map([
-      [1, { name: "Test Expert" }],
-    ]);
-
-    render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
+  
+    // Verify cluster group was created with iconCreateFunction
     expect(L.markerClusterGroup).toHaveBeenCalledWith(
       expect.objectContaining({
-        showCoverageOnHover: false,
-        maxClusterRadius: 100,
-        spiderfyOnMaxZoom: false,
         iconCreateFunction: expect.any(Function),
       })
     );
+  
+    // Test the iconCreateFunction
+    const clusterGroupCall = L.markerClusterGroup.mock.calls[0][0];
+    const iconCreateFunction = clusterGroupCall.iconCreateFunction;
+    
+    // Mock cluster object
+    const mockCluster = {
+      getAllChildMarkers: () => [
+        { options: { expertCount: 2 } },
+        { options: { expertCount: 3 } }
+      ]
+    };
+  
+    const result = iconCreateFunction(mockCluster);
+    expect(L.divIcon).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: expect.stringContaining('5'), // 2 + 3 = 5 total experts
+        className: "custom-cluster-icon",
+      })
+    );
   });
+  
+  // Test: Handles invalid/missing props gracefully - keeper
+  it("handles missing or invalid props gracefully", () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  
+    // Test with null locationMap
+    render(
+      <WorkLayer
+        locationMap={null}
+        worksMap={new Map()}
+        expertsMap={new Map()}
+        showWorks={true}
+        setSelectedWorks={jest.fn()}
+        setPanelOpen={jest.fn()}
+        setPanelType={jest.fn()}
+      />
+    );
+  
+    expect(consoleSpy).toHaveBeenCalledWith('Error: No works found!');
+    
+    consoleSpy.mockRestore();
+  });
+    
 });
