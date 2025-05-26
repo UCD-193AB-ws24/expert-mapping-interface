@@ -11,17 +11,17 @@ describe("getConfidenceStyle", () => {
   it("returns fallback for undefined", () => {
     expect(getConfidenceStyle(undefined)).toEqual({ label: '', style: {} });
   });
-  
+
 
   it("returns styled green for high", () => {
     expect(getConfidenceStyle("high").label).toBe("High");
   });
-  
+
 
   it("returns styled red for low", () => {
     expect(getConfidenceStyle("low").label).toBe("Low");
   });
-  
+
 
   it("returns fallback style for unexpected value", () => {
     const result = getConfidenceStyle("Medium");
@@ -106,7 +106,7 @@ describe("WorksPanel", () => {
     expect(screen.getAllByText(/data science/i).length).toBeGreaterThan(0);
   });
 
-  
+
 
   it("displays matched fields if present", () => { //keeper
     const mockWorks = [
@@ -136,12 +136,40 @@ describe("WorksPanel", () => {
         url: "http://example.com"
       }
     ];
-    render(<WorksPanel works={mockWorks} onClose={() => {}} />);
+    render(<WorksPanel works={mockWorks} onClose={() => { }} />);
     expect(screen.getByText("No Works Expert")).toBeInTheDocument();
     expect(screen.queryByText(/Title:/)).not.toBeInTheDocument();
   });
-  
-  
+
+  it("renders correct expert count in header (singular and plural)", () => {
+    const singleExpert = [
+      {
+        name: "Solo Expert",
+        works: [{ title: "Work A", issued: "2024", confidence: "High" }],
+      },
+    ];
+
+    const multipleExperts = [
+      {
+        name: "Expert One",
+        works: [{ title: "Work 1", issued: "2024", confidence: "High" }],
+      },
+      {
+        name: "Expert Two",
+        works: [{ title: "Work 2", issued: "2023", confidence: "Low" }],
+      },
+    ];
+
+    // Test singular
+    render(<WorksPanel works={singleExpert} onClose={() => { }} />);
+    expect(screen.getByText("1 Expert at this Location")).toBeInTheDocument();
+
+    // Rerender for plural case
+    render(<WorksPanel works={multipleExperts} onClose={() => { }} />);
+    expect(screen.getByText("2 Experts at this Location")).toBeInTheDocument();
+  });
+
+
   //keeper
   it("toggles visibility of additional works", () => {
     render(<WorksPanel works={mockWorks} onClose={mockOnClose} />);
@@ -177,7 +205,37 @@ describe("GrantsPanel", () => {
     },
   ];
 
-  
+  it("does not render matched fields when matchedFields is an empty array in additional grants", () => {
+    const mockGrants = [
+      {
+        name: "Edge Case Expert",
+        grants: [
+          {
+            title: "Primary Grant",
+            funder: "Funder X",
+            confidence: "High",
+          },
+          {
+            title: "Extra Grant",
+            funder: "Funder Y",
+            confidence: "Low",
+            matchedFields: [] // ← empty array branch
+          },
+        ],
+      },
+    ];
+
+    render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
+    fireEvent.click(screen.getByText("Show More Grants"));
+
+    // Confirm the extra grant renders
+    expect(screen.getByText(/Extra Grant/)).toBeInTheDocument();
+
+    // Confirm no matched fields are shown
+    expect(screen.queryByText(/Matched on:/i)).not.toBeInTheDocument();
+  });
+
+
 
   it("displays matched fields in additional grants in GrantsPanel", () => { //keeper
     const mockGrants = [
@@ -208,7 +266,6 @@ describe("GrantsPanel", () => {
     expect(funderMatches.length).toBeGreaterThan(0);
   });
 
-  
   it("gracefully handles grant with no matchedFields property", () => {
     const mockGrants = [
       {
@@ -218,7 +275,7 @@ describe("GrantsPanel", () => {
         ],
       },
     ];
-    render(<GrantsPanel grants={mockGrants} onClose={() => {}} />);
+    render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
     expect(screen.queryByText(/Matched on:/i)).not.toBeInTheDocument();
   });
 
@@ -229,12 +286,37 @@ describe("GrantsPanel", () => {
         grants: [{}],  // <-- at least one item, but no properties
       },
     ];
-    render(<GrantsPanel grants={mockGrants} onClose={() => {}} />);
+    render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
     expect(screen.getByText("Fallback Grant Expert")).toBeInTheDocument();
     expect(screen.getByText((content) => content.includes("Untitled Grant"))).toBeInTheDocument();
   });
-  
-  
+
+  it("renders plural expert label and 'Unknown Expert' fallback in GrantsPanel", () => {
+    const mockGrants = [
+      {
+        name: undefined, // triggers fallback to "Unknown Expert"
+        grants: [
+          { title: "Grant A", confidence: "Low" }
+        ]
+      },
+      {
+        name: "Expert B",
+        grants: [
+          { title: "Grant B", confidence: "High" }
+        ]
+      },
+    ];
+
+    render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
+
+    // Confirm plural header is shown
+    expect(screen.getByText("2 Experts at this Location")).toBeInTheDocument();
+
+    // Confirm fallback name
+    expect(screen.getByText("Unknown Expert")).toBeInTheDocument();
+  });
+
+
   it("displays matched fields if present in grants", () => { //keeper
     const mockGrants = [
       {
@@ -297,6 +379,52 @@ describe("CombinedPanel", () => {
     },
   ];
 
+  it("renders matchedFields block in additional grants in CombinedPanel", () => {
+    const mockWorks = [
+      {
+        name: "Expert A",
+        location: "California",
+        works: [
+          { title: "Work A", issued: "2023", confidence: "High" },
+          { title: "Work B", issued: "2022", confidence: "Low" },
+        ],
+      },
+    ];
+
+    const mockGrants = [
+      {
+        name: "Expert A",
+        grants: [
+          { title: "Grant A", funder: "Funder A", confidence: "High" },
+          {
+            title: "Grant B",
+            funder: "Funder B",
+            confidence: "Low",
+            matchedFields: [
+              { field: "funder", match: "Funder B" },
+              { field: "abstract", match: "clean energy" },
+            ],
+          },
+        ],
+      },
+    ];
+
+    render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
+
+    // Switch to grants tab and expand
+    fireEvent.click(screen.getByText(/Grants/i));
+    fireEvent.click(screen.getByText(/Show More Grants/i));
+
+    // This ensures the <div key={i}> block is rendered
+    expect(screen.getByText((_, node) =>
+      node.textContent === 'Matched on: funder — "Funder B"'
+    )).toBeInTheDocument();
+
+    expect(screen.getByText((_, node) =>
+      node.textContent === 'Matched on: abstract — "clean energy"'
+    )).toBeInTheDocument();
+
+  });
 
   it("displays matched fields in extra entries in CombinedPanel", () => {
     const mockWorks = [

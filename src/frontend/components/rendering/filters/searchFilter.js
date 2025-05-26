@@ -34,11 +34,11 @@ const getRelatedExperts = (entry) => {
  * @param {string} word - The term to normalize.
  * @returns {string} The normalized term.
  */
+
 const normalizeTerm = (word) =>
-  word.endsWith("ies") ? word.slice(0, -3) + "y" :
-  word.endsWith("es") ? word.slice(0, -2) :
-  word.endsWith("s")  ? word.slice(0, -1) :
-  word;
+  word.endsWith("ies") ? word.slice(0, -3) + "y" : // Convert "studies" to "study"
+  word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : // Convert "cats" to "cat"
+  word; // Return the word unchanged if no conditions are met
 
 /**
  * Calculates the maximum allowed Levenshtein distance for fuzzy matching.
@@ -71,7 +71,7 @@ const matchesKeyword = (keyword, entry) => {
     entry.title,
     entry.abstract,
     entry.funder,
-    ...(entry.relatedExperts || []).map(e => e.fullName || e.name),
+    ...(entry.relatedExperts || []).map(e => e && (e.fullName || e.name)),
   ].filter(Boolean); // Remove null/undefined fields
 
   for (const field of fields) {
@@ -148,5 +148,6 @@ const getMatchedFields = (keyword, entry) => {
 module.exports = {
   getRelatedExperts,
   matchesKeyword,
-  getMatchedFields
+  getMatchedFields, 
+  normalizeTerm
 };
