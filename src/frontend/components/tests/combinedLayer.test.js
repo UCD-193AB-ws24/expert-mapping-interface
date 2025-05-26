@@ -67,6 +67,7 @@ describe("CombinedLayer (no getBounds tests)", () => {
     }));
   });
 
+  
   // Test to verify that a point marker is rendered when the geometry is Point
   it("renders point marker if geometry is Point", () => {
     const locationMap = new Map([
@@ -141,4 +142,38 @@ describe("CombinedLayer (no getBounds tests)", () => {
     unmount();
     expect(mockMap.removeLayer).toHaveBeenCalled();
   });
+
+  it("renders polygon if geometry is Polygon", () => {
+    const locationMap = new Map([
+      ["loc1", {
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 0]]],
+        worksIDs: ["w1"],
+        grantIDs: ["g1"],
+        name: "Loc1",
+      }]
+    ]);
+    const worksMap = new Map([["w1", { relatedExpertIDs: ["e1"], matchedFields: ["title"] }]]);
+    const grantsMap = new Map([["g1", { relatedExpertIDs: ["e2"], matchedFields: ["abstract"] }]]);
+    const expertsMap = new Map([["e1", {}], ["e2", {}]]);
+  
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        worksMap={worksMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showWorks={true}
+        showGrants={true}
+        setSelectedWorks={jest.fn()}
+        setSelectedGrants={jest.fn()}
+        setPanelOpen={jest.fn()}
+        setPanelType={jest.fn()}
+        setLocationName={jest.fn()}
+      />
+    );
+  
+    expect(L.polygon).toHaveBeenCalled();
+  });
+  
 });

@@ -29,6 +29,33 @@ import {
       expect(result).toContain("http://example.com");
     });
   
+    it("handles undefined confidence value gracefully", () => {
+      const result = createSingleExpertContent("Test Location", [
+        {
+          title: "Sample Title",
+          confidence: undefined,
+          issued: "2024-01-01",
+          abstract: "Sample abstract",
+          relatedExperts: [{ name: "Test Expert", url: "http://example.com" }],
+        },
+      ]);
+      expect(result).toContain("Unknown"); // fallback for confidence
+    });
+    
+
+    it("renders correct styling for low confidence level", () => {
+      const entries = [
+        {
+          confidence: "Low",
+          relatedExperts: [{ name: "Test", url: "#" }],
+        },
+      ];
+      const result = createSingleExpertContent("Nowhere", entries);
+      expect(result).toContain("Low");
+      expect(result).toContain("#c62828"); // red color for low confidence
+    });
+    
+    
     it("handles missing data gracefully in createSingleExpertContent", () => {
         const locationName = "Test Location";
         const entries = [{}];
@@ -40,6 +67,37 @@ import {
         expect(result).toContain("#");
       });
   
+      it("throws error when entries array is empty", () => {
+        const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+        const result = createSingleExpertContent("Nowhere", []);
+        expect(result).toContain("Error generating content");
+        consoleSpy.mockRestore();
+      });
+      
+      //64
+      it("falls back to 'Unknown' location if locationName is undefined", () => {
+        const entries = [{
+          confidence: "High",
+          relatedExperts: [{ name: "Fallback", url: "#" }],
+        }];
+        const result = createSingleExpertContent(undefined, entries);
+        expect(result).toContain("Location:</strong> Unknown");
+      });
+
+      it("shows singular version of expert/grant count in all popups", () => {
+        const singleMulti = createMultiExpertContent(1, "Test", 1);
+        const singleGrant = createMultiGrantPopup(1, 1, "Test");
+        const singleCombined = createCombinedPopup(1, 1, "Test");
+        const singlePolygon = createMatchedCombinedPolygonPopup(1, 1, "Test");
+      
+        expect(singleMulti).toContain("1 Expert at this Location");
+        expect(singleGrant).toContain("1 Expert at this Location");
+        expect(singleCombined).toContain("1</strong> Expert with Works");
+        expect(singleCombined).toContain("1</strong> Expert with Grants");
+        expect(singlePolygon).toContain("1</strong> Expert with Works");
+        expect(singlePolygon).toContain("1</strong> Expert with Grants");
+      });
+
     // Test for createMultiExpertContent
     it("generates correct HTML for multiple experts", () => {
       const expertCount = 3;
@@ -81,6 +139,14 @@ import {
         expect(result).toContain("Open Panel");
       });
   
+      it("handles 0 experts and undefined location in createMatchedCombinedPolygonPopup", () => {
+        const result = createMatchedCombinedPolygonPopup(0, 0, undefined);
+        expect(result).toContain("<strong>0</strong> Experts with Works");
+        expect(result).toContain("<strong>0</strong> Experts with Grants");
+        expect(result).toContain("Location:</strong> undefined");
+      });
+      
+      
     // Test for createMatchedCombinedPolygonPopup
     it("generates correct HTML for matched combined polygon popup", () => {
         const works2ExpertCount = 1;
