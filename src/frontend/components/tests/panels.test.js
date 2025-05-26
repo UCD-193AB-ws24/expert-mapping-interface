@@ -12,16 +12,13 @@ describe("getConfidenceStyle", () => {
     expect(getConfidenceStyle(undefined)).toEqual({ label: '', style: {} });
   });
 
-
   it("returns styled green for high", () => {
     expect(getConfidenceStyle("high").label).toBe("High");
   });
 
-
   it("returns styled red for low", () => {
     expect(getConfidenceStyle("low").label).toBe("Low");
   });
-
 
   it("returns fallback style for unexpected value", () => {
     const result = getConfidenceStyle("Medium");
@@ -170,6 +167,7 @@ describe("WorksPanel", () => {
   });
 
 
+
   //keeper
   it("toggles visibility of additional works", () => {
     render(<WorksPanel works={mockWorks} onClose={mockOnClose} />);
@@ -235,7 +233,19 @@ describe("GrantsPanel", () => {
     expect(screen.queryByText(/Matched on:/i)).not.toBeInTheDocument();
   });
 
+  it("toggles grant dropdown visibility", () => {
+    const mockWorks = [{ name: "Grant Expert", works: [], location: "Testland" }];
+    render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
 
+    fireEvent.click(screen.getByText("Grants (1)"));
+
+    const toggleBtn = screen.getByText("Show More Grants");
+    fireEvent.click(toggleBtn);
+    expect(screen.getByText("Hide More Grants")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Hide More Grants"));
+    expect(screen.getByText("Show More Grants")).toBeInTheDocument();
+  });
 
   it("displays matched fields in additional grants in GrantsPanel", () => { //keeper
     const mockGrants = [
@@ -489,5 +499,108 @@ describe("CombinedPanel", () => {
     fireEvent.click(screen.getByText(/Works \(1\)/i));
     expect(screen.getByText(/Hypoparathyroidism After Total Thyroidectomy/i)).toBeInTheDocument();
   });
+  it("renders fallback 'No Profile Found' when expert URL is missing", () => {
+    const mockWorks = [{ name: "Expert A", location: "California", works: [{ title: "Work A", issued: "2024", confidence: "High" }], url: undefined }];
+    const mockGrants = [{ name: "Expert A", grants: [{ title: "Grant A", confidence: "High" }], url: undefined }];
+
+    render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
+    expect(screen.getByText("No Profile Found")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/Grants/i));
+    expect(screen.getByText("No Profile Found")).toBeInTheDocument();
+  });
+
+  it("renders expert with no works or grants without crashing", () => {
+    const mockWorks = [
+      {
+        name: "No Works Expert",
+        works: [],
+        url: null,
+        location: "California"
+      }
+    ];
+
+    const mockGrants = [
+      {
+        name: "No Grants Expert",
+        grants: [{}],  // <-- key line to avoid grants[0] being undefined
+        url: null
+      }
+    ];
+
+    render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
+    fireEvent.click(screen.getByText(/Grants/i));
+
+    expect(screen.getByText("No Grants Expert")).toBeInTheDocument();
+    expect(screen.getByText(/Untitled Grant/i)).toBeInTheDocument(); // fallback title
+  });
+
+  it("renders 'View Profile' if expert URL is defined", () => {
+    const mockWorks = [{
+      name: "Expert With URL",
+      location: "California",
+      url: "http://example.com",
+      works: [
+        { title: "Test Work", issued: "2025", confidence: "High" }
+      ]
+    }];
+
+    render(<CombinedPanel works={mockWorks} grants={[]} onClose={() => { }} />);
+    expect(screen.getByText("View Profile")).toBeInTheDocument();
+  });
+
+  it("renders 'No Profile Found' if expert URL is missing", () => {
+    const mockWorks = [{
+      name: "Expert No URL",
+      location: "California",
+      url: undefined,
+      works: [
+        { title: "Test Work", issued: "2025", confidence: "High" }
+      ]
+    }];
+
+    render(<CombinedPanel works={mockWorks} grants={[]} onClose={() => { }} />);
+    expect(screen.getByText("No Profile Found")).toBeInTheDocument();
+  });
+
+  it("renders matchedFields without match in additional grants (CombinedPanel)", () => {
+    const mockGrants = [
+      {
+        name: "Expert X",
+        grants: [
+          {
+            title: "Main Grant",
+            funder: "NSF",
+          },
+          {
+            title: "Extra Grant",
+            funder: "DOE",
+            matchedFields: [
+              { field: "funder" }, // no match provided
+            ],
+          },
+        ],
+      },
+    ];
+    const mockWorks = [
+      {
+        name: "Expert X",
+        works: [],
+        location: "Nowhere",
+      },
+    ];
+
+    render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
+    fireEvent.click(screen.getByText("Grants (1)"));
+    fireEvent.click(screen.getByText("Show More Grants"));
+
+    const matches = screen.getAllByText((_, el) =>
+      el?.textContent?.trim() === "Matched on: funder"
+    );
+    expect(matches.length).toBeGreaterThan(0);
+
+    expect(screen.queryByText(/—/)).not.toBeInTheDocument(); // no dash should appear
+  });
+
 
 });
