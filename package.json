@@ -17,7 +17,8 @@
     "react-leaflet-markercluster": "^4.2.1",
     "react-scripts": "5.0.1",
     "react-slider": "^2.0.6",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "rewire": "^7.0.0"
   },
   "name": "expert-mapping-interface",
   "version": "0.1.0",
