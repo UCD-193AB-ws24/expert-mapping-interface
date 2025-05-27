@@ -29,10 +29,8 @@ import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel, CombinedPanel } from "./rendering/Panels";
 import { matchesKeyword } from "./rendering/filters/searchFilter";
 import { organizeAllMaps } from "./rendering/filters/organizeAllMaps";
-import { filterFeaturesByZoom, filterOverlappingLocationsByZoom } from "./rendering/filters/zoomFilter";
 import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
 import { splitFeaturesByLocation } from "./rendering/filters/splitFeaturesByLocation";
-import { isHighConfidence } from "./rendering/filters/confidenceFilter";
 /**
  * ResearchMap Component
  * @description Main map interface for visualizing research-related data.
@@ -105,12 +103,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     };
   }, [mapRef.current]);
 
-  // Fetch and process location maps based on zoom level
+
+  // Fetch and process location maps based on zoom level and toggles
   useEffect(() => {
-  const fetchLocationMaps = async () => {
-    // Determine which API to call based on zoomLevel
-    let apiUrl;
-    // Helper to determine map type and overlap
+    // Helper to determine map type by zoom
     const getMapType = () => {
       if (zoomLevel >= 2 && zoomLevel <= 3) return "CountryLevelMaps";
       if (zoomLevel >= 4 && zoomLevel <= 5) return "StateLevelMaps";
@@ -121,41 +117,74 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     };
 
     const mapType = getMapType();
-
     if (!mapType) return;
 
-    // Determine overlap type
-    let overlapType = null;
-    if (showWorks && showGrants) {
-      overlapType = "nonoverlap";
-    } else if ((showWorks || showGrants) && !(showWorks && showGrants)) {
-      overlapType = "overlap";
-    }
+    // Decide which API endpoints to call for each layer type
+    // - worksMap: always nonoverlap
+    // - grantsMap: always nonoverlap
+    // - combinedMap: only when both toggles are on, use overlap
+    // Cache by zoomLevel and toggle state for efficiency
 
-    if (overlapType && mapType) {
-      apiUrl = `/api/redis/${overlapType}/get${mapType}`;
-    }
-    if (locationMapsCache[zoomLevel]) {
-      setCurrentLocationMaps(locationMapsCache[zoomLevel]);
+    const cacheKey = `${zoomLevel}_${showWorks}_${showGrants}`;
+
+    if (locationMapsCache[cacheKey]) {
+      setCurrentLocationMaps(locationMapsCache[cacheKey]);
       return;
     }
 
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error('Failed to fetch location maps');
-      const data = await response.json();
-      setLocationMapsCache(prev => ({ ...prev, [zoomLevel]: data }));
-      setCurrentLocationMaps(data);
-    } catch (err) {
-      setError('Failed to load location maps.');
-    }
-  };
+    const fetchMaps = async () => {
+      try {
+        let worksMap = null, grantsMap = null, combinedMap = null;
 
-  fetchLocationMaps();
-}, [zoomLevel, showWorks, showGrants]);
+        if (showWorks) {
+          // Non-overlap works map
+          const worksRes = await fetch(`/api/redis/overlap/get${mapType}?type=works`);
+          if (!worksRes.ok) throw new Error("Failed to fetch works map");
+          worksMap = await worksRes.json();
+        }
+        if (showGrants) {
+          // Non-overlap grants map
+          const grantsRes = await fetch(`/api/redis/overlap/get${mapType}?type=grants`);
+          if (!grantsRes.ok) throw new Error("Failed to fetch grants map");
+          grantsMap = await grantsRes.json();
+        }
+        if (showWorks && showGrants) {
+          // Fetch all three maps in one API call to match the new server endpoint
+          const allMapsRes = await fetch(`/api/redis/nonoverlap/getAll${mapType}`);
+          if (!allMapsRes.ok) throw new Error("Failed to fetch all maps");
+          const allMaps = await allMapsRes.json();
+          worksMap = allMaps.worksMap;
+          grantsMap = allMaps.grantsMap;
+          combinedMap = allMaps.combinedMap;
+        }
+
+        const maps = {
+          worksMap,
+          grantsMap,
+          combinedMap,
+        };
+
+        setLocationMapsCache(prev => ({ ...prev, [cacheKey]: maps }));
+        setCurrentLocationMaps(maps);
+      } catch (err) {
+        setError("Failed to load location maps.");
+      }
+    };
+
+    fetchMaps();
+  }, [zoomLevel, showWorks, showGrants]);
+
+  // Filter worksMap, grantsMap, expertsMap, and locationMap based on searchKeyword
+  // TODO: Implement this logic for filtering works and grants based on searchKeyword
 
 
 
+  const workLayerLocations = currentLocationMaps?.worksMap || {};
+  const grantLayerLocations = currentLocationMaps?.grantsMap || {};
+  const combinedLocations = currentLocationMaps?.combinedMap || {};
+  const expertsMap = rawExpertsMap || {};
+  const worksMap = rawWorksMap || {};
+  const grantsMap = rawGrantsMap || {};
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
@@ -194,10 +223,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Combined location layer */}
           {(showWorks && showGrants) && (
             <CombinedLayer
-              locationMap={combined.locationMap}
-              worksMap={combined.worksMap}
-              grantsMap={combined.grantsMap}
-              expertsMap={combined.expertsMap}
+              locationMap={combinedLocations || {}}
+              worksMap={worksMap}
+              grantsMap={ grantsMap }
+              expertsMap={expertsMap}
               showWorks={showWorks}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -212,9 +241,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Works layer */}
           {(showWorks) && (
             <WorkLayer
-              locationMap={works.locationMap}
-              worksMap={works.worksMap}
-              expertsMap={works.expertsMap}
+              locationMap={workLayerLocations || {}}
+              worksMap={worksMap}
+              expertsMap={expertsMap}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -226,9 +255,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Grants layer */}
           {(showGrants) && (
             <GrantLayer
-              locationMap={grants.locationMap}
-              grantsMap={grants.grantsMap}
-              expertsMap={grants.expertsMap}
+              locationMap={grantLayerLocations || {}}
+              grantsMap={grantsMap}
+              expertsMap={expertsMap}
               showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               setSelectedGrants={setSelectedGrants}
