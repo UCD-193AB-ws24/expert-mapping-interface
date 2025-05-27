@@ -104,11 +104,26 @@ async function buildRedisMaps(redisClient) {
       const confidenceNum = Number(entry.confidence);
       if (isNaN(confidenceNum) || confidenceNum <= 70) continue;
 
+      // Correctly parsing authors 
+      let authors = entry.authors;
+      if (typeof authors === "string") {
+        try {
+          authors = JSON.parse(authors);
+        } catch {
+          // If not a valid JSON string, treat as single author string
+          authors = [authors];
+        }
+      }
+      if (!Array.isArray(authors)) {
+        authors = ["Unknown Authors"];
+      }
+
       const workID = `work:${entry.id}` || workKey;
       // Add to worksMap
       worksMap.set(workID, {
         workID: entry.id,
         title: entry.title || "Untitled Work",
+        authors: authors,
         abstract: entry.abstract || "No Abstract",
         issued: entry.issued || "Unknown",
         confidence: entry.confidence || "Unknown",
@@ -139,7 +154,7 @@ async function buildRedisMaps(redisClient) {
             // Add/update expert in expertsMap
             if (!expertsMap.has(expertID)) {
               expertsMap.set(expertID, {
-                id: expert.expertId || expertID,
+                expertID: expert.expertId || expertID,
                 name: expert.fullName || expert.name || "Unknown",
                 url: expert.url || "#",
                 locationIDs: [locationID],
@@ -238,6 +253,7 @@ async function buildRedisMaps(redisClient) {
       // Add to grantsMap
       grantsMap.set(grantID, {
         grantID: entry.id || grantKey,
+        name: entry.name || "Untitled Grant",
         title: entry.title || '',
         funder: entry.funder || '',
         endDate: entry.endDate || '',

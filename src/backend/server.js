@@ -19,7 +19,7 @@ const PORT = 3001;
 app.use(express.static(path.join(__dirname, '../../build')));
 
 const { createRedisClient } = require('./etl/aggieExpertsAPI/utils/redisUtils.js');
-const { A } = require('ollama/dist/shared/ollama.e009de91.js');
+// const { A } = require('ollama/dist/shared/ollama.e009de91.js');
 
 const redisClient = createRedisClient();
 
