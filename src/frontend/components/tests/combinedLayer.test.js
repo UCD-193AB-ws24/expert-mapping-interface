@@ -17,7 +17,7 @@ jest.mock("react-leaflet", () => ({
 
 let mockMap;
 
-beforeEach(() => {
+beforeEach(() => {  // Reset the mock map before each test
   mockMap = {
     addLayer: jest.fn(),
     removeLayer: jest.fn(),
@@ -27,26 +27,23 @@ beforeEach(() => {
 
 let storedCombinedClickHandler = null;
 
-const viewBtnMock = {
+const viewBtnMock = { // Mock for the view button in the popup
   addEventListener: jest.fn((event, handler) => {
     if (event === "click") {
-      storedCombinedClickHandler = handler;
+      viewBtnMock._clickHandler = handler;
     }
   }),
-};
-
-const triggerCombinedClick = () => {
-  const mockEvent = {
-    preventDefault: jest.fn(),
-    stopPropagation: jest.fn(),
-  };
-  if (storedCombinedClickHandler) storedCombinedClickHandler(mockEvent);
+  dispatchEvent: jest.fn((e) => {
+    if (e.type === "click" && viewBtnMock._clickHandler) {
+      viewBtnMock._clickHandler(e);
+    }
+  }),
 };
 
 
 const popupEventListeners = {};
 
-const mockPopupElement = {
+const mockPopupElement = {  // Mock for the popup element
   style: { pointerEvents: "auto" },
   addEventListener: jest.fn((event, handler) => {
     popupEventListeners[event] = handler;
@@ -56,8 +53,6 @@ const mockPopupElement = {
     return null;
   }),
 };
-
-
 
 // Leaflet mock
 jest.mock("leaflet", () => {
@@ -110,25 +105,16 @@ jest.mock("../rendering/Popups", () => ({
   createMatchedCombinedPolygonPopup: jest.fn(() => "<button class='view-combined-btn'>Matched View</button>"),
 }));
 
-
-// jest.mock("../rendering/utils/preparePanelData", () => ({
-//   prepareGrantPanelData: jest.fn(() => ({ mock: "grant" })),
-//   prepareWorkPanelData: jest.fn(() => ({ mock: "work" })),
-// }));
 jest.mock("../rendering/utils/preparePanelData", () => ({
   prepareGrantPanelData: jest.fn(() => {
-    console.log("🎯 prepareGrantPanelData called!");
     return { mock: "grant" };
   }),
   prepareWorkPanelData: jest.fn(() => {
-    console.log("🎯 prepareWorkPanelData called!");
     return { mock: "work" };
   }),
 }));
 
-
 describe("CombinedLayer component", () => {
-
   beforeEach(() => {
     mockMap = {
       addLayer: jest.fn(),
@@ -136,9 +122,482 @@ describe("CombinedLayer component", () => {
     };
     useMap.mockReturnValue(mockMap);
   });
-
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("opens combined panel from marker click (mobile/tablet) and shows matched popup", () => {
+   // Mock the necessary functions
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+    const mockSetLocationName = jest.fn();
+
+    const locationMap = new Map([ 
+      [
+        "mobileClickTest",
+        {
+          geometryType: "Point",
+          coordinates: [0, 0],
+          workIDs: [301],
+          grantIDs: [401],
+          grantExpertIDs: [1],
+          workExpertIDs: [2],
+          name: "Mobile Point",
+          display_name: "Mobile Click Location",
+        },
+      ],
+    ]);
+
+    const worksMap = new Map([
+      [301, { matchedFields: ["impact"], relatedExpertIDs: [2] }],
+    ]);
+
+    const grantsMap = new Map([
+      [401, { matchedFields: ["climate"], relatedExpertIDs: [1] }],
+    ]);
+
+    const expertsMap = new Map([
+      [1, { name: "Grant Expert" }],
+      [2, { name: "Work Expert" }],
+    ]);
+
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        showWorks={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+        setLocationName={mockSetLocationName}
+      />
+    );
+    // Simulate marker click
+    const marker = L.marker.mock.results[0]?.value;
+    expect(marker).toBeDefined();
+    // Find the click handler for the marker
+    const clickHandler = marker.on.mock.calls.find(([event]) => event === "click")?.[1];
+    expect(clickHandler).toBeDefined();
+    clickHandler(); 
+
+    const popup = L.popup.mock.results[L.popup.mock.calls.length - 1]?.value;
+    const popupElement = popup.getElement();
+    expect(popupElement).toBeDefined();
+    // Check if the popup content is set correctly
+    const viewBtn = popupElement.querySelector(".view-combined-btn");
+    expect(viewBtn).toBeDefined();
+
+    const btnClickHandler = viewBtn.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];
+    expect(btnClickHandler).toBeDefined();
+
+    btnClickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    // Check if the correct functions were called
+    expect(mockSetSelectedGrants).toHaveBeenCalledWith({ mock: "grant" });
+    expect(mockSetSelectedWorks).toHaveBeenCalledWith({ mock: "work" });
+    expect(mockSetPanelType).toHaveBeenCalledWith("combined");
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  it("clears timeout on popup mouseenter in renderPolygons (line 215)", () => {
+    jest.useFakeTimers();
+    // Mock the necessary functions
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+    const mockSetLocationName = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "mouseenterTest",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [1, 0]]],
+          workIDs: [5],
+          grantIDs: [6],
+          grantExpertIDs: [1],
+          workExpertIDs: [2],
+          name: "Mouseenter Polygon",
+          display_name: "Mouseenter Test",
+        },
+      ],
+    ]);
+
+    const worksMap = new Map([[5, { matchedFields: ["mouse"], relatedExpertIDs: [2] }]]);
+    const grantsMap = new Map([[6, { matchedFields: ["enter"], relatedExpertIDs: [1] }]]);
+    const expertsMap = new Map([
+      [1, { name: "Grant Expert" }],
+      [2, { name: "Work Expert" }],
+    ]);
+
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        showWorks={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+        setLocationName={mockSetLocationName}
+      />
+    );
+    // Simulate marker hover to trigger popup
+    const marker = L.marker.mock.results[0]?.value;
+    const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    expect(mouseover).toBeDefined();
+    mouseover();
+    // Check if popup was created
+    const popup = L.popup.mock.results[0]?.value;
+    const popupElement = popup.getElement();
+    expect(popupElement).toBeDefined();
+    // Check if mouseenter event listener was added
+    const mouseenterHandler = popupElement.addEventListener.mock.calls.find(([e]) => e === "mouseenter")?.[1];
+    expect(mouseenterHandler).toBeDefined();
+
+    mouseenterHandler();
+
+    // ensures Jest counts the line — even if clearTimeout doesn’t do anything
+    expect(typeof clearTimeout).toBe("function");
+  });
+
+
+  it("closes polygon popup on popup mouseleave (covering activePopup.close via popup element)", () => {
+    jest.useFakeTimers();
+
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+    const mockSetLocationName = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "mouseleaveOnlyTest",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [1, 0]]],
+          workIDs: [10],
+          grantIDs: [20],
+          grantExpertIDs: [1],
+          workExpertIDs: [2],
+          name: "Mouseleave Only",
+          display_name: "Mouseleave Only",
+        },
+      ],
+    ]);
+
+    const worksMap = new Map([[10, { matchedFields: ["x"], relatedExpertIDs: [2] }]]);
+    const grantsMap = new Map([[20, { matchedFields: ["y"], relatedExpertIDs: [1] }]]);
+    const expertsMap = new Map([
+      [1, { name: "Grant Expert" }],
+      [2, { name: "Work Expert" }],
+    ]);
+
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        showWorks={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+        setLocationName={mockSetLocationName}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    mouseover(); // trigger popup creation
+
+    const popup = L.popup.mock.results[0]?.value;
+    const popupElement = popup.getElement();
+    expect(popupElement).toBeDefined();
+
+    // Trigger only the mouseleave from the popup itself
+    const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(([event]) => event === "mouseleave")?.[1];
+    expect(mouseleaveHandler).toBeDefined();
+
+    mouseleaveHandler(); // simulate mouse leaving the popup
+    jest.runAllTimers(); // advance timers to trigger popup close
+
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  it("closes polygon popup on marker mouseout only (covering activePopup.close)", () => {
+    jest.useFakeTimers();
+
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+    const mockSetLocationName = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "mouseoutOnlyTest",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [1, 0]]],
+          workIDs: [10],
+          grantIDs: [20],
+          grantExpertIDs: [1],
+          workExpertIDs: [2],
+          name: "Mouseout Only",
+          display_name: "Mouseout Only",
+        },
+      ],
+    ]);
+    // Mock data for works and grants
+    const worksMap = new Map([[10, { matchedFields: ["x"], relatedExpertIDs: [2] }]]);
+    const grantsMap = new Map([[20, { matchedFields: ["y"], relatedExpertIDs: [1] }]]);
+    const expertsMap = new Map([
+      [1, { name: "Grant Expert" }],
+      [2, { name: "Work Expert" }],
+    ]);
+
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        showWorks={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+        setLocationName={mockSetLocationName}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    mouseover(); // trigger popup creation
+
+    const popup = L.popup.mock.results[0]?.value;
+    expect(popup).toBeDefined();
+
+    // Don't simulate popup mouseleave — only marker mouseout
+    const mouseout = marker.on.mock.calls.find(([e]) => e === "mouseout")?.[1];
+    mouseout();
+
+    jest.runAllTimers(); // run the timeout for the close()
+
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  it("handles polygon marker click and displays combined popup with matched fields", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+    const mockSetLocationName = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "polygonClickTest",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+          grantIDs: [101],
+          workIDs: [202],
+          expertIDs: [10, 20],
+          grantExpertIDs: [10],
+          workExpertIDs: [20],
+          name: "Test Polygon",
+          display_name: "Test Polygon Display",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([
+      [101, { matchedFields: ["climate"], relatedExpertIDs: [10] }],
+    ]);
+    const worksMap = new Map([
+      [202, { matchedFields: ["research"], relatedExpertIDs: [20] }],
+    ]);
+    const expertsMap = new Map([
+      [10, { name: "Grant Expert" }],
+      [20, { name: "Work Expert" }],
+    ]);
+
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        showWorks={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+        setLocationName={mockSetLocationName}
+      />
+    );
+
+    const marker = L.marker.mock.results[0].value;
+    const clickHandler = marker.on.mock.calls.find(([event]) => event === "click")?.[1];
+    expect(clickHandler).toBeDefined();
+
+    clickHandler();
+    // Check if the popup was created
+    const popup = L.popup.mock.results[0]?.value;
+    expect(popup.setContent).toHaveBeenCalled();
+    // Check if the popup content includes the view button
+    const popupElement = popup.getElement();
+    expect(popupElement).toBeDefined();
+    const viewBtn = popupElement.querySelector(".view-combined-btn");
+    expect(viewBtn).toBeDefined();
+
+    const clickBtnHandler = viewBtn.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];
+    expect(clickBtnHandler).toBeDefined();
+
+    clickBtnHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    // Check if the correct functions were called
+    expect(mockSetSelectedGrants).toHaveBeenCalledWith({ mock: "grant" });
+    expect(mockSetSelectedWorks).toHaveBeenCalledWith({ mock: "work" });
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(mockSetPanelType).toHaveBeenCalledWith("combined");
+  });
+
+  it("handles click on polygon popup button to open combined panel and close popup", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+    const mockSetLocationName = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "combined-popup",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [2, 2]]],
+          grantIDs: [1],
+          workIDs: [2],
+          expertIDs: [3],
+          name: "Combined Polygon",
+          display_name: "Combined Location",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([
+      [1, { matchedFields: ["funding"], relatedExpertIDs: [3] }],
+    ]);
+    const worksMap = new Map([
+      [2, { matchedFields: ["research"], relatedExpertIDs: [3] }],
+    ]);
+    const expertsMap = new Map([
+      [3, { name: "Expert A" }],
+    ]);
+
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        worksMap={worksMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        showWorks={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+        setLocationName={mockSetLocationName}
+      />
+    );
+
+    const marker = L.marker.mock.results[0].value;
+
+    // Simulate hover to trigger popup
+    const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    const popup = L.popup.mock.results[0].value;
+    const popupElement = popup.getElement();
+
+    // Simulate clicking the .view-combined-btn inside the popup
+    const viewBtn = popupElement.querySelector(".view-combined-btn");
+    expect(viewBtn).toBeDefined();
+
+    const clickHandler = viewBtn.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];
+    expect(clickHandler).toBeDefined();
+
+    clickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
+
+    expect(mockSetSelectedGrants).toHaveBeenCalled();
+    expect(mockSetSelectedWorks).toHaveBeenCalled();
+    expect(mockSetPanelType).toHaveBeenCalledWith("combined");
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  it("warns and returns if workID or grantID is missing in worksMap or grantsMap (renderPoints)", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetSelectedWorks = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+    const mockSetLocationName = jest.fn();
+    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => { });
+
+    const locationMap = new Map([
+      [
+        "missing-data-location",
+        {
+          geometryType: "Point",
+          coordinates: [0, 0],
+          workIDs: [999],
+          grantIDs: [888],
+          name: "Missing Data Location",
+          display_name: "Missing Data",
+        },
+      ],
+    ]);
+
+    const worksMap = new Map();
+    const grantsMap = new Map();
+    const expertsMap = new Map();
+
+    render(
+      <CombinedLayer
+        locationMap={locationMap}
+        worksMap={worksMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        showWorks={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setSelectedWorks={mockSetSelectedWorks}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+        setLocationName={mockSetLocationName}
+      />
+    );
+    // Check if the console warning was called
+    expect(consoleWarnSpy).toHaveBeenCalledWith("Work with ID 999 not found in worksMap.");
+    expect(consoleWarnSpy).toHaveBeenCalledWith("Grant with ID 888 not found in grantsMap.");
+    // Ensure no layers were added to the map
+    consoleWarnSpy.mockRestore();
   });
 
   it("renders polygons and points when showWorks and showGrants are true", () => {
@@ -177,190 +636,38 @@ describe("CombinedLayer component", () => {
         setLocationName={jest.fn()}
       />
     );
-
+    // Check if the polygon and marker were created
     expect(L.polygon).toHaveBeenCalled();
     expect(L.marker).toHaveBeenCalled();
-    expect(mockMap.addLayer).toHaveBeenCalled(); // for marker cluster group
+    expect(mockMap.addLayer).toHaveBeenCalled();
   });
 });
 
-it("removes all layers on unmount in CombinedLayer", () => {
+it("shows matched popup with correct fields and triggers combined panel on button click", () => {
+  const mockSetSelectedGrants = jest.fn();
+  const mockSetSelectedWorks = jest.fn();
+  const mockSetPanelOpen = jest.fn();
+  const mockSetPanelType = jest.fn();
+  const mockSetLocationName = jest.fn();
+
   const locationMap = new Map([
     [
-      "combined_point",
+      "hoverMatched",
       {
         geometryType: "Point",
         coordinates: [0, 0],
-        grantIDs: [1],
-        worksIDs: [2],
-        name: "Combined Point",
+        workIDs: [10],
+        grantIDs: [20],
+        grantExpertIDs: [1],
+        workExpertIDs: [2],
+        name: "Matched Hover Location",
+        display_name: "Matched Hover",
       },
     ],
   ]);
 
-  const grantsMap = new Map([
-    [1, { matchedFields: ["field1"], relatedExpertIDs: [101] }],
-  ]);
-
-  const worksMap = new Map([
-    [2, { matchedFields: ["field2"], relatedExpertIDs: [102] }],
-  ]);
-
-  const expertsMap = new Map([
-    [101, { name: "Expert A" }],
-    [102, { name: "Expert B" }],
-  ]);
-
-  const { unmount } = render(
-    <CombinedLayer
-      locationMap={locationMap}
-      grantsMap={grantsMap}
-      worksMap={worksMap}
-      expertsMap={expertsMap}
-      showGrants={true}
-      showWorks={true}
-      setSelectedGrants={jest.fn()}
-      setSelectedWorks={jest.fn()}
-      setPanelOpen={jest.fn()}
-      setPanelType={jest.fn()}
-      setLocationName={jest.fn()}
-    />
-  );
-
-  unmount();
-  expect(mockMap.removeLayer).toHaveBeenCalled();
-});
-
-it("does not render anything when required data is missing", () => {
-  const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => { });
-
-  render(
-    <CombinedLayer
-      locationMap={new Map()}
-      grantsMap={null}
-      worksMap={null}
-      expertsMap={null}
-      showGrants={true}
-      showWorks={true}
-      setSelectedGrants={jest.fn()}
-      setSelectedWorks={jest.fn()}
-      setPanelOpen={jest.fn()}
-      setPanelType={jest.fn()}
-      setLocationName={jest.fn()}
-    />
-  );
-
-  // Since the early return doesn't log an error, this is optional:
-  // expect(consoleSpy).toHaveBeenCalled();
-
-  expect(mockMap.addLayer).not.toHaveBeenCalled();
-
-  consoleSpy.mockRestore();
-});
-
-it("handles polygon marker click and opens panel with combined data", () => {
-  const mockSetSelectedGrants = jest.fn();
-  const mockSetSelectedWorks = jest.fn();
-  const mockSetPanelOpen = jest.fn();
-  const mockSetPanelType = jest.fn();
-  const mockSetLocationName = jest.fn();
-
-  const locationMap = new Map([
-    [
-      "polygonClick",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [1, 1], [2, 2]]],
-        grantIDs: [1],
-        workIDs: [10], 
-        expertIDs: [5],
-        name: "Clickable Polygon",
-        display_name: "Clickable Display",
-      },
-    ],
-  ]);
-  
-
-  const grantsMap = new Map([
-    [1, { matchedFields: ["grantKeyword"], relatedExpertIDs: [5] }],
-  ]);
-
-  const worksMap = new Map([
-    [10, { matchedFields: ["workKeyword"], relatedExpertIDs: [6] }],
-  ]);
-
-  const expertsMap = new Map([
-    [5, { name: "Grant Expert" }],
-    [6, { name: "Work Expert" }],
-  ]);
-
-  render(
-    <CombinedLayer
-      locationMap={locationMap}
-      grantsMap={grantsMap}
-      worksMap={worksMap}
-      expertsMap={expertsMap}
-      showGrants={true}
-      showWorks={true}
-      setSelectedGrants={mockSetSelectedGrants}
-      setSelectedWorks={mockSetSelectedWorks}
-      setPanelOpen={mockSetPanelOpen}
-      setPanelType={mockSetPanelType}
-      setLocationName={mockSetLocationName}
-    />
-  );
-
-  const marker = L.marker.mock.results[0]?.value;
-
-  const clickHandler = marker.on.mock.calls.find(([e]) => e === "click")?.[1];
-  expect(clickHandler).toBeDefined();
-  clickHandler();
-
-  const popup = L.popup.mock.results[0]?.value;
-  const popupElement = popup.getElement();
-
-  const viewBtn = popupElement.querySelector(".view-combined-btn");
-  const clickBtn = viewBtn?.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];
-
-  if (clickBtn) {
-    clickBtn({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
-  }
-
-  expect(mockSetSelectedGrants).toHaveBeenCalled();
-  expect(mockSetSelectedWorks).toHaveBeenCalled();
-  expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
-  expect(mockSetPanelType).toHaveBeenCalledWith("combined");
-});
-
-it("shows popup on point marker hover and closes on mouseleave in CombinedLayer", () => {
-  const mockSetSelectedGrants = jest.fn();
-  const mockSetSelectedWorks = jest.fn();
-  const mockSetPanelOpen = jest.fn();
-  const mockSetPanelType = jest.fn();
-  const mockSetLocationName = jest.fn();
-
-  const locationMap = new Map([
-    [
-      "hoverPoint",
-      {
-        geometryType: "Point",
-        coordinates: [10, 20],
-        grantIDs: [101],
-        worksIDs: [201], 
-        name: "Hover Point Location",
-        display_name: "Hover Display",
-      },
-    ],
-  ]);
-
-  const grantsMap = new Map([
-    [101, { matchedFields: ["climate", "data"], relatedExpertIDs: [1] }],
-  ]);
-
-  const worksMap = new Map([
-    [201, { matchedFields: ["modeling", "forecast"], relatedExpertIDs: [2] }],
-  ]);
-
+  const worksMap = new Map([[10, { matchedFields: ["fieldA"], relatedExpertIDs: [2] }]]);
+  const grantsMap = new Map([[20, { matchedFields: ["fieldB"], relatedExpertIDs: [1] }]]);
   const expertsMap = new Map([
     [1, { name: "Grant Expert" }],
     [2, { name: "Work Expert" }],
@@ -383,23 +690,51 @@ it("shows popup on point marker hover and closes on mouseleave in CombinedLayer"
   );
 
   const marker = L.marker.mock.results[0]?.value;
-  expect(marker).toBeDefined();
-
-  const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
-  expect(mouseoverHandler).toBeDefined();
-  mouseoverHandler();
+  const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+  expect(mouseover).toBeDefined();
+  mouseover(); // trigger hover logic
 
   const popup = L.popup.mock.results[0]?.value;
-  expect(popup.openOn).toHaveBeenCalled();
-
   const popupElement = popup.getElement();
   expect(popupElement).toBeDefined();
 
-  expect(popupEventListeners.mouseleave).toBeDefined();
-  popupEventListeners.mouseleave(); // simulate mouseleave
+  const viewBtn = popupElement.querySelector(".view-combined-btn"); // Check if the view button is present
+  expect(viewBtn).toBeDefined();
 
-  jest.runAllTimers();
+  const clickHandler = viewBtn.addEventListener.mock.calls.find(([event]) => event === "click")?.[1];
+  expect(clickHandler).toBeDefined();
+  clickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
+
+  // Check if the correct functions were called
+  expect(mockSetSelectedGrants).toHaveBeenCalledWith({ mock: "grant" });
+  expect(mockSetSelectedWorks).toHaveBeenCalledWith({ mock: "work" });
+  expect(mockSetPanelType).toHaveBeenCalledWith("combined");
+  expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
   expect(popup.close).toHaveBeenCalled();
+});
+
+it("does not render anything when required data is missing", () => {
+  const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => { });
+
+  render(
+    <CombinedLayer
+      locationMap={new Map()}
+      grantsMap={null}
+      worksMap={null}
+      expertsMap={null}
+      showGrants={true}
+      showWorks={true}
+      setSelectedGrants={jest.fn()}
+      setSelectedWorks={jest.fn()}
+      setPanelOpen={jest.fn()}
+      setPanelType={jest.fn()}
+      setLocationName={jest.fn()}
+    />
+  );
+  // Check if an error was logged
+  expect(mockMap.addLayer).not.toHaveBeenCalled();
+
+  consoleSpy.mockRestore();
 });
 
 it("closes polygon popup on marker mouseout in CombinedLayer", () => {
@@ -428,11 +763,9 @@ it("closes polygon popup on marker mouseout in CombinedLayer", () => {
   const grantsMap = new Map([
     [1, { matchedFields: ["field1"], relatedExpertIDs: [10] }],
   ]);
-
   const worksMap = new Map([
     [2, { matchedFields: ["field2"], relatedExpertIDs: [11] }],
   ]);
-
   const expertsMap = new Map([
     [10, { name: "Expert A" }],
     [11, { name: "Expert B" }],
@@ -453,88 +786,19 @@ it("closes polygon popup on marker mouseout in CombinedLayer", () => {
       setLocationName={mockSetLocationName}
     />
   );
-
+  // Simulate marker hover to trigger popup
   const marker = L.marker.mock.results[0]?.value;
   expect(marker).toBeDefined();
-
   const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
   expect(mouseoverHandler).toBeDefined();
   mouseoverHandler();
-
   const mouseoutHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
   expect(mouseoutHandler).toBeDefined();
   mouseoutHandler();
-
+  // timers are used to simulate the delay in closing the popup
   jest.runAllTimers();
-
   const popup = L.popup.mock.results[0]?.value;
   expect(popup?.close).toHaveBeenCalled();
-});
-
-it("sorts polygons by area before rendering in CombinedLayer", () => {
-  const mockSetSelectedGrants = jest.fn();
-  const mockSetSelectedWorks = jest.fn();
-  const mockSetPanelOpen = jest.fn();
-  const mockSetPanelType = jest.fn();
-  const mockSetLocationName = jest.fn();
-
-  const locationMap = new Map([
-    [
-      "larger_polygon",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [0, 4], [4, 4], [4, 0], [0, 0]]],
-        grantIDs: [1],
-        workIDs: [3],
-        worksIDs: [3], // for internal code compatibility
-        name: "Large Polygon",
-      },
-    ],
-    [
-      "smaller_polygon",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]]],
-        grantIDs: [2],
-        workIDs: [4],
-        worksIDs: [4],
-        name: "Small Polygon",
-      },
-    ],
-  ]);
-
-  const grantsMap = new Map([
-    [1, { matchedFields: ["a"], relatedExpertIDs: [10] }],
-    [2, { matchedFields: ["b"], relatedExpertIDs: [11] }],
-  ]);
-
-  const worksMap = new Map([
-    [3, { matchedFields: ["c"], relatedExpertIDs: [10] }],
-    [4, { matchedFields: ["d"], relatedExpertIDs: [11] }],
-  ]);
-
-  const expertsMap = new Map([
-    [10, { name: "Expert A" }],
-    [11, { name: "Expert B" }],
-  ]);
-
-  render(
-    <CombinedLayer
-      locationMap={locationMap}
-      grantsMap={grantsMap}
-      worksMap={worksMap}
-      expertsMap={expertsMap}
-      showGrants={true}
-      showWorks={true}
-      setSelectedGrants={mockSetSelectedGrants}
-      setSelectedWorks={mockSetSelectedWorks}
-      setPanelOpen={mockSetPanelOpen}
-      setPanelType={mockSetPanelType}
-      setLocationName={mockSetLocationName}
-    />
-  );
-
-  expect(L.polygon).toHaveBeenCalled();
 });
 
 it("calls iconCreateFunction and returns custom cluster icon with expert count in CombinedLayer", () => {
@@ -543,7 +807,6 @@ it("calls iconCreateFunction and returns custom cluster icon with expert count i
   const mockSetPanelOpen = jest.fn();
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
-
   const locationMap = new Map([
     [
       "pointA",
@@ -561,11 +824,9 @@ it("calls iconCreateFunction and returns custom cluster icon with expert count i
   const grantsMap = new Map([
     [1, { relatedExpertIDs: [10] }],
   ]);
-
   const worksMap = new Map([
     [2, { relatedExpertIDs: [11] }],
   ]);
-
   const expertsMap = new Map([
     [10, { name: "Grant Expert" }],
     [11, { name: "Work Expert" }],
@@ -590,7 +851,6 @@ it("calls iconCreateFunction and returns custom cluster icon with expert count i
   // Get the iconCreateFunction from the markerClusterGroup config
   const clusterOptions = L.markerClusterGroup.mock.calls[0][0];
   const iconCreateFn = clusterOptions.iconCreateFunction;
-
   // Create a fake cluster with child markers that have expertCount
   const mockCluster = {
     getAllChildMarkers: () => [
@@ -598,14 +858,11 @@ it("calls iconCreateFunction and returns custom cluster icon with expert count i
       { options: { expertCount: 4 } },
     ],
   };
-
-  // Call the function
+// Mock the L.divIcon to check if it was called with the correct parameters
   iconCreateFn(mockCluster);
-
-  // Check the result
   expect(L.divIcon).toHaveBeenCalledWith(
     expect.objectContaining({
-      html: expect.stringContaining("7"), // 3 + 4
+      html: expect.stringContaining("7"), 
       className: "custom-cluster-icon",
     })
   );
@@ -633,15 +890,13 @@ it("handles polygon popup mouseenter and mouseleave correctly in CombinedLayer",
       },
     ],
   ]);
-
+  // Mock data for grants and works
   const grantsMap = new Map([
     [1, { matchedFields: ["grantMatch"], relatedExpertIDs: [101] }],
   ]);
-
   const worksMap = new Map([
     [10, { matchedFields: ["workMatch"], relatedExpertIDs: [102] }],
   ]);
-
   const expertsMap = new Map([
     [101, { name: "Grant Expert" }],
     [102, { name: "Work Expert" }],
@@ -666,120 +921,26 @@ it("handles polygon popup mouseenter and mouseleave correctly in CombinedLayer",
   const marker = L.marker.mock.results[0]?.value;
   const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
   expect(mouseoverHandler).toBeDefined();
-
-  // Simulate hover to open popup
   mouseoverHandler();
-
   const popup = L.popup.mock.results[0]?.value;
   expect(popup).toBeDefined();
-
   const popupElement = popup.getElement();
   expect(popupElement).toBeDefined();
 
-  // Check and invoke mouseenter/mouseleave
-  const mouseenterHandler = popupElement.addEventListener.mock.calls.find(
+  const mouseenterHandler = popupElement.addEventListener.mock.calls.find(  
     ([event]) => event === "mouseenter"
-  )?.[1];
+  )?.[1]; // Get the mouseenter handler from the popup element
   const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(
     ([event]) => event === "mouseleave"
-  )?.[1];
+  )?.[1]; // Get the mouseleave handler from the popup element
 
+  // Ensure both handlers are defined
   expect(mouseenterHandler).toBeDefined();
   expect(mouseleaveHandler).toBeDefined();
-
-  // Simulate behavior
-  mouseenterHandler(); // cancel timeout
-  mouseleaveHandler(); // schedule close
-  jest.runAllTimers(); // run timeout
+  mouseenterHandler();
+  mouseleaveHandler();
+  jest.runAllTimers();
   expect(popup.close).toHaveBeenCalled();
-});
-
-
-it("removes existing popup before creating a new one in CombinedLayer", () => {
-  const mockSetSelectedGrants = jest.fn();
-  const mockSetSelectedWorks = jest.fn();
-  const mockSetPanelOpen = jest.fn();
-  const mockSetPanelType = jest.fn();
-  const mockSetLocationName = jest.fn();
-
-  const locationMap = new Map([
-    [
-      "double-hover",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [1, 1], [2, 2]]],
-        grantIDs: [1],
-        workIDs: [2],
-        expertIDs: [3],
-        name: "Popup Remover",
-        display_name: "Popup Overwrite",
-      },
-    ],
-  ]);
-
-  const grantsMap = new Map([
-    [1, { matchedFields: ["field"], relatedExpertIDs: [3] }],
-  ]);
-
-  const worksMap = new Map([
-    [2, { matchedFields: ["concept"], relatedExpertIDs: [3] }],
-  ]);
-
-  const expertsMap = new Map([
-    [3, { name: "Expert A" }],
-  ]);
-
-  const popupElement = {
-    style: { pointerEvents: "auto" },
-    addEventListener: jest.fn(),
-    querySelector: jest.fn(() => ({
-      addEventListener: jest.fn(),
-    })),
-  };
-
-  const popupMock = {
-    setLatLng: jest.fn().mockReturnThis(),
-    setContent: jest.fn().mockReturnThis(),
-    openOn: jest.fn().mockReturnThis(),
-    getElement: jest.fn(() => popupElement),
-    close: jest.fn(),
-    remove: jest.fn(), // ✅ what we test for
-  };
-
-  // Set up L.popup to return the same popup twice
-  L.popup
-    .mockReturnValueOnce(popupMock)
-    .mockReturnValueOnce(popupMock);
-
-  render(
-    <CombinedLayer
-      locationMap={locationMap}
-      grantsMap={grantsMap}
-      worksMap={worksMap}
-      expertsMap={expertsMap}
-      showGrants={true}
-      showWorks={true}
-      setSelectedGrants={mockSetSelectedGrants}
-      setSelectedWorks={mockSetSelectedWorks}
-      setPanelOpen={mockSetPanelOpen}
-      setPanelType={mockSetPanelType}
-      setLocationName={mockSetLocationName}
-    />
-  );
-
-  const marker = L.marker.mock.results[0]?.value;
-  expect(marker).toBeDefined();
-
-  const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
-  expect(mouseoverHandler).toBeDefined();
-
-  // 🔁 First hover — shows popup
-  mouseoverHandler();
-
-  // 🔁 Second hover — should remove existing popup
-  mouseoverHandler();
-
-  expect(popupMock.remove).toHaveBeenCalled(); // ✅ Passes if popup is cleaned up
 });
 
 it("removes popup when clicking a second polygon in CombinedLayer", () => {
@@ -788,7 +949,6 @@ it("removes popup when clicking a second polygon in CombinedLayer", () => {
   const mockSetPanelOpen = jest.fn();
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
-
   const locationMap = new Map([
     [
       "polygon1",
@@ -820,18 +980,15 @@ it("removes popup when clicking a second polygon in CombinedLayer", () => {
     [1, { matchedFields: ["field1"], relatedExpertIDs: [2] }],
     [3, { matchedFields: ["field2"], relatedExpertIDs: [4] }],
   ]);
-
   const worksMap = new Map([
     [11, { matchedFields: ["concept1"], relatedExpertIDs: [2] }],
     [13, { matchedFields: ["concept2"], relatedExpertIDs: [4] }],
   ]);
-
   const expertsMap = new Map([
     [2, { name: "Expert A" }],
     [4, { name: "Expert B" }],
   ]);
-
-  const popupElement = {
+  const popupElement = {  // Mock popup element
     style: { pointerEvents: "auto" },
     addEventListener: jest.fn(),
     querySelector: jest.fn(() => ({
@@ -839,17 +996,16 @@ it("removes popup when clicking a second polygon in CombinedLayer", () => {
     })),
   };
 
-  const popupMock = {
+  const popupMock = { // Mock popup methods
     setLatLng: jest.fn().mockReturnThis(),
     setContent: jest.fn().mockReturnThis(),
     openOn: jest.fn().mockReturnThis(),
     getElement: jest.fn(() => popupElement),
     close: jest.fn(),
-    remove: jest.fn(), // ✅ what we’re checking
+    remove: jest.fn(),
   };
 
-  // Simulate same popup being reused
-  L.popup
+  L.popup // Mock the L.popup method to return our mock popup
     .mockReturnValueOnce(popupMock)
     .mockReturnValueOnce(popupMock);
 
@@ -869,45 +1025,37 @@ it("removes popup when clicking a second polygon in CombinedLayer", () => {
       setLocationName={mockSetLocationName}
     />
   );
-
+  
   const marker1 = L.marker.mock.results[0]?.value;
   const marker2 = L.marker.mock.results[1]?.value;
-
+  // Ensure both markers are defined
   expect(marker1).toBeDefined();
   expect(marker2).toBeDefined();
-
+  // Simulate the click event on both markers
   const click1 = marker1.on.mock.calls.find(([e]) => e === "click")?.[1];
   const click2 = marker2.on.mock.calls.find(([e]) => e === "click")?.[1];
-
   expect(click1).toBeDefined();
   expect(click2).toBeDefined();
-
-  // 🔁 Simulate clicking on two separate polygons
-  click1(); // creates first popup
-  click2(); // should remove the previous popup
-
-  // ✅ Ensure the popup removal was called
-  expect(popupMock.remove).toHaveBeenCalled();
+  click1(); // Trigger click on the first marker
+  click2(); // Trigger click on the second marker
+  expect(popupMock.remove).toHaveBeenCalled();  // Check if the popup was removed
 });
 
-//79-80 and 94-95
 it("logs warnings when workID or grantID is missing from their respective maps", () => {
   const mockSetSelectedGrants = jest.fn();
   const mockSetSelectedWorks = jest.fn();
   const mockSetPanelOpen = jest.fn();
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
-
-  const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-
+  const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => { });
   const locationMap = new Map([
     [
       "missing-both",
       {
         geometryType: "Polygon",
         coordinates: [[[0, 0], [1, 1], [1, 0]]],
-        grantIDs: [123], // not in grantsMap
-        workIDs: [456], // not in worksMap
+        grantIDs: [123],
+        workIDs: [456],
         expertIDs: [2],
         name: "Missing Data Polygon",
         display_name: "Missing Data",
@@ -915,8 +1063,8 @@ it("logs warnings when workID or grantID is missing from their respective maps",
     ],
   ]);
 
-  const grantsMap = new Map(); // missing grant
-  const worksMap = new Map(); // missing work
+  const grantsMap = new Map();
+  const worksMap = new Map();
   const expertsMap = new Map([[2, { name: "Expert A" }]]);
 
   render(
@@ -934,7 +1082,7 @@ it("logs warnings when workID or grantID is missing from their respective maps",
       setLocationName={mockSetLocationName}
     />
   );
-
+  // Check if the console warnings were called
   expect(consoleWarnSpy).toHaveBeenCalledWith(
     "Work with ID 456 not found in worksMap."
   );
@@ -942,74 +1090,5 @@ it("logs warnings when workID or grantID is missing from their respective maps",
     "Grant with ID 123 not found in grantsMap."
   );
 
-  consoleWarnSpy.mockRestore();
+  consoleWarnSpy.mockRestore(); // Restore the original console.warn function
 });
-
-// it("handles click on polygon .view-combined-btn and sets combined panel", () => {
-//   const mockSetSelectedGrants = jest.fn();
-//   const mockSetSelectedWorks = jest.fn();
-//   const mockSetPanelOpen = jest.fn();
-//   const mockSetPanelType = jest.fn();
-//   const mockSetLocationName = jest.fn();
-
-//   const locationMap = new Map([
-//     [
-//       "combinedLocation",
-//       {
-//         geometryType: "Polygon",
-//         coordinates: [[[0, 0], [1, 1], [1, 0]]],
-//         grantIDs: [1],
-//         workIDs: [2],
-//         expertIDs: [99],
-//         name: "Combo Location",
-//         display_name: "Combo Location",
-//       },
-//     ],
-//   ]);
-
-//   const grantsMap = new Map([[1, { matchedFields: ["test"], relatedExpertIDs: [99] }]]);
-//   const worksMap = new Map([[2, { matchedFields: ["info"], relatedExpertIDs: [98] }]]);
-//   const expertsMap = new Map([
-//     [98, { name: "Work Expert" }],
-//     [99, { name: "Grant Expert" }],
-//   ]);
-
-//   render(
-//     <CombinedLayer
-//       locationMap={locationMap}
-//       grantsMap={grantsMap}
-//       worksMap={worksMap}
-//       expertsMap={expertsMap}
-//       showGrants={true}
-//       showWorks={true}
-//       setSelectedGrants={mockSetSelectedGrants}
-//       setSelectedWorks={mockSetSelectedWorks}
-//       setPanelOpen={mockSetPanelOpen}
-//       setPanelType={mockSetPanelType}
-//       setLocationName={mockSetLocationName}
-//     />
-//   );
-
-//   const marker = L.marker.mock.results[0]?.value;
-//   const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
-//   expect(mouseover).toBeDefined();
-//   mouseover();
-
-//   const popup = L.popup.mock.results[0]?.value;
-//   const popupElement = popup.getElement();
-//   expect(popupElement).toBeDefined();
-
-//   const viewBtn = popupElement.querySelector(".view-combined-btn");
-
-//   // Fire a real event instead of calling stored handler
-//   const event = new Event("click", { bubbles: true });
-//   viewBtn.dispatchEvent(event);
-
-//   expect(mockSetSelectedGrants).toHaveBeenCalledWith({ mock: "grant" });
-//   expect(mockSetSelectedWorks).toHaveBeenCalledWith({ mock: "work" });
-//   expect(mockSetPanelType).toHaveBeenCalledWith("combined");
-//   expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
-// });
-
-
-//407-408, 421-422

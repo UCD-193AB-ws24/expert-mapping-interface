@@ -74,7 +74,6 @@ import {
         consoleSpy.mockRestore();
       });
       
-      //64
       it("falls back to 'Unknown' location if locationName is undefined", () => {
         const entries = [{
           confidence: "High",

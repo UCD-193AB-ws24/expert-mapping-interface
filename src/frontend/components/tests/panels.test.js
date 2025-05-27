@@ -3,11 +3,11 @@
  */
 
 import React from "react";
-import "@testing-library/jest-dom"; // Import for `toBeInTheDocument`
-import { render, screen, fireEvent, within } from "@testing-library/react"; // Added `within`
+import "@testing-library/jest-dom";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { getConfidenceStyle, WorksPanel, GrantsPanel, CombinedPanel } from "../rendering/Panels";
 
-describe("getConfidenceStyle", () => {
+describe("getConfidenceStyle", () => {   //confidence style tests
   it("returns fallback for undefined", () => {
     expect(getConfidenceStyle(undefined)).toEqual({ label: '', style: {} });
   });
@@ -27,9 +27,9 @@ describe("getConfidenceStyle", () => {
   });
 });
 
-describe("WorksPanel", () => {
+describe("WorksPanel", () => {  //works panel tests
   const mockOnClose = jest.fn();
-  const mockWorks = [
+  const mockWorks = [ //mock works data
     {
       name: "California",
       works: [
@@ -59,7 +59,6 @@ describe("WorksPanel", () => {
     },
   ];
 
-
   it("renders fallback 'No Profile Found' when expert url is missing", () => {
     const mockWorks = [
       {
@@ -74,7 +73,7 @@ describe("WorksPanel", () => {
     expect(screen.getByText("No Profile Found")).toBeInTheDocument();
   });
 
-  it("displays matched fields in additional works in WorksPanel", () => { //keeper
+  it("displays matched fields in additional works in WorksPanel", () => {
     const mockWorks = [
       {
         name: "Expert A",
@@ -96,16 +95,13 @@ describe("WorksPanel", () => {
     ];
     render(<WorksPanel works={mockWorks} onClose={() => { }} />);
     fireEvent.click(screen.getByText("Show More Works"));
-
-    // Use getAllByText since there are multiple matches
+    // Ensure matched fields are displayed
     const matchedOnLabels = screen.getAllByText(/Matched on:/i);
     expect(matchedOnLabels.length).toBeGreaterThan(0);
     expect(screen.getAllByText(/data science/i).length).toBeGreaterThan(0);
   });
 
-
-
-  it("displays matched fields if present", () => { //keeper
+  it("displays matched fields if present", () => {
     const mockWorks = [
       {
         name: "Matched Expert",
@@ -120,12 +116,13 @@ describe("WorksPanel", () => {
         url: "http://example.com"
       }
     ];
+    // Render the component with mock data
     render(<WorksPanel works={mockWorks} onClose={() => { }} />);
-    expect(screen.getByText(/Matched on:/i)).toBeInTheDocument();
-    expect(screen.getByText(/biology/)).toBeInTheDocument();
+    expect(screen.getByText(/Matched on:/i)).toBeInTheDocument();// Check if the matched field is displayed
+    expect(screen.getByText(/biology/)).toBeInTheDocument();  // Check if the match text is displayed
   });
 
-  it("renders expert with no works without crashing", () => { //keeper
+  it("renders expert with no works without crashing", () => {
     const mockWorks = [
       {
         name: "No Works Expert",
@@ -133,9 +130,9 @@ describe("WorksPanel", () => {
         url: "http://example.com"
       }
     ];
-    render(<WorksPanel works={mockWorks} onClose={() => { }} />);
-    expect(screen.getByText("No Works Expert")).toBeInTheDocument();
-    expect(screen.queryByText(/Title:/)).not.toBeInTheDocument();
+    render(<WorksPanel works={mockWorks} onClose={() => { }} />); // Render the component with mock data
+    expect(screen.getByText("No Works Expert")).toBeInTheDocument();  // Check if the expert name is displayed
+    expect(screen.queryByText(/Title:/)).not.toBeInTheDocument(); // Ensure no works are displayed
   });
 
   it("renders correct expert count in header (singular and plural)", () => {
@@ -166,21 +163,18 @@ describe("WorksPanel", () => {
     expect(screen.getByText("2 Experts at this Location")).toBeInTheDocument();
   });
 
-
-
-  //keeper
   it("toggles visibility of additional works", () => {
     render(<WorksPanel works={mockWorks} onClose={mockOnClose} />);
-    fireEvent.click(screen.getByText("Show More Works"));
+    fireEvent.click(screen.getByText("Show More Works")); // Click to show more works
     expect(screen.getByText(/Community-acquired Staphylococcus aureus/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByText("Hide More Works"));
+    fireEvent.click(screen.getByText("Hide More Works")); // Click to hide additional works
     expect(screen.queryByText(/Community-acquired Staphylococcus aureus/i)).not.toBeInTheDocument();
   });
 });
 
-describe("GrantsPanel", () => {
+describe("GrantsPanel", () => { //grants panel tests
   const mockOnClose = jest.fn();
-  const mockGrants = [
+  const mockGrants = [  //mock grants data
     {
       name: "California",
       grants: [
@@ -217,7 +211,7 @@ describe("GrantsPanel", () => {
             title: "Extra Grant",
             funder: "Funder Y",
             confidence: "Low",
-            matchedFields: [] // ← empty array branch
+            matchedFields: [] //empty array
           },
         ],
       },
@@ -237,17 +231,17 @@ describe("GrantsPanel", () => {
     const mockWorks = [{ name: "Grant Expert", works: [], location: "Testland" }];
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
 
-    fireEvent.click(screen.getByText("Grants (1)"));
+    fireEvent.click(screen.getByText("Grants (1)"));  // Switch to grants tab
 
-    const toggleBtn = screen.getByText("Show More Grants");
+    const toggleBtn = screen.getByText("Show More Grants"); // Find the toggle button
     fireEvent.click(toggleBtn);
     expect(screen.getByText("Hide More Grants")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("Hide More Grants"));
+    fireEvent.click(screen.getByText("Hide More Grants"));  // Hide the additional grants
     expect(screen.getByText("Show More Grants")).toBeInTheDocument();
   });
 
-  it("displays matched fields in additional grants in GrantsPanel", () => { //keeper
+  it("displays matched fields in additional grants in GrantsPanel", () => {
     const mockGrants = [
       {
         name: "Expert B",
@@ -269,11 +263,11 @@ describe("GrantsPanel", () => {
     render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
     fireEvent.click(screen.getByText("Show More Grants"));
 
-    const matchedFields = screen.getAllByText(/Matched on:/i);
+    const matchedFields = screen.getAllByText(/Matched on:/i);  // Check if matched fields are displayed
     expect(matchedFields.length).toBeGreaterThan(0);
 
     const funderMatches = screen.getAllByText(/Funder B/i);
-    expect(funderMatches.length).toBeGreaterThan(0);
+    expect(funderMatches.length).toBeGreaterThan(0);  // Ensure the match text is displayed
   });
 
   it("gracefully handles grant with no matchedFields property", () => {
@@ -285,15 +279,15 @@ describe("GrantsPanel", () => {
         ],
       },
     ];
-    render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
-    expect(screen.queryByText(/Matched on:/i)).not.toBeInTheDocument();
+    render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);  // Render the component with mock data
+    expect(screen.queryByText(/Matched on:/i)).not.toBeInTheDocument(); // Ensure no matched fields are displayed
   });
 
   it("renders with empty grants array by faking one empty object", () => {
     const mockGrants = [
       {
         name: "Fallback Grant Expert",
-        grants: [{}],  // <-- at least one item, but no properties
+        grants: [{}],  // at least one item, but no properties
       },
     ];
     render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
@@ -326,8 +320,7 @@ describe("GrantsPanel", () => {
     expect(screen.getByText("Unknown Expert")).toBeInTheDocument();
   });
 
-
-  it("displays matched fields if present in grants", () => { //keeper
+  it("displays matched fields if present in grants", () => {
     const mockGrants = [
       {
         name: "Matched Grant Expert",
@@ -347,11 +340,10 @@ describe("GrantsPanel", () => {
 
     render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
     expect(screen.getByText(/Matched on:/i)).toBeInTheDocument();
-    expect(screen.getByText(/climate/i)).toBeInTheDocument();
+    expect(screen.getByText(/climate/i)).toBeInTheDocument(); // Check if the match text is displayed
   });
 
-
-  it("toggles visibility of additional grants", () => { //keeper
+  it("toggles visibility of additional grants", () => {
     render(<GrantsPanel grants={mockGrants} onClose={mockOnClose} />);
     fireEvent.click(screen.getByText("Show More Grants"));
     expect(screen.getByText(/Grant 2/i)).toBeInTheDocument();
@@ -360,7 +352,7 @@ describe("GrantsPanel", () => {
   });
 });
 
-describe("CombinedPanel", () => {
+describe("CombinedPanel", () => { //combined panel tests
   const mockOnClose = jest.fn();
   const mockWorks = [
     {
@@ -446,7 +438,7 @@ describe("CombinedPanel", () => {
             title: "Work A",
             issued: "2022",
             confidence: "High",
-            matchedFields: [{ field: "abstract", match: "ecology" }] // ← Moved here
+            matchedFields: [{ field: "abstract", match: "ecology" }]
           },
           {
             title: "Work B",
@@ -464,7 +456,7 @@ describe("CombinedPanel", () => {
           {
             title: "Grant A",
             funder: "NSF",
-            matchedFields: [{ field: "title", match: "Grant B" }] // ← Moved here
+            matchedFields: [{ field: "title", match: "Grant B" }]
           },
           {
             title: "Grant B",
@@ -480,7 +472,6 @@ describe("CombinedPanel", () => {
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
 
     // Expand extra works
-    // Expand extra works
     fireEvent.click(screen.getByText(/Show More Works/i));
     expect(screen.getAllByText(/Matched on:/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/ecology/i).length).toBeGreaterThan(0);
@@ -488,26 +479,27 @@ describe("CombinedPanel", () => {
     // Switch to grants and expand extra grants
     fireEvent.click(screen.getByText(/Grants \(1\)/i));
     fireEvent.click(screen.getByText(/Show More Grants/i));
-    expect(screen.getAllByText(/Matched on:/i).length).toBeGreaterThan(0); // changed from > 1
-    expect(screen.getAllByText(/Grant B/i).length).toBeGreaterThan(0);     // changed from > 1
+    expect(screen.getAllByText(/Matched on:/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Grant B/i).length).toBeGreaterThan(0);
   });
 
-  it("switches between tabs", () => { //keeper
+  it("switches between tabs", () => {
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={mockOnClose} />);
-    fireEvent.click(screen.getByText(/Grants \(1\)/i));
+    fireEvent.click(screen.getByText(/Grants \(1\)/i)); // Switch to grants tab
     expect(screen.getByText(/Grant 1/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/Works \(1\)/i));
+    fireEvent.click(screen.getByText(/Works \(1\)/i));  // Switch back to works tab
     expect(screen.getByText(/Hypoparathyroidism After Total Thyroidectomy/i)).toBeInTheDocument();
   });
+
   it("renders fallback 'No Profile Found' when expert URL is missing", () => {
     const mockWorks = [{ name: "Expert A", location: "California", works: [{ title: "Work A", issued: "2024", confidence: "High" }], url: undefined }];
     const mockGrants = [{ name: "Expert A", grants: [{ title: "Grant A", confidence: "High" }], url: undefined }];
 
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
-    expect(screen.getByText("No Profile Found")).toBeInTheDocument();
+    expect(screen.getByText("No Profile Found")).toBeInTheDocument(); // Check if the fallback message is displayed
 
     fireEvent.click(screen.getByText(/Grants/i));
-    expect(screen.getByText("No Profile Found")).toBeInTheDocument();
+    expect(screen.getByText("No Profile Found")).toBeInTheDocument(); // Ensure it appears in grants tab as well
   });
 
   it("renders expert with no works or grants without crashing", () => {
@@ -523,15 +515,14 @@ describe("CombinedPanel", () => {
     const mockGrants = [
       {
         name: "No Grants Expert",
-        grants: [{}],  // <-- key line to avoid grants[0] being undefined
+        grants: [{}],
         url: null
       }
     ];
 
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
     fireEvent.click(screen.getByText(/Grants/i));
-
-    expect(screen.getByText("No Grants Expert")).toBeInTheDocument();
+    expect(screen.getByText("No Grants Expert")).toBeInTheDocument(); // Check if the expert name is displayed
     expect(screen.getByText(/Untitled Grant/i)).toBeInTheDocument(); // fallback title
   });
 
@@ -546,7 +537,7 @@ describe("CombinedPanel", () => {
     }];
 
     render(<CombinedPanel works={mockWorks} grants={[]} onClose={() => { }} />);
-    expect(screen.getByText("View Profile")).toBeInTheDocument();
+    expect(screen.getByText("View Profile")).toBeInTheDocument(); // Check if the 'View Profile' link is rendered
   });
 
   it("renders 'No Profile Found' if expert URL is missing", () => {
@@ -560,7 +551,7 @@ describe("CombinedPanel", () => {
     }];
 
     render(<CombinedPanel works={mockWorks} grants={[]} onClose={() => { }} />);
-    expect(screen.getByText("No Profile Found")).toBeInTheDocument();
+    expect(screen.getByText("No Profile Found")).toBeInTheDocument(); // Check if the 'No Profile Found' message is rendered
   });
 
   it("renders matchedFields without match in additional grants (CombinedPanel)", () => {
@@ -576,7 +567,7 @@ describe("CombinedPanel", () => {
             title: "Extra Grant",
             funder: "DOE",
             matchedFields: [
-              { field: "funder" }, // no match provided
+              { field: "funder" },
             ],
           },
         ],
@@ -591,16 +582,15 @@ describe("CombinedPanel", () => {
     ];
 
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
-    fireEvent.click(screen.getByText("Grants (1)"));
-    fireEvent.click(screen.getByText("Show More Grants"));
+    fireEvent.click(screen.getByText("Grants (1)"));  // Switch to grants tab
+    fireEvent.click(screen.getByText("Show More Grants"));  // Expand additional grants
 
     const matches = screen.getAllByText((_, el) =>
       el?.textContent?.trim() === "Matched on: funder"
     );
-    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.length).toBeGreaterThan(0);  // Ensure matched field is displayed
 
     expect(screen.queryByText(/—/)).not.toBeInTheDocument(); // no dash should appear
   });
-
 
 });

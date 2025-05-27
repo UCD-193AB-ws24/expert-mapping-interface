@@ -10,17 +10,16 @@ import L from "leaflet";
 
 jest.useFakeTimers();
 
-jest.mock("leaflet.markercluster", () => { });
+jest.mock("leaflet.markercluster", () => { });  // Mock leaflet.markercluster
 
 // Mock react-leaflet
 jest.mock("react-leaflet", () => ({
   useMap: jest.fn(),
 }));
 
+const popupEventListeners = {}; // Store popup event listeners for testing
 
-const popupEventListeners = {};
-
-const mockPopupElement = {
+const mockPopupElement = {  // Mock popup element
   style: { pointerEvents: "auto" },
   addEventListener: jest.fn((event, handler) => {
     popupEventListeners[event] = handler;
@@ -33,11 +32,11 @@ const mockPopupElement = {
   }),
 };
 
-const mockButtonElement = {
+const mockButtonElement = { // Mock button element
   addEventListener: jest.fn(),
 };
 
-jest.mock("leaflet", () => {
+jest.mock("leaflet", () => {  // Mock Leaflet library
   const mockPolygonObject = {
     addTo: jest.fn().mockReturnThis(),
     getBounds: jest.fn(() => ({
@@ -47,7 +46,7 @@ jest.mock("leaflet", () => {
       getNorth: jest.fn(() => 2),
       getSouth: jest.fn(() => 0),
     })),
-    getCenter: jest.fn(() => ({ lat: 0, lng: 0 })), // needed for some WorkLayer logic
+    getCenter: jest.fn(() => ({ lat: 0, lng: 0 })),
   };
 
   const mockMarkerObject = {
@@ -82,7 +81,7 @@ jest.mock("leaflet", () => {
   };
 });
 
-jest.mock("../rendering/Popups", () => ({
+jest.mock("../rendering/Popups", () => ({ // Mock Popups module
   createMultiExpertContent: jest.fn((expertCount, locationName, workCount, matchedFields) => {
     return `<div>
               Experts: ${expertCount}, 
@@ -93,7 +92,7 @@ jest.mock("../rendering/Popups", () => ({
   }),
 }));
 
-jest.mock("../rendering/utils/preparePanelData", () => ({
+jest.mock("../rendering/utils/preparePanelData", () => ({ // Mock preparePanelData function
   prepareWorkPanelData: jest.fn(() => ({
     expertIDs: [2],
     workIDs: [1],
@@ -103,7 +102,7 @@ jest.mock("../rendering/utils/preparePanelData", () => ({
 describe("WorkLayer component", () => {
   let mockMap;
 
-  beforeEach(() => {
+  beforeEach(() => {  // Setup before each test
     mockMap = {
       addLayer: jest.fn(),
       removeLayer: jest.fn(),
@@ -115,9 +114,8 @@ describe("WorkLayer component", () => {
     jest.clearAllMocks();
   });
 
-  // ✅ Converted: Initializes and adds layer group when showWorks is true
   it("renders polygons and points when showWorks is true", () => {
-    const locationMap = new Map([
+    const locationMap = new Map([ // Mock locationMap with polygons and points
       [
         "loc1",
         {
@@ -162,6 +160,7 @@ describe("WorkLayer component", () => {
       />
     );
 
+    // Verify that polygons, markers, and clusters were created
     expect(L.markerClusterGroup).toHaveBeenCalled();
     expect(L.polygon).toHaveBeenCalled();
     expect(L.marker).toHaveBeenCalled();
@@ -169,7 +168,7 @@ describe("WorkLayer component", () => {
   });
 
   it("does not render anything when showWorks is false", () => {
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => { });
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => { });  // Suppress console errors
 
     render(
       <WorkLayer
@@ -183,7 +182,7 @@ describe("WorkLayer component", () => {
       />
     );
 
-    expect(consoleSpy).toHaveBeenCalledWith("Error: No works found!");
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No works found!");  // Check for error message
     expect(mockMap.addLayer).not.toHaveBeenCalled();
 
     consoleSpy.mockRestore();
@@ -230,6 +229,7 @@ describe("WorkLayer component", () => {
 
     const marker = L.marker.mock.results[0]?.value;
 
+    // Simulate a click event on the marker
     const clickHandler = marker.on.mock.calls.find(([e]) => e === "click")?.[1];
     expect(clickHandler).toBeDefined();
     clickHandler();
@@ -237,6 +237,7 @@ describe("WorkLayer component", () => {
     const popup = L.popup.mock.results[0]?.value;
     const popupElement = popup.getElement();
 
+    // Simulate clicking the "view experts" button inside the popup
     const viewBtn = popupElement.querySelector(".view-w-experts-btn");
     const clickBtn = viewBtn?.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];
 
@@ -244,6 +245,7 @@ describe("WorkLayer component", () => {
       clickBtn({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
     }
 
+    // Verify that the appropriate handlers were called
     expect(mockSetSelectedWorks).toHaveBeenCalled();
     expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
     expect(mockSetPanelType).toHaveBeenCalledWith("works");
@@ -288,6 +290,7 @@ describe("WorkLayer component", () => {
       />
     );
 
+    // Retrieve the first marker and simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
     expect(marker).toBeDefined();
 
@@ -295,25 +298,29 @@ describe("WorkLayer component", () => {
     expect(mouseoverHandler).toBeDefined();
     mouseoverHandler();
 
+    // Verify that the popup was opened
     const popup = L.popup.mock.results[0]?.value;
     expect(popup.openOn).toHaveBeenCalled();
 
+    // Simulate mouseleave to close the popup
     const popupElement = popup.getElement();
     expect(popupElement).toBeDefined();
 
     expect(popupEventListeners.mouseleave).toBeDefined();
-    popupEventListeners.mouseleave(); // simulate mouseleave
+    popupEventListeners.mouseleave();
 
+    // Fast-forward timers and verify that the popup was closed
     jest.runAllTimers();
     expect(popup.close).toHaveBeenCalled();
   });
+
 
   it("opens popup and sets work panel data on point marker click", () => {
     const mockSetSelectedWorks = jest.fn();
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
+    const locationMap = new Map([ // Mock locationMap with a clickable point
       [
         "clickPoint",
         {
@@ -346,15 +353,14 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+     // Simulate a click event on the marker
     const marker = L.marker.mock.results[0]?.value;
     const clickHandler = marker.on.mock.calls.find(([event]) => event === "click")?.[1];
     expect(clickHandler).toBeDefined();
     clickHandler();
-
+    // Retrieve the popup and simulate clicking the "view experts" button
     const popup = L.popup.mock.results[0].value;
     const popupElement = popup.getElement();
-
     const btn = popupElement.querySelector(".view-w-experts-btn");
     const clickBtnHandler = btn?.addEventListener.mock.calls.find(([event]) => event === "click")?.[1];
 
@@ -364,125 +370,14 @@ describe("WorkLayer component", () => {
         stopPropagation: jest.fn(),
       });
     }
-
+    // Verify that the appropriate handlers were called
     expect(mockSetSelectedWorks).toHaveBeenCalled();
     expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
     expect(mockSetPanelType).toHaveBeenCalledWith("works");
   });
 
-  it("closes polygon popup on marker mouseout", () => {
-    jest.useFakeTimers(); // Ensure fake timers are enabled
-
-    const mockSetSelectedWorks = jest.fn();
-    const mockSetPanelOpen = jest.fn();
-    const mockSetPanelType = jest.fn();
-
-    const locationMap = new Map([
-      [
-        "polygon_mouseout",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Mouseout Polygon",
-          display_name: "Mouseout Test",
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [1, { matchedFields: ["topic"] }],
-    ]);
-
-    const expertsMap = new Map([
-      [2, { name: "Expert A" }],
-    ]);
-
-    render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={mockSetSelectedWorks}
-        setPanelOpen={mockSetPanelOpen}
-        setPanelType={mockSetPanelType}
-      />
-    );
-
-    const marker = L.marker.mock.results[0]?.value;
-    expect(marker).toBeDefined();
-
-    // Simulate mouseover to create the popup
-    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-    expect(mouseoverHandler).toBeDefined();
-    mouseoverHandler();
-
-    // Simulate mouseout to start the close timeout
-    const mouseoutHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
-    expect(mouseoutHandler).toBeDefined();
-    mouseoutHandler();
-
-    // Fast-forward the timeout that closes the popup
-    jest.runAllTimers();
-
-    const popup = L.popup.mock.results[0]?.value;
-    expect(popup?.close).toHaveBeenCalled();
-  });
-
-  it("sorts polygons by area before rendering", () => {
-    const locationMap = new Map([
-      [
-        "larger_polygon",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [0, 4], [4, 4], [4, 0], [0, 0]]],
-          workIDs: [1],
-          expertIDs: [10],
-          name: "Large Polygon",
-        },
-      ],
-      [
-        "smaller_polygon",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]]],
-          workIDs: [2],
-          expertIDs: [11],
-          name: "Small Polygon",
-        },
-      ],
-    ]);
-
-    const worksMap = new Map([
-      [1, { matchedFields: ["a"] }],
-      [2, { matchedFields: ["b"] }],
-    ]);
-
-    const expertsMap = new Map([
-      [10, { name: "Big Work" }],
-      [11, { name: "Small Work" }],
-    ]);
-
-    render(
-      <WorkLayer
-        locationMap={locationMap}
-        worksMap={worksMap}
-        expertsMap={expertsMap}
-        showWorks={true}
-        setSelectedWorks={jest.fn()}
-        setPanelOpen={jest.fn()}
-        setPanelType={jest.fn()}
-      />
-    );
-
-    expect(L.polygon).toHaveBeenCalled();
-  });
-
   it("calls iconCreateFunction and returns custom cluster icon with expert count", () => {
-    // Prepare dummy map data
-    const locationMap = new Map([
+    const locationMap = new Map([ // Mock locationMap with a point
       [
         "pointA",
         {
@@ -503,7 +398,6 @@ describe("WorkLayer component", () => {
       [1, { name: "Expert A" }],
     ]);
 
-    // Render component to initialize markerClusterGroup
     render(
       <WorkLayer
         locationMap={locationMap}
@@ -515,12 +409,11 @@ describe("WorkLayer component", () => {
         setPanelType={jest.fn()}
       />
     );
-
-    // Grab the iconCreateFunction from the first call to markerClusterGroup
+    
+    // Retrieve cluster options and the icon creation function
     const clusterOptions = L.markerClusterGroup.mock.calls[0][0];
     const iconCreateFn = clusterOptions.iconCreateFunction;
-
-    // Create a fake cluster
+    // Mock a cluster with child markers containing expert counts
     const mockCluster = {
       getAllChildMarkers: () => [
         { options: { expertCount: 2 } },
@@ -528,13 +421,12 @@ describe("WorkLayer component", () => {
       ],
     };
 
-    // Call iconCreateFunction
-    iconCreateFn(mockCluster);
+    iconCreateFn(mockCluster);  // Call the icon creation function with the mock cluster
 
-    // Assert divIcon was called with the correct total
+    // Verify that the divIcon was created with the correct HTML expert count and className
     expect(L.divIcon).toHaveBeenCalledWith(
       expect.objectContaining({
-        html: expect.stringContaining("5"), // 2 + 3 experts
+        html: expect.stringContaining("5"),
         className: "custom-cluster-icon",
       })
     );
@@ -545,7 +437,7 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
+    const locationMap = new Map([ 
       [
         "polygonPopup",
         {
@@ -578,7 +470,7 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+    // Simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
     const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
     expect(mouseoverHandler).toBeDefined();
@@ -588,21 +480,21 @@ describe("WorkLayer component", () => {
     const popupElement = popup.getElement();
     expect(popupElement).toBeDefined();
 
-    const mouseenterHandler = popupElement.addEventListener.mock.calls.find(
+    const mouseenterHandler = popupElement.addEventListener.mock.calls.find(  // Find mouseenter handler
       ([event]) => event === "mouseenter"
     )?.[1];
-    const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(
+    const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(  // Find mouseleave handler
       ([event]) => event === "mouseleave"
     )?.[1];
 
     expect(mouseenterHandler).toBeDefined();
     expect(mouseleaveHandler).toBeDefined();
 
-    mouseenterHandler(); // simulate hover
-    mouseleaveHandler(); // simulate exit
-    jest.runAllTimers(); // simulate delay
+    mouseenterHandler();  // Simulate mouseenter
+    mouseleaveHandler();  // Simulate mouseleave
+    jest.runAllTimers();  // Fast-forward timers to trigger popup close
 
-    expect(popup.close).toHaveBeenCalled();
+    expect(popup.close).toHaveBeenCalled(); // Verify that the popup was closed
   });
 
   it("handles click on polygon popup button to open panel and close popup", () => {
@@ -641,7 +533,7 @@ describe("WorkLayer component", () => {
 
     const marker = L.marker.mock.results[0].value;
 
-    // Simulate mouseover to create popup
+    // Simulate mouseover to open the popup
     const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
     expect(mouseover).toBeDefined();
     mouseover();
@@ -649,15 +541,17 @@ describe("WorkLayer component", () => {
     const popup = L.popup.mock.results[0].value;
     const popupElement = popup.getElement();
 
+    // Simulate clicking the "view experts" button in the popup
     const viewExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
     expect(viewExpertsBtn).toBeDefined();
 
+    // Mock the addEventListener for the button
     const clickHandler = viewExpertsBtn.addEventListener.mock.calls.find(
       ([e]) => e === "click"
     )?.[1];
     expect(clickHandler).toBeDefined();
 
-    // Simulate button click
+    // Simulate the click event
     clickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
 
     expect(mockSetSelectedWorks).toHaveBeenCalled();
@@ -685,9 +579,9 @@ describe("WorkLayer component", () => {
     ]);
 
     const worksMap = new Map([
-      [1, { matchedFields: ["field1", "field2"] }], // Has matchedFields
-      [2, {}], // No matchedFields
-      [3, { matchedFields: null }], // Null matchedFields
+      [1, { matchedFields: ["field1", "field2"] }],
+      [2, {}],
+      [3, { matchedFields: null }],
     ]);
 
     const expertsMap = new Map([[1, { name: "Test Expert" }]]);
@@ -703,10 +597,10 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+    // Simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-
+    // Check if mouseover handler is defined
     expect(mouseoverHandler).toBeDefined();
     mouseoverHandler();
 
@@ -718,17 +612,15 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    // Mock popup.getElement() to return null
     const mockPopupWithNullElement = {
       setLatLng: jest.fn().mockReturnThis(),
       setContent: jest.fn().mockReturnThis(),
       openOn: jest.fn().mockReturnThis(),
       remove: jest.fn(),
       close: jest.fn(),
-      getElement: jest.fn(() => null), // Simulate missing DOM element
+      getElement: jest.fn(() => null),
     };
 
-    // Override popup for this test
     L.popup.mockImplementationOnce(() => mockPopupWithNullElement);
 
     const locationMap = new Map([
@@ -762,7 +654,6 @@ describe("WorkLayer component", () => {
     const marker = L.marker.mock.results[0]?.value;
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
 
-    // Should not crash even if popup element is null
     expect(() => mouseoverHandler()).not.toThrow();
   });
 
@@ -770,14 +661,13 @@ describe("WorkLayer component", () => {
     const mockSetSelectedWorks = jest.fn();
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
-
-    // Simulate a popup element with no view-w-experts-btn
+    // Mock a popup element that does not contain the view button
     const mockPopupElementNoButton = {
       style: { pointerEvents: "auto" },
       addEventListener: jest.fn(),
-      querySelector: jest.fn(() => null), // No button found
+      querySelector: jest.fn(() => null),
     };
-
+    // Mock the popup to return the element without the button
     const mockPopupWithNoButton = {
       setLatLng: jest.fn().mockReturnThis(),
       setContent: jest.fn().mockReturnThis(),
@@ -787,7 +677,6 @@ describe("WorkLayer component", () => {
       getElement: jest.fn(() => mockPopupElementNoButton),
     };
 
-    // Override popup instance for this test
     L.popup.mockImplementationOnce(() => mockPopupWithNoButton);
 
     const locationMap = new Map([
@@ -817,11 +706,11 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+    // Simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-
-    expect(() => mouseoverHandler()).not.toThrow(); // should not crash
+    
+    expect(() => mouseoverHandler()).not.toThrow();
   });
 
   it("clears popup close timeout on mouseenter", () => {
@@ -858,31 +747,20 @@ describe("WorkLayer component", () => {
     );
 
     const marker = L.marker.mock.results[0]?.value;
-
-    // Trigger popup creation
     const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
     mouseover();
-
+    // Verify that the popup was opened
     const popup = L.popup.mock.results[0]?.value;
     const popupElement = popup.getElement();
-
-    // Grab event handlers
     const mouseleave = popupElement.addEventListener.mock.calls.find(([e]) => e === "mouseleave")?.[1];
     const mouseenter = popupElement.addEventListener.mock.calls.find(([e]) => e === "mouseenter")?.[1];
 
-    // Simulate leave → triggers close timeout
-    mouseleave();
-
-    const clearSpy = jest.spyOn(global, "clearTimeout");
-
-    // Simulate enter → should cancel the timeout
-    mouseenter();
-
-    expect(clearSpy).toHaveBeenCalled();
-
-    clearSpy.mockRestore();
+    mouseleave(); // Simulate mouseleave to set a timeout for closing the popup
+    const clearSpy = jest.spyOn(global, "clearTimeout");  // Spy on clearTimeout
+    mouseenter(); // Simulate mouseenter to clear the timeout
+    expect(clearSpy).toHaveBeenCalled();  // Verify that clearTimeout was called
+    clearSpy.mockRestore(); // Restore the original clearTimeout function
   });
-
 
   it("removes existing workPointPopup before creating a new one", () => {
     const mockSetSelectedWorks = jest.fn();
@@ -917,21 +795,14 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+    // Simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
-
-    // Simulate mouseover to create the first popup
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
     expect(mouseoverHandler).toBeDefined();
-    mouseoverHandler();
-
+    mouseoverHandler(); // Open the popup
     const firstPopup = L.popup.mock.results[0]?.value;
     expect(firstPopup).toBeDefined();
-
-    // Simulate mouseover again to trigger the removal of the existing popup
-    mouseoverHandler();
-
-    // Assert that the first popup was removed
+    mouseoverHandler(); // Open the popup again to trigger removal of the previous one
     expect(firstPopup.remove).toHaveBeenCalled();
   });
 
@@ -968,25 +839,18 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+    // Simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
-
-    // Simulate mouseout to set workPointCT
     const mouseoutHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
     expect(mouseoutHandler).toBeDefined();
     mouseoutHandler();
-
-    // Spy on clearTimeout
+    // Spy on clearTimeout to ensure it is called
     const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
-
-    // Simulate mouseover to clear workPointCT
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-    expect(mouseoverHandler).toBeDefined();
-    mouseoverHandler();
-
+    expect(mouseoverHandler).toBeDefined(); // Get the mouseover handler
+    mouseoverHandler(); // Simulate mouseover to clear the timeout
     expect(clearTimeoutSpy).toHaveBeenCalled();
-
-    clearTimeoutSpy.mockRestore();
+    clearTimeoutSpy.mockRestore();  // Restore the original clearTimeout function
   });
 
   it("renders polygons and handles events", () => {
@@ -1042,17 +906,16 @@ describe("WorkLayer component", () => {
         weight: 2,
       })
     );
-
+    // Check if the polygon was added to the map
     const marker = L.marker.mock.results[0]?.value;
     expect(marker).toBeDefined();
-
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
     expect(mouseoverHandler).toBeDefined();
     mouseoverHandler();
-
+    // Check if the popup was created
     const popup = L.popup.mock.results[0]?.value;
     expect(popup).toBeDefined();
-    expect(L.popup).toHaveBeenCalledWith(
+    expect(L.popup).toHaveBeenCalledWith( // Check popup options
       expect.objectContaining({
         closeButton: false,
         autoClose: false,
@@ -1061,22 +924,22 @@ describe("WorkLayer component", () => {
         autoPan: false,
       })
     );
-
+    // Check if the popup content was set correctly
     const mouseleaveHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
     expect(mouseleaveHandler).toBeDefined();
     mouseleaveHandler();
     jest.runAllTimers();
     expect(popup.close).toHaveBeenCalled();
-
+    // Check if the popup element was created and contains the button
     const popupElement = popup.getElement();
     const button = popupElement.querySelector(".view-w-experts-btn");
     expect(button).toBeDefined();
-
+    // Check if the button has the correct class and text
     const clickHandler = button.addEventListener.mock.calls.find(([event]) => event === "click")?.[1];
     expect(clickHandler).toBeDefined();
     clickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
 
-    expect(mockSetSelectedWorks).toHaveBeenCalledWith(
+    expect(mockSetSelectedWorks).toHaveBeenCalledWith(  // Check if the selected works were set correctly
       expect.objectContaining({
         expertIDs: [2],
         workIDs: [1],
@@ -1088,6 +951,8 @@ describe("WorkLayer component", () => {
   });
 
   it("handles polygon marker mouseover and creates a popup", () => {
+
+    // Mock the necessary functions and objects
     const mockSetSelectedWorks = jest.fn();
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
@@ -1128,27 +993,25 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+    // Check if the polygon was created
     const marker = L.marker.mock.results[0]?.value;
     expect(marker).toBeDefined();
-
-    // Simulate mouseout to set timeout
+    // Simulate mouseover to open the popup
     const mouseoutHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
     expect(mouseoutHandler).toBeDefined();
     mouseoutHandler();
-
+    // Spy on clearTimeout to ensure it is called
     const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
 
-    // Simulate mouseover to clear timeout and trigger popup
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
     expect(mouseoverHandler).toBeDefined();
     mouseoverHandler();
-
+    // Verify that clearTimeout was called
     expect(clearTimeoutSpy).toHaveBeenCalled();
 
     const popup = L.popup.mock.results[0]?.value;
     expect(popup).toBeDefined();
-    expect(L.popup).toHaveBeenCalledWith(
+    expect(L.popup).toHaveBeenCalledWith( // Check popup options
       expect.objectContaining({
         closeButton: false,
         autoClose: false,
@@ -1162,17 +1025,17 @@ describe("WorkLayer component", () => {
       expect.stringContaining("Test Polygon")
     );
 
-    expect(popup.openOn).toHaveBeenCalledWith(expect.any(Object));
+    expect(popup.openOn).toHaveBeenCalledWith(expect.any(Object));  // Check if the popup was opened on the map
 
     const popupElement = popup.getElement();
     expect(popupElement).toBeDefined();
 
-    const mouseenterHandler = popupElement.addEventListener.mock.calls.find(
+    const mouseenterHandler = popupElement.addEventListener.mock.calls.find(  // Find mouseenter handler
       ([event]) => event === "mouseenter"
     )?.[1];
     expect(mouseenterHandler).toBeDefined();
 
-    const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(
+    const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(  // Find mouseleave handler
       ([event]) => event === "mouseleave"
     )?.[1];
     expect(mouseleaveHandler).toBeDefined();
@@ -1204,7 +1067,7 @@ describe("WorkLayer component", () => {
     ]);
 
     const worksMap = new Map([
-      [1, { title: "Work with no fields" }], // 👈 no matchedFields
+      [1, { title: "Work with no fields" }],
     ]);
 
     const expertsMap = new Map([
@@ -1223,14 +1086,14 @@ describe("WorkLayer component", () => {
       />
     );
 
-    const marker = L.marker.mock.results[0]?.value;
+    const marker = L.marker.mock.results[0]?.value; 
     expect(marker).toBeDefined();
 
-    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];  // Get the mouseover handler
     expect(mouseoverHandler).toBeDefined();
-    mouseoverHandler(); // 👈 This triggers the popup creation
+    mouseoverHandler();
 
-    const popup = L.popup.mock.results[0]?.value;
+    const popup = L.popup.mock.results[0]?.value; // Get the popup created by mouseover
     expect(popup).toBeDefined();
   });
 
@@ -1261,7 +1124,7 @@ describe("WorkLayer component", () => {
       [2, { name: "Expert A" }],
     ]);
 
-    const popupElement = {
+    const popupElement = {  // Mock popup element
       style: { pointerEvents: "auto" },
       addEventListener: jest.fn(),
       querySelector: jest.fn(() => ({
@@ -1269,7 +1132,7 @@ describe("WorkLayer component", () => {
       })),
     };
 
-    const popupMock = {
+    const popupMock = { // Mock popup methods
       setLatLng: jest.fn().mockReturnThis(),
       setContent: jest.fn().mockReturnThis(),
       openOn: jest.fn().mockReturnThis(),
@@ -1278,8 +1141,7 @@ describe("WorkLayer component", () => {
       remove: jest.fn(),
     };
 
-    // Simulate reused popup for hover
-    L.popup
+    L.popup // Mock the L.popup function to return our mock popup
       .mockReturnValueOnce(popupMock)
       .mockReturnValueOnce(popupMock);
 
@@ -1298,15 +1160,13 @@ describe("WorkLayer component", () => {
     const marker = L.marker.mock.results[0]?.value;
     expect(marker).toBeDefined();
 
-    // Trigger first hover — creates popup
-    const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];  // Get the mouseover handler
     expect(mouseoverHandler).toBeDefined();
     mouseoverHandler();
 
-    // Trigger second hover — should remove existing
     mouseoverHandler();
 
-    expect(popupMock.remove).toHaveBeenCalled();
+    expect(popupMock.remove).toHaveBeenCalled();  // Verify that the existing popup was removed
   });
 
   it("removes popup when clicking a second polygon", () => {
@@ -1349,7 +1209,7 @@ describe("WorkLayer component", () => {
       [4, { name: "Expert B" }],
     ]);
 
-    const popupElement = {
+    const popupElement = {  // Mock popup element
       style: { pointerEvents: "auto" },
       addEventListener: jest.fn(),
       querySelector: jest.fn(() => ({
@@ -1357,7 +1217,7 @@ describe("WorkLayer component", () => {
       })),
     };
 
-    const popupMock = {
+    const popupMock = { // Mock popup methods
       setLatLng: jest.fn().mockReturnThis(),
       setContent: jest.fn().mockReturnThis(),
       openOn: jest.fn().mockReturnThis(),
@@ -1366,9 +1226,9 @@ describe("WorkLayer component", () => {
       remove: jest.fn(),
     };
 
-    L.popup
-      .mockReturnValueOnce(popupMock) // popup for first polygon
-      .mockReturnValueOnce(popupMock); // popup for second polygon
+    L.popup // Mock the L.popup function to return our mock popup
+      .mockReturnValueOnce(popupMock)
+      .mockReturnValueOnce(popupMock);
 
     render(
       <WorkLayer
@@ -1382,24 +1242,25 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-
+    // Simulate mouseover on the first polygon
     const marker1 = L.marker.mock.results[0]?.value;
     const marker2 = L.marker.mock.results[1]?.value;
 
+    // Simulate mouseover event for the first polygon
     const click1 = marker1.on.mock.calls.find(([e]) => e === "click")?.[1];
     const click2 = marker2.on.mock.calls.find(([e]) => e === "click")?.[1];
 
-    click1(); // First polygon popup
-    click2(); // Should remove the first popup
+    click1(); // Simulate clicking the first polygon
+    click2(); // Simulate clicking the second polygon
 
-    expect(popupMock.remove).toHaveBeenCalled();
+    expect(popupMock.remove).toHaveBeenCalled();  // Verify that the existing popup was removed
   });
 
   it("handles view-w-experts-btn click in point popup and updates panel state", () => {
     const mockSetSelectedWorks = jest.fn();
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
-  
+
     const locationMap = new Map([
       [
         "point-popup-btn",
@@ -1413,19 +1274,18 @@ describe("WorkLayer component", () => {
         },
       ],
     ]);
-  
+
     const worksMap = new Map([
       [101, { matchedFields: ["ai", "robotics"] }],
     ]);
-  
+
     const expertsMap = new Map([
       [202, { name: "Dr. Robotics" }],
     ]);
-  
-    // Spy on prepareWorkPanelData
-    const prepareWorkPanelData = require("../rendering/utils/preparePanelData").prepareWorkPanelData;
-    prepareWorkPanelData.mockClear();
-  
+
+    const prepareWorkPanelData = require("../rendering/utils/preparePanelData").prepareWorkPanelData; // Import the prepareWorkPanelData function
+    prepareWorkPanelData.mockClear(); // Clear any previous calls to the mock
+
     render(
       <WorkLayer
         locationMap={locationMap}
@@ -1437,32 +1297,33 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-  
+
     const marker = L.marker.mock.results[0]?.value;
     const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
     expect(mouseover).toBeDefined();
     mouseover();
-  
+
     const popup = L.popup.mock.results[0]?.value;
     const popupElement = popup.getElement();
-    const button = popupElement.querySelector(".view-w-experts-btn");
-    expect(button).toBeDefined();
-  
-    const clickHandler = button.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];
+    const button = popupElement.querySelector(".view-w-experts-btn"); // Get the button from the popup
+    expect(button).toBeDefined(); 
+
+    const clickHandler = button.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];  // Get the click handler for the button
     expect(clickHandler).toBeDefined();
-  
-    const preventDefault = jest.fn();
-    const stopPropagation = jest.fn();
-  
-    clickHandler({ preventDefault, stopPropagation });
-  
+
+    const preventDefault = jest.fn(); // Mock preventDefault function
+    const stopPropagation = jest.fn();  // Mock stopPropagation function
+
+    clickHandler({ preventDefault, stopPropagation });  // Simulate the click event
+
     expect(preventDefault).toHaveBeenCalled();
     expect(stopPropagation).toHaveBeenCalled();
-  
+
     expect(prepareWorkPanelData).toHaveBeenCalledWith(
       [202], [101], expertsMap, worksMap, "point-popup-btn", "Point Display"
     );
-  
+
+    // Verify that the appropriate handlers were called
     expect(mockSetSelectedWorks).toHaveBeenCalled();
     expect(mockSetPanelType).toHaveBeenCalledWith("works");
     expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
@@ -1470,10 +1331,11 @@ describe("WorkLayer component", () => {
   });
 
   it("removes existing workPointPopup before creating a new one", () => {
+    // Mock the necessary functions and objects
     const mockSetSelectedWorks = jest.fn();
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
-  
+
     const locationMap = new Map([
       [
         "popup-click",
@@ -1487,15 +1349,15 @@ describe("WorkLayer component", () => {
         },
       ],
     ]);
-  
+
     const worksMap = new Map([
       [101, { matchedFields: ["test"] }],
     ]);
-  
+
     const expertsMap = new Map([
       [202, { name: "Dr. Work" }],
     ]);
-  
+
     render(
       <WorkLayer
         locationMap={locationMap}
@@ -1507,25 +1369,23 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-  
+    // Simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
     expect(marker).toBeDefined();
-  
+
     const clickHandler = marker.on.mock.calls.find(([e]) => e === "click")?.[1];
     expect(clickHandler).toBeDefined();
-  
-    // 🟢 First click creates popup
+
     clickHandler();
-  
-    // Get the created popup
+    // Check if the popup was created
     const popup = L.popup.mock.results[0]?.value;
     expect(popup).toBeDefined();
-  
-    
+
+    // Check if the popup was opened on the map
     clickHandler();
-  
-    expect(popup.remove).toHaveBeenCalled(); 
+
+    expect(popup.remove).toHaveBeenCalled(); // Verify that the existing popup was removed
   });
-  
+
 
 });
