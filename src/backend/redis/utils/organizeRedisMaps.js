@@ -169,7 +169,7 @@ async function buildRedisMaps(redisClient) {
   for (const grantKey of grantKeys) {
     const data = await redisClient.hGetAll(grantKey);
     if (!data || !data.id) continue;
-    const locationID = `location:${data.id}` || `location:${grantKey}`;
+    const locationID = `location:${data.id}` || grantKey;
     let geometryType = "";
     let coordinates = null;
 
@@ -194,23 +194,36 @@ async function buildRedisMaps(redisClient) {
       }
     }
 
+    // Check for duplicate locations by location name
+    let existingLocationID = null;
+    for (const [locID, locEntry] of locationMap.entries()) {
+      if (locEntry.location === data.location) {
+      existingLocationID = locID;
+      break;
+      }
+    }
+
+    // Use existing locationID if found, otherwise use the new one
+    const finalLocationID = existingLocationID || locationID;
+
     // Initialize locationMap entry if not present
-    if (!locationMap.has(locationID)) {
-      locationMap.set(locationID, {
-        name: data.name || "",
-        id: data.id || "Unknown ID",
-        display_name: data.display_name || "",
-        country: data.country || "",
-        place_rank: data.place_rank || "",
-        geometryType: geometryType || "",
-        coordinates: coordinates || null,
-        workIDs: [],
-        grantIDs: [],
-        expertIDs: [],
-        specificity: getPlaceRankLevel(Number(data.place_rank)) || "unknown",
-        overlapping,
+    if (!locationMap.has(finalLocationID)) {
+      locationMap.set(finalLocationID, {
+      name: data.name || "",
+      id: finalLocationID || "Unknown ID",
+      display_name: data.display_name || "",
+      country: data.country || "",
+      place_rank: data.place_rank || "",
+      geometryType: geometryType || "",
+      coordinates: coordinates || null,
+      workIDs: [],
+      grantIDs: [],
+      expertIDs: [],
+      specificity: getPlaceRankLevel(Number(data.place_rank)) || "unknown",
+      overlapping,
       });
     }
+    
     // Get all entry keys for this location
     const entryKeys = await getGrantEntryKeys(redisClient, grantKey);
 
@@ -224,7 +237,7 @@ async function buildRedisMaps(redisClient) {
       const grantID = `grant:${entry.id}` || grantKey;
       // Add to grantsMap
       grantsMap.set(grantID, {
-        grantID: entry.id,
+        grantID: entry.id || grantKey,
         title: entry.title || '',
         funder: entry.funder || '',
         endDate: entry.endDate || '',

@@ -55,6 +55,104 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   const [locationName, setLocationName] = useState("Unknown");
   const [zoomLevel, setZoomLevel] = useState(2);
 
+  // State variables for raw maps
+  const [rawExpertsMap, setRawExpertsMap] = useState(null);
+  const [rawWorksMap, setRawWorksMap] = useState(null);
+  const [rawGrantsMap, setRawGrantsMap] = useState(null);
+
+  // Cached maps for different zoom levels
+  const [locationMapsCache, setLocationMapsCache] = useState({}); // { [zoomLevel]: { ...maps } }
+  const [currentLocationMaps, setCurrentLocationMaps] = useState(null);
+
+  // Fetch raw maps data from Redis on mount
+  useEffect(() => {
+    const fetchRawMaps = async () => {
+      try {
+        const response = await fetch('/api/redis/getRawMaps');
+        if (!response.ok) throw new Error('Failed to fetch raw maps');
+        const data = await response.json();
+        setRawExpertsMap(data.expertsMap);
+        setRawWorksMap(data.worksMap);
+        setRawGrantsMap(data.grantsMap);
+      } catch (err) {
+        setError('Failed to load static map data.');
+      }
+    };
+    fetchRawMaps();
+  }, []);
+
+  /**
+   * useEffect: Attach a zoom event listener to the map.
+   * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
+   */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const handleZoom = () => {
+      setZoomLevel(map.getZoom());
+      console.log("Current zoom level:", map.getZoom());
+    };
+
+    map.on("zoomend", handleZoom);
+
+    // Set initial zoom level
+    setZoomLevel(map.getZoom());
+
+    // Cleanup
+    return () => {
+      map.off("zoomend", handleZoom);
+    };
+  }, [mapRef.current]);
+
+  // Fetch and process location maps based on zoom level
+  useEffect(() => {
+  const fetchLocationMaps = async () => {
+    // Determine which API to call based on zoomLevel
+    let apiUrl;
+    // Helper to determine map type and overlap
+    const getMapType = () => {
+      if (zoomLevel >= 2 && zoomLevel <= 3) return "CountryLevelMaps";
+      if (zoomLevel >= 4 && zoomLevel <= 5) return "StateLevelMaps";
+      if (zoomLevel >= 6 && zoomLevel <= 7) return "CountyLevelMaps";
+      if (zoomLevel >= 8 && zoomLevel <= 9) return "CityLevelMaps";
+      if (zoomLevel >= 10) return "ExactLevelMaps";
+      return null;
+    };
+
+    const mapType = getMapType();
+
+    if (!mapType) return;
+
+    // Determine overlap type
+    let overlapType = null;
+    if (showWorks && showGrants) {
+      overlapType = "nonoverlap";
+    } else if ((showWorks || showGrants) && !(showWorks && showGrants)) {
+      overlapType = "overlap";
+    }
+
+    if (overlapType && mapType) {
+      apiUrl = `/api/redis/${overlapType}/get${mapType}`;
+    }
+    if (locationMapsCache[zoomLevel]) {
+      setCurrentLocationMaps(locationMapsCache[zoomLevel]);
+      return;
+    }
+
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error('Failed to fetch location maps');
+      const data = await response.json();
+      setLocationMapsCache(prev => ({ ...prev, [zoomLevel]: data }));
+      setCurrentLocationMaps(data);
+    } catch (err) {
+      setError('Failed to load location maps.');
+    }
+  };
+
+  fetchLocationMaps();
+}, [zoomLevel, showWorks, showGrants]);
 
   /**
      * useEffect: Fetch GeoJSON data for works and grants.
@@ -121,118 +219,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     };
     loadGeoData();
   }, []);
-
-  /**
-   * useEffect: Attach a zoom event listener to the map.
-   * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
-   */
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    const handleZoom = () => {
-      setZoomLevel(map.getZoom());
-      console.log("Current zoom level:", map.getZoom());
-    };
-
-    map.on("zoomend", handleZoom);
-
-    // Set initial zoom level
-    setZoomLevel(map.getZoom());
-
-    // Cleanup
-    return () => {
-      map.off("zoomend", handleZoom);
-    };
-  }, [mapRef.current]);
-
-
-  // 2. Apply filters in memory
-  const filteredWorkGeoJSON = useMemo(() => {
-    if (!rawWorkGeoJSON) return null;
-    // Apply date and keyword filters
-    return {
-      ...rawWorkGeoJSON,
-      features: rawWorkGeoJSON.features
-        .map(feature => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            entries: (feature.properties.entries || [])
-              .filter(isHighConfidence)
-              .filter(entry => isWorkInDate(entry, selectedDateRange))
-              .filter(entry => matchesKeyword(searchKeyword, entry))
-          }
-        }))
-        .filter(f => f.properties.entries.length > 0)
-    };
-  }, [rawWorkGeoJSON, selectedDateRange, searchKeyword]);
-  console.log("Filtered Works Count:", filteredWorkGeoJSON?.features?.length);
-
-
-  const filteredGrantGeoJSON = useMemo(() => {
-    if (!rawGrantGeoJSON) return null;
-    // Apply date and keyword filters
-    return {
-      ...rawGrantGeoJSON,
-      features: rawGrantGeoJSON.features
-        .map(feature => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            entries: (feature.properties.entries || [])
-              .filter(isHighConfidence)
-              .filter(entry => isGrantInDate(entry, selectedDateRange))
-              .filter(entry => matchesKeyword(searchKeyword, entry))
-
-          }
-        }))
-        .filter(f => f.properties.entries.length > 0)
-    };
-  }, [rawGrantGeoJSON, selectedDateRange, searchKeyword]);
-  console.log("Filtered Grants Count:", filteredGrantGeoJSON?.features?.length);
-
-  // 3. Filter data based on grants or works, or both
-  const {
-    overlappingLocations, // features with both works and grants
-    nonOverlappingWorks,  // features with only works
-    nonOverlappingGrants, // features with only grants
-    // ...any maps you need
-  } = useMemo(() => splitFeaturesByLocation(
-    filteredWorkGeoJSON,
-    filteredGrantGeoJSON,
-    showWorks,
-    showGrants
-  ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
-
-
-  // 4. Filter data based on zoom level
-  const zoomFilteredNonOverlappingGrants = useMemo(() =>
-    filterFeaturesByZoom(nonOverlappingGrants, zoomLevel),
-    [nonOverlappingGrants, zoomLevel]
-  );
-
-  const zoomFilteredNonOverlappingWorks = useMemo(() =>
-    filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures"),
-    [nonOverlappingWorks, zoomLevel]
-  );
-
-  const zoomFilteredOverlappingLocations = useMemo(() =>
-    filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel, "workFeatures"),
-    [overlappingLocations, zoomLevel]
-  );
-
-  // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
-  const {
-    combined, // { locationMap, worksMap, grantsMap, expertsMap }
-    works,    // { locationMap, worksMap, expertsMap }
-    grants,   // { locationMap, grantsMap, expertsMap }
-  } = organizeAllMaps({
-    overlappingFeatures: zoomFilteredOverlappingLocations || [],
-    workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
-    grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
-    searchKeyword,
-  });
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
@@ -451,3 +437,91 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
 };
 
 export default ResearchMap;
+
+
+// 2. Apply filters in memory
+  // const filteredWorkGeoJSON = useMemo(() => {
+  //   if (!rawWorkGeoJSON) return null;
+  //   // Apply date and keyword filters
+  //   return {
+  //     ...rawWorkGeoJSON,
+  //     features: rawWorkGeoJSON.features
+  //       .map(feature => ({
+  //         ...feature,
+  //         properties: {
+  //           ...feature.properties,
+  //           entries: (feature.properties.entries || [])
+  //             .filter(isHighConfidence)
+  //             .filter(entry => isWorkInDate(entry, selectedDateRange))
+  //             .filter(entry => matchesKeyword(searchKeyword, entry))
+  //         }
+  //       }))
+  //       .filter(f => f.properties.entries.length > 0)
+  //   };
+  // }, [rawWorkGeoJSON, selectedDateRange, searchKeyword]);
+  // console.log("Filtered Works Count:", filteredWorkGeoJSON?.features?.length);
+
+
+  // const filteredGrantGeoJSON = useMemo(() => {
+  //   if (!rawGrantGeoJSON) return null;
+  //   // Apply date and keyword filters
+  //   return {
+  //     ...rawGrantGeoJSON,
+  //     features: rawGrantGeoJSON.features
+  //       .map(feature => ({
+  //         ...feature,
+  //         properties: {
+  //           ...feature.properties,
+  //           entries: (feature.properties.entries || [])
+  //             .filter(isHighConfidence)
+  //             .filter(entry => isGrantInDate(entry, selectedDateRange))
+  //             .filter(entry => matchesKeyword(searchKeyword, entry))
+
+  //         }
+  //       }))
+  //       .filter(f => f.properties.entries.length > 0)
+  //   };
+  // }, [rawGrantGeoJSON, selectedDateRange, searchKeyword]);
+  // console.log("Filtered Grants Count:", filteredGrantGeoJSON?.features?.length);
+
+  // 3. Filter data based on grants or works, or both
+  // const {
+  //   overlappingLocations, // features with both works and grants
+  //   nonOverlappingWorks,  // features with only works
+  //   nonOverlappingGrants, // features with only grants
+  //   // ...any maps you need
+  // } = useMemo(() => splitFeaturesByLocation(
+  //   filteredWorkGeoJSON,
+  //   filteredGrantGeoJSON,
+  //   showWorks,
+  //   showGrants
+  // ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
+
+
+  // 4. Filter data based on zoom level
+  // const zoomFilteredNonOverlappingGrants = useMemo(() =>
+  //   filterFeaturesByZoom(nonOverlappingGrants, zoomLevel),
+  //   [nonOverlappingGrants, zoomLevel]
+  // );
+
+  // const zoomFilteredNonOverlappingWorks = useMemo(() =>
+  //   filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures"),
+  //   [nonOverlappingWorks, zoomLevel]
+  // );
+
+  // const zoomFilteredOverlappingLocations = useMemo(() =>
+  //   filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel, "workFeatures"),
+  //   [overlappingLocations, zoomLevel]
+  // );
+
+  // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
+  // const {
+  //   combined, // { locationMap, worksMap, grantsMap, expertsMap }
+  //   works,    // { locationMap, worksMap, expertsMap }
+  //   grants,   // { locationMap, grantsMap, expertsMap }
+  // } = organizeAllMaps({
+  //   overlappingFeatures: zoomFilteredOverlappingLocations || [],
+  //   workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
+  //   grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
+  //   searchKeyword,
+  // });
