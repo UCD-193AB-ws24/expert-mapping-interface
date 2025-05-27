@@ -384,258 +384,68 @@ app.get('/api/redis/getRawMaps', async (req, res) => {
   }
 });
 
-// Fetches all layer specificity maps from Redis
-// Country Level Maps
-app.get('/api/redis/nonoverlap/getCountryLevelMaps', async (req, res) => {
+// Non-overlap route for all three layers (works, grants, combined)
+app.get('/api/redis/nonoverlap/getAll:level', async (req, res) => {
   try {
     if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
+    const { level } = req.params; // e.g., CountryLevelMaps, StateLevelMaps, etc.
 
-    const nonOverlapWorkCountryMap = await redisClient.get('layer:nonOverlapWork:country');
-    const nonOverlapGrantCountryMap = await redisClient.get('layer:nonOverlapGrant:country');
-    const combinedCountryMap = await redisClient.get('layer:combined:country');
+    // Build all three keys
+    const workKey = `layer:nonOverlapWork:${level.replace('LevelMaps', '').toLowerCase()}`;
+    const grantKey = `layer:nonOverlapGrant:${level.replace('LevelMaps', '').toLowerCase()}`;
+    const combinedKey = `layer:combined:${level.replace('LevelMaps', '').toLowerCase()}`;
 
-    if (!nonOverlapWorkCountryMap || !nonOverlapGrantCountryMap || !combinedCountryMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-    // When both toggles for showWorks and showGrants are on, we would need to get
-    // the combined country map which is already stored in Redis
-    res.json({
-      nonOverlapWorkCountryMap: JSON.parse(nonOverlapWorkCountryMap),
-      nonOverlapGrantCountryMap: JSON.parse(nonOverlapGrantCountryMap),
-      combinedCountryMap: JSON.parse(combinedCountryMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-app.get('/api/redis/overlap/getCountryLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
+    // Fetch all three in parallel
+    const [workData, grantData, combinedData] = await Promise.all([
+      redisClient.get(workKey),
+      redisClient.get(grantKey),
+      redisClient.get(combinedKey),
+    ]);
 
-    const overlapWorkCountryMap = await redisClient.get('layer:overlapWork:country');
-    const overlapGrantCountryMap = await redisClient.get('layer:overlapGrant:country');
-
-    if (!countryMap || !stateMap || !cityMap || !combinedCountryMap || !combinedStateMap || !combinedCityMap) {
+    if (!workData || !grantData || !combinedData) {
       return res.status(404).json({ error: 'One or more maps not found in Redis' });
     }
 
     res.json({
-      overlapWorkCountryMap: JSON.parse(overlapWorkCountryMap),
-      overlapGrantCountryMap: JSON.parse(overlapGrantCountryMap)
+      worksMap: JSON.parse(workData),
+      grantsMap: JSON.parse(grantData),
+      combinedMap: JSON.parse(combinedData),
     });
   } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
-// State Level Maps
-app.get('/api/redis/nonoverlap/getStateLevelMaps', async (req, res) => {
+// Overlap route for single layers (works or grants)
+app.get('/api/redis/overlap/get:level', async (req, res) => {
   try {
     if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
       return res.status(500).json({ error: 'Redis client is not connected' });
     }
+    const { level } = req.params;
+    const { type } = req.query;
 
-    const nonOverlapWorkStateMap = await redisClient.get('layer:nonOverlapWork:state');
-    const nonOverlapGrantStateMap = await redisClient.get('layer:nonOverlapGrant:state');
-    const combinedCountryMap = await redisClient.get('layer:combined:state');
-
-    if (!nonOverlapWorkStateMap || !nonOverlapGrantStateMap || !combinedCountryMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
+    let redisKey = '';
+    if (type === 'works') {
+      redisKey = `layer:overlapWork:${level.replace('LevelMaps', '').toLowerCase()}`;
+    } else if (type === 'grants') {
+      redisKey = `layer:overlapGrant:${level.replace('LevelMaps', '').toLowerCase()}`;
+    } else {
+      return res.status(400).json({ error: 'Invalid type parameter' });
     }
 
-    res.json({
-      nonOverlapWorkStateMap: JSON.parse(nonOverlapWorkStateMap),
-      nonOverlapGrantStateMap: JSON.parse(nonOverlapGrantStateMap),
-      combinedCountryMap: JSON.parse(combinedCountryMap)
-    });
+    const mapData = await redisClient.get(redisKey);
+    if (!mapData) {
+      return res.status(404).json({ error: 'Map not found in Redis' });
+    }
+    res.json(JSON.parse(mapData));
   } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-app.get('/api/redis/overlap/getStateLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
-
-    const overlapWorkStateMap = await redisClient.get('layer:overlapWork:state');
-    const overlapGrantStateMap = await redisClient.get('layer:overlapGrant:state');
-
-    if (!overlapWorkStateMap || !overlapGrantStateMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-
-    res.json({
-      overlapWorkStateMap: JSON.parse(overlapWorkStateMap),
-      overlapGrantStateMap: JSON.parse(overlapGrantStateMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
-// County Level Maps
-app.get('/api/redis/nonoverlap/getCountyLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
-
-    const nonOverlapWorkCountyMap = await redisClient.get('layer:nonOverlapWork:county');
-    const nonOverlapGrantCountyMap = await redisClient.get('layer:nonOverlapGrant:county');
-    const combinedCountyMap = await redisClient.get('layer:combined:county');
-
-    if (!nonOverlapWorkCountyMap || !nonOverlapGrantCountyMap || !combinedCountyMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-
-    res.json({
-      nonOverlapWorkCountyMap: JSON.parse(nonOverlapWorkCountyMap),
-      nonOverlapGrantCountyMap: JSON.parse(nonOverlapGrantCountyMap),
-      combinedCountyMap: JSON.parse(combinedCountyMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-app.get('/api/redis/overlap/getCountyLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
-
-    const overlapWorkCountyMap = await redisClient.get('layer:overlapWork:county');
-    const overlapGrantCountyMap = await redisClient.get('layer:overlapGrant:county');
-
-    if (!overlapWorkCountyMap || !overlapGrantCountyMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-
-    res.json({
-      overlapWorkCountyMap: JSON.parse(overlapWorkCountyMap),
-      overlapGrantCountyMap: JSON.parse(overlapGrantCountyMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-
-// City Level Maps
-app.get('/api/redis/nonoverlap/getCityLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
-
-    const nonOverlapWorkCityMap = await redisClient.get('layer:nonOverlapWork:city');
-    const nonOverlapGrantCityMap = await redisClient.get('layer:nonOverlapGrant:city');
-    const combinedCityMap = await redisClient.get('layer:combined:city');
-
-    if (!nonOverlapWorkCityMap || !nonOverlapGrantCityMap || !combinedCityMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-
-    res.json({
-      nonOverlapWorkCityMap: JSON.parse(nonOverlapWorkCityMap),
-      nonOverlapGrantCityMap: JSON.parse(nonOverlapGrantCityMap),
-      combinedCityMap: JSON.parse(combinedCityMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-app.get('/api/redis/overlap/getCityLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
-
-    const overlapWorkCityMap = await redisClient.get('layer:overlapWork:city');
-    const overlapGrantCityMap = await redisClient.get('layer:overlapGrant:city');
-
-    if (!overlapWorkCityMap || !overlapGrantCityMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-
-    res.json({
-      overlapWorkCityMap: JSON.parse(overlapWorkCityMap),
-      overlapGrantCityMap: JSON.parse(overlapGrantCityMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-
-// Exact Level Maps
-app.get('/api/redis/nonoverlap/getExactLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
-
-    const nonOverlapWorkExactMap = await redisClient.get('layer:nonOverlapWork:exact');
-    const nonOverlapGrantExactMap = await redisClient.get('layer:nonOverlapGrant:exact');
-    const combinedExactMap = await redisClient.get('layer:combined:exact');
-
-    if (!nonOverlapWorkExactMap || !nonOverlapGrantExactMap || !combinedExactMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-
-    res.json({
-      nonOverlapWorkExactMap: JSON.parse(nonOverlapWorkExactMap),
-      nonOverlapGrantExactMap: JSON.parse(nonOverlapGrantExactMap),
-      combinedExactMap: JSON.parse(combinedExactMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-app.get('/api/redis/overlap/getExactLevelMaps', async (req, res) => {
-  try {
-    if (!redisClient.isOpen) {
-      console.error('❌ Redis client is not connected');
-      return res.status(500).json({ error: 'Redis client is not connected' });
-    }
-
-    const overlapWorkExactMap = await redisClient.get('layer:overlapWork:exact');
-    const overlapGrantExactMap = await redisClient.get('layer:overlapGrant:exact');
-
-    if (!overlapWorkExactMap || !overlapGrantExactMap) {
-      return res.status(404).json({ error: 'One or more maps not found in Redis' });
-    }
-
-    res.json({
-      overlapWorkExactMap: JSON.parse(overlapWorkExactMap),
-      overlapGrantExactMap: JSON.parse(overlapGrantExactMap)
-    });
-  } catch (error) {
-    console.error('❌ Error fetching country level maps from Redis:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
-});
-    
 
 // ================ POSTGIS ENDPOINTS ================ //
 
