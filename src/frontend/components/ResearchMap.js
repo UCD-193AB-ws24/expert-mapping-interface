@@ -154,71 +154,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   fetchLocationMaps();
 }, [zoomLevel, showWorks, showGrants]);
 
-  /**
-     * useEffect: Fetch GeoJSON data for works and grants.
-     * - Fetches data from two APIs concurrently.
-     * - Processes the data into GeoJSON format and updates state variables.
-     * - Handles errors and updates the loading state.
-     */
-  useEffect(() => {
-    setIsLoading(true);
-    const loadGeoData = async () => {
-      try {
-        // Fetch data from two different APIs concurrently
-        Promise.all([
-          fetch('/api/redis/worksQuery').then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-          }),
-          fetch('/api/redis/grantsQuery').then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-          }),
-        ])
-          .then(([worksData, grantsData]) => {
-            // Process works data into GeoJSON format.
-            const processedWorksData = {
-              type: "FeatureCollection",
-              features: worksData.features.map((feature) => ({
-                ...feature,
-                properties: {
-                  ...feature.properties,
-                  entries: feature.properties.entries || [],
-                },
-              })),
-            };
-            // Process grants data into GeoJSON format.
-            const processedGrantsData = {
-              type: "FeatureCollection",
-              features: grantsData.features.map((feature) => ({
-                ...feature,
-                properties: {
-                  ...feature.properties,
-                  entries: feature.properties.entries || [],
-                },
-              })),
-            };
-            setRawWorkGeoJSON(processedWorksData);
-            setRawGrantGeoJSON(processedGrantsData);
-            setIsLoading(false);
-          })
-          .catch((error) => {
-            console.error("Error fetching data:", error);
-            setIsLoading(false);
-            setError("Failed to load map data. Please ensure the API server is running on port 3001.");
-          });
-      } catch (err) {
-        console.error(" Error loading geojson:", err);
-        setError("Failed to load map data.");
-        setIsLoading(false);
-      }
-    };
-    loadGeoData();
-  }, []);
+
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
@@ -525,3 +461,69 @@ export default ResearchMap;
   //   grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
   //   searchKeyword,
   // });
+
+    // /**
+  //    * useEffect: Fetch GeoJSON data for works and grants.
+  //    * - Fetches data from two APIs concurrently.
+  //    * - Processes the data into GeoJSON format and updates state variables.
+  //    * - Handles errors and updates the loading state.
+  //    */
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   const loadGeoData = async () => {
+  //     try {
+  //       // Fetch data from two different APIs concurrently
+  //       Promise.all([
+  //         fetch('/api/redis/worksQuery').then((response) => {
+  //           if (!response.ok) {
+  //             throw new Error(`HTTP error! Status: ${response.status}`);
+  //           }
+  //           return response.json();
+  //         }),
+  //         fetch('/api/redis/grantsQuery').then((response) => {
+  //           if (!response.ok) {
+  //             throw new Error(`HTTP error! Status: ${response.status}`);
+  //           }
+  //           return response.json();
+  //         }),
+  //       ])
+  //         .then(([worksData, grantsData]) => {
+  //           // Process works data into GeoJSON format.
+  //           const processedWorksData = {
+  //             type: "FeatureCollection",
+  //             features: worksData.features.map((feature) => ({
+  //               ...feature,
+  //               properties: {
+  //                 ...feature.properties,
+  //                 entries: feature.properties.entries || [],
+  //               },
+  //             })),
+  //           };
+  //           // Process grants data into GeoJSON format.
+  //           const processedGrantsData = {
+  //             type: "FeatureCollection",
+  //             features: grantsData.features.map((feature) => ({
+  //               ...feature,
+  //               properties: {
+  //                 ...feature.properties,
+  //                 entries: feature.properties.entries || [],
+  //               },
+  //             })),
+  //           };
+  //           setRawWorkGeoJSON(processedWorksData);
+  //           setRawGrantGeoJSON(processedGrantsData);
+  //           setIsLoading(false);
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error fetching data:", error);
+  //           setIsLoading(false);
+  //           setError("Failed to load map data. Please ensure the API server is running on port 3001.");
+  //         });
+  //     } catch (err) {
+  //       console.error(" Error loading geojson:", err);
+  //       setError("Failed to load map data.");
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   loadGeoData();
+  // }, []);
