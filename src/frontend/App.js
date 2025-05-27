@@ -107,7 +107,7 @@ function App() {
       </nav>
 
       {/* Main Content Section */}
-      <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
+      <main className="main-content w-full overflow-hidden bg-white">
         <div className="map-container flex w-full h-full">
           {/* Filter Mobile View Button */}
           {!isFilterModalOpen && !isGuideModalOpen && (

@@ -51,6 +51,17 @@ body {
   /* Allow content to overflow if necessary */
 }
 
+.main-content {
+  margin-top: 140px;
+  height: calc(100vh - 140px); /* Default for desktop */
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    height: calc(100dvh - 140px); /* Use dynamic height for mobile */
+  }
+}
+
 aside {
   font-size: large;
   grid-column: 2;
@@ -81,9 +92,10 @@ aside {
 #map {
   flex: 1;
   width: 100%;
-  height: 85vh;
+  /* height: 85vh; */
+  height: 100%;
   /* Map takes up half the screen height */
-  max-height: 85vh;
+  min-height: 100%;
   /* Prevent the map from exceeding half the screen height */
 }
 
