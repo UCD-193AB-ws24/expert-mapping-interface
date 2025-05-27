@@ -387,7 +387,7 @@ const renderPoints = ({
     if (
       locationData.geometryType !== "Point" ||
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
-      !Array.isArray(locationData.worksIDs) || locationData.worksIDs.length === 0
+      !Array.isArray(locationData.workIDs) || locationData.workIDs.length === 0 //changed this to worksIDs durig testing
     ) return;
 
     // Flip coordinates for Leaflet compatibility
@@ -401,7 +401,7 @@ const renderPoints = ({
     
     // Get expert count for each work and grant per location
     // Count experts from workIDs
-    locationData.worksIDs.forEach((workID) => {
+    locationData.workIDs.forEach((workID) => { // changed this to workIDs during testing
       const work = worksMap.get(workID);
       if (!work) {
         console.warn(`Work with ID ${workID} not found in worksMap.`);

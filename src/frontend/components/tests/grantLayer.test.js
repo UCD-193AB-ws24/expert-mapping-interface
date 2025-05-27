@@ -86,11 +86,7 @@ jest.mock("leaflet", () => {
   };
 });
 
-// Mock the popup creation function
-// jest.mock("../rendering/Popups", () => ({
-//   createMultiGrantPopup: jest.fn(() => "<div>Mock popup content</div>"),
-// }));
-// Mock the popup creation function
+
 jest.mock("../rendering/Popups", () => ({
   createMultiGrantPopup: jest.fn((expertCount, grantCount, locationName, matchedFields) => {
     return `<div>
@@ -104,7 +100,10 @@ jest.mock("../rendering/Popups", () => ({
 
 // Mock the panel data preparation function
 jest.mock("../rendering/utils/preparePanelData", () => ({
-  prepareGrantPanelData: jest.fn(() => ({ mockData: "test" })),
+  prepareGrantPanelData: jest.fn(() => ({
+    expertIDs: [2],
+    grantIDs: [1],
+  })),
 }));
 
 describe("GrantLayer component", () => {
@@ -176,7 +175,7 @@ describe("GrantLayer component", () => {
   });
 
   // Test: Cleans up layers correctly on component unmount
-  it("removes all layers on unmount", () => {
+  it("removes all layers on unmount", () => { //not sure if it adds coverage
     const locationMap = new Map([
       [
         "loc1",
@@ -502,7 +501,7 @@ describe("GrantLayer component", () => {
         },
       ],
     ]);
-  
+
     const grantsMap = new Map([
       [1, { matchedFields: ["a"] }],
       [2, { matchedFields: ["b"] }],
@@ -511,7 +510,7 @@ describe("GrantLayer component", () => {
       [10, { name: "Big Grant" }],
       [11, { name: "Small Grant" }],
     ]);
-  
+
     render(
       <GrantLayer
         locationMap={locationMap}
@@ -523,10 +522,10 @@ describe("GrantLayer component", () => {
         setPanelType={jest.fn()}
       />
     );
-  
+
     expect(L.polygon).toHaveBeenCalled();
   });
-  
+
   it("calls iconCreateFunction and returns custom cluster icon with expert count", () => {
     // Prepare dummy map data
     const locationMap = new Map([
@@ -541,15 +540,15 @@ describe("GrantLayer component", () => {
         },
       ],
     ]);
-  
+
     const grantsMap = new Map([
       [1, { title: "Grant A" }],
     ]);
-  
+
     const expertsMap = new Map([
       [1, { name: "Expert A" }],
     ]);
-  
+
     // Render component to initialize markerClusterGroup
     render(
       <GrantLayer
@@ -562,11 +561,11 @@ describe("GrantLayer component", () => {
         setPanelType={jest.fn()}
       />
     );
-  
+
     // Grab the iconCreateFunction from the first call to markerClusterGroup
     const clusterOptions = L.markerClusterGroup.mock.calls[0][0];
     const iconCreateFn = clusterOptions.iconCreateFunction;
-  
+
     // Create a fake cluster
     const mockCluster = {
       getAllChildMarkers: () => [
@@ -574,10 +573,10 @@ describe("GrantLayer component", () => {
         { options: { expertCount: 3 } },
       ],
     };
-  
+
     // Call iconCreateFunction
     iconCreateFn(mockCluster);
-  
+
     // Assert divIcon was called with the correct total
     expect(L.divIcon).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -586,12 +585,12 @@ describe("GrantLayer component", () => {
       })
     );
   });
-  
+
   it("handles polygon popup mouseenter and mouseleave correctly", () => {
     const mockSetSelectedGrants = jest.fn();
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
-  
+
     const locationMap = new Map([
       [
         "polygonPopup",
@@ -605,15 +604,15 @@ describe("GrantLayer component", () => {
         },
       ],
     ]);
-  
+
     const grantsMap = new Map([
       [1, { matchedFields: ["popupTest"] }],
     ]);
-  
+
     const expertsMap = new Map([
       [1, { name: "Popup Expert" }],
     ]);
-  
+
     render(
       <GrantLayer
         locationMap={locationMap}
@@ -625,38 +624,38 @@ describe("GrantLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-  
+
     const marker = L.marker.mock.results[0]?.value;
     const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
     expect(mouseoverHandler).toBeDefined();
     mouseoverHandler();
-  
+
     const popup = L.popup.mock.results[0]?.value;
     const popupElement = popup.getElement();
     expect(popupElement).toBeDefined();
-  
+
     const mouseenterHandler = popupElement.addEventListener.mock.calls.find(
       ([event]) => event === "mouseenter"
     )?.[1];
     const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(
       ([event]) => event === "mouseleave"
     )?.[1];
-  
+
     expect(mouseenterHandler).toBeDefined();
     expect(mouseleaveHandler).toBeDefined();
-  
+
     mouseenterHandler(); // simulate hover
     mouseleaveHandler(); // simulate exit
     jest.runAllTimers(); // simulate delay
-  
+
     expect(popup.close).toHaveBeenCalled();
   });
-  
+
   it("handles click on polygon popup button to open panel and close popup", () => {
     const mockSetSelectedGrants = jest.fn();
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
-  
+
     const locationMap = new Map([
       [
         "polygon-popup",
@@ -670,10 +669,10 @@ describe("GrantLayer component", () => {
         },
       ],
     ]);
-  
+
     const grantsMap = new Map([[1, { matchedFields: ["topic"] }]]);
     const expertsMap = new Map([[2, { name: "Expert X" }]]);
-  
+
     render(
       <GrantLayer
         locationMap={locationMap}
@@ -685,197 +684,925 @@ describe("GrantLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-  
+
     const marker = L.marker.mock.results[0].value;
-  
+
     // Simulate mouseover to create popup
     const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
     expect(mouseover).toBeDefined();
     mouseover();
-  
+
     const popup = L.popup.mock.results[0].value;
     const popupElement = popup.getElement();
-  
+
     const viewExpertsBtn = popupElement.querySelector(".view-g-experts-btn");
     expect(viewExpertsBtn).toBeDefined();
-  
+
     const clickHandler = viewExpertsBtn.addEventListener.mock.calls.find(
       ([e]) => e === "click"
     )?.[1];
     expect(clickHandler).toBeDefined();
-  
+
     // Simulate button click
     clickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
-  
+
     expect(mockSetSelectedGrants).toHaveBeenCalled();
     expect(mockSetPanelType).toHaveBeenCalledWith("grants");
     expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
     expect(popup.close).toHaveBeenCalled();
   });
-  
+
   // Test for grants without matchedFields
-it("handles grants without matchedFields in popup creation", () => {
-  const mockSetSelectedGrants = jest.fn();
-  const mockSetPanelOpen = jest.fn();
-  const mockSetPanelType = jest.fn();
+  it("handles grants without matchedFields in popup creation", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
 
-  const locationMap = new Map([
-    [
-      "testPoint",
-      {
-        geometryType: "Point",
-        coordinates: [10, 20],
-        grantIDs: [1, 2, 3],
-        expertIDs: [1],
-        name: "Test Point",
-      },
-    ],
-  ]);
+    const locationMap = new Map([
+      [
+        "testPoint",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          grantIDs: [1, 2, 3],
+          expertIDs: [1],
+          name: "Test Point",
+        },
+      ],
+    ]);
 
-  const grantsMap = new Map([
-    [1, { matchedFields: ["field1", "field2"] }], // Has matchedFields
-    [2, {}], // No matchedFields property
-    [3, { matchedFields: null }], // matchedFields is null
-  ]);
+    const grantsMap = new Map([
+      [1, { matchedFields: ["field1", "field2"] }], // Has matchedFields
+      [2, {}], // No matchedFields property
+      [3, { matchedFields: null }], // matchedFields is null
+    ]);
 
-  const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
 
-  render(
-    <GrantLayer
-      locationMap={locationMap}
-      grantsMap={grantsMap}
-      expertsMap={expertsMap}
-      showGrants={true}
-      setSelectedGrants={mockSetSelectedGrants}
-      setPanelOpen={mockSetPanelOpen}
-      setPanelType={mockSetPanelType}
-    />
-  );
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
 
-  const marker = L.marker.mock.results[0]?.value;
-  const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-  
-  // Trigger mouseover to test matchedFields handling
-  mouseoverHandler();
+    const marker = L.marker.mock.results[0]?.value;
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
 
-  expect(L.popup).toHaveBeenCalled();
-});
+    // Trigger mouseover to test matchedFields handling
+    mouseoverHandler();
 
-// Test for popup element not existing
-it("handles missing popup element gracefully", () => {
-  const mockSetSelectedGrants = jest.fn();
-  const mockSetPanelOpen = jest.fn();
-  const mockSetPanelType = jest.fn();
+    expect(L.popup).toHaveBeenCalled();
+  });
 
-  // Mock popup.getElement() to return null
-  const mockPopupWithNullElement = {
-    setLatLng: jest.fn().mockReturnThis(),
-    setContent: jest.fn().mockReturnThis(),
-    openOn: jest.fn().mockReturnThis(),
-    remove: jest.fn(),
-    close: jest.fn(),
-    getElement: jest.fn(() => null), // Return null instead of element
-  };
+  // Test for popup element not existing
+  it("handles missing popup element gracefully", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
 
-  // Override the L.popup mock for this test
-  L.popup.mockImplementationOnce(() => mockPopupWithNullElement);
+    // Mock popup.getElement() to return null
+    const mockPopupWithNullElement = {
+      setLatLng: jest.fn().mockReturnThis(),
+      setContent: jest.fn().mockReturnThis(),
+      openOn: jest.fn().mockReturnThis(),
+      remove: jest.fn(),
+      close: jest.fn(),
+      getElement: jest.fn(() => null), // Return null instead of element
+    };
 
-  const locationMap = new Map([
-    [
-      "testPoint",
-      {
-        geometryType: "Point",
-        coordinates: [10, 20],
+    // Override the L.popup mock for this test
+    L.popup.mockImplementationOnce(() => mockPopupWithNullElement);
+
+    const locationMap = new Map([
+      [
+        "testPoint",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          grantIDs: [1],
+          expertIDs: [1],
+          name: "Test Point",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[1, { matchedFields: ["test"] }]]);
+    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+
+    // This should not throw an error even with null popup element
+    expect(() => mouseoverHandler()).not.toThrow();
+  });
+
+  // Test for missing view button in popup
+  it("handles missing view button in popup gracefully", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    // Mock popup element without the view button
+    const mockPopupElementNoButton = {
+      style: { pointerEvents: "auto" },
+      addEventListener: jest.fn(),
+      querySelector: jest.fn(() => null), // Return null for button query
+    };
+
+    const mockPopupWithNoButton = {
+      setLatLng: jest.fn().mockReturnThis(),
+      setContent: jest.fn().mockReturnThis(),
+      openOn: jest.fn().mockReturnThis(),
+      remove: jest.fn(),
+      close: jest.fn(),
+      getElement: jest.fn(() => mockPopupElementNoButton),
+    };
+
+    L.popup.mockImplementationOnce(() => mockPopupWithNoButton);
+
+    const locationMap = new Map([
+      [
+        "testPoint",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          grantIDs: [1],
+          expertIDs: [1],
+          name: "Test Point",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[1, { matchedFields: ["test"] }]]);
+    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+
+    // This should not throw an error even without the view button
+    expect(() => mouseoverHandler()).not.toThrow();
+  });
+
+
+  it("clears popup close timeout on mouseenter", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "hoverCancel",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "Hover Cancel Test",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[1, { matchedFields: ["energy"] }]]);
+    const expertsMap = new Map([[2, { name: "Dr. Hover" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+
+    // Trigger mouseover to simulate popup creation
+    const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    mouseover();
+
+    const popup = L.popup.mock.results[0].value;
+    const popupElement = popup.getElement();
+
+    const mouseleave = popupElement.addEventListener.mock.calls.find(([e]) => e === "mouseleave")?.[1];
+    const mouseenter = popupElement.addEventListener.mock.calls.find(([e]) => e === "mouseenter")?.[1];
+
+    // Simulate mouseleave → sets timeout to close
+    mouseleave();
+
+    const clearSpy = jest.spyOn(global, "clearTimeout");
+
+    // Simulate mouseenter before timeout fires
+    mouseenter();
+
+    expect(clearSpy).toHaveBeenCalled();
+
+    clearSpy.mockRestore();
+  });
+
+
+  it("handles view-g-experts-btn click in point popup and updates panel state", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "viewBtnPoint",
+        {
+          geometryType: "Point",
+          coordinates: [0, 0],
+          grantIDs: [11],
+          expertIDs: [22],
+          name: "Popup Button Location",
+          display_name: "Popup View Test",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[11, { title: "Grant X" }]]);
+    const expertsMap = new Map([[22, { name: "Dr. Test" }]]);
+
+    // Spy on prepareGrantPanelData to make sure it’s called with expected args
+    const prepareGrantPanelData = require("../rendering/utils/preparePanelData").prepareGrantPanelData;
+    prepareGrantPanelData.mockClear();
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0].value;
+    const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    const popup = L.popup.mock.results[0]?.value;
+    const popupElement = popup.getElement();
+
+    const viewBtn = popupElement.querySelector(".view-g-experts-btn");
+    expect(viewBtn).toBeDefined();
+
+    const clickHandler = viewBtn.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];
+    expect(clickHandler).toBeDefined();
+
+    clickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
+
+    // Assertions
+    expect(prepareGrantPanelData).toHaveBeenCalledWith(
+      [22], [11], grantsMap, expertsMap, "viewBtnPoint", "Popup View Test"
+    );
+    expect(mockSetSelectedGrants).toHaveBeenCalled();
+    expect(mockSetPanelType).toHaveBeenCalledWith("grants");
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  //line 315 if
+  it("closes grant point popup on marker mouseout after timeout", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "timeoutPoint",
+        {
+          geometryType: "Point",
+          coordinates: [0, 0],
+          grantIDs: [101],
+          expertIDs: [202],
+          name: "Timeout Point",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[101, { matchedFields: ["energy"] }]]);
+    const expertsMap = new Map([[202, { name: "Dr. Timeout" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    expect(marker).toBeDefined();
+
+    // Trigger mouseover to open the popup
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    // Trigger mouseout
+    const mouseoutHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
+    expect(mouseoutHandler).toBeDefined();
+    mouseoutHandler();
+
+    // Wait for the timeout to finish
+    jest.runAllTimers();
+
+    const popup = L.popup.mock.results[0]?.value;
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  it("removes existing grantPointPopup before creating a new one", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "testPoint",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "Test Point",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
+    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+
+    // Simulate mouseover to create the first popup
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    const firstPopup = L.popup.mock.results[0]?.value;
+    expect(firstPopup).toBeDefined();
+
+    // Simulate mouseover again to trigger the removal of the existing popup
+    mouseoverHandler();
+
+    // Assert that the first popup was removed
+    expect(firstPopup.remove).toHaveBeenCalled();
+  });
+
+  //297
+  it("clears grantPointCT timeout on mouseover", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "testPoint",
+        {
+          geometryType: "Point",
+          coordinates: [10, 20],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "Test Point",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
+    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+
+    // Simulate mouseout to set grantPointCT
+    const mouseoutHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
+    expect(mouseoutHandler).toBeDefined();
+    mouseoutHandler();
+
+    // Mock setTimeout and clearTimeout
+    const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
+
+    // Simulate mouseover to clear grantPointCT
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    // Verify that clearTimeout was called
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    // Clean up
+    clearTimeoutSpy.mockRestore();
+  });
+
+  it("renders polygons and handles events", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "polygon_test",
+        {
+          geometryType: "Polygon",
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 1],
+              [0, 0],
+            ],
+          ],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "Test Polygon",
+          display_name: "Test Polygon Display",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
+    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    // Verify polygon was created
+    const polygon = L.polygon.mock.results[0]?.value;
+    expect(polygon).toBeDefined();
+    expect(L.polygon).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({
+        color: "#eda012",
+        fillColor: "#efa927",
+        fillOpacity: 0.5,
+        weight: 2,
+      })
+    );
+
+    // Verify marker was created at the polygon center
+    const marker = L.marker.mock.results[0]?.value;
+    expect(marker).toBeDefined();
+
+    // Simulate mouseover to create a popup
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    const popup = L.popup.mock.results[0]?.value;
+    expect(popup).toBeDefined();
+    expect(L.popup).toHaveBeenCalledWith(
+      expect.objectContaining({
+        closeButton: false,
+        autoClose: false,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: false,
+      })
+    );
+
+    // Simulate mouseleave to close the popup after a timeout
+    const mouseleaveHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
+    expect(mouseleaveHandler).toBeDefined();
+    mouseleaveHandler();
+    jest.runAllTimers(); // Fast-forward the timeout
+    expect(popup.close).toHaveBeenCalled();
+
+    // Simulate button click inside the popup
+    const popupElement = popup.getElement();
+    const button = popupElement.querySelector(".view-g-experts-btn");
+    expect(button).toBeDefined();
+
+    // Simulate the button click using the addEventListener mock
+    const clickHandler = button.addEventListener.mock.calls.find(([event]) => event === "click")?.[1];
+    expect(clickHandler).toBeDefined();
+    clickHandler({ preventDefault: jest.fn(), stopPropagation: jest.fn() });
+
+    expect(mockSetSelectedGrants).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expertIDs: [2],
         grantIDs: [1],
-        expertIDs: [1],
-        name: "Test Point",
-      },
-    ],
+      })
+    );
+    expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
+    expect(mockSetPanelType).toHaveBeenCalledWith("grants");
+    expect(popup.close).toHaveBeenCalled();
+  });
+
+  //104-108
+  it("handles polygon marker mouseover and creates a popup", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "polygon_test",
+        {
+          geometryType: "Polygon",
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 1],
+              [0, 0],
+            ],
+          ],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "Test Polygon",
+          display_name: "Test Polygon Display",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
+    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    expect(marker).toBeDefined();
+
+    // Simulate mouseout to set closeTimeout
+    const mouseoutHandler = marker.on.mock.calls.find(([event]) => event === "mouseout")?.[1];
+    expect(mouseoutHandler).toBeDefined();
+    mouseoutHandler();
+
+    // Mock clearTimeout
+    const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
+
+    // Simulate mouseover to clear closeTimeout
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    // Verify clearTimeout was called
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    // Verify popup was created
+    const popup = L.popup.mock.results[0]?.value;
+    expect(popup).toBeDefined();
+    expect(L.popup).toHaveBeenCalledWith(
+      expect.objectContaining({
+        closeButton: false,
+        autoClose: false,
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: false,
+      })
+    );
+
+    // Verify popup content
+    expect(popup.setContent).toHaveBeenCalledWith(
+      expect.stringContaining("Test Polygon")
+    );
+
+    // Verify popup was added to the map
+    expect(popup.openOn).toHaveBeenCalledWith(expect.any(Object));
+
+    // Verify popup events
+    const popupElement = popup.getElement();
+    expect(popupElement).toBeDefined();
+
+    const mouseenterHandler = popupElement.addEventListener.mock.calls.find(
+      ([event]) => event === "mouseenter"
+    )?.[1];
+    expect(mouseenterHandler).toBeDefined();
+
+    const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(
+      ([event]) => event === "mouseleave"
+    )?.[1];
+    expect(mouseleaveHandler).toBeDefined();
+
+    // Simulate mouseleave to close the popup after a timeout
+    mouseleaveHandler();
+    jest.runAllTimers(); // Fast-forward the timeout
+    expect(popup.close).toHaveBeenCalled();
+
+    // Clean up
+    clearTimeoutSpy.mockRestore();
+  });
+
+
+  const mockLocationMap = new Map([
+    ['point-location', {
+      geometryType: 'Point',
+      coordinates: [0, 0],
+      grantIDs: ['grant1'],
+      expertIDs: ['expert1'],
+      name: 'Test Location',
+      display_name: 'Test Location'
+    }]
   ]);
 
-  const grantsMap = new Map([[1, { matchedFields: ["test"] }]]);
-  const expertsMap = new Map([[1, { name: "Test Expert" }]]);
-
-  render(
-    <GrantLayer
-      locationMap={locationMap}
-      grantsMap={grantsMap}
-      expertsMap={expertsMap}
-      showGrants={true}
-      setSelectedGrants={mockSetSelectedGrants}
-      setPanelOpen={mockSetPanelOpen}
-      setPanelType={mockSetPanelType}
-    />
-  );
-
-  const marker = L.marker.mock.results[0]?.value;
-  const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-  
-  // This should not throw an error even with null popup element
-  expect(() => mouseoverHandler()).not.toThrow();
-});
-
-// Test for missing view button in popup
-it("handles missing view button in popup gracefully", () => {
-  const mockSetSelectedGrants = jest.fn();
-  const mockSetPanelOpen = jest.fn();
-  const mockSetPanelType = jest.fn();
-
-  // Mock popup element without the view button
-  const mockPopupElementNoButton = {
-    style: { pointerEvents: "auto" },
-    addEventListener: jest.fn(),
-    querySelector: jest.fn(() => null), // Return null for button query
-  };
-
-  const mockPopupWithNoButton = {
-    setLatLng: jest.fn().mockReturnThis(),
-    setContent: jest.fn().mockReturnThis(),
-    openOn: jest.fn().mockReturnThis(),
-    remove: jest.fn(),
-    close: jest.fn(),
-    getElement: jest.fn(() => mockPopupElementNoButton),
-  };
-
-  L.popup.mockImplementationOnce(() => mockPopupWithNoButton);
-
-  const locationMap = new Map([
-    [
-      "testPoint",
-      {
-        geometryType: "Point",
-        coordinates: [10, 20],
-        grantIDs: [1],
-        expertIDs: [1],
-        name: "Test Point",
-      },
-    ],
+  const mockGrantsMap = new Map([
+    ['grant1', {
+      entries: [{ title: "Grant Title", abstract: "Grant Abstract" }],
+      matchedFields: ['title'],
+    }]
   ]);
 
-  const grantsMap = new Map([[1, { matchedFields: ["test"] }]]);
-  const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+  const mockExpertsMap = new Map([
+    ['expert1', {
+      name: "Expert One"
+    }]
+  ]);
 
-  render(
-    <GrantLayer
-      locationMap={locationMap}
-      grantsMap={grantsMap}
-      expertsMap={expertsMap}
-      showGrants={true}
-      setSelectedGrants={mockSetSelectedGrants}
-      setPanelOpen={mockSetPanelOpen}
-      setPanelType={mockSetPanelType}
-    />
-  );
+  it("handles polygon popup when grants have no matchedFields", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
 
-  const marker = L.marker.mock.results[0]?.value;
-  const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-  
-  // This should not throw an error even without the view button
-  expect(() => mouseoverHandler()).not.toThrow();
-});
+    const locationMap = new Map([
+      [
+        "no-matched-fields",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [2, 2]]],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "No Fields Polygon",
+          display_name: "Polygon",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([
+      [1, { title: "Grant with no fields" }], // 👈 No matchedFields
+    ]);
+
+    const expertsMap = new Map([
+      [2, { name: "No Fields Expert" }],
+    ]);
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    expect(marker).toBeDefined();
+
+    const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler(); // 👈 This triggers the popup creation
+
+    const popup = L.popup.mock.results[0]?.value;
+    expect(popup).toBeDefined();
+  });
+
+  it("removes existing popup before creating a new one", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
+
+    const locationMap = new Map([
+      [
+        "double-hover",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [2, 2]]],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "Popup Remover",
+          display_name: "Popup Overwrite",
+        },
+      ],
+    ]);
+
+    const grantsMap = new Map([
+      [1, { matchedFields: ["field"] }],
+    ]);
+
+    const expertsMap = new Map([
+      [2, { name: "Expert A" }],
+    ]);
+
+    const popupElement = {
+      style: { pointerEvents: "auto" },
+      addEventListener: jest.fn(),
+      querySelector: jest.fn(() => ({
+        addEventListener: jest.fn(),
+      })),
+    };
+
+    const popupMock = {
+      setLatLng: jest.fn().mockReturnThis(),
+      setContent: jest.fn().mockReturnThis(),
+      openOn: jest.fn().mockReturnThis(),
+      getElement: jest.fn(() => popupElement),
+      close: jest.fn(),
+      remove: jest.fn(), // 👈 we're checking this gets called
+    };
+
+    // Return the same popup twice (simulate persistent object)
+    L.popup
+      .mockReturnValueOnce(popupMock)
+      .mockReturnValueOnce(popupMock); // second hover will reuse this
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker = L.marker.mock.results[0]?.value;
+    expect(marker).toBeDefined();
+
+    // 🔁 Trigger first hover — creates initial popup
+    const mouseoverHandler = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
+    expect(mouseoverHandler).toBeDefined();
+    mouseoverHandler();
+
+    // 🔁 Trigger second hover — should trigger activePopup.remove()
+    mouseoverHandler();
+
+    // ✅ Expect .remove() to be called on the existing popup
+    expect(popupMock.remove).toHaveBeenCalled();
+  });
 
 
+  it("removes popup when clicking a second polygon", () => {
+    const mockSetSelectedGrants = jest.fn();
+    const mockSetPanelOpen = jest.fn();
+    const mockSetPanelType = jest.fn();
 
+    const locationMap = new Map([
+      [
+        "polygon1",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[0, 0], [1, 1], [1, 0]]],
+          grantIDs: [1],
+          expertIDs: [2],
+          name: "First Polygon",
+          display_name: "First Polygon",
+        },
+      ],
+      [
+        "polygon2",
+        {
+          geometryType: "Polygon",
+          coordinates: [[[2, 2], [3, 3], [3, 2]]],
+          grantIDs: [3],
+          expertIDs: [4],
+          name: "Second Polygon",
+          display_name: "Second Polygon",
+        },
+      ],
+    ]);
 
+    const grantsMap = new Map([
+      [1, { matchedFields: ["field1"] }],
+      [3, { matchedFields: ["field2"] }],
+    ]);
+
+    const expertsMap = new Map([
+      [2, { name: "Expert A" }],
+      [4, { name: "Expert B" }],
+    ]);
+
+    const popupElement = {
+      style: { pointerEvents: "auto" },
+      addEventListener: jest.fn(),
+      querySelector: jest.fn(() => ({
+        addEventListener: jest.fn(),
+      })),
+    };
+
+    const popupMock = {
+      setLatLng: jest.fn().mockReturnThis(),
+      setContent: jest.fn().mockReturnThis(),
+      openOn: jest.fn().mockReturnThis(),
+      getElement: jest.fn(() => popupElement),
+      close: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    L.popup
+      .mockReturnValueOnce(popupMock) // popup for first polygon
+      .mockReturnValueOnce(popupMock); // popup for second polygon
+
+    render(
+      <GrantLayer
+        locationMap={locationMap}
+        grantsMap={grantsMap}
+        expertsMap={expertsMap}
+        showGrants={true}
+        isMobileView={true}
+        setSelectedGrants={mockSetSelectedGrants}
+        setPanelOpen={mockSetPanelOpen}
+        setPanelType={mockSetPanelType}
+      />
+    );
+
+    const marker1 = L.marker.mock.results[0]?.value;
+    const marker2 = L.marker.mock.results[1]?.value;
+
+    const click1 = marker1.on.mock.calls.find(([e]) => e === "click")?.[1];
+    const click2 = marker2.on.mock.calls.find(([e]) => e === "click")?.[1];
+
+    click1(); // create first popup
+    click2(); // should call .remove() on the first one
+
+    expect(popupMock.remove).toHaveBeenCalled(); // ✅ this should now pass
+  });
 
 });
