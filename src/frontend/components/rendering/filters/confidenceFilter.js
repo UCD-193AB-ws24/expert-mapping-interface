@@ -3,8 +3,10 @@
  * @param {object} entry - The entry object with a confidence property.
  * @returns {boolean}
  */
-export function isHighConfidence(entry) {
+function isHighConfidence(entry) {
   // Parse as number in case it's a string
   const confidence = Number(entry.confidence);
   return !isNaN(confidence) && confidence >= 70;
 }
+
+module.exports = { isHighConfidence };

@@ -16,7 +16,7 @@
 import React, { useState } from "react";
 
 //Helper function to style confidence levels.
-const getConfidenceStyle = (confidenceValue) => {
+export const getConfidenceStyle = (confidenceValue) => {
   if (!confidenceValue) return { label: '', style: {} };
 
   if (confidenceValue.toLowerCase() === 'high') {
