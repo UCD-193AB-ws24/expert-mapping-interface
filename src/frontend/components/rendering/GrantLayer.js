@@ -40,6 +40,7 @@ const renderPolygons = ({
   grantsMap,
   expertsMap,
 }) => {
+
   // Sort polygons by area (largest to smallest)
   const sortedPolygons = Object.entries(locationMap)
     .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
@@ -70,6 +71,13 @@ const renderPolygons = ({
       weight: 2,
     }).addTo(map);
 
+    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
+    locationData.grantIDs.some(grantID => {
+      const grant = grantsMap[grantID];
+      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
+    })
+  );
+
     polygonLayers.push(polygon);
 
     // Calculate the center of the polygon
@@ -88,7 +96,7 @@ const renderPolygons = ({
               align-items: center;
               justify-content: center;
               font-weight: bold;
-            '>${locationData.expertIDs.length}</div>`,
+            '>${filteredExpertIDs.length}</div>`,
         className: "polygon-center-marker",
         iconSize: [30, 30],
       }),
@@ -112,7 +120,7 @@ const renderPolygons = ({
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        locationData.expertIDs.length,
+        filteredExpertIDs.length,
         locationData.grantIDs.length,
         locationData.name,
         matchedFields
@@ -158,7 +166,7 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              locationData.expertIDs,
+              filteredExpertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -203,7 +211,7 @@ const renderPolygons = ({
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        locationData.expertIDs.length,
+        filteredExpertIDs.length,
         locationData.grantIDs.length,
         locationData.name,
         matchedFields
@@ -232,7 +240,7 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              locationData.expertIDs,
+              filteredExpertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -271,7 +279,7 @@ const renderPoints = ({
   expertsMap,
 }) => {
 
-
+  
   const locationEntries = Object.entries(locationMap);
 
   // Iterate through each location in the location map
@@ -297,6 +305,12 @@ const renderPoints = ({
     let grantPointPopup = null;
     let grantPointCT = null; // CT = closetimeout
 
+    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
+    locationData.grantIDs.some(grantID => {
+      const grant = grantsMap[grantID];
+      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
+    })
+  );
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (grantPointCT) clearTimeout(grantPointCT);
@@ -310,7 +324,7 @@ const renderPoints = ({
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        locationData.expertIDs.length,
+        filteredExpertIDs.length,
         locationData.grantIDs.length,
         locationData.name,
         matchedFields
@@ -355,7 +369,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              locationData.expertIDs,
+              filteredExpertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -399,7 +413,7 @@ const renderPoints = ({
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        locationData.expertIDs.length,
+        filteredExpertIDs.length,
         locationData.grantIDs.length,
         locationData.name,
         matchedFields
@@ -429,7 +443,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              locationData.expertIDs,
+              filteredExpertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,

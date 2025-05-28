@@ -4,13 +4,15 @@ const fetch = require('node-fetch'); // If using Node 18+, you can use global fe
 const RAW_MAPS_API_URL = 'http://localhost:3001/api/redis/getRawMaps';
 const RAW_MAPS_OUTPUT_FILE = 'src/backend/redis/test/JSONFiles/rawMapsOutput.json';
 
-const BASE_URL = 'http://localhost:3001/api/redis/nonoverlap';
-const ENDPOINTS = [
-  { path: '/getCountryLevelMaps', out: 'rawCountryLevelMaps.json' },
-  { path: '/getStateLevelMaps', out: 'rawStateLevelMaps.json' },
-  { path: '/getCountyLevelMaps', out: 'rawCountyLevelMaps.json' },
-  { path: '/getCityLevelMaps', out: 'rawCityLevelMaps.json' },
-  { path: '/getExactLevelMaps', out: 'rawExactLevelMaps.json' },
+const BASE_NONOVERLAP = 'http://localhost:3001/api/redis/nonoverlap';
+const BASE_OVERLAP = 'http://localhost:3001/api/redis/overlap';
+
+const LEVELS = [
+  'CountryLevelMaps',
+  'StateLevelMaps',
+  'CountyLevelMaps',
+  'CityLevelMaps',
+  'ExactLevelMaps',
 ];
 
 const OUTPUT_DIR = 'src/backend/redis/test/JSONFiles';
@@ -30,9 +32,25 @@ async function fetchAndSaveRawMaps() {
   }
 }
 
-async function fetchAndSave(endpoint) {
-  const url = BASE_URL + endpoint.path;
-  const outFile = `${OUTPUT_DIR}/${endpoint.out}`;
+async function fetchAndSaveNonOverlapAll(level) {
+  const url = `${BASE_NONOVERLAP}/getAll${level}`;
+  const outFile = `${OUTPUT_DIR}/nonoverlap_all_${level}.json`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+    }
+    const data = await response.json();
+    fs.writeFileSync(outFile, JSON.stringify(data, null, 2), 'utf-8');
+    console.log(`✅ Saved ${url} to ${outFile}`);
+  } catch (err) {
+    console.error(`❌ Error fetching ${url}:`, err);
+  }
+}
+
+async function fetchAndSaveOverlap(level, type) {
+  const url = `${BASE_OVERLAP}/get${level}?type=${type}`;
+  const outFile = `${OUTPUT_DIR}/overlap_${type}_${level}.json`;
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -48,8 +66,10 @@ async function fetchAndSave(endpoint) {
 
 async function runAll() {
   await fetchAndSaveRawMaps();
-  for (const endpoint of ENDPOINTS) {
-    await fetchAndSave(endpoint);
+  for (const level of LEVELS) {
+    await fetchAndSaveNonOverlapAll(level);
+    await fetchAndSaveOverlap(level, 'works');
+    await fetchAndSaveOverlap(level, 'grants');
   }
 }
 

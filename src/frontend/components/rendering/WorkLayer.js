@@ -42,6 +42,7 @@ const renderPolygons = ({
   expertsMap,
   worksMap,
 }) => {
+  
   const sortedPolygons = Object.entries(locationMap)
     .filter(([, value]) => value.geometryType === "Polygon" && value.expertIDs.length > 0) // Skip locations with 0 experts
     .sort(([, a], [, b]) => {
@@ -71,6 +72,13 @@ const renderPolygons = ({
 
     polygonLayers.push(polygon);
 
+    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
+    locationData.workIDs.some(workID => {
+      const work = worksMap[workID];
+      return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
+    })
+  );
+  
     // Calculate the center of the polygon
     const polygonCenter = polygon.getCenter();
 
@@ -87,7 +95,7 @@ const renderPolygons = ({
           align-items: center;
           justify-content: center;
           font-weight: bold;
-        '>${locationData.expertIDs.length}</div>`,
+        '>${filteredExpertIDs.length}</div>`,
         className: "polygon-center-marker",
         iconSize: [30, 30],
       }),
@@ -110,9 +118,12 @@ const renderPolygons = ({
         }
       });
       const matchedFields = Array.from(matchedFieldsSet);
+      
+      
+      // Create content for the popup
 
       const content = createMultiExpertContent(
-        locationData.expertIDs.length,
+        filteredExpertIDs.length,
         locationData.name,
         locationData.workIDs.length,
         matchedFields
@@ -155,7 +166,7 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const panelData = prepareWorkPanelData(
-              locationData.expertIDs,
+              filteredExpertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
@@ -197,12 +208,12 @@ const renderPolygons = ({
     });
     const matchedFields = Array.from(matchedFieldsSet);
 
-      const content = createMultiExpertContent(
-        locationData.expertIDs.length,
-        locationData.name,
-        locationData.workIDs.length,
-        matchedFields
-      );
+    const content = createMultiExpertContent(
+      filteredExpertIDs.length,
+      locationData.name,
+      locationData.workIDs.length,
+      matchedFields
+    );
 
       workPolyPopup = L.popup({
         closeButton: true,      // Show close button for mobile/tablet
@@ -219,24 +230,25 @@ const renderPolygons = ({
       if (popupElement) {
         popupElement.style.pointerEvents = "auto";
 
-        // Only add the button click handler
-        const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
-        if (viewWPolyExpertsBtn) {
-          viewWPolyExpertsBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+      // Only add the button click handler
+      const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
+      if (viewWPolyExpertsBtn) {
+        viewWPolyExpertsBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
 
-            const panelData = prepareWorkPanelData(
-              locationData.expertIDs,
-              locationData.workIDs,
-              expertsMap,
-              worksMap,
-              locationID,
-              locationData.name
-            );
-            setSelectedWorks(panelData);
-            setPanelType("works");
-            setPanelOpen(true);
+          
+          const panelData = prepareWorkPanelData(
+            filteredExpertIDs,
+            locationData.workIDs,
+            expertsMap,
+            worksMap,
+            locationID,
+            locationData.display_name
+          );
+          setSelectedWorks(panelData);
+          setPanelType("works");
+          setPanelOpen(true);
 
             if (workPolyPopup) {
               workPolyPopup.close();
@@ -264,6 +276,7 @@ const renderPoints = ({
   expertsMap,
   worksMap,
 }) => {
+
   
   const locationEntries = Object.entries(locationMap);
 
@@ -271,21 +284,28 @@ const renderPoints = ({
   locationEntries.forEach(([locationID, locationData]) => {
     if (
       locationData.geometryType !== "Point" ||
-      !Array.isArray(locationData.expertIDs) || locationData.expertIDs.length === 0 ||
+      !Array.isArray(locationData.workIDs) || locationData.workIDs.length === 0 ||
       !Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2
     ) return;
 
     // Swap [lng, lat] to [lat, lng]
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
-
+    
+    // Filter expertIDs to only those with at least one work in this location
+    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
+      locationData.workIDs.some(workID => {
+        const work = worksMap[workID];
+        return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
+      })
+    );
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #3879C7; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.expertIDs.length}</div>`,
+        html: `<div style='background: #3879C7; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${filteredExpertIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
-      expertCount: locationData.expertIDs.length, // Add expertCount to marker options
+      expertCount: filteredExpertIDs.length, // Add expertCount to marker options
     });
 
     let workPointPopup = null;
@@ -304,7 +324,7 @@ const renderPoints = ({
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
-        locationData.expertIDs.length,
+        filteredExpertIDs.length,
         locationData.name,
         locationData.workIDs.length,
         matchedFields
@@ -345,7 +365,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareWorkPanelData(
-              locationData.expertIDs,
+              filteredExpertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
@@ -388,7 +408,7 @@ const renderPoints = ({
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
-        locationData.expertIDs.length,
+        filteredExpertIDs.length,
         locationData.name,
         locationData.workIDs.length,
         matchedFields
@@ -416,7 +436,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareWorkPanelData(
-              locationData.expertIDs,
+              filteredExpertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
@@ -464,6 +484,7 @@ const WorkLayer = ({
     }
     const polygonLayers = [];
     const polygonMarkers = [];
+
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 100,
