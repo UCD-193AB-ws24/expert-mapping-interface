@@ -94,10 +94,7 @@ export const createSingleExpertContent = (locationName, entries, isPopup = true)
 export const createMultiExpertContent = (expertCount, locationName, totalWorks, matchedFields = []) => `
   <div style='position: relative; padding: 15px; font-size: 14px; line-height: 1.5; width: 250px;'>
     <div style="font-weight: bold; font-size: 16px; color: #3879C7;">
-      ${expertCount} Expert${expertCount === 1 ? '' : 's'} at this Location
-    </div>
-    <div style="font-size: 14px; color: #333; margin-top: 5px;">
-      <strong>Location:</strong> ${locationName || "Unknown"}
+      ${expertCount} Expert${expertCount === 1 ? '' : 's'} in ${locationName}
     </div>
     <div style="font-size: 14px; color: #333; margin-top: 5px;">
       <strong>Related Works:</strong> ${totalWorks}
@@ -114,10 +111,7 @@ export const createMultiExpertContent = (expertCount, locationName, totalWorks, 
 export const createMultiGrantPopup = (expertCount, grantCount, locationName = []) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
     <div style='font-weight: bold; font-size: 16px; color: #eda012;'>
-      ${expertCount} Expert${expertCount !== 1 ? 's' : ''} at this Location
-    </div>
-    <div style='margin-top: 8px; color: #333;'>
-      <strong>Location:</strong> ${locationName || "Unknown"}
+      ${expertCount} Expert${expertCount !== 1 ? 's' : ''} in ${locationName}
     </div>
     <div style="font-size: 14px; color: #333; margin-top: 5px;">
       <strong>Related Grants:</strong> ${grantCount}
@@ -130,17 +124,25 @@ export const createMultiGrantPopup = (expertCount, grantCount, locationName = []
   </div>
 `;
 
-// Generates HTML content for a popup displaying combined data for works and grants at a specific location.
-export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locationName, matchedFields = []) => `
+
+export const createCombinedPopup = (
+  works2ExpertCount,
+  grants2ExpertCount,
+  locationName,
+  totalWorks,
+  totalGrants,
+  combinedExpertCount
+) => `
   <div style='padding: 15px; font-size: 14px; width: 250px;'>
-    ${matchedFields.length > 0 ? `<div style='margin-top: 5px; color: green;'>🔍 Match found</div>` : ""}
-    <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
+    <div style='font-weight: bold; font-size: 16px; color: #659c39;'>
+      ${combinedExpertCount} Expert${combinedExpertCount === 1 ? '' : 's'} in ${locationName}
+    </div>
     <div style='margin-top: 5px;'>
-      <div style='color: #3879C7; display: inline-block; margin-right: 10px;'>
-        <strong>${works2ExpertCount}</strong> Expert${works2ExpertCount === 1 ? '' : 's'} with Works
+      <div style='color: #555;'>
+        <strong>Related works:</strong> ${totalWorks} item${totalWorks === 1 ? '' : 's'}
       </div>
-      <div style='color: #eda012; display: inline-block;'>
-        <strong>${grants2ExpertCount}</strong> Expert${ grants2ExpertCount === 1 ? '' : 's'} with Grants
+      <div style='color: #555;'>
+        <strong>Related grants:</strong> ${totalGrants} item${totalGrants === 1 ? '' : 's'}
       </div>
     </div>
     <a href='#'
@@ -150,29 +152,3 @@ export const createCombinedPopup = (works2ExpertCount, grants2ExpertCount, locat
     </a>
   </div>
 `;
-
-// Generates HTML content for a popup displaying matched combined data for works and grants at a specific location.
-export const createMatchedCombinedPolygonPopup = (
-  works2ExpertCount,
-  grants2ExpertCount,
-  locationName,
-) => `
-  <div style='padding: 15px; font-size: 14px; width: 250px;'>
-    <div style='font-weight: bold; font-size: 16px; color: #659c39;'>Combined Polygon</div>
-    <div style='margin-top: 8px; color: #333;'><strong>Location:</strong> ${locationName}</div>
-    <div style='margin-top: 5px;'>
-      <div style='color: #3879C7; display: inline-block; margin-right: 10px;'>
-        <strong>${works2ExpertCount}</strong> Expert${works2ExpertCount === 1 ? '' : 's'} with Works
-      </div>
-      <div style='color: #eda012; display: inline-block;'>
-        <strong>${grants2ExpertCount}</strong> Expert${grants2ExpertCount === 1 ? '' : 's'} with Grants
-      </div>
-    </div>   
-    <a href='#'
-      class='view-combined-btn'
-      style='display: block; margin-top: 12px; padding: 8px 10px; background: #659c39; color: white; text-align: center; border-radius: 5px; text-decoration: none; font-weight: bold;'>
-      Open Panel
-    </a>
-  </div>
-`;
-
