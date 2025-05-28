@@ -41,7 +41,7 @@ const renderPolygons = ({
   expertsMap,
 }) => {
   // Sort polygons by area (largest to smallest)
-  const sortedPolygons = Array.from(locationMap.entries())
+  const sortedPolygons = Object.entries(locationMap)
     .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
     .sort(([, a], [, b]) => {
       const area = (geometry) => {
@@ -104,7 +104,7 @@ const renderPolygons = ({
       if (closeTimeout) clearTimeout(closeTimeout);
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -195,7 +195,7 @@ const renderPolygons = ({
 
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -270,7 +270,12 @@ const renderPoints = ({
   grantsMap,
   expertsMap,
 }) => {
-  locationMap.forEach((locationData, locationID) => {
+
+
+  const locationEntries = Object.entries(locationMap);
+
+  // Iterate through each location in the location map
+  locationEntries.forEach(([locationID, locationData]) => {
     if (
       locationData.geometryType !== "Point" ||
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
@@ -297,7 +302,7 @@ const renderPoints = ({
       if (grantPointCT) clearTimeout(grantPointCT);
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -386,7 +391,7 @@ const renderPoints = ({
 
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
