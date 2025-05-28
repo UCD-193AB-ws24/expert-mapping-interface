@@ -57,7 +57,7 @@ async function updateMetadata(redisClient, type) {
 (async () => {
   try {
     console.log('🚀 Starting populateRedis script...');
-    console.log('Connecting to Postgis Database: ', process.env.PG_DATABASE, ' on user: ', process.env.PG_USER, ' hosted on: ', process.env.SERVER_HOST);
+
     await redisClient.connect();
     const pgClient = await pool.connect();
 
