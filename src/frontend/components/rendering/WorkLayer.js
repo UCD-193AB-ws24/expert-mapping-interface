@@ -25,6 +25,7 @@ import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
 import { prepareWorkPanelData } from "./utils/preparePanelData";
+import { getMatchedFields } from "./filters/searchFilter";
 
 /**
  * Renders polygons on the map for locations with works.
@@ -32,6 +33,7 @@ import { prepareWorkPanelData } from "./utils/preparePanelData";
  * Interactive popups display expert and work information.
  */
 const renderPolygons = ({
+  searchKeyword,
   locationMap,
   map,
   setSelectedWorks,
@@ -111,12 +113,19 @@ const renderPolygons = ({
       if (workPolyCT) clearTimeout(workPolyCT);
 
       const matchedFieldsSet = new Set();
+      // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
         const work = worksMap[workID];
+        if (!work.matchedFields || work.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
+      
       const matchedFields = Array.from(matchedFieldsSet);
       
       
@@ -200,12 +209,21 @@ const renderPolygons = ({
       if (workPolyPopup) workPolyPopup.remove();
 
     const matchedFieldsSet = new Set();
+      // Collect matched fields from works and grants
     locationData.workIDs.forEach((workID) => {
       const work = worksMap[workID];
+      if (!work.matchedFields || work.matchedFields.length === 0) {
+        // Compute matchedFields if missing or empty
+        console.log("Computing matchedFields for work:", workID);
+        work.matchedFields = getMatchedFields(searchKeyword,work);
+        work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        console.log("Matched fields for work:", work.matchedFields);
+      }
       if (work?.matchedFields) {
         work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
       }
     });
+    
     const matchedFields = Array.from(matchedFieldsSet);
 
     const content = createMultiExpertContent(
@@ -267,6 +285,7 @@ const renderPolygons = ({
  * Interactive popups display expert and work information.
  */
 const renderPoints = ({
+  searchKeyword,
   locationMap,
   map,
   markerClusterGroup,
@@ -315,12 +334,21 @@ const renderPoints = ({
       if (workPointCT) clearTimeout(workPointCT);
 
       const matchedFieldsSet = new Set();
+      // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
         const work = worksMap[workID];
+        if (!work.matchedFields || work.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          console.log("Computing matchedFields for work:", workID);
+          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+          console.log("Matched fields for work:", work.matchedFields);
+        }
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
+      
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
@@ -399,12 +427,21 @@ const renderPoints = ({
       if (workPointPopup) workPointPopup.remove();
 
       const matchedFieldsSet = new Set();
+      // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
         const work = worksMap[workID];
+        if (!work.matchedFields || work.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          console.log("Computing matchedFields for work:", workID);
+          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+          console.log("Matched fields for work:", work.matchedFields);
+        }
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
+      
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
@@ -467,6 +504,7 @@ const renderPoints = ({
  * It integrates the rendering logic for polygons and points and manages map layers and markers.
  */
 const WorkLayer = ({
+  searchKeyword,
   locationMap,
   worksMap,
   expertsMap,
@@ -503,6 +541,7 @@ const WorkLayer = ({
     });
     // Render polygons
     renderPolygons({
+      searchKeyword,
       locationMap,
       map,
       setSelectedWorks,
@@ -516,6 +555,7 @@ const WorkLayer = ({
 
     // Render points
     renderPoints({
+      searchKeyword,
       locationMap,
       map,
       markerClusterGroup,
@@ -534,6 +574,7 @@ const WorkLayer = ({
     };
   }, [
     map,
+    searchKeyword,
     locationMap,
     worksMap,
     expertsMap,

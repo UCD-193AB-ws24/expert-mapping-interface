@@ -23,6 +23,7 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { createCombinedPopup } from "./Popups";
 import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
+import { getMatchedFields } from "./filters/searchFilter";
 
 
 /**
@@ -31,6 +32,7 @@ import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePane
  * Interactive popups display expert and grant information.
  **/
 const renderPolygons = ({
+  searchKeyword,
   locationMap,
   worksMap,
   grantsMap,
@@ -46,8 +48,6 @@ const renderPolygons = ({
 }) => {
   const matchedFieldsSet = new Set();
   // Sort polygons by area (largest to smallest)
-  console.log("📌 Sorting polygons by area...");
-  console.log("[DEBUG] locationMap entries:", Object.entries(locationMap));
   const sortedPolygons = Object.entries(locationMap)
     .filter(([, value]) =>
       value.geometryType === "Polygon" &&
@@ -67,9 +67,7 @@ const renderPolygons = ({
       return area(b) - area(a); // Sort largest to smallest
     });
   
-  if (sortedPolygons.length > 0) {
-    console.log("[DEBUG] Sample sortedPolygon:", sortedPolygons[0]);
-  }
+  
   if (sortedPolygons.length === 0) {
     console.warn("[DEBUG] No polygons found in locationMap.");
       Object.entries(locationMap).forEach(([locationID, value]) => {
@@ -188,6 +186,11 @@ const renderPolygons = ({
       // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
         const work = worksMap[workID];
+        if (!work.matchedFields || work.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -195,6 +198,11 @@ const renderPolygons = ({
 
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
+        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -334,6 +342,8 @@ const renderPolygons = ({
       const totalWorks = locationData.workIDs?.filter(id => worksMap.has(id)).length || 0;
       const totalGrants = locationData.grantIDs?.filter(id => grantsMap.has(id)).length || 0;
 
+      const matchedFields = Array.from(matchedFieldsSet);
+
       // Use relatedExpertIDs for consistency
       const workExpertIDs = new Set();
       const grantExpertIDs = new Set();
@@ -426,6 +436,7 @@ const renderPolygons = ({
  * Interactive popups display expert and grant information.
  **/
 const renderPoints = ({
+  searchKeyword,
   locationMap,
   worksMap,
   grantsMap,
@@ -521,17 +532,26 @@ const renderPoints = ({
       if (closePointTimeout) clearTimeout(closePointTimeout);
 
 
-      // Collect matched fields from works
+      // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
         const work = worksMap[workID];
+        if (!work.matchedFields || work.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
 
-      // Collect matched fields from grants
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
+        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -767,6 +787,7 @@ const renderPoints = ({
  * It integrates the rendering logic for polygons and points and manages map layers and markers.
  **/
 const CombinedLayer = ({
+  searchKeyword,
   locationMap,
   grantsMap,
   worksMap,
@@ -786,7 +807,9 @@ const CombinedLayer = ({
     // Exit early if map or overlappingLocations is not available
     if (!map || !locationMap || !expertsMap || !worksMap || !grantsMap) return;
 
-    
+    // if(!searchKeyword){
+    //   console.warn("CombinedLayer: No searchKeyword provided.");
+    // }
     // Create a marker cluster group for combined markers
     const comboMarkerGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
@@ -812,6 +835,7 @@ const CombinedLayer = ({
     if (showWorks && showGrants) {
       // Render overlapping locations
       renderPolygons({
+        searchKeyword,
         locationMap,
         worksMap,
         grantsMap,
@@ -827,6 +851,7 @@ const CombinedLayer = ({
       });
 
       renderPoints({
+        searchKeyword,
         locationMap,
         worksMap,
         grantsMap,
@@ -851,6 +876,7 @@ const CombinedLayer = ({
     };
   }, [
     map,
+    searchKeyword,
     locationMap,
     grantsMap,
     worksMap,

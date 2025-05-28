@@ -29,7 +29,7 @@ import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel, CombinedPanel } from "./rendering/Panels";
 import { matchesKeyword } from "./rendering/filters/searchFilter";
 import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
-import { filterLocationMapByKeyword } from "./rendering/filters/filterLocationMaps";
+import { filterLocationMap, filterGrantLayerLocationMap, filterWorkLayerLocationMap } from "./rendering/filters/filterLocationMaps";
 import { all } from "axios";
 /**
  * ResearchMap Component
@@ -144,7 +144,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
 
         if (showWorks && showGrants) {
           // Fetch all three maps in one API call to match the new server endpoint
-          console.log(`[DEBUG] Fetching ALL maps (works, grants, combined) for ${mapType}`);
+          // console.log(`[DEBUG] Fetching ALL maps (works, grants, combined) for ${mapType}`);
           const allMapsRes = await fetch(`/api/redis/nonoverlap/getAll${mapType}`);
           if (!allMapsRes.ok) throw new Error("Failed to fetch all maps");
           const allMaps = await allMapsRes.json();
@@ -226,40 +226,61 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     );
   } else {
     // If no expert matches, filter works and grants by keyword directly
-    effectiveFilteredExpertsMap = dateFilteredExpertsMap;
+    effectiveFilteredExpertsMap = rawExpertsMap;
     filteredWorksMap = Object.fromEntries(
       Object.entries(dateFilteredWorksMap).filter(([, work]) => matchesKeyword(searchKeyword, work))
     );
+    // console.log("Filtered Works Map:", Object.keys(filteredWorksMap).length, "entries");
     filteredGrantsMap = Object.fromEntries(
       Object.entries(dateFilteredGrantsMap).filter(([, grant]) => matchesKeyword(searchKeyword, grant))
     );
+    // console.log(`Filtered Grants Map of length ${Object.keys(filteredGrantsMap).length}:`, Object.keys(filteredGrantsMap));
   }
   
-
-  const filteredWorkLayerLocations = filterLocationMapByKeyword(
+  console.log(Object.keys(workLayerLocations).length, "workLayerLocations before filtering");
+  console.log(Object.keys(grantLayerLocations).length, "grantLayerLocations before filtering");
+  console.log(Object.keys(combinedLocations).length, "combinedLocations before filtering");
+  const filteredWorkLayerLocations = filterWorkLayerLocationMap(
     workLayerLocations,
-    effectiveFilteredExpertsMap,
-    filteredWorksMap,
-    filteredGrantsMap
+    filteredWorksMap
   );
 
-  const filteredGrantLayerLocations = filterLocationMapByKeyword(
+  const filteredGrantLayerLocations = filterGrantLayerLocationMap(
     grantLayerLocations,
-    effectiveFilteredExpertsMap,
-    filteredWorksMap,
     filteredGrantsMap
   );
 
-  const filteredCombinedLocations = filterLocationMapByKeyword(
+  const filteredCombinedLocations = filterLocationMap(
     combinedLocations,
-    effectiveFilteredExpertsMap,
     filteredWorksMap,
     filteredGrantsMap
   );
 
-  console.log("Filtered workLayerLocations:", Object.keys(filteredWorkLayerLocations));
-  console.log("Filtered grantLayerLocations:", Object.keys(filteredGrantLayerLocations));
-  console.log("Filtered combinedLocations:", Object.keys(filteredCombinedLocations));
+  // 1. Create new objects to hold the "moved" locations
+  const movedToWorkLayer = {};
+  const movedToGrantLayer = {};
+
+  // 2. Iterate over filteredCombinedLocations and move as needed
+  Object.entries(filteredCombinedLocations).forEach(([locID, loc]) => {
+    const hasWorks = loc.workIDs && loc.workIDs.length > 0;
+    const hasGrants = loc.grantIDs && loc.grantIDs.length > 0;
+
+    if (hasWorks && !hasGrants) {
+      movedToWorkLayer[locID] = loc;
+      delete filteredCombinedLocations[locID];
+    } else if (!hasWorks && hasGrants) {
+      movedToGrantLayer[locID] = loc;
+      delete filteredCombinedLocations[locID];
+    }
+  });
+
+  // 3. Merge these into your filteredWorkLayerLocations and filteredGrantLayerLocations
+  const finalFilteredWorkLayerLocations = { ...filteredWorkLayerLocations, ...movedToWorkLayer };
+  const finalFilteredGrantLayerLocations = { ...filteredGrantLayerLocations, ...movedToGrantLayer };
+
+  console.log(Object.keys(finalFilteredWorkLayerLocations).length, "workLayerLocations after filtering");
+  console.log(Object.keys(finalFilteredGrantLayerLocations).length, "grantLayerLocations after filtering");
+  console.log(Object.keys(filteredCombinedLocations).length, "combinedLocations after filtering");
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
@@ -299,10 +320,11 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Combined location layer */}
           {(showWorks && showGrants) && (
             <CombinedLayer
+              searchKeyword={searchKeyword}
               locationMap={filteredCombinedLocations || {}}
               worksMap={rawWorksMap || {}}
               grantsMap={ rawGrantsMap || {}}
-              expertsMap={rawExpertsMap || {}}
+              expertsMap={effectiveFilteredExpertsMap || {}}
               showWorks={showWorks}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -317,9 +339,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Works layer */}
           {(showWorks) && (
             <WorkLayer
-              locationMap={filteredWorkLayerLocations || {}}
+              searchKeyword={searchKeyword}
+              locationMap={finalFilteredWorkLayerLocations || filteredWorkLayerLocations || {}}
               worksMap={rawWorksMap || {}}
-              expertsMap={rawExpertsMap || {}}
+              expertsMap={effectiveFilteredExpertsMap || {}}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -331,9 +354,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Grants layer */}
           {(showGrants) && (
             <GrantLayer
-              locationMap={filteredGrantLayerLocations || {}}
+              searchKeyword={searchKeyword}
+              locationMap={finalFilteredGrantLayerLocations || filteredGrantLayerLocations || {}}
               grantsMap={rawGrantsMap || {}}
-              expertsMap={rawExpertsMap || {}}
+              expertsMap={effectiveFilteredExpertsMap || {}}
               showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               setSelectedGrants={setSelectedGrants}

@@ -128,6 +128,7 @@ async function buildRedisMaps(redisClient) {
         confidence: entry.confidence || "Unknown",
         locationIDs: [],
         relatedExpertIDs: [],
+        matchedFields: [], 
       });
 
       // Add workID to locationMap
@@ -264,6 +265,7 @@ async function buildRedisMaps(redisClient) {
         confidence: entry.confidence || "Unknown",
         locationIDs: [finalLocationID],
         relatedExpertIDs: [],
+        matchedFields: [],
       });
       // console.log(`Adding grant ${grantID} to grantsMap with locationID ${finalLocationID}`);
       // Add grantID to locationMap
