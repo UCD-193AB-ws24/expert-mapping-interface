@@ -293,10 +293,16 @@ const renderPoints = ({
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
 
+    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
+    locationData.grantIDs.some(grantID => {
+      const grant = grantsMap[grantID];
+      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
+    })
+  );
     // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #eda012; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
+        html: `<div style='background: #eda012; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${filteredExpertIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
@@ -305,12 +311,7 @@ const renderPoints = ({
     let grantPointPopup = null;
     let grantPointCT = null; // CT = closetimeout
 
-    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-    locationData.grantIDs.some(grantID => {
-      const grant = grantsMap[grantID];
-      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
-    })
-  );
+    
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (grantPointCT) clearTimeout(grantPointCT);
