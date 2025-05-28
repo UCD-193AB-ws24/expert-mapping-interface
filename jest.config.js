@@ -12,5 +12,9 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   testPathIgnorePatterns: ['/node_modules/'],
+
+  moduleNameMapper: {
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+  }
 };
 // This configuration allows test files up to 3 levels deep in src/ and its subdirectories
