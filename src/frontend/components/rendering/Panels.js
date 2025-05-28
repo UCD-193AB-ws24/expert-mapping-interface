@@ -700,7 +700,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
                   style={{
                     marginTop: "10px",
                     padding: "5px 10px",
-                    background: "#3879C7",
+                    background: "#eda012",
                     color: "white",
                     border: "none",
                     borderRadius: "5px",

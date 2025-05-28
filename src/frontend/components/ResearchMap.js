@@ -151,19 +151,13 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           workLayerMap = allMaps.worksMap;
           grantLayerMap = allMaps.grantsMap;
           combinedLayerMap = allMaps.combinedMap;
-          // console.log("[DEBUG] worksMap type:", typeof workLayerMap, workLayerMap);
-          // console.log("[DEBUG] grantsMap type:", typeof grantLayerMap, grantLayerMap);
-          // console.log("[DEBUG] combinedMap type:", typeof combinedLayerMap, combinedLayerMap);
-          // console.log(`[DEBUG] All maps loaded for cacheKey: ${cacheKey}`);
         } else if (showWorks) {
           // Overlap works map
-          // console.log(`[DEBUG] Fetching overlap works map for ${mapType}`);
           const worksRes = await fetch(`/api/redis/overlap/get${mapType}?type=works`);
           if (!worksRes.ok) throw new Error("Failed to fetch works map");
           workLayerMap = await worksRes.json();
         } else if (showGrants) {
           // Overlap grants map
-          // console.log(`[DEBUG] Fetching overlap grants map for ${mapType}`);
           const grantsRes = await fetch(`/api/redis/overlap/get${mapType}?type=grants`);
           if (!grantsRes.ok) throw new Error("Failed to fetch grants map");
           grantLayerMap = await grantsRes.json();
@@ -172,7 +166,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
         const maps = { workLayerMap, grantLayerMap, combinedLayerMap };
         setLocationMapsCache(prev => ({ ...prev, [cacheKey]: maps }));
         setCurrentLocationMaps(maps);
-        // console.log(`[DEBUG] Maps loaded and cached for cacheKey: ${cacheKey}`);
       } catch (err) {
         console.error(`[ERROR] Failed to load location maps in fetchMaps for cacheKey: ${cacheKey}`, err);
         setError("Failed to load location maps.");
@@ -186,10 +179,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   const workLayerLocations = currentLocationMaps?.workLayerMap || {};
   const grantLayerLocations = currentLocationMaps?.grantLayerMap || {};
   const combinedLocations = currentLocationMaps?.combinedLayerMap || {};
-
-  console.log("[DEBUG] worksMap:", rawWorksMap);
-  console.log("[DEBUG] grantsMap:", rawGrantsMap);
-  console.log("[DEBUG] expertsMap:", rawExpertsMap);
 
   // Filter worksMap, grantsMap, expertsMap, and locationMap based on searchKeyword
   // First filter by date, then by keyword
@@ -211,41 +200,66 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   })
 );
 
-  const filteredWorksMap = Object.fromEntries(
-    Object.entries(dateFilteredWorksMap).filter(([, work]) => matchesKeyword(searchKeyword, work))
-  );
-  const filteredGrantsMap = Object.fromEntries(
-    Object.entries(dateFilteredGrantsMap).filter(([, grant]) => matchesKeyword(searchKeyword, grant))
-  );
+  // Filter experts by keyword
   const filteredExpertsMap = Object.fromEntries(
     Object.entries(dateFilteredExpertsMap).filter(([, expert]) => matchesKeyword(searchKeyword, expert))
   );
 
+  const hasExpertMatches = Object.keys(filteredExpertsMap).length > 0;
+
+  let effectiveFilteredExpertsMap, filteredWorksMap, filteredGrantsMap;
+
+  if (hasExpertMatches) {
+    // If there are expert matches, show all works/grants associated with those experts
+    effectiveFilteredExpertsMap = filteredExpertsMap;
+    const filteredExpertIds = new Set(Object.keys(filteredExpertsMap));
+
+    filteredWorksMap = Object.fromEntries(
+      Object.entries(dateFilteredWorksMap).filter(([, work]) =>
+        (work.relatedExpertIDs || work.expertIDs || []).some(id => filteredExpertIds.has(id))
+      )
+    );
+    filteredGrantsMap = Object.fromEntries(
+      Object.entries(dateFilteredGrantsMap).filter(([, grant]) =>
+        (grant.relatedExpertIDs || grant.expertIDs || []).some(id => filteredExpertIds.has(id))
+      )
+    );
+  } else {
+    // If no expert matches, filter works and grants by keyword directly
+    effectiveFilteredExpertsMap = dateFilteredExpertsMap;
+    filteredWorksMap = Object.fromEntries(
+      Object.entries(dateFilteredWorksMap).filter(([, work]) => matchesKeyword(searchKeyword, work))
+    );
+    filteredGrantsMap = Object.fromEntries(
+      Object.entries(dateFilteredGrantsMap).filter(([, grant]) => matchesKeyword(searchKeyword, grant))
+    );
+  }
+  
+
   const filteredWorkLayerLocations = filterLocationMapByKeyword(
     workLayerLocations,
-    filteredExpertsMap,
+    effectiveFilteredExpertsMap,
     filteredWorksMap,
     filteredGrantsMap
   );
 
   const filteredGrantLayerLocations = filterLocationMapByKeyword(
     grantLayerLocations,
-    filteredExpertsMap,
+    effectiveFilteredExpertsMap,
     filteredWorksMap,
     filteredGrantsMap
   );
 
   const filteredCombinedLocations = filterLocationMapByKeyword(
     combinedLocations,
-    filteredExpertsMap,
+    effectiveFilteredExpertsMap,
     filteredWorksMap,
     filteredGrantsMap
   );
 
-  console.log("Filtered works:", Object.keys(filteredWorksMap));
-  console.log("Filtered grants:", Object.keys(filteredGrantsMap));
-  console.log("Filtered experts:", Object.keys(filteredExpertsMap));
   console.log("Filtered workLayerLocations:", Object.keys(filteredWorkLayerLocations));
+  console.log("Filtered grantLayerLocations:", Object.keys(filteredGrantLayerLocations));
+  console.log("Filtered combinedLocations:", Object.keys(filteredCombinedLocations));
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
@@ -305,7 +319,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
             <WorkLayer
               locationMap={filteredWorkLayerLocations || {}}
               worksMap={rawWorksMap || {}}
-              expertsMap={rawWorksMap || {}}
+              expertsMap={rawExpertsMap || {}}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -318,8 +332,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {(showGrants) && (
             <GrantLayer
               locationMap={filteredGrantLayerLocations || {}}
-              grantsMap={filteredGrantsMap || {}}
-              expertsMap={filteredExpertsMap || {}}
+              grantsMap={rawGrantsMap || {}}
+              expertsMap={rawExpertsMap || {}}
               showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               setSelectedGrants={setSelectedGrants}

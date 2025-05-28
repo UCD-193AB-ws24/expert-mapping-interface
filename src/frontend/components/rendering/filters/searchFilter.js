@@ -72,6 +72,7 @@ export const matchesKeyword = (keyword, entry) => {
     entry.abstract,
     entry.funder,
     ...(entry.relatedExperts || []).map(e => e.fullName || e.name),
+    entry.name,
   ].filter(Boolean); // Remove null/undefined fields
 
   for (const field of fields) {
