@@ -74,11 +74,11 @@ const renderPolygons = ({
     console.warn("[DEBUG] No polygons found in locationMap.");
       Object.entries(locationMap).forEach(([locationID, value]) => {
       if (value.geometryType !== "Polygon") {
-        console.log(`[DEBUG] Skipping ${locationID}: Not a Polygon`);
+        // console.log(`[DEBUG] Skipping ${locationID}: Not a Polygon`);
       } else if (!Array.isArray(value.workIDs) || value.workIDs.length === 0) {
-        console.log(`[DEBUG] Skipping ${locationID}: No workIDs`);
+        // console.log(`[DEBUG] Skipping ${locationID}: No workIDs`);
       } else if (!Array.isArray(value.grantIDs) || value.grantIDs.length === 0) {
-        console.log(`[DEBUG] Skipping ${locationID}: No grantIDs`);
+        // console.log(`[DEBUG] Skipping ${locationID}: No grantIDs`);
       }
     });
   }
@@ -450,7 +450,7 @@ const renderPoints = ({
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
       !Array.isArray(locationData.worksIDs) || locationData.worksIDs.length === 0
     ) {
-    console.log(`Skipping locationID ${locationID}: not a point or no works/grants.`);
+    // console.log(`Skipping locationID ${locationID}: not a point or no works/grants.`);
     return;}
 
     // Flip coordinates for Leaflet compatibility

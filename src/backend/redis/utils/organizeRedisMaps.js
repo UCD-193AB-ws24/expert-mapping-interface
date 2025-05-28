@@ -93,9 +93,6 @@ async function buildRedisMaps(redisClient) {
         overlapping: "false",
       });
     }
-    if (locationID === "location:55") {
-      console.log("[DEBUG] Added Africa to locationMap (WORKS):", locationMap.get(locationID));
-    }
       // Get all entry keys for this location
     const entryKeys = await getWorkEntryKeys(redisClient, workKey);
 
@@ -104,7 +101,7 @@ async function buildRedisMaps(redisClient) {
       if (!entry || !entry.id) continue;
 
       const confidenceNum = Number(entry.confidence);
-      if (isNaN(confidenceNum) || confidenceNum <= 70) continue;
+      if (isNaN(confidenceNum) || confidenceNum <= 60) continue;
 
       // Correctly parsing authors 
       let authors = entry.authors;
@@ -129,7 +126,7 @@ async function buildRedisMaps(redisClient) {
         abstract: entry.abstract || "No Abstract",
         issued: entry.issued || "Unknown",
         confidence: entry.confidence || "Unknown",
-        locationID,
+        locationIDs: [],
         relatedExpertIDs: [],
       });
 
@@ -216,6 +213,7 @@ async function buildRedisMaps(redisClient) {
     for (const [locID, locEntry] of locationMap.entries()) {
       if (locEntry.location === data.location) {
       existingLocationID = locID;
+      // console.log(`Found existing location for ${data.location}: ${locID}`);
       break;
       }
     }
@@ -240,18 +238,19 @@ async function buildRedisMaps(redisClient) {
       overlapping,
       });
     }
-    if (finalLocationID === "location:55") {
-    console.log("[DEBUG] Added Africa to locationMap (GRANTS):", locationMap.get(finalLocationID));
-  }
+
     // Get all entry keys for this location
     const entryKeys = await getGrantEntryKeys(redisClient, grantKey);
 
     for (const entryKey of entryKeys) {
+      // console.log(`Processing entry key: ${entryKey}`);
       const entry = await redisClient.hGetAll(entryKey);
       if (!entry || !entry.id) continue;
 
       const confidenceNum = Number(entry.confidence);
-      if (isNaN(confidenceNum) || confidenceNum <= 70) continue;
+      if (isNaN(confidenceNum) || confidenceNum <= 59) 
+        {// console.warn(`Skipping entry with low confidence: ${entry.id} confidence=${entry.confidence}, place_rank=${data.place_rank}`);
+          continue;}
 
       const grantID = `grant:${entry.id}` || grantKey;
       // Add to grantsMap
@@ -263,16 +262,12 @@ async function buildRedisMaps(redisClient) {
         endDate: entry.endDate || '',
         startDate: entry.startDate || '',
         confidence: entry.confidence || "Unknown",
-        locationID,
+        locationIDs: [finalLocationID],
         relatedExpertIDs: [],
       });
-
+      // console.log(`Adding grant ${grantID} to grantsMap with locationID ${finalLocationID}`);
       // Add grantID to locationMap
-      const locEntry = locationMap.get(locationID);
-      if (locEntry && !locEntry.grantIDs.includes(grantID)) {
-        locEntry.grantIDs.push(grantID);
-      }
-
+      const currLoc = locationMap.get(finalLocationID);
       // Handle related experts
       if (entry.relatedExperts) {
         let relatedExperts;
@@ -290,31 +285,47 @@ async function buildRedisMaps(redisClient) {
             // Add/update expert in expertsMap
             if (!expertsMap.has(expertID)) {
               expertsMap.set(expertID, {
-                id: expertID,
+                id: expert.expertId || expertID,
                 name: expert.fullName || expert.name || "Unknown",
                 url: expert.url || "#",
-                locationIDs: [locationID],
+                locationIDs: [finalLocationID],
                 workIDs: [],
                 grantIDs: [grantID],
               });
             } else {
               const expertObj = expertsMap.get(expertID);
-              if (!expertObj.locationIDs.includes(locationID)) expertObj.locationIDs.push(locationID);
-              if (!expertObj.grantIDs.includes(grantID)) expertObj.grantIDs.push(grantID);
+              if (!expertObj.locationIDs.includes(finalLocationID)) 
+              {
+                // console.log(`Adding locationID ${finalLocationID} to expert ${expertID}`);
+                expertObj.locationIDs.push(finalLocationID);
+              }
+              if (!expertObj.grantIDs.includes(grantID))
+              {
+                // console.log(`Adding grantID ${grantID} to expert ${expertID}`);
+                expertObj.grantIDs.push(grantID);
+              }
             }
             // Link expert to grant
             if (!grantsMap.get(grantID).relatedExpertIDs.includes(expertID)) {
+              // console.log(`Linking expert ${expertID} to grant ${grantID}`);
               grantsMap.get(grantID).relatedExpertIDs.push(expertID);
             }
             // Link expert to location
-            if (!locEntry.expertIDs.includes(expertID)) {
-              locEntry.expertIDs.push(expertID);
+            if (!currLoc.expertIDs.includes(expertID)) {
+              // console.log(`Linking expert ${expertID} to location ${finalLocationID}`);
+              currLoc.expertIDs.push(expertID);
             }
+            if (!currLoc.grantIDs.includes(grantID)) {
+              // console.log(`Linking grant ${grantID} to location ${finalLocationID}`);
+              currLoc.grantIDs.push(grantID);
+            }
+            
           });
         }
       }
     }
   }
+
 
   // Update overlapping status for each location
   for (const locEntry of locationMap.values()) {
@@ -325,12 +336,7 @@ async function buildRedisMaps(redisClient) {
     }
   }
 
-  const africaEntry = locationMap.get("location:55");
-  if (africaEntry) {
-    console.log("[DEBUG] Africa entry before specificity maps & aggregating:", africaEntry);
-  } else {
-    console.log("[DEBUG] Africa (location:55) not found in locationMap before specificity maps!");
-  }
+  
 
   // Build country to locationIDs map
   // Use country if present, otherwise use name (for continents/regions)
@@ -353,11 +359,14 @@ async function buildRedisMaps(redisClient) {
     const allExpertIDs = [];
 
     allLocIDs.forEach(id => {
-      const entry = locationMap.get(id);
-      if (!entry) return;
-      allWorkIDs.push(...entry.workIDs);
-      allGrantIDs.push(...entry.grantIDs);
-      allExpertIDs.push(...entry.expertIDs);
+      const entry = locationMap.get ? locationMap.get(id) : locationMap[id];
+      if (!entry) {
+        console.warn(`[organizeRedisMaps] Skipping missing location entry for id: ${id}`);
+        return;
+      }
+      allWorkIDs.push(...(entry.workIDs || []));
+      allGrantIDs.push(...(entry.grantIDs || []));
+      allExpertIDs.push(...(entry.expertIDs || []));
     });
 
     locEntry.workIDs = [...new Set(allWorkIDs)];
@@ -400,7 +409,7 @@ async function buildRedisMaps(redisClient) {
     locEntry.specificity === "country" &&
     (!locEntry.country || locEntry.country === "None")
   ) {
-    console.log(`[AGGREGATION SKIP] Skipping aggregation for locationID ${locationID} (${locEntry.name}) with country="${locEntry.country}"`);
+    //console.log(`[AGGREGATION SKIP] Skipping aggregation for locationID ${locationID} (${locEntry.name}) with country="${locEntry.country}"`);
   }
 }
 
@@ -438,6 +447,11 @@ async function buildRedisMaps(redisClient) {
   const combinedLayerMap = new Map(combinedLayerLocations.map(loc => [loc.id, loc]));
   const overlapWorkLayerMap = new Map(overlapWorkLayerLocations.map(loc => [loc.id, loc]));
   const overlapGrantLayerMap = new Map(overlapGrantLayerLocations.map(loc => [loc.id, loc]));
+  console.log(`Work Layer Locations: ${workLayerLocations.length}`);
+  console.log(`Grant Layer Locations: ${grantLayerLocations.length}`);
+  console.log(`Combined Layer Locations: ${combinedLayerLocations.length}`);
+  console.log(`Overlap Work Layer Locations: ${overlapWorkLayerLocations.length}`);
+  console.log(`Overlap Grant Layer Locations: ${overlapGrantLayerLocations.length}`);
 
   /**
    * Helper to build specificity maps for a given location map.
@@ -451,11 +465,6 @@ async function buildRedisMaps(redisClient) {
         ([, locEntry]) => locEntry.specificity === level
       );
       result[`${level}Map`] = new Map(entries);
-
-      // Debug: log if Africa is in this specificity map
-      if (entries.some(([id]) => id === "location:55")) {
-        console.log(`[DEBUG] Africa found in ${level}Map`);
-      }
     }
     return result;
   }
@@ -466,6 +475,14 @@ async function buildRedisMaps(redisClient) {
   const combinedLayerSpecificityMaps = buildSpecificityMaps(combinedLayerMap);
   const overlapWorkLayerSpecificityMaps = buildSpecificityMaps(overlapWorkLayerMap);
   const overlapGrantLayerSpecificityMaps = buildSpecificityMaps(overlapGrantLayerMap);
+
+  // Log the length of every map in overlapGrantLayerSpecificityMaps
+  for (const [key, map] of Object.entries(overlapGrantLayerSpecificityMaps)) {
+    console.log(`overlapGrantLayerSpecificityMaps.${key}:`);
+    for (const [locID, locEntry] of map.entries()) {
+      console.log(`${locID}:`, locEntry);
+    }
+  }
 
 
 
