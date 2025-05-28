@@ -103,7 +103,13 @@ export const matchesKeyword = (keyword, entry) => {
  * @returns {Array} An array of matched fields, each containing the field name and matched value.
  */
 export const getMatchedFields = (keyword, entry) => {
-  if (!keyword?.trim() || !entry) return [];
+  if (!keyword?.trim()) {
+    // console.warn("getMatchedFields: No keyword provided");
+    return [];}
+  if (!entry) {
+    // console.warn("getMatchedFields: No entry provided");
+    return [];
+  }
 
   const normalizedKeyword = normalizeTerm(keyword.toLowerCase());
   const relatedExperts = getRelatedExperts(entry);
