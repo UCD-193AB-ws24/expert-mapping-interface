@@ -42,7 +42,7 @@ const renderPolygons = ({
   expertsMap,
   worksMap,
 }) => {
-  const sortedPolygons = Array.from(locationMap.entries())
+  const sortedPolygons = Object.entries(locationMap)
     .filter(([, value]) => value.geometryType === "Polygon" && value.expertIDs.length > 0) // Skip locations with 0 experts
     .sort(([, a], [, b]) => {
       const area = (geometry) => {
@@ -104,7 +104,7 @@ const renderPolygons = ({
 
       const matchedFieldsSet = new Set();
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap.get(workID);
+        const work = worksMap[workID];
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -190,7 +190,7 @@ const renderPolygons = ({
 
     const matchedFieldsSet = new Set();
     locationData.workIDs.forEach((workID) => {
-      const work = worksMap.get(workID);
+      const work = worksMap[workID];
       if (work?.matchedFields) {
         work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
       }
@@ -264,7 +264,11 @@ const renderPoints = ({
   expertsMap,
   worksMap,
 }) => {
-  locationMap.forEach((locationData, locationID) => {
+  
+  const locationEntries = Object.entries(locationMap);
+
+  // Iterate through each location in the location map
+  locationEntries.forEach(([locationID, locationData]) => {
     if (
       locationData.geometryType !== "Point" ||
       !Array.isArray(locationData.expertIDs) || locationData.expertIDs.length === 0 ||
@@ -292,7 +296,7 @@ const renderPoints = ({
 
       const matchedFieldsSet = new Set();
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap.get(workID);
+        const work = worksMap[workID];
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -376,7 +380,7 @@ const renderPoints = ({
 
       const matchedFieldsSet = new Set();
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap.get(workID);
+        const work = worksMap[workID];
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }

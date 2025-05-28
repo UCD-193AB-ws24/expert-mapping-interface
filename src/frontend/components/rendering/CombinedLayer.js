@@ -46,8 +46,14 @@ const renderPolygons = ({
 }) => {
   const matchedFieldsSet = new Set();
   // Sort polygons by area (largest to smallest)
-  const sortedPolygons = Array.from(locationMap.entries())
-    .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
+  console.log("📌 Sorting polygons by area...");
+  console.log("[DEBUG] locationMap entries:", Object.entries(locationMap));
+  const sortedPolygons = Object.entries(locationMap)
+    .filter(([, value]) =>
+      value.geometryType === "Polygon" &&
+      Array.isArray(value.workIDs) && value.workIDs.length > 0 &&
+      Array.isArray(value.grantIDs) && value.grantIDs.length > 0
+    )
     .sort(([, a], [, b]) => {
       const area = (geometry) => {
         const bounds = L.polygon(
@@ -60,7 +66,23 @@ const renderPolygons = ({
       };
       return area(b) - area(a); // Sort largest to smallest
     });
-
+  
+  if (sortedPolygons.length > 0) {
+    console.log("[DEBUG] Sample sortedPolygon:", sortedPolygons[0]);
+  }
+  if (sortedPolygons.length === 0) {
+    console.warn("[DEBUG] No polygons found in locationMap.");
+      Object.entries(locationMap).forEach(([locationID, value]) => {
+      if (value.geometryType !== "Polygon") {
+        console.log(`[DEBUG] Skipping ${locationID}: Not a Polygon`);
+      } else if (!Array.isArray(value.workIDs) || value.workIDs.length === 0) {
+        console.log(`[DEBUG] Skipping ${locationID}: No workIDs`);
+      } else if (!Array.isArray(value.grantIDs) || value.grantIDs.length === 0) {
+        console.log(`[DEBUG] Skipping ${locationID}: No grantIDs`);
+      }
+    });
+  }
+  
   sortedPolygons.forEach(([locationID, locationData]) => {
     // Flip coordinates for Leaflet compatibility
     const flippedCoordinates = locationData.coordinates.map((ring) =>
@@ -74,14 +96,14 @@ const renderPolygons = ({
 
     // Count experts from workIDs
     locationData.workIDs.forEach((workID) => {
-      const work = worksMap.get(workID);
+      const work = worksMap[workID];
       if (!work) {
         console.warn(`Work with ID ${workID} not found in worksMap.`);
         return;
       }
 
       (work.relatedExpertIDs || []).forEach((expertID) => {
-        if (expertsMap.has(expertID)) {
+        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
           workExpertIDs.add(expertID);
         }
       });
@@ -89,14 +111,14 @@ const renderPolygons = ({
 
     // Count experts from grantIDs
     locationData.grantIDs.forEach((grantID) => {
-      const grant = grantsMap.get(grantID);
+      const grant = grantsMap[grantID];
       if (!grant) {
         console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
         return;
       }
 
       (grant.relatedExpertIDs || []).forEach((expertID) => {
-        if (expertsMap.has(expertID)) {
+        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
           grantExpertIDs.add(expertID);
         }
       });
@@ -163,14 +185,14 @@ const renderPolygons = ({
 
       // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap.get(workID);
+        const work = worksMap[workID];
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
 
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -277,14 +299,14 @@ const renderPolygons = ({
 
       // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap.get(workID);
+        const work = worksMap[workID];
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
 
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -381,14 +403,19 @@ const renderPoints = ({
   setPanelType,
 }) => {
   const matchedFieldsSet = new Set();
+  // Normalize locationMap to an array of [id, data] pairs
+  const locationEntries = Object.entries(locationMap);
+
   // Iterate through each location in the location map
-  locationMap.forEach((locationData, locationID) => {
+  locationEntries.forEach(([locationID, locationData]) => {
     // Skip locations that are not points or have no works or grants
     if (
       locationData.geometryType !== "Point" ||
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
       !Array.isArray(locationData.worksIDs) || locationData.worksIDs.length === 0
-    ) return;
+    ) {
+    console.log(`Skipping locationID ${locationID}: not a point or no works/grants.`);
+    return;}
 
     // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
@@ -399,28 +426,28 @@ const renderPoints = ({
     // Get expert count for each work and grant per location
     // Count experts from workIDs
     workIDs.forEach((workID) => {
-      const work = worksMap.get(workID);
+      const work = worksMap[workID];
       if (!work) {
         console.warn(`Work with ID ${workID} not found in worksMap.`);
         return;
       }
 
       (work.relatedExpertIDs || []).forEach((expertID) => {
-        if (expertsMap.has(expertID)) {
+        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
           workExpertIDs.add(expertID);
         }
       });
     });
     // Count experts from grantIDs
     grantIDs.forEach((grantID) => {
-      const grant = grantsMap.get(grantID);
+      const grant = grantsMap[grantID];
       if (!grant) {
         console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
         return;
       }
 
       (grant.relatedExpertIDs || []).forEach((expertID) => {
-        if (expertsMap.has(expertID)) {
+        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
           grantExpertIDs.add(expertID);
         }
       });
@@ -456,7 +483,7 @@ const renderPoints = ({
 
       // Collect matched fields from works
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap.get(workID);
+        const work = worksMap[workID];
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -464,7 +491,7 @@ const renderPoints = ({
 
       // Collect matched fields from grants
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -572,7 +599,7 @@ const renderPoints = ({
 
       // Collect matched fields from works
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap.get(workID);
+        const work = worksMap[workID];
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -580,7 +607,7 @@ const renderPoints = ({
 
       // Collect matched fields from grants
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -685,6 +712,8 @@ const CombinedLayer = ({
     // Exit early if map or overlappingLocations is not available
     if (!map || !locationMap || !expertsMap || !worksMap || !grantsMap) return;
 
+    
+    // Create a marker cluster group for combined markers
     const comboMarkerGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 40,
@@ -704,6 +733,7 @@ const CombinedLayer = ({
 
     const comboLayers = [];
     const comboPolyMarkers = [];
+
 
     if (showWorks && showGrants) {
       // Render overlapping locations
@@ -742,6 +772,7 @@ const CombinedLayer = ({
       map.removeLayer(comboMarkerGroup);
       comboLayers.forEach((layer) => map.removeLayer(layer));
       comboPolyMarkers.forEach((marker) => map.removeLayer(marker));
+
       // map.off("zoomend", handleZoomEnd);
     };
   }, [

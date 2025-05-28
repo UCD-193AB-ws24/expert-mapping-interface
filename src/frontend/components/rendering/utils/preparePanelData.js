@@ -2,7 +2,7 @@
 export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID, locationName) => {
   // Process experts
   return expertIDs.map((expertID) => {
-    const expert = expertsMap.get(expertID);
+    const expert = expertsMap[expertID];
     if (!expert) {
       console.warn(`Expert with ID ${expertID} not found in expertsMap.`);
       return null;
@@ -16,7 +16,7 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
     // Find grants associated with this expert and the current location
     const associatedGrants = grantIDs
       .map((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (!grant) {
           console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
           return null;
@@ -39,7 +39,6 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
           console.warn(
             `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
           );
-          return false;
         }
         return true;
       });
@@ -48,7 +47,8 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
       location: locationName,
       name: expert.name || "Unknown",
       url: fullUrl, // Use the full URL
-      grants: associatedGrants.map((grant) => ({
+      grants: associatedGrants
+      .map((grant) => ({
         title: grant.title || "Untitled Grant",
         funder: grant.funder || "Unknown",
         startDate: grant.startDate || "Unknown",
@@ -63,7 +63,7 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
 
 export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID, locationName) => {
   return expertIDs.map((expertID) => {
-    const expert = expertsMap.get(expertID);
+    const expert = expertsMap[expertID];
     if (!expert) return null;
 
     // Ensure the URL is a full URL
@@ -73,19 +73,20 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
 
     // Find works associated with this expert and the current location
     const associatedWorks = workIDs
-      .map((workID) => worksMap.get(workID))
+      .map((workID) => worksMap[workID])
       .filter(
         (work) =>
           work &&
-          work.relatedExpertIDs.includes(expertID) && // Work is associated with this expert
-          work.locationID === locationID // Work matches the current location
+          work.relatedExpertIDs.includes(expertID)// Work is associated with this expert
       );
 
     return {
       location: locationName, 
       name: expert.name || "Unknown",
       url: fullUrl, // Use the full URL
-      works: associatedWorks.map((work) => ({
+      works: associatedWorks
+      .filter(Boolean) 
+      .map((work) => ({
         title: work.title || "Untitled Work",
         issued: work.issued || "Unknown",
         confidence: work.confidence || "Unknown",
