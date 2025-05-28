@@ -114,10 +114,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     // Helper to determine map type by zoom
     const getMapType = () => {
       if (zoomLevel >= 2 && zoomLevel <= 3) return "CountryLevelMaps";
-      if (zoomLevel >= 4 && zoomLevel <= 5) return "StateLevelMaps";
-      if (zoomLevel >= 6 && zoomLevel <= 7) return "CountyLevelMaps";
-      if (zoomLevel >= 8 && zoomLevel <= 9) return "CityLevelMaps";
-      if (zoomLevel >= 10) return "ExactLevelMaps";
+      if (zoomLevel == 4) return "StateLevelMaps";
+      if (zoomLevel == 5) return "CountyLevelMaps";
+      if (zoomLevel == 6) return "CityLevelMaps";
+      if (zoomLevel >= 7) return "ExactLevelMaps";
       return null;
     };
 
@@ -193,6 +193,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   const workLayerLocations = currentLocationMaps?.workLayerMap || {};
   const grantLayerLocations = currentLocationMaps?.grantLayerMap || {};
   const combinedLocations = currentLocationMaps?.combinedLayerMap || {};
+
+  console.log("[DEBUG] WorkLayer locations to render:", Object.values(workLayerLocations).map(loc => loc.name));
+  console.log("[DEBUG] GrantLayer locations to render:", Object.values(grantLayerLocations).map(loc => loc.name));
+  console.log("[DEBUG] CombinedLayer locations to render:", Object.values(combinedLocations).map(loc => loc.name));
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>

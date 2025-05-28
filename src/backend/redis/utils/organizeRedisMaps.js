@@ -93,8 +93,10 @@ async function buildRedisMaps(redisClient) {
         overlapping: "false",
       });
     }
-
-    // Get all entry keys for this location
+    if (locationID === "location:55") {
+      console.log("[DEBUG] Added Africa to locationMap (WORKS):", locationMap.get(locationID));
+    }
+      // Get all entry keys for this location
     const entryKeys = await getWorkEntryKeys(redisClient, workKey);
 
     for (const entryKey of entryKeys) {
@@ -238,7 +240,9 @@ async function buildRedisMaps(redisClient) {
       overlapping,
       });
     }
-    
+    if (finalLocationID === "location:55") {
+    console.log("[DEBUG] Added Africa to locationMap (GRANTS):", locationMap.get(finalLocationID));
+  }
     // Get all entry keys for this location
     const entryKeys = await getGrantEntryKeys(redisClient, grantKey);
 
@@ -321,7 +325,15 @@ async function buildRedisMaps(redisClient) {
     }
   }
 
+  const africaEntry = locationMap.get("location:55");
+  if (africaEntry) {
+    console.log("[DEBUG] Africa entry before specificity maps & aggregating:", africaEntry);
+  } else {
+    console.log("[DEBUG] Africa (location:55) not found in locationMap before specificity maps!");
+  }
+
   // Build country to locationIDs map
+  // Use country if present, otherwise use name (for continents/regions)
   const countryToLocationIDs = new Map();
   for (const [locationID, locEntry] of locationMap.entries()) {
     const country = locEntry.country;
@@ -329,13 +341,13 @@ async function buildRedisMaps(redisClient) {
     if (!countryToLocationIDs.has(country)) countryToLocationIDs.set(country, []);
     countryToLocationIDs.get(country).push(locationID);
   }
-
+  
   // Aggregate for country-level locations
   for (const [locationID, locEntry] of locationMap.entries()) {
-  if (locEntry.specificity === "country") {
-    const country = locEntry.country;
-    const allLocIDs = countryToLocationIDs.get(country) || [];
-
+  if (locEntry.specificity === "country" && locEntry.country && 
+    locEntry.country !== "None") {
+    const countryOrRegion = locEntry.country || locEntry.name;
+    const allLocIDs = countryToLocationIDs.get(countryOrRegion) || [];
     const allWorkIDs = [];
     const allGrantIDs = [];
     const allExpertIDs = [];
@@ -352,11 +364,43 @@ async function buildRedisMaps(redisClient) {
     locEntry.grantIDs = [...new Set(allGrantIDs)];
     locEntry.expertIDs = [...new Set(allExpertIDs)];
 
+    // Add country locationID to each work, grant, and expert
+    for (const workID of locEntry.workIDs) {
+      const work = worksMap.get(workID);
+      if (work && Array.isArray(work.locationIDs) && !work.locationIDs.includes(locationID)) {
+        work.locationIDs.push(locationID);
+      } else if (work && !work.locationIDs) {
+        work.locationIDs = [locationID];
+      }
+    }
+    for (const grantID of locEntry.grantIDs) {
+      const grant = grantsMap.get(grantID);
+      if (grant && Array.isArray(grant.locationIDs) && !grant.locationIDs.includes(locationID)) {
+        grant.locationIDs.push(locationID);
+      } else if (grant && !grant.locationIDs) {
+        grant.locationIDs = [locationID];
+      }
+    }
+    for (const expertID of locEntry.expertIDs) {
+      const expert = expertsMap.get(expertID);
+      if (expert && Array.isArray(expert.locationIDs) && !expert.locationIDs.includes(locationID)) {
+        expert.locationIDs.push(locationID);
+      } else if (expert && !expert.locationIDs) {
+        expert.locationIDs = [locationID];
+      }
+    }
+
     // Recalculate overlapping after aggregation
     locEntry.overlapping =
       locEntry.workIDs.length > 0 && locEntry.grantIDs.length > 0
         ? "true"
         : "false";
+  }
+  else if (
+    locEntry.specificity === "country" &&
+    (!locEntry.country || locEntry.country === "None")
+  ) {
+    console.log(`[AGGREGATION SKIP] Skipping aggregation for locationID ${locationID} (${locEntry.name}) with country="${locEntry.country}"`);
   }
 }
 
@@ -403,11 +447,15 @@ async function buildRedisMaps(redisClient) {
     const specificityLevels = ["country", "state", "county", "city", "exact"];
     const result = {};
     for (const level of specificityLevels) {
-      result[`${level}Map`] = new Map(
-        Array.from(locationMap.entries()).filter(
-          ([, locEntry]) => locEntry.specificity === level
-        )
+      const entries = Array.from(locationMap.entries()).filter(
+        ([, locEntry]) => locEntry.specificity === level
       );
+      result[`${level}Map`] = new Map(entries);
+
+      // Debug: log if Africa is in this specificity map
+      if (entries.some(([id]) => id === "location:55")) {
+        console.log(`[DEBUG] Africa found in ${level}Map`);
+      }
     }
     return result;
   }
