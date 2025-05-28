@@ -57,6 +57,7 @@ async function organizeRedis() {
     await redisClient.set('worksMap', JSON.stringify(Object.fromEntries(worksMap)));
     await redisClient.set('grantsMap', JSON.stringify(Object.fromEntries(grantsMap)));
     
+    console.log('All grantsMap:', Object.fromEntries(grantsMap));
     console.log('✅ Step 2 complete: Redis organization complete!');
     process.exit(0);
   } catch (err) {

@@ -16,8 +16,8 @@
    */
   export const isGrantInDate = (entry, selectedDateRange) => {
     if (!selectedDateRange || selectedDateRange.length !== 2) return true;
-    const start = parseInt(entry.start_date, 10);
-    const end = parseInt(entry.end_date, 10);
+    const start = parseInt(entry.startDate, 10);
+    const end = parseInt(entry.endDate, 10);
     const [minYear, maxYear] = selectedDateRange;
     return (
       (!isNaN(start) && start >= minYear && start <= maxYear) ||

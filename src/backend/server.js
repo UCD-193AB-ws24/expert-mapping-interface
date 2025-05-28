@@ -72,6 +72,7 @@ async function scanKeys(pattern, count) {
   return keys;
 }
 
+// ================ REDIS ENDPOINTS ================ //
 // Fetch all works from Redis as geojson file
 app.get('/api/redis/worksQuery', async (req, res) => {
   try {

@@ -28,9 +28,8 @@ import GrantLayer from "./rendering/GrantLayer";
 import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel, CombinedPanel } from "./rendering/Panels";
 import { matchesKeyword } from "./rendering/filters/searchFilter";
-import { organizeAllMaps } from "./rendering/filters/organizeAllMaps";
 import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
-import { splitFeaturesByLocation } from "./rendering/filters/splitFeaturesByLocation";
+import { filterLocationMapByKeyword } from "./rendering/filters/filterLocationMaps";
 import { all } from "axios";
 /**
  * ResearchMap Component
@@ -42,8 +41,6 @@ import { all } from "axios";
  */
 const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, onResetFilters }) => {
 
-  const [rawGrantGeoJSON, setRawGrantGeoJSON] = useState(null);
-  const [rawWorkGeoJSON, setRawWorkGeoJSON] = useState(null);
   const [selectedWorks, setSelectedWorks] = useState([]);
   const [selectedGrants, setSelectedGrants] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -67,14 +64,14 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   useEffect(() => {
     const fetchRawMaps = async () => {
       try {
-        console.log("[DEBUG] Fetching raw maps from /api/redis/getRawMaps");
+        // console.log("[DEBUG] Fetching raw maps from /api/redis/getRawMaps");
         const response = await fetch('/api/redis/getRawMaps');
         if (!response.ok) throw new Error('Failed to fetch raw maps');
         const data = await response.json();
         setRawExpertsMap(data.expertsMap);
         setRawWorksMap(data.worksMap);
         setRawGrantsMap(data.grantsMap);
-        console.log("[DEBUG] Raw maps loaded successfully");
+        // console.log("[DEBUG] Raw maps loaded successfully");
         setIsLoading(false);
       } catch (err) {
         console.error("[ERROR] Failed to load static map data in fetchRawMaps:", err);
@@ -136,7 +133,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     const cacheKey = `${zoomLevel}_${showWorks}_${showGrants}`;
 
     if (locationMapsCache[cacheKey]) {
-      console.log(`[DEBUG] Using cached maps for cacheKey: ${cacheKey}`);
+      // console.log(`[DEBUG] Using cached maps for cacheKey: ${cacheKey}`);
       setCurrentLocationMaps(locationMapsCache[cacheKey]);
       return;
     }
@@ -154,19 +151,19 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           workLayerMap = allMaps.worksMap;
           grantLayerMap = allMaps.grantsMap;
           combinedLayerMap = allMaps.combinedMap;
-          console.log("[DEBUG] worksMap type:", typeof workLayerMap, workLayerMap);
-          console.log("[DEBUG] grantsMap type:", typeof grantLayerMap, grantLayerMap);
-          console.log("[DEBUG] combinedMap type:", typeof combinedLayerMap, combinedLayerMap);
-          console.log(`[DEBUG] All maps loaded for cacheKey: ${cacheKey}`);
+          // console.log("[DEBUG] worksMap type:", typeof workLayerMap, workLayerMap);
+          // console.log("[DEBUG] grantsMap type:", typeof grantLayerMap, grantLayerMap);
+          // console.log("[DEBUG] combinedMap type:", typeof combinedLayerMap, combinedLayerMap);
+          // console.log(`[DEBUG] All maps loaded for cacheKey: ${cacheKey}`);
         } else if (showWorks) {
           // Overlap works map
-          console.log(`[DEBUG] Fetching overlap works map for ${mapType}`);
+          // console.log(`[DEBUG] Fetching overlap works map for ${mapType}`);
           const worksRes = await fetch(`/api/redis/overlap/get${mapType}?type=works`);
           if (!worksRes.ok) throw new Error("Failed to fetch works map");
           workLayerMap = await worksRes.json();
         } else if (showGrants) {
           // Overlap grants map
-          console.log(`[DEBUG] Fetching overlap grants map for ${mapType}`);
+          // console.log(`[DEBUG] Fetching overlap grants map for ${mapType}`);
           const grantsRes = await fetch(`/api/redis/overlap/get${mapType}?type=grants`);
           if (!grantsRes.ok) throw new Error("Failed to fetch grants map");
           grantLayerMap = await grantsRes.json();
@@ -175,7 +172,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
         const maps = { workLayerMap, grantLayerMap, combinedLayerMap };
         setLocationMapsCache(prev => ({ ...prev, [cacheKey]: maps }));
         setCurrentLocationMaps(maps);
-        console.log(`[DEBUG] Maps loaded and cached for cacheKey: ${cacheKey}`);
+        // console.log(`[DEBUG] Maps loaded and cached for cacheKey: ${cacheKey}`);
       } catch (err) {
         console.error(`[ERROR] Failed to load location maps in fetchMaps for cacheKey: ${cacheKey}`, err);
         setError("Failed to load location maps.");
@@ -185,18 +182,70 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     fetchMaps();
   }, [zoomLevel, showWorks, showGrants]);
 
-  // Filter worksMap, grantsMap, expertsMap, and locationMap based on searchKeyword
-  // TODO: Implement this logic for filtering works and grants based on searchKeyword
-
-
-
+  
   const workLayerLocations = currentLocationMaps?.workLayerMap || {};
   const grantLayerLocations = currentLocationMaps?.grantLayerMap || {};
   const combinedLocations = currentLocationMaps?.combinedLayerMap || {};
 
-  console.log("[DEBUG] WorkLayer locations to render:", Object.values(workLayerLocations).map(loc => loc.name));
-  console.log("[DEBUG] GrantLayer locations to render:", Object.values(grantLayerLocations).map(loc => loc.name));
-  console.log("[DEBUG] CombinedLayer locations to render:", Object.values(combinedLocations).map(loc => loc.name));
+  console.log("[DEBUG] worksMap:", rawWorksMap);
+  console.log("[DEBUG] grantsMap:", rawGrantsMap);
+  console.log("[DEBUG] expertsMap:", rawExpertsMap);
+
+  // Filter worksMap, grantsMap, expertsMap, and locationMap based on searchKeyword
+  // First filter by date, then by keyword
+  // Filter works by date
+  const dateFilteredWorksMap = Object.fromEntries(
+    Object.entries(rawWorksMap || {}).filter(([, work]) => isWorkInDate(work, selectedDateRange))
+  );
+
+  // Filter grants by date
+  const dateFilteredGrantsMap = Object.fromEntries(
+    Object.entries(rawGrantsMap || {}).filter(([, grant]) => isGrantInDate(grant, selectedDateRange))
+  );
+  const dateFilteredExpertsMap = Object.fromEntries(
+  Object.entries(rawExpertsMap || {}).filter(([, expert]) => {
+    // Only keep experts who have at least one work or grant in the filtered maps
+    const hasWork = (expert.workIDs || []).some(id => dateFilteredWorksMap[id]);
+    const hasGrant = (expert.grantIDs || []).some(id => dateFilteredGrantsMap[id]);
+    return hasWork || hasGrant;
+  })
+);
+
+  const filteredWorksMap = Object.fromEntries(
+    Object.entries(dateFilteredWorksMap).filter(([, work]) => matchesKeyword(searchKeyword, work))
+  );
+  const filteredGrantsMap = Object.fromEntries(
+    Object.entries(dateFilteredGrantsMap).filter(([, grant]) => matchesKeyword(searchKeyword, grant))
+  );
+  const filteredExpertsMap = Object.fromEntries(
+    Object.entries(dateFilteredExpertsMap).filter(([, expert]) => matchesKeyword(searchKeyword, expert))
+  );
+
+  const filteredWorkLayerLocations = filterLocationMapByKeyword(
+    workLayerLocations,
+    filteredExpertsMap,
+    filteredWorksMap,
+    filteredGrantsMap
+  );
+
+  const filteredGrantLayerLocations = filterLocationMapByKeyword(
+    grantLayerLocations,
+    filteredExpertsMap,
+    filteredWorksMap,
+    filteredGrantsMap
+  );
+
+  const filteredCombinedLocations = filterLocationMapByKeyword(
+    combinedLocations,
+    filteredExpertsMap,
+    filteredWorksMap,
+    filteredGrantsMap
+  );
+
+  console.log("Filtered works:", Object.keys(filteredWorksMap));
+  console.log("Filtered grants:", Object.keys(filteredGrantsMap));
+  console.log("Filtered experts:", Object.keys(filteredExpertsMap));
+  console.log("Filtered workLayerLocations:", Object.keys(filteredWorkLayerLocations));
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
@@ -236,7 +285,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Combined location layer */}
           {(showWorks && showGrants) && (
             <CombinedLayer
-              locationMap={combinedLocations || {}}
+              locationMap={filteredCombinedLocations || {}}
               worksMap={rawWorksMap || {}}
               grantsMap={ rawGrantsMap || {}}
               expertsMap={rawExpertsMap || {}}
@@ -254,9 +303,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Works layer */}
           {(showWorks) && (
             <WorkLayer
-              locationMap={workLayerLocations || {}}
+              locationMap={filteredWorkLayerLocations || {}}
               worksMap={rawWorksMap || {}}
-              expertsMap={rawExpertsMap || {}}
+              expertsMap={rawWorksMap || {}}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -268,9 +317,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Grants layer */}
           {(showGrants) && (
             <GrantLayer
-              locationMap={grantLayerLocations || {}}
-              grantsMap={rawGrantsMap || {}}
-              expertsMap={rawExpertsMap || {}}
+              locationMap={filteredGrantLayerLocations || {}}
+              grantsMap={filteredGrantsMap || {}}
+              expertsMap={filteredExpertsMap || {}}
               showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               setSelectedGrants={setSelectedGrants}
