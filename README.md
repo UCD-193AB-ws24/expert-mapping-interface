@@ -286,9 +286,9 @@ For a more detailed system architecture, developers can refer to src/backend/etl
 </div>
 
 <div align="center">
-  <img src="src/frontend/assets/figure3.png" style="width:33%; max-width:200px; display:inline-block;" />
-  <img src="src/frontend/assets/figure4.png" style="width:33%; max-width:200px; display:inline-block;" />
-  <img src="src/frontend/assets/figure5.png" style="width:33%; max-width:200px; display:inline-block;" />
+  <img src="src/frontend/assets/figure3.png" style="width:31%; max-width:200px; display:inline-block;" />
+  <img src="src/frontend/assets/figure4.png" style="width:31%; max-width:200px; display:inline-block;" />
+  <img src="src/frontend/assets/figure5.png" style="width:31%; max-width:200px; display:inline-block;" />
   <p><em>Figure 3&emsp;Figure 4&emsp;Figure 5</em></p>
 </div>
 
