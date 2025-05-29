@@ -120,13 +120,13 @@ The map guide can be found underneath the filters button and displays the map gu
 
 ## **4\. System Architecture**
 
-### **4.1 Frontend Interface** \[*Figures 6,7*\]
+### **4.1 Frontend Interface** \[*Figures 6,7,8*\]
 
 * React.js application using Leaflet for maps  
 * Tailwind CSS for styling  
 * Responsive and accessible UI
 
-### **4.2 Data Flow Pipeline**  \[*Figures 8,9*\]
+### **4.2 Data Flow Pipeline**  \[*Figures 8,9,10*\]
 
 * Aggie Experts API provides raw expert data.  
   LLaMA extracts geographic entities from texts.  
@@ -135,13 +135,13 @@ The map guide can be found underneath the filters button and displays the map gu
 * Redis caches results.  
 * React frontend renders UI.
 
-### **4.3 Backend Services** \[*Figure 8*\]
+### **4.3 Backend Services** \[*Figure 9,10*\]
 
 * Node.js Express API serves endpoints  
 * Redis provides cache acceleration  
 * PostGIS stores location-based records
 
-### **4.4 Docker and GCP Deployment Architecture**  \[*Figure 10*\]
+### **4.4 Docker and GCP Deployment Architecture**  \[*Figure 11*\]
 
 The E.M.I is deployed using Docker containers on a Google Cloud Platform (GCP) virtual machine. The architecture includes:
 
