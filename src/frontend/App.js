@@ -32,7 +32,6 @@ import { useEffect } from "react";
  * @returns {JSX.Element} The rendered `App` component.
  */
 function App() {
-  console.log("Pretest: App component initialized");
   // State variables
   const [showGrants, setShowGrants] = useState(true); // Toggles visibility of grants on the map
   const [showWorks, setShowWorks] = useState(true); // Toggles visibility of works on the map
