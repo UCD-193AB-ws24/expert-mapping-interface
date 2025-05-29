@@ -106,7 +106,7 @@ async function buildExistingRecordsMap(redisClient, entityType) {
       
       // Debug any keys with empty data
       if (!data || Object.keys(data).length === 0) {
-        // console.log(`[DEBUG] Warning: Empty data for key ${key}`);
+        console.log(`[DEBUG] Warning: Empty data for key ${key}`);
       } else {
         existingRecords[id] = data;
       }
