@@ -120,9 +120,9 @@ describe("GrantLayer component", () => {
 
     render(
       <GrantLayer
-        locationMap={new Map()}
-        grantsMap={new Map()}
-        expertsMap={new Map()}
+        locationMap={{}}
+        grantsMap={{}}
+        expertsMap={{}}
         showGrants={false}
         setSelectedGrants={jest.fn()}
         setPanelOpen={jest.fn()}
@@ -142,27 +142,22 @@ describe("GrantLayer component", () => {
     const mockSetPanelType = jest.fn();
   
     // Define mock data for location, grants, and experts
-    const locationMap = new Map([
-      [
-        "polygonClick",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]], // Polygon coordinates
-          grantIDs: [1], // Associated grant IDs
-          expertIDs: [5], // Associated expert IDs
-          name: "Clickable Polygon",
-          display_name: "Clickable Display",
-        },
-      ],
-    ]);
-  
-    const grantsMap = new Map([
-      [1, { matchedFields: ["keyword1"] }], // Mock grant data
-    ]);
-  
-    const expertsMap = new Map([
-      [5, { name: "Dr. Polygon" }], // Mock expert data
-    ]);
+    const locationMap = {
+      polygonClick: {
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        grantIDs: [1],
+        expertIDs: [5],
+        name: "Clickable Polygon",
+        display_name: "Clickable Display",
+      },
+    };
+    const grantsMap = {
+      1: { matchedFields: ["keyword1"] },
+    };
+    const expertsMap = {
+      5: { name: "Dr. Polygon" },
+    };
   
     // Render the GrantLayer component with mock data and handlers
     render(
@@ -210,28 +205,24 @@ describe("GrantLayer component", () => {
     const mockSetPanelType = jest.fn();
   
     // Define mock data for location, grants, and experts
-    const locationMap = new Map([
-      [
-        "hoverPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20], // Coordinates for the point marker
-          grantIDs: [101], // Associated grant IDs
-          expertIDs: [42], // Associated expert IDs
-          name: "Hover Point Location",
-          display_name: "Hover Display",
-        },
-      ],
-    ]);
+    const locationMap = {
+      hoverPoint: {
+        geometryType: "Point",
+        coordinates: [10, 20],
+        grantIDs: [101],
+        expertIDs: [42],
+        name: "Hover Point Location",
+        display_name: "Hover Display",
+      },
+    };
   
-    const grantsMap = new Map([
-      [101, { matchedFields: ["climate", "data"] }], // Mock grant data
-    ]);
-  
-    const expertsMap = new Map([
-      [42, { name: "Hover Grant Expert" }], // Mock expert data
-    ]);
-  
+    const grantsMap = {
+      101: { matchedFields: ["climate", "data"] }, // Mock grant data
+    };
+    
+    const expertsMap = {
+      42: { name: "Hover Grant Expert" }, // Mock expert data
+    };
     // Render the GrantLayer component with mock data and handlers
     render(
       <GrantLayer
@@ -279,27 +270,24 @@ describe("GrantLayer component", () => {
     const mockSetPanelType = jest.fn();
   
     // Define mock data for location, grants, and experts
-    const locationMap = new Map([
-      [
-        "clickPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20], // Coordinates for the point marker
-          grantIDs: [201], // Associated grant IDs
-          expertIDs: [301], // Associated expert IDs
-          name: "Clickable Point",
-          display_name: "Clickable Point Display",
-        },
-      ],
-    ]);
-  
-    const grantsMap = new Map([
-      [201, { matchedFields: ["sustainability"] }], // Mock grant data
-    ]);
-  
-    const expertsMap = new Map([
-      [301, { name: "Click Grant Expert" }], // Mock expert data
-    ]);
+    const locationMap = {
+      clickPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20], // Coordinates for the point marker
+      grantIDs: [201], // Associated grant IDs
+      expertIDs: [301], // Associated expert IDs
+      name: "Clickable Point",
+      display_name: "Clickable Point Display",
+      },
+    };
+    
+    const grantsMap = {
+      201: { matchedFields: ["sustainability"] }, // Mock grant data
+    };
+    
+    const expertsMap = {
+      301: { name: "Click Grant Expert" }, // Mock expert data
+    };
   
     // Render the GrantLayer component with mock data and handlers
     render(
@@ -346,26 +334,23 @@ describe("GrantLayer component", () => {
 
   it("calls iconCreateFunction and returns custom cluster icon with expert count", () => {
     // Prepare dummy map data
-    const locationMap = new Map([
-      [
-        "pointA",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          grantIDs: [1],
-          expertIDs: [1],
-          name: "Point A",
-        },
-      ],
-    ]);
+    const locationMap = {
+      pointA: {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      grantIDs: [1],
+      expertIDs: [1],
+      name: "Point A",
+      },
+    };
 
-    const grantsMap = new Map([
-      [1, { title: "Grant A" }],
-    ]);
+    const grantsMap = {
+      1: { title: "Grant A" },
+    };
 
-    const expertsMap = new Map([
-      [1, { name: "Expert A" }],
-    ]);
+    const expertsMap = {
+      1: { name: "Expert A" },
+    };
 
     // Render component to initialize markerClusterGroup
     render(
@@ -409,27 +394,24 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "polygonPopup",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          grantIDs: [1],
-          expertIDs: [1],
-          name: "Popup Polygon",
-          display_name: "Polygon Popup Display",
-        },
-      ],
-    ]);
+    const locationMap = {
+      polygonPopup: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      grantIDs: [1],
+      expertIDs: [1],
+      name: "Popup Polygon",
+      display_name: "Polygon Popup Display",
+      },
+    };
 
-    const grantsMap = new Map([
-      [1, { matchedFields: ["popupTest"] }], // Mock grant data
-    ]);
+    const grantsMap = {
+      1: { matchedFields: ["popupTest"] }, // Mock grant data
+    };
 
-    const expertsMap = new Map([
-      [1, { name: "Popup Expert" }], // Mock expert data
-    ]);
+    const expertsMap = {
+      1: { name: "Popup Expert" }, // Mock expert data
+    };
 
     render(   //Render the GrantLayer component with mock data and handlers
       <GrantLayer
@@ -476,22 +458,23 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "polygon-popup",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "Popup Polygon",
-          display_name: "Popup Location",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "polygon-popup": {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "Popup Polygon",
+      display_name: "Popup Location",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["topic"] }]]);
-    const expertsMap = new Map([[2, { name: "Expert X" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["topic"] },
+    };
+    const expertsMap = {
+      2: { name: "Expert X" },
+    };
 
     render(
       <GrantLayer
@@ -553,21 +536,22 @@ describe("GrantLayer component", () => {
     // Override the L.popup mock for this test
     L.popup.mockImplementationOnce(() => mockPopupWithNullElement);
 
-    const locationMap = new Map([
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          grantIDs: [1],
-          expertIDs: [1],
-          name: "Test Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      grantIDs: [1],
+      expertIDs: [1],
+      name: "Test Point",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["test"] }]]);
-    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["test"] },
+    };
+    const expertsMap = {
+      1: { name: "Test Expert" },
+    };
 
     render(
       <GrantLayer
@@ -612,21 +596,22 @@ describe("GrantLayer component", () => {
 
     L.popup.mockImplementationOnce(() => mockPopupWithNoButton);
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          grantIDs: [1],
-          expertIDs: [1],
-          name: "Test Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      grantIDs: [1],
+      expertIDs: [1],
+      name: "Test Point",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["test"] }]]);
-    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["test"] },
+    };
+    const expertsMap = {
+      1: { name: "Test Expert" },
+    };
 
     render(
       <GrantLayer
@@ -653,21 +638,22 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "hoverCancel",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "Hover Cancel Test",
-        },
-      ],
-    ]);
+    const locationMap = {
+      hoverCancel: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "Hover Cancel Test",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["energy"] }]]);
-    const expertsMap = new Map([[2, { name: "Dr. Hover" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["energy"] },
+    };
+    const expertsMap = {
+      2: { name: "Dr. Hover" },
+    };
 
     render(
       <GrantLayer
@@ -780,21 +766,22 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "timeoutPoint",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          grantIDs: [101],
-          expertIDs: [202],
-          name: "Timeout Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      timeoutPoint: {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      grantIDs: [101],
+      expertIDs: [202],
+      name: "Timeout Point",
+      },
+    };
 
-    const grantsMap = new Map([[101, { matchedFields: ["energy"] }]]);
-    const expertsMap = new Map([[202, { name: "Dr. Timeout" }]]);
+    const grantsMap = {
+      101: { matchedFields: ["energy"] },
+    };
+    const expertsMap = {
+      202: { name: "Dr. Timeout" },
+    };
 
     render(
       <GrantLayer
@@ -833,21 +820,22 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "Test Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "Test Point",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["field1"] },
+    };
+    const expertsMap = {
+      2: { name: "Test Expert" },
+    };
 
     render(
       <GrantLayer
@@ -883,21 +871,22 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "Test Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "Test Point",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["field1"] },
+    };
+    const expertsMap = {
+      2: { name: "Test Expert" },
+    };
 
     render(
       <GrantLayer
@@ -938,30 +927,31 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "polygon_test",
-        {
-          geometryType: "Polygon",
-          coordinates: [
-            [
-              [0, 0],
-              [1, 0],
-              [1, 1],
-              [0, 1],
-              [0, 0],
-            ],
-          ],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "Test Polygon",
-          display_name: "Test Polygon Display",
-        },
+    const locationMap = {
+      polygon_test: {
+      geometryType: "Polygon",
+      coordinates: [
+        [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [0, 0],
+        ],
       ],
-    ]);
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "Test Polygon",
+      display_name: "Test Polygon Display",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["field1"] },
+    };
+    const expertsMap = {
+      2: { name: "Test Expert" },
+    };
 
     render(
       <GrantLayer
@@ -1043,30 +1033,31 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "polygon_test",
-        {
-          geometryType: "Polygon",
-          coordinates: [
-            [
-              [0, 0],
-              [1, 0],
-              [1, 1],
-              [0, 1],
-              [0, 0],
-            ],
-          ],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "Test Polygon",
-          display_name: "Test Polygon Display",
-        },
+    const locationMap = {
+      polygon_test: {
+      geometryType: "Polygon",
+      coordinates: [
+        [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [0, 0],
+        ],
       ],
-    ]);
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "Test Polygon",
+      display_name: "Test Polygon Display",
+      },
+    };
 
-    const grantsMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const grantsMap = {
+      1: { matchedFields: ["field1"] },
+    };
+    const expertsMap = {
+      2: { name: "Test Expert" },
+    };
 
     render(
       <GrantLayer
@@ -1148,27 +1139,24 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "double-hover",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "Popup Remover",
-          display_name: "Popup Overwrite",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "double-hover": {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "Popup Remover",
+      display_name: "Popup Overwrite",
+      },
+    };
 
-    const grantsMap = new Map([
-      [1, { matchedFields: ["field"] }],
-    ]);
+    const grantsMap = {
+      1: { matchedFields: ["field"] },
+    };
 
-    const expertsMap = new Map([
-      [2, { name: "Expert A" }],
-    ]);
+    const expertsMap = {
+      2: { name: "Expert A" },
+    };
 
     // Mock the popup element and its methods
     const popupElement = {
@@ -1226,40 +1214,34 @@ describe("GrantLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Define mock data for location, grants, and experts
-      [
-        "polygon1",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [1, 0]]],
-          grantIDs: [1],
-          expertIDs: [2],
-          name: "First Polygon",
-          display_name: "First Polygon",
-        },
-      ],
-      [
-        "polygon2",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[2, 2], [3, 3], [3, 2]]],
-          grantIDs: [3],
-          expertIDs: [4],
-          name: "Second Polygon",
-          display_name: "Second Polygon",
-        },
-      ],
-    ]);
+    const locationMap = {
+      polygon1: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [1, 0]]],
+      grantIDs: [1],
+      expertIDs: [2],
+      name: "First Polygon",
+      display_name: "First Polygon",
+      },
+      polygon2: {
+      geometryType: "Polygon",
+      coordinates: [[[2, 2], [3, 3], [3, 2]]],
+      grantIDs: [3],
+      expertIDs: [4],
+      name: "Second Polygon",
+      display_name: "Second Polygon",
+      },
+    };
 
-    const grantsMap = new Map([
-      [1, { matchedFields: ["field1"] }],
-      [3, { matchedFields: ["field2"] }],
-    ]);
+    const grantsMap = {
+      1: { matchedFields: ["field1"] },
+      3: { matchedFields: ["field2"] },
+    };
 
-    const expertsMap = new Map([
-      [2, { name: "Expert A" }],
-      [4, { name: "Expert B" }],
-    ]);
+    const expertsMap = {
+      2: { name: "Expert A" },
+      4: { name: "Expert B" },
+    };
 
     const popupElement = {  // Mock popup element with necessary methods
       style: { pointerEvents: "auto" },

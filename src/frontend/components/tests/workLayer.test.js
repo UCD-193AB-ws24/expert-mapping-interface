@@ -115,38 +115,32 @@ describe("WorkLayer component", () => {
   });
 
   it("renders polygons and points when showWorks is true", () => {
-    const locationMap = new Map([ // Mock locationMap with polygons and points
-      [
-        "loc1",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Polygon A",
-        },
-      ],
-      [
-        "loc2",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          workIDs: [3],
-          expertIDs: [4],
-          name: "Point B",
-        },
-      ],
-    ]);
+    const locationMap = { // Mock locationMap with polygons and points
+      loc1: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Polygon A",
+      },
+      loc2: {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      workIDs: [3],
+      expertIDs: [4],
+      name: "Point B",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { matchedFields: ["field1"] }],
-      [3, { matchedFields: ["field2"] }],
-    ]);
+    const worksMap = {
+      1: { matchedFields: ["field1"] },
+      3: { matchedFields: ["field2"] },
+    };
 
-    const expertsMap = new Map([
-      [2, { name: "Expert 1" }],
-      [4, { name: "Expert 2" }],
-    ]);
+    const expertsMap = {
+      2: { name: "Expert 1" },
+      4: { name: "Expert 2" },
+    };
 
     render(
       <WorkLayer
@@ -172,9 +166,9 @@ describe("WorkLayer component", () => {
 
     render(
       <WorkLayer
-        locationMap={new Map()}
-        worksMap={new Map()}
-        expertsMap={new Map()}
+        locationMap={{}}
+        worksMap={{}}
+        expertsMap={{}}
         showWorks={false}
         setSelectedWorks={jest.fn()}
         setPanelOpen={jest.fn()}
@@ -193,27 +187,24 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "polygonClick",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          workIDs: [1],
-          expertIDs: [5],
-          name: "Clickable Polygon",
-          display_name: "Clickable Display",
-        },
-      ],
-    ]);
+    const locationMap = {
+      polygonClick: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      workIDs: [1],
+      expertIDs: [5],
+      name: "Clickable Polygon",
+      display_name: "Clickable Display",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { matchedFields: ["keyword1"] }],
-    ]);
+    const worksMap = {
+      1: { matchedFields: ["keyword1"] },
+    };
 
-    const expertsMap = new Map([
-      [5, { name: "Dr. Polygon" }],
-    ]);
+    const expertsMap = {
+      5: { name: "Dr. Polygon" },
+    };
 
     render(
       <WorkLayer
@@ -256,27 +247,24 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "hoverPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [101],
-          expertIDs: [42],
-          name: "Hover Point Location",
-          display_name: "Hover Display",
-        },
-      ],
-    ]);
+    const locationMap = {
+      hoverPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [101],
+      expertIDs: [42],
+      name: "Hover Point Location",
+      display_name: "Hover Display",
+      },
+    };
 
-    const worksMap = new Map([
-      [101, { matchedFields: ["climate", "data"] }],
-    ]);
+    const worksMap = {
+      101: { matchedFields: ["climate", "data"] },
+    };
 
-    const expertsMap = new Map([
-      [42, { name: "Hover Work Expert" }],
-    ]);
+    const expertsMap = {
+      42: { name: "Hover Work Expert" },
+    };
 
     render(
       <WorkLayer
@@ -320,27 +308,24 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ // Mock locationMap with a clickable point
-      [
-        "clickPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [201],
-          expertIDs: [301],
-          name: "Clickable Point",
-          display_name: "Clickable Point Display",
-        },
-      ],
-    ]);
+    const locationMap = { // Mock locationMap with a clickable point
+      clickPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [201],
+      expertIDs: [301],
+      name: "Clickable Point",
+      display_name: "Clickable Point Display",
+      },
+    };
 
-    const worksMap = new Map([
-      [201, { matchedFields: ["sustainability"] }],
-    ]);
+    const worksMap = {
+      201: { matchedFields: ["sustainability"] },
+    };
 
-    const expertsMap = new Map([
-      [301, { name: "Click Work Expert" }],
-    ]);
+    const expertsMap = {
+      301: { name: "Click Work Expert" },
+    };
 
     render(
       <WorkLayer
@@ -377,26 +362,23 @@ describe("WorkLayer component", () => {
   });
 
   it("calls iconCreateFunction and returns custom cluster icon with expert count", () => {
-    const locationMap = new Map([ // Mock locationMap with a point
-      [
-        "pointA",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          workIDs: [1],
-          expertIDs: [1],
-          name: "Point A",
-        },
-      ],
-    ]);
+    const locationMap = { // Mock locationMap with a point
+      pointA: {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      workIDs: [1],
+      expertIDs: [1],
+      name: "Point A",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { title: "Work A" }],
-    ]);
+    const worksMap = {
+      1: { title: "Work A" },
+    };
 
-    const expertsMap = new Map([
-      [1, { name: "Expert A" }],
-    ]);
+    const expertsMap = {
+      1: { name: "Expert A" },
+    };
 
     render(
       <WorkLayer
@@ -437,27 +419,24 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([ 
-      [
-        "polygonPopup",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          workIDs: [1],
-          expertIDs: [1],
-          name: "Popup Polygon",
-          display_name: "Polygon Popup Display",
-        },
-      ],
-    ]);
+    const locationMap = {
+      polygonPopup: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      workIDs: [1],
+      expertIDs: [1],
+      name: "Popup Polygon",
+      display_name: "Polygon Popup Display",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { matchedFields: ["popupTest"] }],
-    ]);
+    const worksMap = {
+      1: { matchedFields: ["popupTest"] },
+    };
 
-    const expertsMap = new Map([
-      [1, { name: "Popup Expert" }],
-    ]);
+    const expertsMap = {
+      1: { name: "Popup Expert" },
+    };
 
     render(
       <WorkLayer
@@ -502,22 +481,19 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "polygon-popup",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Popup Polygon",
-          display_name: "Popup Location",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "polygon-popup": {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Popup Polygon",
+      display_name: "Popup Location",
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["topic"] }]]);
-    const expertsMap = new Map([[2, { name: "Expert X" }]]);
+    const worksMap = { 1: { matchedFields: ["topic"] } };
+    const expertsMap = { 2: { name: "Expert X" } };
 
     render(
       <WorkLayer
@@ -565,26 +541,25 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [1, 2, 3],
-          expertIDs: [1],
-          name: "Test Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [1, 2, 3],
+      expertIDs: [1],
+      name: "Test Point",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { matchedFields: ["field1", "field2"] }],
-      [2, {}],
-      [3, { matchedFields: null }],
-    ]);
+    const worksMap = {
+      1: { matchedFields: ["field1", "field2"] },
+      2: {},
+      3: { matchedFields: null },
+    };
 
-    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+    const expertsMap = {
+      1: { name: "Test Expert" },
+    };
 
     render(
       <WorkLayer
@@ -623,21 +598,18 @@ describe("WorkLayer component", () => {
 
     L.popup.mockImplementationOnce(() => mockPopupWithNullElement);
 
-    const locationMap = new Map([
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [1],
-          expertIDs: [1],
-          name: "Test Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [1],
+      expertIDs: [1],
+      name: "Test Point",
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["test"] }]]);
-    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+    const worksMap = { 1: { matchedFields: ["test"] } };
+    const expertsMap = { 1: { name: "Test Expert" } };
 
     render(
       <WorkLayer
@@ -679,21 +651,18 @@ describe("WorkLayer component", () => {
 
     L.popup.mockImplementationOnce(() => mockPopupWithNoButton);
 
-    const locationMap = new Map([
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [1],
-          expertIDs: [1],
-          name: "Test Point",
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [1],
+      expertIDs: [1],
+      name: "Test Point",
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["test"] }]]);
-    const expertsMap = new Map([[1, { name: "Test Expert" }]]);
+    const worksMap = { 1: { matchedFields: ["test"] } };
+    const expertsMap = { 1: { name: "Test Expert" } };
 
     render(
       <WorkLayer
@@ -718,21 +687,18 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "hoverCancel",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Hover Cancel Test",
-        },
-      ],
-    ]);
+    const locationMap = {
+      hoverCancel: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Hover Cancel Test",
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["energy"] }]]);
-    const expertsMap = new Map([[2, { name: "Dr. Hover" }]]);
+    const worksMap = { 1: { matchedFields: ["energy"] } };
+    const expertsMap = { 2: { name: "Dr. Hover" } };
 
     render(
       <WorkLayer
@@ -767,22 +733,19 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Test Point",
-          display_name: "Test Display"
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Test Point",
+      display_name: "Test Display"
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const worksMap = { 1: { matchedFields: ["field1"] } };
+    const expertsMap = { 2: { name: "Test Expert" } };
 
     render(
       <WorkLayer
@@ -811,22 +774,19 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "testPoint",
-        {
-          geometryType: "Point",
-          coordinates: [10, 20],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Test Point",
-          display_name: "Test Display"
-        },
-      ],
-    ]);
+    const locationMap = {
+      testPoint: {
+      geometryType: "Point",
+      coordinates: [10, 20],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Test Point",
+      display_name: "Test Display"
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const worksMap = { 1: { matchedFields: ["field1"] } };
+    const expertsMap = { 2: { name: "Test Expert" } };
 
     render(
       <WorkLayer
@@ -858,30 +818,27 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "polygon_test",
-        {
-          geometryType: "Polygon",
-          coordinates: [
-            [
-              [0, 0],
-              [1, 0],
-              [1, 1],
-              [0, 1],
-              [0, 0],
-            ],
-          ],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Test Polygon",
-          display_name: "Test Polygon Display",
-        },
+    const locationMap = {
+      polygon_test: {
+      geometryType: "Polygon",
+      coordinates: [
+        [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [0, 0],
+        ],
       ],
-    ]);
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Test Polygon",
+      display_name: "Test Polygon Display",
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const worksMap = { 1: { matchedFields: ["field1"] } };
+    const expertsMap = { 2: { name: "Test Expert" } };
 
     render(
       <WorkLayer
@@ -957,30 +914,27 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "polygon_test",
-        {
-          geometryType: "Polygon",
-          coordinates: [
-            [
-              [0, 0],
-              [1, 0],
-              [1, 1],
-              [0, 1],
-              [0, 0],
-            ],
-          ],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Test Polygon",
-          display_name: "Test Polygon Display",
-        },
+    const locationMap = {
+      polygon_test: {
+      geometryType: "Polygon",
+      coordinates: [
+        [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [0, 0],
+        ],
       ],
-    ]);
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Test Polygon",
+      display_name: "Test Polygon Display",
+      },
+    };
 
-    const worksMap = new Map([[1, { matchedFields: ["field1"] }]]);
-    const expertsMap = new Map([[2, { name: "Test Expert" }]]);
+    const worksMap = { 1: { matchedFields: ["field1"] } };
+    const expertsMap = { 2: { name: "Test Expert" } };
 
     render(
       <WorkLayer
@@ -1052,27 +1006,24 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "no-matched-fields",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "No Fields Polygon",
-          display_name: "Polygon",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "no-matched-fields": {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "No Fields Polygon",
+      display_name: "Polygon",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { title: "Work with no fields" }],
-    ]);
+    const worksMap = {
+      1: { title: "Work with no fields" },
+    };
 
-    const expertsMap = new Map([
-      [2, { name: "No Fields Expert" }],
-    ]);
+    const expertsMap = {
+      2: { name: "No Fields Expert" },
+    };
 
     render(
       <WorkLayer
@@ -1102,27 +1053,24 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "double-hover",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "Popup Remover",
-          display_name: "Popup Overwrite",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "double-hover": {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "Popup Remover",
+      display_name: "Popup Overwrite",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { matchedFields: ["field"] }],
-    ]);
+    const worksMap = {
+      1: { matchedFields: ["field"] },
+    };
 
-    const expertsMap = new Map([
-      [2, { name: "Expert A" }],
-    ]);
+    const expertsMap = {
+      2: { name: "Expert A" },
+    };
 
     const popupElement = {  // Mock popup element
       style: { pointerEvents: "auto" },
@@ -1174,40 +1122,34 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "polygon1",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [1, 0]]],
-          workIDs: [1],
-          expertIDs: [2],
-          name: "First Polygon",
-          display_name: "First Polygon",
-        },
-      ],
-      [
-        "polygon2",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[2, 2], [3, 3], [3, 2]]],
-          workIDs: [3],
-          expertIDs: [4],
-          name: "Second Polygon",
-          display_name: "Second Polygon",
-        },
-      ],
-    ]);
+    const locationMap = {
+      polygon1: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [1, 0]]],
+      workIDs: [1],
+      expertIDs: [2],
+      name: "First Polygon",
+      display_name: "First Polygon",
+      },
+      polygon2: {
+      geometryType: "Polygon",
+      coordinates: [[[2, 2], [3, 3], [3, 2]]],
+      workIDs: [3],
+      expertIDs: [4],
+      name: "Second Polygon",
+      display_name: "Second Polygon",
+      },
+    };
 
-    const worksMap = new Map([
-      [1, { matchedFields: ["field1"] }],
-      [3, { matchedFields: ["field2"] }],
-    ]);
+    const worksMap = {
+      1: { matchedFields: ["field1"] },
+      3: { matchedFields: ["field2"] },
+    };
 
-    const expertsMap = new Map([
-      [2, { name: "Expert A" }],
-      [4, { name: "Expert B" }],
-    ]);
+    const expertsMap = {
+      2: { name: "Expert A" },
+      4: { name: "Expert B" },
+    };
 
     const popupElement = {  // Mock popup element
       style: { pointerEvents: "auto" },
@@ -1336,27 +1278,24 @@ describe("WorkLayer component", () => {
     const mockSetPanelOpen = jest.fn();
     const mockSetPanelType = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "popup-click",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          workIDs: [101],
-          expertIDs: [202],
-          name: "Work Popup",
-          display_name: "Click Test",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "popup-click": {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      workIDs: [101],
+      expertIDs: [202],
+      name: "Work Popup",
+      display_name: "Click Test",
+      },
+    };
 
-    const worksMap = new Map([
-      [101, { matchedFields: ["test"] }],
-    ]);
+    const worksMap = {
+      101: { matchedFields: ["test"] },
+    };
 
-    const expertsMap = new Map([
-      [202, { name: "Dr. Work" }],
-    ]);
+    const expertsMap = {
+      202: { name: "Dr. Work" },
+    };
 
     render(
       <WorkLayer

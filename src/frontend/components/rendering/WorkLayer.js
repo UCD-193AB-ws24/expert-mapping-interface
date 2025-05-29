@@ -26,7 +26,6 @@ import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
 import { prepareWorkPanelData } from "./utils/preparePanelData";
 import { getMatchedFields } from "./filters/searchFilter";
-import { getMatchedFields } from "./filters/searchFilter";
 
 /**
  * Renders polygons on the map for locations with works.
