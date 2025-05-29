@@ -310,18 +310,24 @@ For a more detailed system architecture, developers can refer to src/backend/etl
   <p><em>Figure 8</em></p>
 </div>
 
+---
+
 <div align="center">
   <img src="src/frontend/assets/figure9.png" style="width:100%; max-width:800px;" />
   <p><em>Figure 9</em></p>
 </div>
 
----
-
 <div align="center">
   <img src="src/frontend/assets/figure10.png" style="width:100%; max-width:800px;" />
-  <p><em>Figure 10</em></p>
+  <p><em>Figure 11</em></p>
 </div>
 
+<div align="center">
+  <img src="src/frontend/assets/figure11.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 11</em></p>
+</div>
+
+---
 
 For technical details regarding frontend rendering, refer to src/frontend/components/[README.md](http://README.md).
 
