@@ -26,6 +26,7 @@ import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
 import { prepareWorkPanelData } from "./utils/preparePanelData";
 import { getMatchedFields } from "./filters/searchFilter";
+import { getMatchedFields } from "./filters/searchFilter";
 
 /**
  * Renders polygons on the map for locations with works.
@@ -205,8 +206,8 @@ const renderPolygons = ({
     });
 
     marker.on("click", () => {
-      // Remove any existing popup
-      if (workPolyPopup) workPolyPopup.remove();
+    // Remove any existing popup
+    if (workPolyPopup) workPolyPopup.remove();
 
     const matchedFieldsSet = new Set();
       // Collect matched fields from works and grants
@@ -233,20 +234,21 @@ const renderPolygons = ({
       matchedFields
     );
 
-      workPolyPopup = L.popup({
-        closeButton: true,      // Show close button for mobile/tablet
-        autoClose: true,        // Close when clicking elsewhere
-        maxWidth: 300,
-        className: "hoverable-popup",
-        autoPan: true,          // Pan to popup if needed
-      })
-        .setLatLng(polygon.getBounds().getCenter())
-        .setContent(content)
-        .openOn(map);
+    workPolyPopup = L.popup({
+      closeButton: true,      // Show close button for mobile/tablet
+      autoClose: true,        // Close when clicking elsewhere
+      maxWidth: 300,
+      className: "hoverable-popup",
+      autoPan: true,          // Pan to popup if needed
+    })
+      .setLatLng(polygon.getBounds().getCenter())
+      .setContent(content)
+      .openOn(map);
 
-      const popupElement = workPolyPopup.getElement();
-      if (popupElement) {
-        popupElement.style.pointerEvents = "auto";
+    const popupElement = workPolyPopup.getElement();
+    
+    if (popupElement) {
+      popupElement.style.pointerEvents = "auto";
 
       // Only add the button click handler
       const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
@@ -268,13 +270,13 @@ const renderPolygons = ({
           setPanelType("works");
           setPanelOpen(true);
 
-            if (workPolyPopup) {
-              workPolyPopup.close();
-              workPolyPopup = null;
-            }
-          });
-        }
+          if (workPolyPopup) {
+            workPolyPopup.close();
+            workPolyPopup = null;
+          }
+        });
       }
+    }
     });
   });
 };
@@ -398,7 +400,7 @@ const renderPoints = ({
               expertsMap,
               worksMap,
               locationID, // Pass the current locationID
-              locationData.name
+              locationData.display_name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -478,7 +480,7 @@ const renderPoints = ({
               expertsMap,
               worksMap,
               locationID, // Pass the current locationID
-              locationData.name
+              locationData.display_name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -492,7 +494,7 @@ const renderPoints = ({
         }
       }
     });
-
+    
     markerClusterGroup.addLayer(marker);
   });
 
