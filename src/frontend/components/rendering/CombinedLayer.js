@@ -67,6 +67,7 @@ const renderPolygons = ({
       return area(b) - area(a); // Sort largest to smallest
     });
   
+  
   sortedPolygons.forEach(([locationID, locationData]) => {
     // Flip coordinates for Leaflet compatibility
     const workExpertIDs = new Set();
@@ -75,7 +76,7 @@ const renderPolygons = ({
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
-
+    
     setLocationName(locationData.name);
 
     // Count experts from workIDs
@@ -122,8 +123,8 @@ const renderPolygons = ({
       ...workExpertIDs,
       ...grantExpertIDs,
     ]);
-    const totalExpertCount = combinedExpertIDs.size;
 
+    const totalExpertCount = combinedExpertIDs.size;
 
     // Create a polygon for the location
     const polygon = L.polygon(flippedCoordinates, {
@@ -151,7 +152,7 @@ const renderPolygons = ({
           align-items: center;
           justify-content: center;
           font-weight: bold;
-        '>${totalExpertCount}</div>`,
+        '>${totalExpertCount || 0}</div>`,
         className: "polygon-center-marker",
         iconSize: [30, 30],
       }),
@@ -246,14 +247,16 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const grantPanelData = prepareGrantPanelData(
-              locationData.grantIDs,
+              Array.from(grantExpertIDs),
+              Array.isArray(locationData.grantIDs) ? locationData.grantIDs : [],
               grantsMap,
               expertsMap,
               locationID,
               locationData.name
             );
             const workPanelData = prepareWorkPanelData(
-              locationData.workIDs,
+              Array.from(workExpertIDs),
+              Array.isArray(locationData.workIDs) ? locationData.workIDs : [],
               expertsMap,
               worksMap,
               locationID,
@@ -340,14 +343,16 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const grantPanelData = prepareGrantPanelData(
-              locationData.expertIDs,
+              Array.from(grantExpertIDs),
+              Array.isArray(locationData.grantIDs) ? locationData.grantIDs : [],
               grantsMap,
               expertsMap,
               locationID,
               locationData.name
             );
             const workPanelData = prepareWorkPanelData(
-              locationData.expertIDs,
+              Array.from(workExpertIDs),
+              Array.isArray(locationData.workIDs) ? locationData.workIDs : [],
               expertsMap,
               worksMap,
               locationID,
@@ -409,7 +414,10 @@ const renderPoints = ({
     // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
-
+    if(locationID === "location:10") {
+      console.log("Flipped Coordinates for location:10:", flippedCoordinates);
+      console.log("Location Data:", locationData.expertIDs.length, "experts found");
+    }
     setLocationName(locationData.name);
     
     // Get expert count for each work and grant per location
@@ -552,7 +560,7 @@ const renderPoints = ({
 
             const grantPanelData = prepareGrantPanelData(
               Array.from(grantExpertIDs),
-              locationData.grantIDs,
+              Array.isArray(locationData.grantIDs) ? locationData.grantIDs : [],
               grantsMap,
               expertsMap,
               locationID,
@@ -560,7 +568,7 @@ const renderPoints = ({
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
-              locationData.workIDs,
+              Array.isArray(locationData.workIDs) ? locationData.workIDs : [],
               expertsMap,
               worksMap,
               locationID,
@@ -656,7 +664,7 @@ const renderPoints = ({
               locationData.name
             );
             const workPanelData = prepareWorkPanelData(
-              workExpertIDs,
+              Array.from(workExpertIDs),
               locationData.workIDs,
               expertsMap,
               worksMap,

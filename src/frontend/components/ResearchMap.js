@@ -200,9 +200,20 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   })
 );
 
-  // Filter experts by keyword
+  // Debounce searchKeyword to avoid filtering on every keystroke
+  const [debouncedSearchKeyword, setDebouncedSearchKeyword] = useState(searchKeyword);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchKeyword(searchKeyword);
+    }, 400); // 400ms debounce delay
+
+    return () => clearTimeout(handler);
+  }, [searchKeyword]);
+
+  // Filter experts by debounced keyword
   const filteredExpertsMap = Object.fromEntries(
-    Object.entries(dateFilteredExpertsMap).filter(([, expert]) => matchesKeyword(searchKeyword, expert))
+    Object.entries(dateFilteredExpertsMap).filter(([, expert]) => matchesKeyword(debouncedSearchKeyword, expert))
   );
 
   const hasExpertMatches = Object.keys(filteredExpertsMap).length > 0;
@@ -237,9 +248,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     // console.log(`Filtered Grants Map of length ${Object.keys(filteredGrantsMap).length}:`, Object.keys(filteredGrantsMap));
   }
   
-  console.log(Object.keys(workLayerLocations).length, "workLayerLocations before filtering");
-  console.log(Object.keys(grantLayerLocations).length, "grantLayerLocations before filtering");
   console.log(Object.keys(combinedLocations).length, "combinedLocations before filtering");
+  // console.log(Object.entries(combinedLocations));
   const filteredWorkLayerLocations = filterWorkLayerLocationMap(
     workLayerLocations,
     filteredWorksMap

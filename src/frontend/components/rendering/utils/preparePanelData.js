@@ -66,10 +66,15 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
     const expert = expertsMap[expertID];
     if (!expert) return null;
 
-    // Ensure the URL is a full URL
-    const fullUrl = expert.url.startsWith("http")
-      ? expert.url
-      : `https://experts.ucdavis.edu/${expert.url}`;
+    // Defensive: check if expert.url exists and is a string
+      let fullUrl = "";
+      if (typeof expert.url === "string" && expert.url.startsWith("http")) {
+        fullUrl = expert.url;
+      } else if (typeof expert.url === "string") {
+        fullUrl = `https://experts.ucdavis.edu/${expert.url}`;
+      } else {
+        fullUrl = ""; // or some fallback URL
+      }
 
     // Find works associated with this expert and the current location
     const associatedWorks = workIDs
