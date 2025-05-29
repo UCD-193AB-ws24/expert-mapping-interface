@@ -7,6 +7,7 @@ const { organizeRedis } = require('./utils/organizeRedis.js');
 
 
 const redisClient = createRedisClient();
+const isTest = process.env.JEST_WORKER_ID !== undefined;
 
 redisClient.on('error', (err) => {
   console.error('❌ Redis error:', err);
@@ -27,6 +28,8 @@ process.on('unhandledRejection', (err) => {
 
 
 async function updateMetadata(redisClient, type) {
+  // At the top of populateRedis.js
+  
   const prefix = `${type}:`;
   const metadataKey = `${type}:metadata`;
 
@@ -55,7 +58,9 @@ async function updateMetadata(redisClient, type) {
 
 (async () => {
   try {
-    console.log('🚀 Starting populateRedis script...');
+    
+    if(!isTest)
+      {console.log('🚀 Starting populateRedis script...');}
 
     await redisClient.connect();
     const pgClient = await pool.connect();
@@ -84,9 +89,12 @@ async function updateMetadata(redisClient, type) {
   } catch (error) {
     console.error('❌ Error during Redis synchronization:', error);
   } finally {
+    
     await redisClient.disconnect();
     await pool.end();
     console.log('✅ PostgreSQL and Redis connections closed.');
-    process.exit(0);
+    if (!isTest) {
+      process.exit(0);
+    }
   }
 })();
