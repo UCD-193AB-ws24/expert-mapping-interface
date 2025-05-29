@@ -46,20 +46,4 @@ async function getExpertProfiles(options = {}) {
   }
 }
 
-// Run if executed directly
-if (require.main === module) {
-  const args = process.argv.slice(2);
-  const useAll = args.includes('--all');
-
-  getExpertProfiles({ recent: !useAll })
-    .then(result => {
-      if (result.success) {
-        console.log(`\n✅ Successfully retrieved ${result.profiles.length} expert profiles`);
-      } else {
-        console.error('\n❌ Failed to retrieve expert profiles:', result.error);
-        process.exit(1);
-      }
-    });
-}
-
 module.exports = { getExpertProfiles };

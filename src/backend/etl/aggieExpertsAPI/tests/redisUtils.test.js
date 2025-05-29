@@ -21,13 +21,23 @@ const mockRedisClient = {
     hGetAll: jest.fn().mockReturnThis(),
     keys: jest.fn().mockReturnThis(),
     exec: jest.fn().mockResolvedValue([])
-  }))
+  })),
+  on: jest.fn() // Add a no-op .on method to the mockRedisClient for compatibility
 };
 
 // Mock redis library
 jest.mock('redis', () => ({
   createClient: jest.fn(() => mockRedisClient)
 }));
+
+// Define a shared options object for tests that use it
+const options = {
+  entityType: 'expert',
+  getItemId: (item, i) => item.id || i,
+  isItemUnchanged: () => false,
+  formatItemForCache: (item, sessionId) => ({ ...item, sessionId }),
+  formatItemFromCache: (data) => data
+};
 
 describe('redisUtils', () => {
   beforeEach(() => {
@@ -93,6 +103,25 @@ describe('redisUtils', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('fail');
     });
+
+    it('caches items successfully', async () => {
+      mockRedisClient.hSet.mockResolvedValue(1);
+      mockRedisClient.keys.mockResolvedValue(['expert:1']);
+      mockRedisClient.hGetAll.mockResolvedValue({});
+      const items = [{ id: '1', foo: 'bar' }];
+      const result = await cacheItems(items, options);
+      expect(result.success).toBe(true);
+      expect(mockRedisClient.connect).toHaveBeenCalled();
+      expect(mockRedisClient.quit).toHaveBeenCalled();
+    });
+    it('handles error and calls quit', async () => {
+      mockRedisClient.hSet.mockRejectedValueOnce(new Error('fail'));
+      const items = [{ id: '1', foo: 'bar' }];
+      const result = await cacheItems(items, options);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/fail/);
+      expect(mockRedisClient.quit).toHaveBeenCalled();
+    });
   });
 
   describe('getCachedItems', () => {
@@ -126,6 +155,21 @@ describe('redisUtils', () => {
 
       expect(result).toEqual([]);
     });
+
+    it('gets items successfully', async () => {
+      mockRedisClient.keys.mockResolvedValue(['expert:1']);
+      mockRedisClient.hGetAll.mockResolvedValue({ id: '1', foo: 'bar' });
+      const result = await getCachedItems(null, { ...options, formatItemFromCache: (d) => d });
+      expect(Array.isArray(result)).toBe(true);
+      expect(result[0]).toEqual(expect.objectContaining({ id: '1', foo: 'bar' }));
+      expect(mockRedisClient.disconnect).toHaveBeenCalled();
+    });
+    it('handles error and calls disconnect', async () => {
+      mockRedisClient.keys.mockRejectedValueOnce(new Error('fail'));
+      const result = await getCachedItems(null, options);
+      expect(result).toEqual([]);
+      expect(mockRedisClient.disconnect).toHaveBeenCalled();
+    });
   });
 
   describe('getCacheStats', () => {
@@ -155,6 +199,26 @@ describe('redisUtils', () => {
       const result = await getCacheStats();
 
       expect(result.error).toBe('fail');
+    });
+
+    it('returns stats successfully', async () => {
+      mockRedisClient.hGetAll.mockResolvedValueOnce({
+        total_count: '2',
+        new_count: '1',
+        updated_count: '1',
+        unchanged_count: '0',
+        timestamp: 'now'
+      });
+      const result = await getCacheStats();
+      expect(result).toHaveProperty('experts');
+      expect(result.experts.total).toBe(2);
+      expect(mockRedisClient.disconnect).toHaveBeenCalled();
+    });
+    it('handles error and calls disconnect', async () => {
+      mockRedisClient.hGetAll.mockRejectedValueOnce(new Error('fail'));
+      const result = await getCacheStats();
+      expect(result).toHaveProperty('error');
+      expect(mockRedisClient.disconnect).toHaveBeenCalled();
     });
   });
 });

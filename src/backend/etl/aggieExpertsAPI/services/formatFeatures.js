@@ -33,6 +33,7 @@ function formatFeatures(expertProfiles) {
     if (expert.works && Array.isArray(expert.works)) {
       expert.works.forEach(work => {
         const workId = work.id;
+        if (!workId) return; // skip works without id
         
         // Handle issued field - if it's an array, take the first value
         const processedWork = { ...work };
@@ -56,6 +57,7 @@ function formatFeatures(expertProfiles) {
     if (expert.grants && Array.isArray(expert.grants)) {
       expert.grants.forEach(grant => {
         const grantId = grant.id;
+        if (!grantId) return; // skip grants without id
         
         // Handle issued field for grants if needed
         const processedGrant = { ...grant };

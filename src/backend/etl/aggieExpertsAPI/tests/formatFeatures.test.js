@@ -1,141 +1,101 @@
-const { formatExpertProfilesToFeatures } = require('../services/formatFeatures');
+const { formatFeatures } = require('../services/formatFeatures');
 
 describe('formatFeatures', () => {
-  describe('formatExpertProfilesToFeatures', () => {
-    it('should format expert profiles into works and grants features', () => {
-      const mockProfiles = [
-        {
-          expertId: '123',
-          fullName: 'John Doe',
-          firstName: 'John',
-          lastName: 'Doe',
-          url: 'https://experts.ucdavis.edu/expert/123',
-          works: [
-            {
-              id: 'w1',
-              title: 'Research Paper 1',
-              abstract: 'Abstract 1',
-              issued: '2022'
-            }
-          ],
-          grants: [
-            {
-              id: 'g1',
-              title: 'Grant Project 1',
-              funder: 'NSF',
-              startDate: '2022-01-01',
-              endDate: '2023-01-01'
-            }
-          ]
-        }
-      ];
-
-      const result = formatExpertProfilesToFeatures(mockProfiles);
-
-      // Check that works features are properly formatted
-      expect(result.works).toHaveLength(1);
-      expect(result.works[0]).toEqual({
-        id: 'w1',
-        title: 'Research Paper 1',
-        abstract: 'Abstract 1',
-        issued: '2022',
-        relatedExperts: [
-          {
-            expertId: '123',
-            fullName: 'John Doe',
-            firstName: 'John',
-            lastName: 'Doe',
-            url: 'https://experts.ucdavis.edu/expert/123'
-          }
+  it('should format works and grants with related experts', () => {
+    const input = [
+      {
+        expertId: '1',
+        firstName: 'Alice',
+        lastName: 'Smith',
+        fullName: 'Alice Smith',
+        title: 'Professor',
+        organizationUnit: 'Math',
+        url: 'http://example.com/alice',
+        works: [
+          { id: 'w1', title: 'Paper 1', issued: ['2020'] },
+          { id: 'w2', title: 'Paper 2', issued: ['2021'] }
+        ],
+        grants: [
+          { id: 'g1', title: 'Grant 1', issued: ['2019'] }
         ]
-      });
-
-      // Check that grants features are properly formatted
-      expect(result.grants).toHaveLength(1);
-      expect(result.grants[0]).toEqual({
-        id: 'g1',
-        title: 'Grant Project 1',
-        funder: 'NSF',
-        start_date: '2022-01-01',
-        end_date: '2023-01-01',
-        relatedExperts: [
-          {
-            expertId: '123',
-            fullName: 'John Doe',
-            firstName: 'John',
-            lastName: 'Doe',
-            url: 'https://experts.ucdavis.edu/expert/123'
-          }
+      },
+      {
+        expertId: '2',
+        firstName: 'Bob',
+        lastName: 'Jones',
+        fullName: 'Bob Jones',
+        title: 'Researcher',
+        organizationUnit: 'Physics',
+        url: 'http://example.com/bob',
+        works: [
+          { id: 'w1', title: 'Paper 1', issued: ['2020'] }
+        ],
+        grants: [
+          { id: 'g1', title: 'Grant 1', issued: ['2019'] },
+          { id: 'g2', title: 'Grant 2', issued: ['2022'] }
         ]
-      });
-    });
+      }
+    ];
 
-    it('should handle missing work or grant IDs', () => {
-      const mockProfiles = [
-        {
-          expertId: '123',
-          fullName: 'John Doe',
-          works: [
-            {
-              // Missing ID
-              title: 'Research Paper 1'
-            }
-          ],
-          grants: [
-            {
-              // Missing ID
-              title: 'Grant Project 1'
-            }
-          ]
-        }
-      ];
+    const result = formatFeatures(input);
 
-      const result = formatExpertProfilesToFeatures(mockProfiles);
+    // Works
+    expect(result.works).toHaveLength(2);
+    const work1 = result.works.find(w => w.id === 'w1');
+    expect(work1.relatedExperts).toHaveLength(2);
+    expect(work1.issued).toBe('2020');
+    const work2 = result.works.find(w => w.id === 'w2');
+    expect(work2.relatedExperts).toHaveLength(1);
+    expect(work2.relatedExperts[0].firstName).toBe('Alice');
 
-      // Works and grants without IDs should be filtered out
-      expect(result.works).toHaveLength(0);
-      expect(result.grants).toHaveLength(0);
-    });
+    // Grants
+    expect(result.grants).toHaveLength(2);
+    const grant1 = result.grants.find(g => g.id === 'g1');
+    expect(grant1.relatedExperts).toHaveLength(2);
+    expect(grant1.issued).toBe('2019');
+    const grant2 = result.grants.find(g => g.id === 'g2');
+    expect(grant2.relatedExperts).toHaveLength(1);
+    expect(grant2.relatedExperts[0].firstName).toBe('Bob');
+  });
 
-    it('should merge related experts for duplicate works or grants', () => {
-      const mockProfiles = [
-        {
-          expertId: '123',
-          fullName: 'John Doe',
-          firstName: 'John',
-          lastName: 'Doe',
-          url: 'https://experts.ucdavis.edu/expert/123',
-          works: [
-            {
-              id: 'w1',
-              title: 'Shared Research'
-            }
-          ],
-          grants: []
-        },
-        {
-          expertId: '456',
-          fullName: 'Jane Smith',
-          firstName: 'Jane',
-          lastName: 'Smith',
-          url: 'https://experts.ucdavis.edu/expert/456',
-          works: [
-            {
-              id: 'w1',
-              title: 'Shared Research'
-            }
-          ],
-          grants: []
-        }
-      ];
+  it('should handle missing works and grants gracefully', () => {
+    const input = [
+      {
+        expertId: '3',
+        firstName: 'Charlie',
+        lastName: 'Brown',
+        fullName: 'Charlie Brown',
+        title: 'Lecturer',
+        organizationUnit: 'Chemistry',
+        url: 'http://example.com/charlie'
+        // No works or grants
+      }
+    ];
+    const result = formatFeatures(input);
+    expect(result.works).toHaveLength(0);
+    expect(result.grants).toHaveLength(0);
+  });
 
-      const result = formatExpertProfilesToFeatures(mockProfiles);
-
-      // Should have one work with two related experts
-      expect(result.works).toHaveLength(1);
-      expect(result.works[0].relatedExperts).toHaveLength(2);
-      expect(result.works[0].relatedExperts[0].fullName).toBe('John Doe');
-      expect(result.works[0].relatedExperts[1].fullName).toBe('Jane Smith');
-    });
+  it('should skip works and grants without id', () => {
+    const input = [
+      {
+        expertId: '4',
+        firstName: 'Dana',
+        lastName: 'White',
+        fullName: 'Dana White',
+        title: 'Assistant Professor',
+        organizationUnit: 'Biology',
+        url: 'http://example.com/dana',
+        works: [
+          { title: 'No ID Work', issued: ['2023'] }
+        ],
+        grants: [
+          { title: 'No ID Grant', issued: ['2024'] }
+        ]
+      }
+    ];
+    const result = formatFeatures(input);
+    expect(result.works).toHaveLength(0);
+    expect(result.grants).toHaveLength(0);
   });
 });

@@ -256,5 +256,6 @@ async function getRecentCachedEntities(options = {}) {
 module.exports = {
   cacheEntities,
   getCachedEntities,
-  getRecentCachedEntities
+  getRecentCachedEntities,
+  expertConfig // Export for direct testing
 };

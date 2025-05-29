@@ -310,4 +310,12 @@ describe('fetchExpertProfiles', () => {
       );
     });
   });
+
+  // Add coverage for error/edge case on line 52 of fetchExpertProfiles.js
+  it('returns empty array if no expert IDs are found', async () => {
+    fs.readFileSync.mockReturnValue('id\n');
+    const result = await fetchExpertProfiles();
+    expect(result).toEqual([]);
+    expect(getExpertData).not.toHaveBeenCalled();
+  });
 });
