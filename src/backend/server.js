@@ -12,6 +12,7 @@ const express = require('express');
 const { pool } = require('./postgis/config');
 const path = require('path'); // Add path module
 
+
 const app = express();
 const PORT = 3001;
 
@@ -70,6 +71,7 @@ async function scanKeys(pattern, count) {
   return keys;
 }
 
+// ================ REDIS ENDPOINTS ================ //
 // Fetch all works from Redis as geojson file
 app.get('/api/redis/worksQuery', async (req, res) => {
   try {
@@ -352,6 +354,95 @@ app.get('/api/redis/grantsQuery', async (req, res) => {
     res.json(geojson);
   } catch (error) {
     console.error('❌ Error querying Redis:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+// Fetches worksMap, grantsMap, and expertsMap from Redis
+app.get('/api/redis/getRawMaps', async (req, res) => {
+  try {
+    if (!redisClient.isOpen) {
+      console.error('❌ Redis client is not connected');
+      return res.status(500).json({ error: 'Redis client is not connected' });
+    }
+
+    const worksMap = await redisClient.get('worksMap');
+    const grantsMap = await redisClient.get('grantsMap');
+    const expertsMap = await redisClient.get('expertsMap');
+
+    if (!worksMap || !grantsMap || !expertsMap) {
+      return res.status(404).json({ error: 'One or more maps not found in Redis' });
+    }
+
+    res.json({
+      worksMap: JSON.parse(worksMap),
+      grantsMap: JSON.parse(grantsMap),
+      expertsMap: JSON.parse(expertsMap)
+    });
+  } catch (error) {
+    console.error('❌ Error fetching raw maps from Redis:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+// Non-overlap route for all three layers (works, grants, combined)
+app.get('/api/redis/nonoverlap/getAll:level', async (req, res) => {
+  try {
+    if (!redisClient.isOpen) {
+      return res.status(500).json({ error: 'Redis client is not connected' });
+    }
+    const { level } = req.params; // e.g., CountryLevelMaps, StateLevelMaps, etc.
+
+    // Build all three keys
+    const workKey = `layer:nonOverlapWork:${level.replace('LevelMaps', '').toLowerCase()}`;
+    const grantKey = `layer:nonOverlapGrant:${level.replace('LevelMaps', '').toLowerCase()}`;
+    const combinedKey = `layer:combined:${level.replace('LevelMaps', '').toLowerCase()}`;
+
+    // Fetch all three in parallel
+    const [workData, grantData, combinedData] = await Promise.all([
+      redisClient.get(workKey),
+      redisClient.get(grantKey),
+      redisClient.get(combinedKey),
+    ]);
+
+    if (!workData || !grantData || !combinedData) {
+      return res.status(404).json({ error: 'One or more maps not found in Redis' });
+    }
+
+    res.json({
+      worksMap: JSON.parse(workData),
+      grantsMap: JSON.parse(grantData),
+      combinedMap: JSON.parse(combinedData),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+// Overlap route for single layers (works or grants)
+app.get('/api/redis/overlap/get:level', async (req, res) => {
+  try {
+    if (!redisClient.isOpen) {
+      return res.status(500).json({ error: 'Redis client is not connected' });
+    }
+    const { level } = req.params;
+    const { type } = req.query;
+
+    let redisKey = '';
+    if (type === 'works') {
+      redisKey = `layer:overlapWork:${level.replace('LevelMaps', '').toLowerCase()}`;
+    } else if (type === 'grants') {
+      redisKey = `layer:overlapGrant:${level.replace('LevelMaps', '').toLowerCase()}`;
+    } else {
+      return res.status(400).json({ error: 'Invalid type parameter' });
+    }
+
+    const mapData = await redisClient.get(redisKey);
+    if (!mapData) {
+      return res.status(404).json({ error: 'Map not found in Redis' });
+    }
+    res.json(JSON.parse(mapData));
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });

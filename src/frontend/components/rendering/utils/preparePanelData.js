@@ -2,12 +2,12 @@
 export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID, locationName) => {
   // Process experts
   return expertIDs.map((expertID) => {
-    const expert = expertsMap.get(expertID);
+    const expert = expertsMap[expertID];
     if (!expert) {
       console.warn(`Expert with ID ${expertID} not found in expertsMap.`);
       return null;
     }
-
+    
     // Ensure the URL is a full URL
     const fullUrl = expert.url.startsWith("http")
       ? expert.url
@@ -16,9 +16,9 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
     // Find grants associated with this expert and the current location
     const associatedGrants = grantIDs
       .map((grantID) => {
-        const grant = grantsMap.get(grantID);
+        const grant = grantsMap[grantID];
         if (!grant) {
-          console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
+          // console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
           return null;
         }
         return grant;
@@ -26,21 +26,20 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
       .filter((grant) => {
         if (!grant) return false;
         if (!grant.relatedExpertIDs) {
-          console.warn(`Grant with ID ${grant.grantID} has no relatedExpertIDs.`);
+          // console.warn(`Grant with ID ${grant.grantID} has no relatedExpertIDs.`);
           return false;
         }
         if (!grant.relatedExpertIDs.includes(expertID)) {
-          console.warn(
-            `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertIDs}, which does not match expertID ${expertID}.`
-          );
+          // console.warn(
+          //   `Grant with ID ${grant.grantID} has relatedExpertID ${grant.relatedExpertIDs}, which does not match expertID ${expertID}.`
+          // );
           return false;
         }
-        if (!grant.locationID.includes(locationID)) {
-          console.warn(
-            `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
-          );
-          return false;
-        }
+        // if (!grant.locationID.includes(locationID)) {
+        //   console.warn(
+        //     `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
+        //   );
+        // }
         return true;
       });
 
@@ -48,7 +47,8 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
       location: locationName,
       name: expert.name || "Unknown",
       url: fullUrl, // Use the full URL
-      grants: associatedGrants.map((grant) => ({
+      grants: associatedGrants
+      .map((grant) => ({
         title: grant.title || "Untitled Grant",
         funder: grant.funder || "Unknown",
         startDate: grant.startDate || "Unknown",
@@ -63,29 +63,48 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
 
 export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID, locationName) => {
   return expertIDs.map((expertID) => {
-    const expert = expertsMap.get(expertID);
+    const expert = expertsMap[expertID];
     if (!expert) return null;
 
-    // Ensure the URL is a full URL
-    const fullUrl = expert.url.startsWith("http")
-      ? expert.url
-      : `https://experts.ucdavis.edu/${expert.url}`;
+    // Defensive: check if expert.url exists and is a string
+      let fullUrl = "";
+      if (typeof expert.url === "string" && expert.url.startsWith("http")) {
+        fullUrl = expert.url;
+      } else if (typeof expert.url === "string") {
+        fullUrl = `https://experts.ucdavis.edu/${expert.url}`;
+      } else {
+        fullUrl = ""; // or some fallback URL
+      }
 
     // Find works associated with this expert and the current location
     const associatedWorks = workIDs
-      .map((workID) => worksMap.get(workID))
-      .filter(
-        (work) =>
-          work &&
-          work.relatedExpertIDs.includes(expertID) && // Work is associated with this expert
-          work.locationID === locationID // Work matches the current location
-      );
+      .map((workID) => worksMap[workID])
+      .filter(work => {
+        if (!work) return false;
+        if (!work.relatedExpertIDs) {
+          // console.warn(`Work with ID ${work.workID} has no relatedExpertIDs.`);
+          return false;
+        }
+        if (!work.relatedExpertIDs.includes(expertID)) {
+          // console.warn(
+          //   `Work with ID ${work.workID} has relatedExpertID ${work.relatedExpertIDs}, which does not match expertID ${expertID}.`
+          // );
+          return false;
+        }
+        // if (!work.locationID.includes(locationID)) {
+        //   console.warn(
+        //     `Work with ID ${work.workID} has locationID ${work.locationID}, which does not match locationID ${locationID}.`
+        //   );
+        // }
+        return true;
+      });
 
     return {
       location: locationName, 
       name: expert.name || "Unknown",
       url: fullUrl, // Use the full URL
-      works: associatedWorks.map((work) => ({
+      works: associatedWorks
+      .map((work) => ({
         title: work.title || "Untitled Work",
         issued: work.issued || "Unknown",
         confidence: work.confidence || "Unknown",

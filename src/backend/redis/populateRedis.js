@@ -3,6 +3,8 @@ const { initializeRedis } = require('./utils/initializeRedis');
 const { syncRedisWithPostgres } = require('./utils/syncRedis');
 const { pool } = require('../postgis/config.js');
 const { createRedisClient } = require('../etl/aggieExpertsAPI/utils/redisUtils.js');
+const { organizeRedis } = require('./utils/organizeRedis.js');
+
 
 const redisClient = createRedisClient();
 
@@ -13,10 +15,7 @@ redisClient.on('error', (err) => {
 redisClient.on('connect', () => {
   console.log('✅ Redis connected successfully');
 });
-redisClient.on('end', () => {
-  console.log('🔌 Redis connection closed');
-  process.exit(0);
-});
+
 process.on('uncaughtException', (err) => {
   console.error('❌ Uncaught Exception:', err);
   process.exit(1);
@@ -57,7 +56,7 @@ async function updateMetadata(redisClient, type) {
 (async () => {
   try {
     console.log('🚀 Starting populateRedis script...');
-    console.log('Connecting to Postgis Database: ', process.env.PG_DATABASE, ' on user: ', process.env.PG_USER, ' hosted on: ', process.env.SERVER_HOST);
+
     await redisClient.connect();
     const pgClient = await pool.connect();
 
@@ -72,7 +71,10 @@ async function updateMetadata(redisClient, type) {
       // Initialize metadata keys
       await updateMetadata(redisClient, 'work');
       await updateMetadata(redisClient, 'grant');
+
       console.log('✅ Redis initialization complete.');
+      console.log('🔄 Organizing Redis data...');
+      await organizeRedis(redisClient);
     } else {
       console.log('🔄 Redis contains data. Syncing with PostgreSQL...');
       await syncRedisWithPostgres(pgClient, redisClient);

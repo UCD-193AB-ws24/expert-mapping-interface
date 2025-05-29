@@ -139,10 +139,10 @@ export const createCombinedPopup = (
     </div>
     <div style='margin-top: 5px;'>
       <div style='color: #555;'>
-        <strong>Related works:</strong> ${totalWorks} item${totalWorks === 1 ? '' : 's'}
+        <strong>Related Work${totalWorks > 1 ? 's' : ''}:</strong> ${totalWorks}
       </div>
       <div style='color: #555;'>
-        <strong>Related grants:</strong> ${totalGrants} item${totalGrants === 1 ? '' : 's'}
+        <strong>Related Grant${totalGrants > 1 ? 's' : ''}:</strong> ${totalGrants}
       </div>
     </div>
     <a href='#'

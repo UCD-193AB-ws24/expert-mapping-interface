@@ -72,6 +72,7 @@ const matchesKeyword = (keyword, entry) => {
     entry.abstract,
     entry.funder,
     ...(entry.relatedExperts || []).map(e => e && (e.fullName || e.name)),
+    entry.name,
   ].filter(Boolean); // Remove null/undefined fields
 
   for (const field of fields) {
@@ -101,6 +102,7 @@ const matchesKeyword = (keyword, entry) => {
  * @param {Object} entry - The entry to search within.
  * @returns {Array} An array of matched fields, each containing the field name and matched value.
  */
+
 const getMatchedFields = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return [];
 

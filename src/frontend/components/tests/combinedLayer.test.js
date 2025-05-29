@@ -134,34 +134,30 @@ describe("CombinedLayer component", () => {
     const mockSetPanelType = jest.fn();
     const mockSetLocationName = jest.fn();
 
-    const locationMap = new Map([ 
-      [
-        "mobileClickTest",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          workIDs: [301],
-          grantIDs: [401],
-          grantExpertIDs: [1],
-          workExpertIDs: [2],
-          name: "Mobile Point",
-          display_name: "Mobile Click Location",
-        },
-      ],
-    ]);
+    const locationMap = {
+      mobileClickTest: {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      workIDs: [301],
+      grantIDs: [401],
+      expertIDs: [1, 2],
+      name: "Mobile Point",
+      display_name: "Mobile Click Location",
+      },
+    };
 
-    const worksMap = new Map([
-      [301, { matchedFields: ["impact"], relatedExpertIDs: [2] }],
-    ]);
+    const worksMap = {
+      301: { matchedFields: ["impact"], relatedExpertIDs: [2] },
+    };
 
-    const grantsMap = new Map([
-      [401, { matchedFields: ["climate"], relatedExpertIDs: [1] }],
-    ]);
+    const grantsMap = {
+      401: { matchedFields: ["climate"], relatedExpertIDs: [1] },
+    };
 
-    const expertsMap = new Map([
-      [1, { name: "Grant Expert" }],
-      [2, { name: "Work Expert" }],
-    ]);
+    const expertsMap = {
+      1: { name: "Grant Expert" },
+      2: { name: "Work Expert" },
+    };
 
     render(
       <CombinedLayer
@@ -214,28 +210,28 @@ describe("CombinedLayer component", () => {
     const mockSetPanelType = jest.fn();
     const mockSetLocationName = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "mouseenterTest",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [1, 0]]],
-          workIDs: [5],
-          grantIDs: [6],
-          grantExpertIDs: [1],
-          workExpertIDs: [2],
-          name: "Mouseenter Polygon",
-          display_name: "Mouseenter Test",
-        },
-      ],
-    ]);
+    const locationMap = {
+      mouseenterTest: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [1, 0]]],
+      workIDs: [5],
+      grantIDs: [6],
+      expertIDs: [1, 2],
+      name: "Mouseenter Polygon",
+      display_name: "Mouseenter Test",
+      },
+    };
 
-    const worksMap = new Map([[5, { matchedFields: ["mouse"], relatedExpertIDs: [2] }]]);
-    const grantsMap = new Map([[6, { matchedFields: ["enter"], relatedExpertIDs: [1] }]]);
-    const expertsMap = new Map([
-      [1, { name: "Grant Expert" }],
-      [2, { name: "Work Expert" }],
-    ]);
+    const worksMap = {
+      5: { matchedFields: ["mouse"], relatedExpertIDs: [2] },
+    };
+    const grantsMap = {
+      6: { matchedFields: ["enter"], relatedExpertIDs: [1] },
+    };
+    const expertsMap = {
+      1: { name: "Grant Expert" },
+      2: { name: "Work Expert" },
+    };
 
     render(
       <CombinedLayer
@@ -281,28 +277,28 @@ describe("CombinedLayer component", () => {
     const mockSetPanelType = jest.fn();
     const mockSetLocationName = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "mouseleaveOnlyTest",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [1, 0]]],
-          workIDs: [10],
-          grantIDs: [20],
-          grantExpertIDs: [1],
-          workExpertIDs: [2],
-          name: "Mouseleave Only",
-          display_name: "Mouseleave Only",
-        },
-      ],
-    ]);
+    const locationMap = {
+      mouseleaveOnlyTest: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [1, 0]]],
+      workIDs: [10],
+      grantIDs: [20],
+      expertIDs: [1, 2],
+      name: "Mouseleave Only",
+      display_name: "Mouseleave Only",
+      },
+    };
 
-    const worksMap = new Map([[10, { matchedFields: ["x"], relatedExpertIDs: [2] }]]);
-    const grantsMap = new Map([[20, { matchedFields: ["y"], relatedExpertIDs: [1] }]]);
-    const expertsMap = new Map([
-      [1, { name: "Grant Expert" }],
-      [2, { name: "Work Expert" }],
-    ]);
+    const worksMap = {
+      10: { matchedFields: ["x"], relatedExpertIDs: [2] },
+    };
+    const grantsMap = {
+      20: { matchedFields: ["y"], relatedExpertIDs: [1] },
+    };
+    const expertsMap = {
+      1: { name: "Grant Expert" },
+      2: { name: "Work Expert" },
+    };
 
     render(
       <CombinedLayer
@@ -347,28 +343,24 @@ describe("CombinedLayer component", () => {
     const mockSetPanelType = jest.fn();
     const mockSetLocationName = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "mouseoutOnlyTest",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [1, 0]]],
-          workIDs: [10],
-          grantIDs: [20],
-          grantExpertIDs: [1],
-          workExpertIDs: [2],
-          name: "Mouseout Only",
-          display_name: "Mouseout Only",
-        },
-      ],
-    ]);
+    const locationMap = {
+      mouseoutOnlyTest: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [1, 0]]],
+      workIDs: [10],
+      grantIDs: [20],
+      expertIDs: [1, 2],
+      name: "Mouseout Only",
+      display_name: "Mouseout Only",
+      },
+    };
     // Mock data for works and grants
-    const worksMap = new Map([[10, { matchedFields: ["x"], relatedExpertIDs: [2] }]]);
-    const grantsMap = new Map([[20, { matchedFields: ["y"], relatedExpertIDs: [1] }]]);
-    const expertsMap = new Map([
-      [1, { name: "Grant Expert" }],
-      [2, { name: "Work Expert" }],
-    ]);
+    const worksMap = { 10: { matchedFields: ["x"], relatedExpertIDs: [2] } };
+    const grantsMap = { 20: { matchedFields: ["y"], relatedExpertIDs: [1] } };
+    const expertsMap = {
+      1: { name: "Grant Expert" },
+      2: { name: "Work Expert" },
+    };
 
     render(
       <CombinedLayer
@@ -409,33 +401,28 @@ describe("CombinedLayer component", () => {
     const mockSetPanelType = jest.fn();
     const mockSetLocationName = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "polygonClickTest",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
-          grantIDs: [101],
-          workIDs: [202],
-          expertIDs: [10, 20],
-          grantExpertIDs: [10],
-          workExpertIDs: [20],
-          name: "Test Polygon",
-          display_name: "Test Polygon Display",
-        },
-      ],
-    ]);
+    const locationMap = {
+      polygonClickTest: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+      grantIDs: [101],
+      workIDs: [202],
+      expertIDs: [10, 20],
+      name: "Test Polygon",
+      display_name: "Test Polygon Display",
+      },
+    };
 
-    const grantsMap = new Map([
-      [101, { matchedFields: ["climate"], relatedExpertIDs: [10] }],
-    ]);
-    const worksMap = new Map([
-      [202, { matchedFields: ["research"], relatedExpertIDs: [20] }],
-    ]);
-    const expertsMap = new Map([
-      [10, { name: "Grant Expert" }],
-      [20, { name: "Work Expert" }],
-    ]);
+    const grantsMap = {
+      101: { matchedFields: ["climate"], relatedExpertIDs: [10] },
+    };
+    const worksMap = {
+      202: { matchedFields: ["research"], relatedExpertIDs: [20] },
+    };
+    const expertsMap = {
+      10: { name: "Grant Expert" },
+      20: { name: "Work Expert" },
+    };
 
     render(
       <CombinedLayer
@@ -485,30 +472,27 @@ describe("CombinedLayer component", () => {
     const mockSetPanelType = jest.fn();
     const mockSetLocationName = jest.fn();
 
-    const locationMap = new Map([
-      [
-        "combined-popup",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          grantIDs: [1],
-          workIDs: [2],
-          expertIDs: [3],
-          name: "Combined Polygon",
-          display_name: "Combined Location",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "combined-popup": {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      grantIDs: [1],
+      workIDs: [2],
+      expertIDs: [3],
+      name: "Combined Polygon",
+      display_name: "Combined Location",
+      },
+    };
 
-    const grantsMap = new Map([
-      [1, { matchedFields: ["funding"], relatedExpertIDs: [3] }],
-    ]);
-    const worksMap = new Map([
-      [2, { matchedFields: ["research"], relatedExpertIDs: [3] }],
-    ]);
-    const expertsMap = new Map([
-      [3, { name: "Expert A" }],
-    ]);
+    const grantsMap = {
+      1: { matchedFields: ["funding"], relatedExpertIDs: [3] },
+    };
+    const worksMap = {
+      2: { matchedFields: ["research"], relatedExpertIDs: [3] },
+    };
+    const expertsMap = {
+      3: { name: "Expert A" },
+    };
 
     render(
       <CombinedLayer
@@ -560,30 +544,25 @@ describe("CombinedLayer component", () => {
     const mockSetLocationName = jest.fn();
     const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => { });
 
-    const locationMap = new Map([
-      [
-        "missing-data-location",
-        {
-          geometryType: "Point",
-          coordinates: [0, 0],
-          workIDs: [999],
-          grantIDs: [888],
-          name: "Missing Data Location",
-          display_name: "Missing Data",
-        },
-      ],
-    ]);
+    const locationMap = {
+      "missing-data-location": {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      workIDs: [999],
+      grantIDs: [888],
+      name: "Missing Data Location",
+      display_name: "Missing Data",
+      },
+    };
 
-    const worksMap = new Map();
-    const grantsMap = new Map();
-    const expertsMap = new Map();
+    // Empty maps for works, grants, and experts
 
     render(
       <CombinedLayer
         locationMap={locationMap}
-        worksMap={worksMap}
-        grantsMap={grantsMap}
-        expertsMap={expertsMap}
+        worksMap={{}}
+        grantsMap={{}}
+        expertsMap={{}}
         showGrants={true}
         showWorks={true}
         setSelectedGrants={mockSetSelectedGrants}
@@ -601,25 +580,26 @@ describe("CombinedLayer component", () => {
   });
 
   it("renders polygons and points when showWorks and showGrants are true", () => {
-    const locationMap = new Map([
-      [
-        "combined1",
-        {
-          geometryType: "Polygon",
-          coordinates: [[[0, 0], [1, 1], [2, 2]]],
-          grantIDs: [1],
-          workIDs: [2],
-          name: "Combined Location",
-        },
-      ],
-    ]);
+    const locationMap = {
+      combined1: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      grantIDs: [1],
+      workIDs: [2],
+      name: "Combined Location",
+      },
+    };
 
-    const grantsMap = new Map([[1, { relatedExpertIDs: [10] }]]);
-    const worksMap = new Map([[2, { relatedExpertIDs: [11] }]]);
-    const expertsMap = new Map([
-      [10, { name: "Grant Expert" }],
-      [11, { name: "Work Expert" }],
-    ]);
+    const grantsMap = {
+      1: { relatedExpertIDs: [10] },
+    };
+    const worksMap = {
+      2: { relatedExpertIDs: [11] },
+    };
+    const expertsMap = {
+      10: { name: "Grant Expert" },
+      11: { name: "Work Expert" },
+    };
 
     render(
       <CombinedLayer
@@ -650,28 +630,28 @@ it("shows matched popup with correct fields and triggers combined panel on butto
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
 
-  const locationMap = new Map([
-    [
-      "hoverMatched",
-      {
-        geometryType: "Point",
-        coordinates: [0, 0],
-        workIDs: [10],
-        grantIDs: [20],
-        grantExpertIDs: [1],
-        workExpertIDs: [2],
-        name: "Matched Hover Location",
-        display_name: "Matched Hover",
-      },
-    ],
-  ]);
+  const locationMap = {
+    hoverMatched: {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      workIDs: [10],
+      grantIDs: [20],
+      expertIDs: [1, 2],
+      name: "Matched Hover Location",
+      display_name: "Matched Hover",
+    },
+  };
 
-  const worksMap = new Map([[10, { matchedFields: ["fieldA"], relatedExpertIDs: [2] }]]);
-  const grantsMap = new Map([[20, { matchedFields: ["fieldB"], relatedExpertIDs: [1] }]]);
-  const expertsMap = new Map([
-    [1, { name: "Grant Expert" }],
-    [2, { name: "Work Expert" }],
-  ]);
+  const worksMap = {
+    10: { matchedFields: ["fieldA"], relatedExpertIDs: [2] },
+  };
+  const grantsMap = {
+    20: { matchedFields: ["fieldB"], relatedExpertIDs: [1] },
+  };
+  const expertsMap = {
+    1: { name: "Grant Expert" },
+    2: { name: "Work Expert" },
+  };
 
   render(
     <CombinedLayer
@@ -718,7 +698,7 @@ it("does not render anything when required data is missing", () => {
 
   render(
     <CombinedLayer
-      locationMap={new Map()}
+      locationMap={{}}
       grantsMap={null}
       worksMap={null}
       expertsMap={null}
@@ -746,30 +726,27 @@ it("closes polygon popup on marker mouseout in CombinedLayer", () => {
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
 
-  const locationMap = new Map([
-    [
-      "polygon_mouseout",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [1, 1], [2, 2]]],
-        grantIDs: [1],
-        workIDs: [2],
-        name: "Mouseout Polygon",
-        display_name: "Mouseout Test",
-      },
-    ],
-  ]);
+  const locationMap = {
+    polygon_mouseout: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      grantIDs: [1],
+      workIDs: [2],
+      name: "Mouseout Polygon",
+      display_name: "Mouseout Test",
+    },
+  };
 
-  const grantsMap = new Map([
-    [1, { matchedFields: ["field1"], relatedExpertIDs: [10] }],
-  ]);
-  const worksMap = new Map([
-    [2, { matchedFields: ["field2"], relatedExpertIDs: [11] }],
-  ]);
-  const expertsMap = new Map([
-    [10, { name: "Expert A" }],
-    [11, { name: "Expert B" }],
-  ]);
+  const grantsMap = {
+    1: { matchedFields: ["field1"], relatedExpertIDs: [10] },
+  };
+  const worksMap = {
+    2: { matchedFields: ["field2"], relatedExpertIDs: [11] },
+  };
+  const expertsMap = {
+    10: { name: "Expert A" },
+    11: { name: "Expert B" },
+  };
 
   render(
     <CombinedLayer
@@ -807,30 +784,27 @@ it("calls iconCreateFunction and returns custom cluster icon with expert count i
   const mockSetPanelOpen = jest.fn();
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
-  const locationMap = new Map([
-    [
-      "pointA",
-      {
-        geometryType: "Point",
-        coordinates: [0, 0],
-        grantIDs: [1],
-        workIDs: [2],
-        worksIDs: [2],
-        name: "Point A",
-      },
-    ],
-  ]);
+  const locationMap = {
+    pointA: {
+      geometryType: "Point",
+      coordinates: [0, 0],
+      grantIDs: [1],
+      workIDs: [2],
+      expertIDs: [10, 11],
+      name: "Point A",
+    },
+  };
 
-  const grantsMap = new Map([
-    [1, { relatedExpertIDs: [10] }],
-  ]);
-  const worksMap = new Map([
-    [2, { relatedExpertIDs: [11] }],
-  ]);
-  const expertsMap = new Map([
-    [10, { name: "Grant Expert" }],
-    [11, { name: "Work Expert" }],
-  ]);
+  const grantsMap = {
+    1: { relatedExpertIDs: [10] },
+  };
+  const worksMap = {
+    2: { relatedExpertIDs: [11] },
+  };
+  const expertsMap = {
+    10: { name: "Grant Expert" },
+    11: { name: "Work Expert" },
+  };
 
   render(
     <CombinedLayer
@@ -877,30 +851,27 @@ it("handles polygon popup mouseenter and mouseleave correctly in CombinedLayer",
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
 
-  const locationMap = new Map([
-    [
-      "polygonPopup",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [1, 1], [2, 2]]],
-        grantIDs: [1],
-        workIDs: [10],
-        name: "Popup Polygon",
-        display_name: "Polygon Popup Display",
-      },
-    ],
-  ]);
+  const locationMap = {
+    polygonPopup: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [2, 2]]],
+      grantIDs: [1],
+      workIDs: [10],
+      name: "Popup Polygon",
+      display_name: "Polygon Popup Display",
+    },
+  };
   // Mock data for grants and works
-  const grantsMap = new Map([
-    [1, { matchedFields: ["grantMatch"], relatedExpertIDs: [101] }],
-  ]);
-  const worksMap = new Map([
-    [10, { matchedFields: ["workMatch"], relatedExpertIDs: [102] }],
-  ]);
-  const expertsMap = new Map([
-    [101, { name: "Grant Expert" }],
-    [102, { name: "Work Expert" }],
-  ]);
+  const grantsMap = {
+    1: { matchedFields: ["grantMatch"], relatedExpertIDs: [101] },
+  };
+  const worksMap = {
+    10: { matchedFields: ["workMatch"], relatedExpertIDs: [102] },
+  };
+  const expertsMap = {
+    101: { name: "Grant Expert" },
+    102: { name: "Work Expert" },
+  };
 
   render(
     <CombinedLayer
@@ -949,45 +920,41 @@ it("removes popup when clicking a second polygon in CombinedLayer", () => {
   const mockSetPanelOpen = jest.fn();
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
-  const locationMap = new Map([
-    [
-      "polygon1",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [1, 1], [1, 0]]],
-        grantIDs: [1],
-        workIDs: [11],
-        expertIDs: [2],
-        name: "First Polygon",
-        display_name: "First Polygon",
-      },
-    ],
-    [
-      "polygon2",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[2, 2], [3, 3], [3, 2]]],
-        grantIDs: [3],
-        workIDs: [13],
-        expertIDs: [4],
-        name: "Second Polygon",
-        display_name: "Second Polygon",
-      },
-    ],
-  ]);
 
-  const grantsMap = new Map([
-    [1, { matchedFields: ["field1"], relatedExpertIDs: [2] }],
-    [3, { matchedFields: ["field2"], relatedExpertIDs: [4] }],
-  ]);
-  const worksMap = new Map([
-    [11, { matchedFields: ["concept1"], relatedExpertIDs: [2] }],
-    [13, { matchedFields: ["concept2"], relatedExpertIDs: [4] }],
-  ]);
-  const expertsMap = new Map([
-    [2, { name: "Expert A" }],
-    [4, { name: "Expert B" }],
-  ]);
+  const locationMap = {
+    polygon1: {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [1, 0]]],
+      grantIDs: [1],
+      workIDs: [11],
+      expertIDs: [2],
+      name: "First Polygon",
+      display_name: "First Polygon",
+    },
+    polygon2: {
+      geometryType: "Polygon",
+      coordinates: [[[2, 2], [3, 3], [3, 2]]],
+      grantIDs: [3],
+      workIDs: [13],
+      expertIDs: [4],
+      name: "Second Polygon",
+      display_name: "Second Polygon",
+    },
+  };
+
+  const grantsMap = {
+    1: { matchedFields: ["field1"], relatedExpertIDs: [2] },
+    3: { matchedFields: ["field2"], relatedExpertIDs: [4] },
+  };
+  const worksMap = {
+    11: { matchedFields: ["concept1"], relatedExpertIDs: [2] },
+    13: { matchedFields: ["concept2"], relatedExpertIDs: [4] },
+  };
+  const expertsMap = {
+    2: { name: "Expert A" },
+    4: { name: "Expert B" },
+  };
+
   const popupElement = {  // Mock popup element
     style: { pointerEvents: "auto" },
     addEventListener: jest.fn(),
@@ -1048,24 +1015,22 @@ it("logs warnings when workID or grantID is missing from their respective maps",
   const mockSetPanelType = jest.fn();
   const mockSetLocationName = jest.fn();
   const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => { });
-  const locationMap = new Map([
-    [
-      "missing-both",
-      {
-        geometryType: "Polygon",
-        coordinates: [[[0, 0], [1, 1], [1, 0]]],
-        grantIDs: [123],
-        workIDs: [456],
-        expertIDs: [2],
-        name: "Missing Data Polygon",
-        display_name: "Missing Data",
-      },
-    ],
-  ]);
 
-  const grantsMap = new Map();
-  const worksMap = new Map();
-  const expertsMap = new Map([[2, { name: "Expert A" }]]);
+  const locationMap = {
+    "missing-both": {
+      geometryType: "Polygon",
+      coordinates: [[[0, 0], [1, 1], [1, 0]]],
+      grantIDs: [123],
+      workIDs: [456],
+      expertIDs: [2],
+      name: "Missing Data Polygon",
+      display_name: "Missing Data",
+    },
+  };
+
+  const grantsMap = {};
+  const worksMap = {};
+  const expertsMap = { 2: { name: "Expert A" } };
 
   render(
     <CombinedLayer
