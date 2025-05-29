@@ -17,7 +17,7 @@ const { getExpertData } = require('./fetchProfileByID');
  */
 function readExpertIdsFromCSV(numExperts) {
   // Use test-expected file name and encoding
-  const csvPath = path.join(__dirname, '../utils/expert_ids.csv');
+  const csvPath = path.join(__dirname, '../utils/expertIds.csv');
   const content = fs.readFileSync(csvPath, 'utf8');
   const lines = content.split(/\r?\n/).filter(Boolean);
   // Remove header, parse only first column, trim, skip empty
