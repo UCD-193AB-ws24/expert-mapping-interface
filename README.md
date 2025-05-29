@@ -329,11 +329,16 @@ For a more detailed system architecture, developers can refer to src/backend/etl
 
 ---
 
-For technical details regarding frontend rendering, refer to src/frontend/components/[README.md](http://README.md).
+### Technical Details Reference
 
-For technical details regarding ETL pipeline, refer to src/backend/etl/[README.md](http://README.md).
+- [Frontend Rendering](src/frontend/components/rendering/README.md)  
+  For technical details regarding frontend rendering.
 
-For technical details regarding PostGIS, refer to src/backend/postgis/[README.md](http://README.md).
+- [ETL Pipeline](src/backend/etl/README.md)  
+  For technical details regarding the ETL pipeline.
+
+- [PostGIS](src/backend/postgis/README.md)  
+  For technical details regarding PostGIS.
 
 ---
 
