@@ -113,7 +113,12 @@ async function fetchAndPersistExpertProfiles(numExperts=1, worksLimit=5, grantsL
     console.error('\n❌ Error in fetch and persist process:', error);
     console.log(`⏱️ Total process time: ${formatTime(totalDuration)}`);
     
-    process.exit(1);
+    if (require.main === module) {
+      process.exit(1);
+    } else {
+      // For test environments, do not exit, just return error
+      return { success: false, error: error.message };
+    }
   }
 }
 

@@ -105,6 +105,27 @@ async function getExpertFeatures(options = {}) {
   }
 }
 
+// --- Feature extraction helpers ---
+function extractResearchInterests(expert) {
+  if (!expert || typeof expert !== 'object') return [];
+  if (Array.isArray(expert.interests) && expert.interests.length > 0) return expert.interests;
+  if (typeof expert.overview === 'string') {
+    // Simple keyword extraction from overview (demo)
+    return expert.overview.match(/\b\w+\b/g) || [];
+  }
+  return [];
+}
+
+function extractEducation(expert) {
+  if (!expert || typeof expert !== 'object' || !Array.isArray(expert.education)) return [];
+  return expert.education;
+}
+
+function extractAffiliations(expert) {
+  if (!expert || typeof expert !== 'object' || !Array.isArray(expert.affiliations)) return [];
+  return expert.affiliations;
+}
+
 // Run if executed directly
 if (require.main === module) {
   // Parse command line arguments
@@ -124,4 +145,9 @@ if (require.main === module) {
     });
 }
 
-module.exports = { getExpertFeatures };
+module.exports = {
+  getExpertFeatures,
+  extractResearchInterests,
+  extractEducation,
+  extractAffiliations
+};
