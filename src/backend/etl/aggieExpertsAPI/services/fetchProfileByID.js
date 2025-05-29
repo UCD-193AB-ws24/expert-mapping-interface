@@ -15,7 +15,7 @@ const { postRequestApi } = require('../utils/fetchingUtils');
  * @param {number} limit - Number of works/grants default is 1
  * @returns {Object} Expert data with works and grants
  */
-async function getExpertData(expertId, worksLimit = 1, grantsLimit = 1) {
+async function getExpertData(expertId, worksLimit = 5, grantsLimit = 5) {
   if (!expertId) throw new Error('Expert ID required');
 
   try {
@@ -66,7 +66,12 @@ async function getExpertData(expertId, worksLimit = 1, grantsLimit = 1) {
       //console.log(`Expert ${expertId}: ${works.length} works (${result.works.length} processed), ${grants.length} grants (${result.grants.length} processed)`);
     }
 
+    // Debug: print returned data
+    // Remove or comment out after debugging
+    console.log('getExpertData result:', JSON.stringify(result, null, 2));
+
     return result;
+
   } catch (error) {
     console.error(`Error fetching expert ${expertId}:`, error.message);
     throw error;

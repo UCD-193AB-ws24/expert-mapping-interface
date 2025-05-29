@@ -38,7 +38,7 @@ function getTimestampedFilePath() {
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
   const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  return path.join(CONFIG.expertProfilesDir, `expert_profiles_${timestamp}.json`);
+  return path.join(CONFIG.expertProfilesDir, `expertProfiles.json`);
 }
 
 /**
@@ -96,11 +96,11 @@ async function persistExpertProfiles(expertProfiles) {
 /**
  * Main function to fetch and persist expert profiles
  */
-async function fetchAndPersistExpertProfiles(numExperts) {
+async function fetchAndPersistExpertProfiles(numExperts, worksLimit, grantsLimit) {
   const startTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
-    // Step 1: Fetch expert profiles (only pass numExperts, as tests expect)
-    const expertProfiles = await fetchExpertProfiles(numExperts);
+    // Step 1: Fetch expert profiles (pass all limits)
+    const expertProfiles = await fetchExpertProfiles(numExperts, worksLimit, grantsLimit);
     const afterFetchTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     if (typeof formatTime === 'function') {
       console.log(`\n⏱️ Time to fetch profiles: ${formatTime(afterFetchTime - startTime)}`);
@@ -137,9 +137,11 @@ async function fetchAndPersistExpertProfiles(numExperts) {
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const [numExpertsArg] = args;
+  const [numExpertsArg, worksLimitArg, grantsLimitArg] = args;
   const numExperts = numExpertsArg !== undefined ? parseInt(numExpertsArg) : undefined;
-  fetchAndPersistExpertProfiles(numExperts);
+  const worksLimit = worksLimitArg !== undefined ? parseInt(worksLimitArg) : 5;
+  const grantsLimit = grantsLimitArg !== undefined ? parseInt(grantsLimitArg) : 5;
+  fetchAndPersistExpertProfiles(numExperts, worksLimit, grantsLimit);
 }
 
 module.exports = { persistExpertProfiles, fetchAndPersistExpertProfiles };

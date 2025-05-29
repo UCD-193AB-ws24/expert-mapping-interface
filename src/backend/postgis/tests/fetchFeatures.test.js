@@ -18,10 +18,14 @@ global.fetch = jest.fn();
 
 const fetchFeatures = require('../fetchFeatures');
 
-// Silence console output during tests
+// Silence all console output during tests
 beforeAll(() => {
   jest.spyOn(console, 'log').mockImplementation(() => {});
   jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterEach(() => {
+  console.log.mockClear();
+  console.error.mockClear();
 });
 afterAll(() => {
   console.log.mockRestore();
