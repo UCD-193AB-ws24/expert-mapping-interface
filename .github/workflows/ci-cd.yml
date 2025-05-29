@@ -93,7 +93,7 @@ jobs:
             docker load -i ~/emi.tar
             docker compose down -v || true
             docker image prune -f
+            docker compose up -d
             docker cp expertIds.csv emi-app:/app/src/backend/etl/aggieExpertsAPI/utils
             docker cp grantsFeaturesPostgis.json emi-app:/app/src/backend/etl/geojsonGeneration/generatedFeatures/generatedGrants.geojson
             docker cp worksFeaturesPostgis.json emi-app:/app/src/backend/etl/geojsonGeneration/generatedFeatures/generatedWorks.geojson
-            docker compose up -d
