@@ -114,4 +114,5 @@ if (require.main === module) {
     .catch(() => process.exit(1));
 }
 
+// Export the function directly for proper testing
 module.exports = createTables;

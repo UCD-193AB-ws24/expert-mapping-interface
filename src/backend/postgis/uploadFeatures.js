@@ -514,7 +514,7 @@ async function loadGeoJsonData() {
     }
 
     await client.query('COMMIT');
-    
+    console.log('✅ GeoJSON data loaded successfully');
     // Log statistics
     console.log('\n📊 Import Statistics:');
     console.log(`📚 Works: ${worksInserted} inserted, ${worksUpdated} updated, ${worksSkipped} unchanged`);
@@ -619,6 +619,11 @@ if (require.main === module) {
 }
 
 module.exports = {
+  checkFileExists,
+  validateGeometry,
+  mergeProperties,
   loadGeoJsonData,
-  verifyIndexes
+  verifyIndexes,
+  isDeepEqual,
+  mergeEntriesById
 };

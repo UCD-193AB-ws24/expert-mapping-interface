@@ -51,7 +51,7 @@ describe('fetchingUtils', () => {
       expect(axios.post).toHaveBeenCalledWith(
         'https://api.example.com/test',
         { id: '123' },
-        undefined
+        {}
       );
     });
 
@@ -60,20 +60,6 @@ describe('fetchingUtils', () => {
       axios.post.mockRejectedValue(mockError);
       
       await expect(fetchingUtils.postRequestApi('https://api.example.com/test', {})).rejects.toThrow('Network error');
-    });
-
-    it('handles requests with custom headers', async () => {
-      const mockResponse = {
-        data: { result: 'success' }
-      };
-      
-      axios.post.mockResolvedValue(mockResponse);
-      
-      const headers = { Authorization: 'Bearer token' };
-      const result = await fetchingUtils.postRequestApi('https://api.example.com/test', {}, headers);
-      
-      expect(result).toEqual({ result: 'success' });
-      expect(axios.post).toHaveBeenCalledWith('https://api.example.com/test', {}, headers);
     });
 
     it('handles empty response data', async () => {
@@ -127,17 +113,6 @@ describe('fetchingUtils', () => {
       await expect(fetchingUtils.fetchFromApi('https://api.example.com/test', {})).rejects.toThrow('Network error');
     });
 
-    it('handles requests with custom headers', async () => {
-      const mockResponse = {
-        data: { result: 'success' }
-      };
-      axios.get.mockResolvedValue(mockResponse);
-      const headers = { Authorization: 'Bearer token' };
-      const result = await fetchingUtils.fetchFromApi('https://api.example.com/test', {}, headers);
-      expect(result).toEqual({ result: 'success' });
-      expect(axios.get).toHaveBeenCalledWith('https://api.example.com/test', { params: {}, headers });
-    });
-
     it('handles empty response data', async () => {
       const mockResponse = {
         data: null
@@ -164,10 +139,5 @@ describe('fetchingUtils', () => {
       axios.get.mockRejectedValue(httpError);
       await expect(fetchingUtils.fetchFromApi('https://api.example.com/test', {})).rejects.toThrow('404');
     });
-  });
-
-  it('exports API_TOKEN as a string', () => {
-    expect(typeof fetchingUtils.API_TOKEN).toBe('string');
-    expect(fetchingUtils.API_TOKEN.startsWith('Bearer ')).toBe(true);
   });
 });

@@ -67,9 +67,9 @@ describe('fetchExpertProfiles', () => {
       
       expect(result).toHaveLength(3);
       expect(getExpertData).toHaveBeenCalledTimes(3);
-      expect(getExpertData).toHaveBeenCalledWith('123');
-      expect(getExpertData).toHaveBeenCalledWith('456');
-      expect(getExpertData).toHaveBeenCalledWith('789');
+      expect(getExpertData).toHaveBeenCalledWith('123', 5, 5);
+      expect(getExpertData).toHaveBeenCalledWith('456', 5, 5);
+      expect(getExpertData).toHaveBeenCalledWith('789', 5, 5);
     });
 
     it('fetches all profiles when limit exceeds available IDs', async () => {
@@ -153,9 +153,9 @@ describe('fetchExpertProfiles', () => {
       
       expect(result).toHaveLength(3);
       expect(getExpertData).toHaveBeenCalledTimes(3);
-      expect(getExpertData).toHaveBeenCalledWith('123');
-      expect(getExpertData).toHaveBeenCalledWith('456');
-      expect(getExpertData).toHaveBeenCalledWith('789');
+      expect(getExpertData).toHaveBeenCalledWith('123', 5, 5);
+      expect(getExpertData).toHaveBeenCalledWith('456', 5, 5);
+      expect(getExpertData).toHaveBeenCalledWith('789', 5, 5);
     });
 
     it('handles negative limit values', async () => {
@@ -181,8 +181,8 @@ describe('fetchExpertProfiles', () => {
       const result = await fetchExpertProfiles();
       
       expect(result).toHaveLength(2);
-      expect(getExpertData).toHaveBeenCalledWith('123');
-      expect(getExpertData).toHaveBeenCalledWith('456');
+      expect(getExpertData).toHaveBeenCalledWith('123', 5, 5);
+      expect(getExpertData).toHaveBeenCalledWith('456', 5, 5);
     });
   });
 

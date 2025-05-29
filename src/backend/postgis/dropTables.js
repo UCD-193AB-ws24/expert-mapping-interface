@@ -66,10 +66,13 @@ async function main() {
   try {
     await dropTables();
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(`\n✨ Cleanup completed successfully in ${duration}s`);
+    console.log('✨ Cleanup completed successfully');
+    console.log(`Completed in ${duration}s`);
   } catch (error) {
     console.error('\n❌ Cleanup failed:', error);
     process.exit(1);
+  } finally {
+    await pool.end(); // Ensure the pool is terminated
   }
 }
 
@@ -77,4 +80,7 @@ if (require.main === module) {
   main();
 }
 
-module.exports = dropTables;
+module.exports = {
+  dropTables,
+  main,
+};
