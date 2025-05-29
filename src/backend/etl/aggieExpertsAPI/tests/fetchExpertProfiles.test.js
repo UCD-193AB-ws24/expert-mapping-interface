@@ -57,7 +57,7 @@ describe('fetchExpertProfiles', () => {
       expect(result[1]).toHaveProperty('expertId', '456');
       expect(getExpertData).toHaveBeenCalledTimes(2);
       expect(fs.readFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('expert_ids.csv'),
+        expect.stringContaining('expertIds.csv'),
         'utf8'
       );
     });
@@ -254,7 +254,7 @@ describe('fetchExpertProfiles', () => {
       await fetchExpertProfiles();
       
       expect(fs.readFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('expert_ids.csv'),
+        expect.stringContaining('expertIds.csv'),
         'utf8'
       );
     });
