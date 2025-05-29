@@ -1,4 +1,6 @@
 
+const { organizeRedis } = require('./organizeRedis');
+
 async function updateMetadata(redisClient, type) {
   const prefix = `${type}:`;
   const metadataKey = `${type}:metadata`;
@@ -33,6 +35,7 @@ function sanitizeRedisData(data) {
 }
 
 async function syncRedisWithPostgres(pgClient, redisClient) {
+  let redisWorkChanged = false;
   console.log('🔍 Fetching works and grants data from PostgreSQL...');
 
   // Query works data
@@ -86,6 +89,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
 
     if (!redisEntry) {
       // New entry: Add to Redis
+      let redisWorkChanged = true;
       console.log(`➕ Adding new work to Redis: ${redisKey}`);
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
@@ -118,6 +122,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       }
       await updateMetadata(redisClient, 'work');
     } else if (new Date(row.updated_at) > new Date(redisEntry.updated_at)) {
+      redisWorkChanged = true;
       // Updated entry: Update Redis
       console.log(`🔄 Updating work in Redis: ${redisKey}`);
       await redisClient.hSet(redisKey, sanitizedRedisData);
@@ -164,10 +169,11 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       }
       await updateMetadata(redisClient, 'work');
     } else {
-      console.log(`✅ No changes for Redis key: ${redisKey}`);
+      // No changes needed
+      redisWorkChanged = false;
     }
   }
-
+  let redisGrantChanged = false;
   console.log('🔍 Fetching grant data from Redis...');
   const redisGrantKeys = await redisClient.keys('grant:*');
   const redisGrantData = {};
@@ -192,6 +198,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
 
     if (!redisEntry) {
       // New entry: Add to Redis
+      redisGrantChanged = true;
       console.log(`➕ Adding new grant to Redis: ${redisKey}`);
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
@@ -224,6 +231,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       await updateMetadata(redisClient, 'grant');
     } else if (new Date(row.updated_at) > new Date(redisEntry.updated_at)) {
       // Updated entry: Update Redis
+      redisGrantChanged = true;
       console.log(`🔄 Updating grant in Redis: ${redisKey}`);
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
@@ -267,10 +275,17 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       }
       await updateMetadata(redisClient, 'grant');
     } else {
-      console.log(`✅ No changes for Redis key: ${redisKey}`);
+      // No changes needed
+      redisGrantChanged = false;
     }
   }
-
+  if(redisWorkChanged || redisGrantChanged) {
+    console.log('🔄 Redis data has been updated with PostgreSQL changes. Now organizing new data.');
+    await organizeRedis(redisClient); 
+  }
+  if (!redisWorkChanged && !redisGrantChanged) {
+    console.log('ℹ️ No changes detected in Redis data.');
+  }
   console.log('✅ Sync complete.');
 }
 

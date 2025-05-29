@@ -479,12 +479,12 @@ async function buildRedisMaps(redisClient) {
   const overlapGrantLayerSpecificityMaps = buildSpecificityMaps(overlapGrantLayerMap);
 
   // Log the length of every map in overlapGrantLayerSpecificityMaps
-  for (const [key, map] of Object.entries(overlapGrantLayerSpecificityMaps)) {
-    console.log(`overlapGrantLayerSpecificityMaps.${key}:`);
-    for (const [locID, locEntry] of map.entries()) {
-      console.log(`${locID}:`, locEntry);
-    }
-  }
+  // for (const [key, map] of Object.entries(overlapGrantLayerSpecificityMaps)) {
+  //   console.log(`overlapGrantLayerSpecificityMaps.${key}:`);
+  //   for (const [locID, locEntry] of map.entries()) {
+  //     console.log(`${locID}:`, locEntry);
+  //   }
+  // }
 
 
 

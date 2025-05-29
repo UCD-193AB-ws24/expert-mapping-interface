@@ -21,7 +21,7 @@
 import { useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import { createCombinedPopup, createMatchedCombinedPolygonPopup } from "./Popups";
+import { createCombinedPopup } from "./Popups";
 import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
 import { getMatchedFields } from "./filters/searchFilter";
 
@@ -199,16 +199,7 @@ const renderPolygons = ({
 
       // Create popup content
       const content =
-        matchedFields.length > 0
-          ? createMatchedCombinedPolygonPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          )
-          : createCombinedPopup(
+        createCombinedPopup(
             work2expertCount,
             grant2expertCount,
             locationData.name,
@@ -318,15 +309,7 @@ const renderPolygons = ({
       
       // Create popup content
       const content =
-        matchedFields.length > 0
-          ? createMatchedCombinedPolygonPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants
-          )
-          : createCombinedPopup(
+        createCombinedPopup(
             work2expertCount,
             grant2expertCount,
             locationData.name,
@@ -520,16 +503,7 @@ const renderPoints = ({
 
       // Create popup content
       const content =
-        matchedFields.length > 0
-          ? createMatchedCombinedPolygonPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          )
-          : createCombinedPopup(
+        createCombinedPopup(
             work2expertCount,
             grant2expertCount,
             locationData.name,
@@ -577,7 +551,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const grantPanelData = prepareGrantPanelData(
-              grantExpertIDs,
+              Array.from(grantExpertIDs),
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -585,7 +559,7 @@ const renderPoints = ({
               locationData.name
             );
             const workPanelData = prepareWorkPanelData(
-              workExpertIDs,
+              Array.from(workExpertIDs),
               locationData.workIDs,
               expertsMap,
               worksMap,
@@ -643,16 +617,7 @@ const renderPoints = ({
 
       // Create popup content
       const content =
-        matchedFields.length > 0
-          ? createMatchedCombinedPolygonPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          )
-          : createCombinedPopup(
+        createCombinedPopup(
             work2expertCount,
             grant2expertCount,
             locationData.name,
