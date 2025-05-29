@@ -81,8 +81,8 @@ The guide starts with access instructions, then covers key features, system desi
 ### **2.2 Accessing the Interface**
 
 * Navigate to: [http://35.247.92.204:3001](http://35.247.92.204:3001). No login or installation is required.  
-* Expect initial 2-5 second loading delay  
-* Ensure Pop-Ups/Adblockers are disabled
+* Expect an initial 2-5 second loading delay.  
+* Ensure Pop-Ups/Adblockers are disabled.
 
 ---
 
@@ -94,10 +94,10 @@ The guide starts with access instructions, then covers key features, system desi
 
 ### **3.2 Search and Filtering**
 
+* These filters are automatically applied to the entries on the map, can be reset via ‘Reset Filters’
 * **Keyword Search:** Matches expert name, department, work and grant titles, publication abstracts.  
 * **Date Range Slider:** Filter by date of work or grant.  
 * **Toggles:** Show/hide grants or works.  
-* These filters are automatically applied to the entries on the map. To view all entries again, users must either adjust the filter fields or can simply reload the browser.
 
 ### **3.3 Cluster and Zoom Logic**
 
@@ -220,7 +220,7 @@ For a more detailed system architecture, developers can refer to src/backend/etl
 
 #### **Removing**
 
-* docker compose down \[-v\] (\-v resets volumes)
+* docker compose down -v
 
 ---
 
@@ -230,7 +230,7 @@ For a more detailed system architecture, developers can refer to src/backend/etl
   * The map may take a few seconds to load due to the large dataset. If it does not load after a short wait, please try reloading the page.  
 * **Why are no results being returned?**  
   * Results are displayed based on the current zoom level, so try zooming in to explore the map further. Another possible reason is that the filter parameters are too specific, in which case, you can adjust the filters or reload the page to reset them.  
-* **Why is the hover tooltips not working?**  
+* **Why are the hover tooltips not working?**  
   * Ensure your browser is up to date and that you are not running any extensions that may block scripts.
 
 ---
