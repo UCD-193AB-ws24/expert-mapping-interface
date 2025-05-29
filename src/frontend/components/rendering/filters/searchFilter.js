@@ -12,7 +12,7 @@
  * Marina Mata, 2025
  */
 
-import { distance } from 'fastest-levenshtein';
+const { distance } = require('fastest-levenshtein');
 
 /**
  * Retrieves related experts from an entry.
@@ -21,7 +21,7 @@ import { distance } from 'fastest-levenshtein';
  * @param {Object} entry - The entry containing related experts.
  * @returns {Array} An array of related experts.
  */
-export const getRelatedExperts = (entry) => {
+const getRelatedExperts = (entry) => {
   if (entry.relatedExperts) return entry.relatedExperts;
   if (entry.relatedExpert) return [entry.relatedExpert];
   return [];
@@ -34,11 +34,11 @@ export const getRelatedExperts = (entry) => {
  * @param {string} word - The term to normalize.
  * @returns {string} The normalized term.
  */
+
 const normalizeTerm = (word) =>
-  word.endsWith("ies") ? word.slice(0, -3) + "y" :
-  word.endsWith("es") ? word.slice(0, -2) :
-  word.endsWith("s")  ? word.slice(0, -1) :
-  word;
+  word.endsWith("ies") ? word.slice(0, -3) + "y" : // Convert "studies" to "study"
+  word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : // Convert "cats" to "cat"
+  word; // Return the word unchanged if no conditions are met
 
 /**
  * Calculates the maximum allowed Levenshtein distance for fuzzy matching.
@@ -61,7 +61,7 @@ const maxAllowedDistance = (word, keyword) => {
  * @param {Object} entry - The entry to search within.
  * @returns {boolean} `true` if the keyword matches any field, otherwise `false`.
  */
-export const matchesKeyword = (keyword, entry) => {
+const matchesKeyword = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return true;
 
   const normalizedKeyword = normalizeTerm(keyword.toLowerCase());
@@ -73,6 +73,7 @@ export const matchesKeyword = (keyword, entry) => {
     entry.funder,
     ...(entry.relatedExperts || []).map(e => e.fullName || e.name),
     entry.name,
+
   ].filter(Boolean); // Remove null/undefined fields
 
   for (const field of fields) {
@@ -102,14 +103,9 @@ export const matchesKeyword = (keyword, entry) => {
  * @param {Object} entry - The entry to search within.
  * @returns {Array} An array of matched fields, each containing the field name and matched value.
  */
-export const getMatchedFields = (keyword, entry) => {
-  if (!keyword?.trim()) {
-    // console.warn("getMatchedFields: No keyword provided");
-    return [];}
-  if (!entry) {
-    // console.warn("getMatchedFields: No entry provided");
-    return [];
-  }
+
+const getMatchedFields = (keyword, entry) => {
+  if (!keyword?.trim() || !entry) return [];
 
   const normalizedKeyword = normalizeTerm(keyword.toLowerCase());
   const relatedExperts = getRelatedExperts(entry);
@@ -150,4 +146,11 @@ export const getMatchedFields = (keyword, entry) => {
   }
 
   return matchedFields;
+};
+
+module.exports = {
+  getRelatedExperts,
+  matchesKeyword,
+  getMatchedFields, 
+  normalizeTerm
 };

@@ -16,7 +16,7 @@
 import React, { useState } from "react";
 
 //Helper function to style confidence levels.
-const getConfidenceStyle = (confidenceValue) => {
+export const getConfidenceStyle = (confidenceValue) => {
   if (!confidenceValue) return { label: '', style: {} };
 
   if (confidenceValue.toLowerCase() === 'high') {
@@ -105,7 +105,7 @@ export const WorksPanel = ({ works = [], onClose }) => {
 
       {/* Panel Header */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#3879C7" }}>
-        <strong>{works.length} Expert{works.length !== 1 ? "s" : ""} at this Location</strong>
+        <strong>{works.length} Expert{works.length !== 1 ? "s" : ""} in {works[0].location} </strong>
       </h2>
 
       {/* List of Experts */}
@@ -285,7 +285,8 @@ export const GrantsPanel = ({ grants = [], onClose }) => {
 
       {/* Panel Header */}
       <h2 style={{ marginTop: "0", marginBottom: "20px", color: "#eda012" }}>
-        <strong>{grants.length} Expert{grants.length !== 1 ? "s" : ""} at this Location </strong>
+        {/* <strong>{grants.length} Expert{grants.length !== 1 ? "s" : ""} in {grants[0].locationID} </strong> */}
+        <strong>{grants.length} Expert{grants.length !== 1 ? "s" : ""} in {grants[0]?.location || "Unknown location"}</strong>
       </h2>
 
       {/* List of Experts */}
@@ -470,10 +471,19 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
       >
         ×
       </button>
-
-      {/* Location Header */}
+    {/* Expert count at Location */}
       <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#659c39" }}>
-        <strong>Location: {works[0].location}</strong>
+        {(() => {
+          const expertIDs = new Set([
+            ...works.map((e) => e.id || e.name),
+            ...grants.map((e) => e.id || e.name),
+          ]);
+          return (
+            <strong>
+              {expertIDs.size} Expert{expertIDs.size === 1 ? '' : 's'} in {grants[0]?.location || "this area"}
+            </strong>
+          );
+        })()}
       </h2>
 
       {/* Tab Navigation */}

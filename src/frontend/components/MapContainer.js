@@ -26,8 +26,8 @@ const MapWrapper = ({ children, mapRef }) => {
       minZoom={2} // Minimum zoom level to prevent excessive zooming out.
       maxZoom={12} // Maximum zoom level to prevent excessive zooming in.
       maxBounds={[
-        [-80, -200], // Southwest corner of the map bounds
-        [85, 200]    // Northeast corner of the map bounds
+        [-80, -230], // Southwest corner of the map bounds
+        [85, 230]    // Northeast corner of the map bounds
       ]}
       maxBoundsViscosity={1.0} // Viscosity for the bounds to prevent panning outside the defined area.
       whenCreated={(mapInstance) => {

@@ -107,7 +107,7 @@ function App() {
       </nav>
 
       {/* Main Content Section */}
-      <main className="w-full overflow-hidden bg-white" style={{ height: 'calc(100vh - 140px)', marginTop: '140px' }}>
+      <main className="main-content w-full overflow-hidden bg-white">
         <div className="map-container flex w-full h-full">
           {/* Filter Mobile View Button */}
           {!isFilterModalOpen && !isGuideModalOpen && (
@@ -364,7 +364,8 @@ function App() {
 
           {/* Guide Modal */}
           {isGuideModalOpen && (
-            <div className="fixed inset-0 z-[1200] bg-black bg-opacity-40 flex justify-center items-center md:hidden">
+            <div data-testid="guide-modal"
+                className="fixed inset-0 z-[1200] bg-black bg-opacity-40 flex justify-center items-center md:hidden">
               <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-4 relative max-h-[90vh] overflow-y-auto">
                 <button
                   className="absolute top-2 right-2 text-gray-500 text-2xl"

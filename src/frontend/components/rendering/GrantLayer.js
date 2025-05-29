@@ -206,9 +206,9 @@ const renderPolygons = ({
 
     // Handle tablet/mobile view click
     marker.on("click", () => {
-        // Remove any existing popup
+      // Remove any existing popup
       if (activePopup) activePopup.remove();
-    
+
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
@@ -259,7 +259,7 @@ const renderPolygons = ({
               grantsMap,
               expertsMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             setSelectedGrants(panelData);
             setPanelType("grants");
@@ -270,8 +270,8 @@ const renderPolygons = ({
               activePopup = null;
             }
           });
-          }
         }
+      }
     });
 
   });
@@ -479,7 +479,7 @@ const renderPoints = ({
               grantsMap,
               expertsMap,
               locationID,
-              locationData.display_name
+              locationData.name
             );
             setSelectedGrants(panelData);
             setPanelType("grants");
