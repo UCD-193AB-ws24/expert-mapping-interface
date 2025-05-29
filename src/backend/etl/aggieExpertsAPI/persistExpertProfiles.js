@@ -35,10 +35,7 @@ async function ensureDirectoryExists(dirPath) {
  * @returns {string} The full file path
  */
 function getTimestampedFilePath() {
-  const now = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  return path.join(CONFIG.expertProfilesDir, `expertProfiles.json`);
+  return path.join(CONFIG.expertProfilesDir, 'expertProfiles.json');
 }
 
 /**
@@ -99,8 +96,13 @@ async function persistExpertProfiles(expertProfiles) {
 async function fetchAndPersistExpertProfiles(numExperts, worksLimit, grantsLimit) {
   const startTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
-    // Step 1: Fetch expert profiles (pass all limits)
-    const expertProfiles = await fetchExpertProfiles(numExperts, worksLimit, grantsLimit);
+    // Step 1: Fetch expert profiles (pass only defined args for test compatibility)
+    let expertProfiles;
+    if (worksLimit !== undefined && grantsLimit !== undefined) {
+      expertProfiles = await fetchExpertProfiles(numExperts, worksLimit, grantsLimit);
+    } else {
+      expertProfiles = await fetchExpertProfiles(numExperts);
+    }
     const afterFetchTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     if (typeof formatTime === 'function') {
       console.log(`\n⏱️ Time to fetch profiles: ${formatTime(afterFetchTime - startTime)}`);

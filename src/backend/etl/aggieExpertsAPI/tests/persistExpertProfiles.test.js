@@ -129,7 +129,7 @@ try {
       const mockProfiles = [{ expertId: '1' }];
       await persistExpertProfiles(mockProfiles);
       expect(fs.promises.writeFile).toHaveBeenCalledWith(
-        expect.stringMatching(/expert_profiles_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}/),
+        expect.stringMatching(/expertProfiles\.json$/),
         expect.any(String),
         'utf8'
       );
@@ -294,10 +294,10 @@ try {
       expect(result.success).toBe(true);
       expect(result.fileCreated).toBe(true);
       expect(result.count).toBe(1);
-      expect(result.filePath).toMatch(/expert_profiles_/);
+      expect(result.filePath).toMatch(/expertProfiles\.json$/);
       expect(result.sessionId).toBeDefined();
       expect(fs.promises.writeFile).toHaveBeenCalledWith(
-        expect.stringMatching(/expert_profiles_/),
+        expect.stringMatching(/expertProfiles\.json$/),
         expect.stringContaining('Ada'),
         'utf8'
       );
