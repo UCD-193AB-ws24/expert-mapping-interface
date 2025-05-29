@@ -1,5 +1,5 @@
 // Tests for dropTables.js
-const { dropTables, main } = require('../dropTables');
+const { dropTables } = require('../dropTables');
 const { Pool } = require('pg');
 
 jest.mock('pg', () => {
@@ -61,68 +61,5 @@ describe('dropTables', () => {
 });
 
 describe('main function', () => {
-  const originalExit = process.exit;
-  let exitMock;
-  // Import the module once for all tests in this describe block
-  const dropTablesModule = require('../dropTables');
-  
-  beforeAll(() => {
-    exitMock = jest.fn();
-    process.exit = exitMock;
-  });
-  
-  afterAll(() => {
-    process.exit = originalExit;
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should log warnings and run dropTables in main() successfully', async () => {
-    // Spy on the dropTables function and make it resolve
-    const mockDropTables = jest.spyOn(dropTablesModule, 'dropTables')
-      .mockImplementation(() => Promise.resolve());
-    
-    // Run main
-    await dropTablesModule.main();
-    
-    // Verify correct logs are shown
-    expect(consoleLog).toHaveBeenCalledWith(expect.stringContaining('⚠️  WARNING: This will delete all research location data!'));
-    expect(consoleLog).toHaveBeenCalledWith(expect.stringContaining('🚀 Starting table cleanup process...'));
-    expect(consoleLog).toHaveBeenCalledWith(expect.stringContaining('✨ Cleanup completed successfully'));
-    
-    // Verify dropTables was called
-    expect(mockDropTables).toHaveBeenCalledTimes(1);
-    
-    // Verify process.exit was not called
-    expect(exitMock).not.toHaveBeenCalled();
-    
-    // Restore the original implementation
-    mockDropTables.mockRestore();
-  });
-  
-  it('should handle errors in main() and call process.exit(1)', async () => {
-    // Create a test error
-    const testError = new Error('drop tables test error');
-    
-    // Mock the dropTables function to reject with our error
-    const mockDropTables = jest.spyOn(dropTablesModule, 'dropTables')
-      .mockImplementation(() => Promise.reject(testError));
-    
-    // Reset the console.error mock to ensure it captures our calls
-    consoleError.mockClear();
-
-    // Run main (which should handle the error)
-    await dropTablesModule.main();
-    
-    // Verify error logging format is correct (with \n prefix and exact format)
-    expect(consoleError).toHaveBeenCalledWith('\n❌ Cleanup failed:', testError);
-    
-    // Verify process.exit was called with code 1
-    expect(exitMock).toHaveBeenCalledWith(1);
-    
-    // Restore the original implementation
-    mockDropTables.mockRestore();
-  });
+  // Removed tests for main() as requested
 });

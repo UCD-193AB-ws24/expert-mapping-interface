@@ -58,29 +58,7 @@ async function dropTables() {
   }
 }
 
-async function main() {
-  console.log('⚠️  WARNING: This will delete all research location data!');
-  console.log('🚀 Starting table cleanup process...');
-  const startTime = Date.now();
-  
-  try {
-    await dropTables();
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log('✨ Cleanup completed successfully');
-    console.log(`Completed in ${duration}s`);
-  } catch (error) {
-    console.error('\n❌ Cleanup failed:', error);
-    process.exit(1);
-  } finally {
-    await pool.end(); // Ensure the pool is terminated
-  }
-}
-
-if (require.main === module) {
-  main();
-}
-
+// Export the function for external usage
 module.exports = {
-  dropTables,
-  main,
+  dropTables
 };
