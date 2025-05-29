@@ -1,228 +1,333 @@
-# Expert Mapping Interface (E.M.I)
+**COMPUTER SCIENCE AND ENGINEERING**  
+---
 
-## Table of Contents
+**EXPERT MAPPING INTERFACE**
 
-1. [Introduction](#1-introduction)  
-2. [Access and System Requirements](#2-access-and-system-requirements)  
-3. [Features and Functionality](#3-features-and-functionality)  
-4. [System Architecture](#4-system-architecture)  
-5. [Deployment and Operations](#5-deployment-and-operations)  
-6. [Troubleshooting](#6-troubleshooting)  
-7. [Contact Information](#7-contact-information)  
-8. [Glossary](#8-glossary)  
-9. [Appendix](#9-appendix)
+**USER GUIDE**
+
+Zoey Vo, Loc Nguyen, Alyssa Vallejo, Marina Mata
+
+Department of Computer Science  
+University of California, Davis  
+ECS 193A
+
+Spring 2025
+
+| TABLE OF CONTENTS | PAGE |
+| ----- | :---: |
+|  |  |
+| **INTRODUCTION** | 2 |
+| 1.1 Preface | 2 |
+| 1.2 Overview of Product | 2 |
+| 1.3 Target Audience | 2 |
+| 1.4 Guide Structure | 2 |
+| **ACCESS AND SYSTEM REQUIREMENTS** | 2 |
+| 2.1 System Requirements | 2 |
+| 2.2 Accessing the Interface | 2 |
+| **FEATURES AND FUNCTIONALITY** | 3 |
+| 3.1 Interactive Map Overview | 3 |
+| 3.2 Search and Filtering | 3 |
+| 3.3 Cluster and Zoom Logic | 3 |
+| 3.4 Hovering, Side Panel, and Profile Details | 3 |
+| 3.5 Mobile View Operation | 3 |
+| **SYSTEM ARCHITECTURE** | 3 |
+| 4.1 Frontend Interface | 4 |
+| 4.2 Data Flow Pipeline | 4 |
+| 4.3 Backend Services | 4 |
+| 4.4 Docker and GCP Deployment | 4 |
+| **DEPLOYMENT & OPERATION** | 5 |
+| 5.1 Local Development | 5 |
+| 5.2 Production Development | 5 |
+| 5.3 Docker Management | 5 |
+| **TROUBLESHOOTING** | 6 |
+| **CONTACT INFORMATION** | 6 |
+| **GLOSSARY** | 6 |
+| **APPENDIX** | 7 |
+| 9.1 Project Overview and User Stories | 7 |
+| 9.2 Referenced Diagrams | 7 |
+
+# 
+
+# **Expert Mapping Interface (E.M.I)**
+
+## **1\. Introduction**
+
+### **1.1 Preface**
+
+The Expert Mapping Interface (E.M.I) is a web application developed for the UC Davis Library to visualize global research output by UC Davis scholars. This user guide outlines how to access, navigate, and understand the features of the E.M.I.
+
+### **1.2 Overview of Product**
+
+E.M.I allows users to explore grants and scholarly works geographically. Using NLP and geospatial tools, the application extracts and maps research activity tied to real-world locations, making discovery more intuitive.
+
+### **1.3 Target Audience**
+
+Designed for students, journalists, donors, researchers, and the public who are interested in research activity by location.
+
+### **1.4 Guide Structure**
+
+The guide starts with access instructions, then covers key features, system design, troubleshooting, and contact information.
 
 ---
 
-## 1. Introduction
+## **2\. Access and System Requirements**
 
-### 1.1 Preface
+### **2.1 System Requirements**
 
-The Expert Mapping Interface (E.M.I) is a web application developed for the UC Davis Library to visualize global research output by UC Davis scholars.
+* Modern browser (Chrome, Firefox, Safari)  
+* Internet access  
+* Desktop or mobile device
 
-### 1.2 Overview of Product
+### **2.2 Accessing the Interface**
 
-E.M.I allows users to explore grants and scholarly works geographically using NLP and geospatial tools.
-
-### 1.3 Target Audience
-
-- Students  
-- Journalists  
-- Donors  
-- Researchers  
-- General public  
-
-### 1.4 Guide Structure
-
-This guide includes access instructions, feature walkthroughs, system design, troubleshooting, and contact info.
+* Navigate to: [http://35.247.92.204:3001](http://35.247.92.204:3001). No login or installation is required.  
+* Expect initial 2-5 second loading delay  
+* Ensure Pop-Ups/Adblockers are disabled
 
 ---
 
-## 2. Access and System Requirements
+**3\. Features and Functionality**
 
-### 2.1 System Requirements
+### **3.1 Interactive Map Overview**
 
-- Modern browser (Chrome, Firefox, Safari)  
-- Internet access  
-- Desktop or mobile device  
+* The homepage shows a global map with colored clusters and markers. Zoom dynamically reveals heatmaps or individual pins. Hovering shows a popup; clicking opens a side panel with expert and work details.  \[*Figure 1*\]
 
-### 2.2 Accessing the Interface
+### **3.2 Search and Filtering**
 
-Visit: [http://35.247.92.204:3001](http://35.247.92.204:3001)  
-No login or installation required.
+* **Keyword Search:** Matches expert name, department, work and grant titles, publication abstracts.  
+* **Date Range Slider:** Filter by date of work or grant.  
+* **Toggles:** Show/hide grants or works.  
+* These filters are automatically applied to the entries on the map. To view all entries again, users must either adjust the filter fields or can simply reload the browser.
 
----
+### **3.3 Cluster and Zoom Logic**
 
-## 3. Features and Functionality
+* **Low zoom:** Clusters and polygons summarize dense regions.  
+* **High zoom:** Individual pins with detailed info appear.  
+* **Heatmap layer:** Shows density without clutter.
 
-### 3.1 Interactive Map Overview
+### **3.4 Hovering, Side Panel, and Profile Details**
 
-- Global map with clusters and pins  
-- Zoom levels reveal heatmaps or individual markers  
-- Hovering shows popups  
-- Clicking shows side panel with expert info  
+* Upon hovering a marker, a popup appears displaying the number of matching experts and their works or grants.  
+* Clicking on “View Experts” opens a sidebar listing all associated experts. Each Profile Detail includes metadata about the related grants or works, along with a clickable link leading to the expert’s profile on the Aggie Expert website.  \[*Figure 2*\]
 
-### 3.2 Search and Filtering
+### **3.5 Mobile View Operation**
 
-- **Keyword Search**: Expert name, department, titles, abstracts  
-- **Date Range Slider**  
-- **Toggles**: Show/hide grants and works  
-- Adjust filters or reload to reset  
+Move your finger over markers and click on them to display experts at that location. Filters can be found in the button with a funnel on it. Click it and it will display the date slider and show works/grants toggles. The search bar remains on the right of the navigation bar. \[*Figures 3,4,5*\]
 
-### 3.3 Cluster and Zoom Logic
-
-- Low zoom: Clustered summaries  
-- High zoom: Individual pins  
-- Heatmap for density display  
-
-### 3.4 Hovering, Side Panel, and Profile Details
-
-- Hover: Shows popup with expert/work count  
-- Click “View Experts” to see sidebar  
-- Profile links redirect to Aggie Experts  
-
-### 3.5 Tablet View
-
-- Filters and map guide appear above the map  
-- Tap markers for popups and expert panel  
-- Close guide by tapping "click to close"  
-
-### 3.6 Mobile View
-
-- Tap markers to view expert info  
-- Filters accessed via funnel button  
-- Search bar in navbar  
-- Map guide under filters button  
+The map guide can be found underneath the filters button and displays the map guide in the center of the screen.
 
 ---
 
-## 4. System Architecture
+## **4\. System Architecture**
 
-### 4.1 Data Flow Pipeline
+### **4.1 Frontend Interface** \[*Figures 6,7*\]
 
-- Raw data from Aggie Experts API  
-- Location entities extracted using LLaMA  
-- Nominatim for geocoding  
-- Data stored in PostGIS (GeoJSON)  
-- Redis for caching  
-- Frontend renders data using React  
+* React.js application using Leaflet for maps  
+* Tailwind CSS for styling  
+* Responsive and accessible UI
 
-### 4.2 Backend Services
+### **4.2 Data Flow Pipeline**  \[*Figures 8,9*\]
 
-- Node.js + Express for APIs  
-- Redis for caching  
-- PostGIS for storage  
+* Aggie Experts API provides raw expert data.  
+  LLaMA extracts geographic entities from texts.  
+* Nominatim geocodes locations.  
+* GeoJSON data is stored in PostGIS.  
+* Redis caches results.  
+* React frontend renders UI.
 
-### 4.3 Frontend Interface
+### **4.3 Backend Services** \[*Figure 8*\]
 
-- React.js + Leaflet for mapping  
-- Tailwind CSS  
-- Fully responsive  
+* Node.js Express API serves endpoints  
+* Redis provides cache acceleration  
+* PostGIS stores location-based records
 
-### 4.4 Docker and GCP Deployment
+### **4.4 Docker and GCP Deployment Architecture**  \[*Figure 10*\]
 
-- Deployed via Docker on GCP VM  
-- Containers:
-  - `emi-app` (Node.js/React)
-  - `emi-redis`
-  - `emi-postgis`
-- Uses Docker Compose  
-- Persistent volumes for Redis/PostGIS  
-- Internal Docker networking  
-- Exposed on port `3001`  
-- Start/stop with `docker compose up -d` and `docker compose down`
+The E.M.I is deployed using Docker containers on a Google Cloud Platform (GCP) virtual machine. The architecture includes:
 
-More: [GitHub Repository](https://github.com/UCD-193AB-ws24/expert-mapping-interface)
+* **Docker Compose** orchestrates multiple containers:  
+  * emi-app: The main Node.js/React application container.  
+  * emi-redis: Redis container for caching expert profiles.  
+  * emi-postgis: PostGIS container for geospatial data storage.
+
+* **Images** for each service are built locally or pulled from Docker Hub (e.g., postgis/postgis, redis).  
+* **Manual Image Updates**: The EMI app image can be rebuilt locally, saved as a tarball, and securely copied to the GCP VM for loading and deployment.  
+* **Persistent Volumes**: Data for Redis and PostGIS is stored in Docker volumes to ensure persistence across container restarts.  
+* **Networking**: Docker Compose sets up an internal network for inter-container communication. The application is exposed on port 3001, accessible via the VM's external IP.  
+* **Startup/Shutdown**: Use docker compose up \-d to start all services and docker compose down to stop them. Logs and container status can be monitored with standard Docker commands.
+
+This setup enables rapid deployment, easy updates, and reliable operation in a cloud environment, supporting both development and production workflows.
+
+For a more detailed system architecture, developers can refer to src/backend/etl/README.md or the following Github repo: [https://github.com/UCD-193AB-ws24/expert-mapping-interface](https://github.com/UCD-193AB-ws24/expert-mapping-interface)
 
 ---
 
-# E.M.I - Deployment and Operations
+## 
 
-## 5. Deployment and Operations
+## 
 
-### 5.1 Local Development
+## **5\. Deployment and Operations**
 
-* Build the frontend: `npm run build`
-* Start the backend: `node src/backend/server.js`
-* Access locally at: http://localhost:3001
+### **5.1 Local Development**
 
-### 5.2 Production Deployment
+* git clone [https://github.com/UCD-193AB-ws24/expert-mapping-interface](https://github.com/UCD-193AB-ws24/expert-mapping-interface)  
+* Build the frontend: npm run build  
+* Start the backend: node src/backend/server.js  
+* Access locally at: [http://localhost:3001](http://localhost:3001)
 
-* Push changes to the main repository branch
-* CI/CD pipeline is triggered automatically
-   * EMI Docker image is built
-   * Image is transferred to the virtual machine (VM)
-   * Image is unpacked and deployed on the VM
-* Application is available at: http://35.247.92.204:3001/
+### **5.2 Production Deployment**
 
-### 5.3 Docker Management
+* Push changes to the main repository branch  
+* CI/CD pipeline is triggered automatically  
+  * EMI Docker image is built  
+  * Image is transferred to the virtual machine (VM)  
+  * Image is unpacked and deployed on the VM  
+* Application is available at: [http://35.247.92.204:3001/](http://35.247.92.204:3001/)
 
-#### Images
+### **5.3 Docker Management**
 
-**Creating/Updating Postgis Image:**
+#### **Images**
 
-* **Local:**
-   * `docker build -f ./Dockerfile.emi -t emi .`
-   * `docker save -o "C:\image_path\emi.tar" emi`
-   * `scp -i .\key_path\private_key .\image_path\emi.tar <user>@35.247.92.204:~`
-* **VM:**
-   * `docker compose down`
-   * `docker rmi <emi-img-id>`
-   * `docker load -i ~/emi.tar`
-   * `docker compose up -d`
-   * `docker cp expertIds.csv emi-app:/app/src/backend/etl/aggieExpertsAPI/utils`
+#### **Creating/Updating Postgis Image:**
 
-**Creating Postgis Image:** `docker pull postgis/postgis`
+* **Local:**  
+  * git clone [https://github.com/UCD-193AB-ws24/expert-mapping-interface](https://github.com/UCD-193AB-ws24/expert-mapping-interface)  
+  * docker build \-f ./Dockerfile.emi \-t emi .  
+  * docker save \-o "C:\\image\_path\\emi.tar" emi  
+  * scp \-i .\\key\_path\\private\_key .\\image\_path\\emi.tar \<user\>@\<host\>:\~  
+* **VM:**  
+  * docker compose down  
+  * Docker rmi \<emi-img-id\>  
+  * docker load \-i \~/emi.tar  
+  * docker compose up \-d  
+  * docker cp expertIds.csv emi-app:/app/src/backend/etl/aggieExpertsAPI/utils
 
-**Creating Redis Image:** `docker pull redis`
+#### **Creating Postgis Image:** docker pull postgis/postgis
 
-#### Deploying
+#### **Creating Redis Image:** docker pull redis
 
-* Deploy containers: `docker compose up -d`
-* View startup logs: `docker compose logs -f`
-* Inspect containers: `docker ps`
+#### **Deploying**
 
-#### Accessing Containers
+* Deploy containers: docker compose up \-d  
+* View startup logs: docker compose logs \-f  
+* Inspect containers: docker ps
 
-* EMI: `docker exec -it emi-app sh`
-* Redis: `docker exec -it emi-redis redis-cli`
-* PostGIS: `docker exec -it emi-postgis psql -U postgres`
+#### **Accessing Containers**
 
-#### Removing
+* EMI: docker exec \-it emi-app sh  
+* Redis: docker exec \-it emi-redis redis-cli  
+* PostGIS: docker exec \-it emi-postgis psql \-U postgres
 
-* `docker compose down [-v]` (-v resets volumes)
+#### **Removing**
 
-## 6. Troubleshooting
+* docker compose down \[-v\] (\-v resets volumes)
 
-* **Why is the map not loading?**
-   * The map may take a few seconds to load due to the large dataset. If it does not load after a short wait, please try reloading the page.
-* **Why are no results being returned?**
-   * Results are displayed based on the current zoom level, so try zooming in to explore the map further. Another possible reason is that the filter parameters are too specific, in which case, you can adjust the filters or reload the page to reset them.
-* **Why is the hover tooltips not working?**
-   * Ensure your browser is up to date and that you are not running any extensions that may block scripts.
+---
 
-## 7. Contact Information
+## **6\. Troubleshooting**
 
-* Zoey Vo — ausvo@ucdavis.edu, @zoeyvo
-* Alyssa Vallejo — anvallejo@ucdavis.edu, AV-CompSci-Mage
-* Marina Mata — mmbmata@ucdavis.edu, @marinamata
-* Loc Nguyen — lctnguyen@ucdavis.edu, @loctng
+* **Why is the map not loading?**  
+  * The map may take a few seconds to load due to the large dataset. If it does not load after a short wait, please try reloading the page.  
+* **Why are no results being returned?**  
+  * Results are displayed based on the current zoom level, so try zooming in to explore the map further. Another possible reason is that the filter parameters are too specific, in which case, you can adjust the filters or reload the page to reset them.  
+* **Why is the hover tooltips not working?**  
+  * Ensure your browser is up to date and that you are not running any extensions that may block scripts.
 
-## 8. Glossary
+---
 
-* **ETL:** Extract, Transform, Load pipeline
-* **GeoJSON:** JSON format for geographic features
-* **PostGIS:** Extension of PostgreSQL for geospatial queries
-* **Redis:** In-memory data store for caching
+## **7\. Contact Information**
+
+* Zoey Vo — ausvo@ucdavis.edu, [@zoeyvo](https://github.com/zoeyvo)  
+* Alyssa Vallejo — anvallejo@ucdavis.edu, [AV-CompSci-Mage](https://github.com/AV-CompSci-Mage)  
+* Marina Mata — mmbmata@ucdavis.edu, [@marinamata](https://github.com/marinamata)  
+* Loc Nguyen — lctnguyen@ucdavis.edu, [@loctng](https://github.com/loctng)
+
+---
+
+## **8\. Glossary**
+
+* **ETL:** Extract, Transform, Load pipeline  
+* **GeoJSON:** JSON format for geographic features  
+* **PostGIS:** Extension of PostgreSQL for geospatial queries  
+* **Redis:** In-memory data store for caching  
 * **LLaMA:** Language model for extracting location entities
 
-## 9. Appendix
+---
 
-### 9.1 Project Overview and User Stories
+## 
 
-The E.M.I was designed to replace static, ambiguous expert searches with a spatial-first experience. Users include students, donors, researchers, and journalists. Key goals include improved discovery, intuitive filters, and professional presentation of expert profiles.
+## **9\. Appendix**
 
-For technical details on the ETL pipeline, see `src/backend/etl/README.md`.
+### **9.1 Project Overview and User Stories**
+
+1. As a site user, I want a highlight of the reasons for matching profiles so that I can save time looking through each profile and focus on the relevant ones.  
+2. As a student, I want search results to be accurate and organized by relevance so that I can find the best fit.  
+3. As a student with a passion for research, I want to see what research is happening in specific regions so that I can find fieldwork internships.  
+4. As a potential donor, I want to see research projects in specific fields so that I can find and support impactful work.  
+5. As a journalist, I want to see where UC Davis researchers are conducting studies so that I can write stories on impactful research in different regions of the world.  
+6. As a researcher, I want to see my works represented accurately to ensure that those interested in what I do can contact me.  
+7. As a site user, I want the results on the map to be not clustered so it will be easier for me to look through the results.  
+8. As a graduate student, I want to be able to contact researchers who have or are currently working in my field of research so that I can ask for their expert opinions or collaboration.  
+9. As a site user, I want the map to have high accuracy so that the searching process can be more convenient.  
+10. As a researcher, I want a professional profile that displays my work and contact information so that interested individuals are encouraged to reach out to me.
+
+### **9.2 Diagrams**
+
+<div align="center">
+  <img src="src/frontend/assets/figure1.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 1</em></p>
+</div>
+
+---
+
+<div align="center">
+  <img src="src/frontend/assets/figure2.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 2</em></p>
+</div>
+
+<div align="center">
+  <img src="src/frontend/assets/figure3.png" style="width:33%; max-width:250px; display:inline-block;" />
+  <img src="src/frontend/assets/figure4.png" style="width:33%; max-width:250px; display:inline-block;" />
+  <img src="src/frontend/assets/figure5.png" style="width:33%; max-width:250px; display:inline-block;" />
+  <p><em>Figure 3&emsp;Figure 4&emsp;Figure 5</em></p>
+</div>
+
+
+<div align="center">
+  <img src="src/frontend/assets/figure6.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 6</em></p>
+</div>
+
+---
+
+<div align="center">
+  <img src="src/frontend/assets/figure7.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 7</em></p>
+</div>
+
+<div align="center">
+  <img src="src/frontend/assets/figure8.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 8</em></p>
+</div>
+
+<div align="center">
+  <img src="src/frontend/assets/figure9.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 9</em></p>
+</div>
+
+---
+
+<div align="center">
+  <img src="src/frontend/assets/figure10.png" style="width:100%; max-width:800px;" />
+  <p><em>Figure 10</em></p>
+</div>
+
+
+For technical details regarding frontend rendering, refer to src/frontend/components/[README.md](http://README.md).
+
+For technical details regarding ETL pipeline, refer to src/backend/etl/[README.md](http://README.md).
+
+For technical details regarding PostGIS, refer to src/backend/postgis/[README.md](http://README.md).
 
 ---
 
