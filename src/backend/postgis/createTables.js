@@ -108,5 +108,11 @@ async function createTables() {
   }
 }
 
+if (require.main === module) {
+  createTables()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+}
+
 // Export the function directly for proper testing
 module.exports = createTables;

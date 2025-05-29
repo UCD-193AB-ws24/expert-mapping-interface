@@ -58,6 +58,9 @@ async function dropTables() {
   }
 }
 
+if (require.main === module) {
+  dropTables();
+}
 // Export the function for external usage
 module.exports = {
   dropTables
