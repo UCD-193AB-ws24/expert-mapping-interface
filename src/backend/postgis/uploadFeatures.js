@@ -41,7 +41,10 @@ function isDeepEqual(obj1, obj2) {
   if (obj1 === obj2) return true;
   if (obj1 === null || obj2 === null) return false;
   if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return false;
-  
+
+  // If one is array and the other is not, return false
+  if (Array.isArray(obj1) !== Array.isArray(obj2)) return false;
+
   // Handle arrays
   if (Array.isArray(obj1) && Array.isArray(obj2)) {
     if (obj1.length !== obj2.length) return false;
@@ -279,99 +282,6 @@ function mergeEntriesById(oldEntries, newEntries) {
   const merged = Array.from(mergedMap.values()).sort((a, b) => String(a.id).localeCompare(String(b.id)));
   return { merged, changed };
 }
-
-// Function to find matching features using more flexible criteria
-async function findMatchingFeature(client, tableName, feature) {
-  const { geometry, properties } = feature;
-  
-  // First attempt to match by feature properties.id if available
-  if (properties.id) {
-    const idResult = await client.query(`
-      SELECT id, properties FROM ${tableName}
-      WHERE properties->>'id' = $1
-    `, [properties.id]);
-    
-    if (idResult.rowCount > 0) {
-      return idResult.rows[0];
-    }
-  }
-  
-  // Second, check if we can match by entries array
-  if (Array.isArray(properties.entries) && properties.entries.length > 0) {
-    // Get all entry IDs from the new feature
-    const entryIds = properties.entries
-      .filter(entry => entry.id)
-      .map(entry => entry.id);
-    
-    if (entryIds.length > 0) {
-      // Look for features that contain any of these entry IDs
-      // This requires a JSON path query to search within the entries array
-      const params = entryIds;
-      const placeholders = params.map((_, idx) => `$${idx + 1}`).join(',');
-      
-      const entryQuery = `
-        SELECT id, properties FROM ${tableName}
-        WHERE EXISTS (
-          SELECT 1 FROM jsonb_array_elements(properties->'entries') as entry
-          WHERE entry->>'id' IN (${placeholders})
-        )
-        LIMIT 1;
-      `;
-      
-      const entryResult = await client.query(entryQuery, params);
-      
-      if (entryResult.rowCount > 0) {
-        return entryResult.rows[0];
-      }
-    }
-  }
-  
-  // Third, try to match by location name if available
-  if (properties.name || properties.location) {
-    const locationName = properties.name || properties.location;
-    const nameResult = await client.query(`
-      SELECT id, properties FROM ${tableName}
-      WHERE properties->>'name' = $1 OR properties->>'location' = $1
-    `, [locationName]);
-    
-    if (nameResult.rowCount > 0) {
-      return nameResult.rows[0];
-    }
-  }
-  
-  // Finally, try to match by geometry (with tolerance for points)
-  const geoJson = JSON.stringify(geometry);
-  let geoResult;
-  
-  if (geometry.type === 'Point' || geometry.type === 'MultiPoint') {
-    // For points, find features within ~10 meters
-    geoResult = await client.query(`
-      SELECT id, properties FROM ${tableName}
-      WHERE ST_DWithin(
-        geom,
-        ST_SetSRID(ST_GeomFromGeoJSON($1), 4326),
-        0.0001
-      )
-    `, [geoJson]);
-  } else {
-    // For non-point geometries, use exact matching
-    geoResult = await client.query(`
-      SELECT id, properties FROM ${tableName}
-      WHERE ST_Equals(
-        geom,
-        ST_SetSRID(ST_GeomFromGeoJSON($1), 4326)
-      )
-    `, [geoJson]);
-  }
-  
-  if (geoResult.rowCount > 0) {
-    return geoResult.rows[0];
-  }
-  
-  // No match found
-  return null;
-}
-
 // Function to find matching features by exact name and geometry
 async function findMatchingFeatureByNameAndGeometry(client, tableName, feature) {
   const { geometry, properties } = feature;
@@ -625,5 +535,7 @@ module.exports = {
   loadGeoJsonData,
   verifyIndexes,
   isDeepEqual,
-  mergeEntriesById
+  mergeEntriesById,
+  findMatchingFeatureByNameAndGeometry,
+  main
 };

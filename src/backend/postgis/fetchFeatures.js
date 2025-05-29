@@ -178,10 +178,3 @@ module.exports = {
   saveFeatures,
   getCoordinatesStructureDescription
 };
-
-// Run directly if called as a script
-if (require.main === module) {
-  fetchFeatures()
-    .then(() => console.log('Features fetched successfully'))
-    .catch(err => console.error('Error fetching features:', err));
-}

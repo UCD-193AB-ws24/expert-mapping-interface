@@ -2,10 +2,11 @@
  * @file persistExpertProfiles.test.js
  * @description Tests for the persistExpertProfiles utility that saves expert profiles
  * to both file storage and Redis cache.
+ *
+ * Includes file/Redis error handling, data integrity, and edge cases.
  */
 
 const fs = require('fs');
-const path = require('path');
 
 // Suppress console output during tests
 const originalConsoleLog = console.log;

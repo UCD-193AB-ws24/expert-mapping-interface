@@ -1,5 +1,18 @@
+/**
+ * @file uploadFeatures.test.js
+ * @description Tests for the uploadFeatures.js module, including:
+ *   - File existence and geometry validation
+ *   - Property and entry merging logic
+ *   - GeoJSON data loading and error handling
+ *   - Database feature matching and index verification
+ *   - Deep equality checks
+ *   - Main import/Redis sync logic
+ *
+ * Covers a wide range of edge cases and error scenarios for robust backend data import.
+ */
+
 // Tests for uploadFeatures.js
-const { loadGeoJsonData, verifyIndexes, validateGeometry, checkFileExists, mergeProperties } = require('../uploadFeatures');
+require('../uploadFeatures');
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
@@ -45,6 +58,10 @@ describe('validateGeometry', () => {
     expect(() => validateGeometry({ type: 'InvalidType' })).toThrow('Invalid geometry type');
     expect(() => validateGeometry(null)).toThrow('Invalid geometry type');
   });
+  it('throws if geometry.type is missing', () => {
+    const { validateGeometry } = require('../uploadFeatures');
+    expect(() => validateGeometry({})).toThrow('Invalid geometry type');
+  });
 });
 
 describe('mergeProperties', () => {
@@ -61,6 +78,119 @@ describe('mergeProperties', () => {
     const incoming = { entries: [{ id: '2', value: 2 }] };
     const result = mergeProperties(existing, incoming);
     expect(result.merged.entries.length).toBe(2);
+  });
+  describe('edge cases', () => {
+    const { mergeProperties } = require('../uploadFeatures');
+    it('handles missing entries in existing', () => {
+      const result = mergeProperties({}, { entries: [{ id: 'x', foo: 1 }] });
+      expect(result.merged.entries).toEqual([{ id: 'x', foo: 1 }]);
+      expect(result.hasChanges).toBe(true);
+    });
+    it('handles missing entries in newProperties', () => {
+      const result = mergeProperties({ entries: [{ id: 'x', foo: 1 }] }, {});
+      expect(result.merged.entries).toEqual([{ id: 'x', foo: 1 }]);
+      expect(result.hasChanges).toBe(false);
+    });
+    it('updates non-entries properties only if changed', () => {
+      const result = mergeProperties({ foo: 1 }, { foo: 2 });
+      expect(result.merged.foo).toBe(2);
+      expect(result.hasChanges).toBe(true);
+    });
+    it('does not update non-entries properties if unchanged', () => {
+      const result = mergeProperties({ foo: 1 }, { foo: 1 });
+      expect(result.merged.foo).toBe(1);
+      expect(result.hasChanges).toBe(false);
+    });
+  });
+});
+
+describe('mergeProperties advanced', () => {
+  const { mergeProperties } = require('../uploadFeatures');
+  it('merges entries with location conflict and expertId', () => {
+    const now = Date.now();
+    const existing = { entries: [{ id: '1', location: 'A', expertId: 'E1', mergeCount: 0 }] };
+    const incoming = { entries: [{ id: '2', location: 'A', expertId: 'E1' }] };
+    const result = mergeProperties(existing, incoming);
+    expect(result.merged.entries.length).toBe(1);
+    expect(result.merged.entries[0].mergeCount).toBeGreaterThanOrEqual(1);
+    expect(result.hasChanges).toBe(true);
+  });
+  it('merges entries with location but no id', () => {
+    const existing = { entries: [{ location: 'B', type: 'foo' }] };
+    const incoming = { entries: [{ location: 'B', type: 'foo', extra: 1 }] };
+    const result = mergeProperties(existing, incoming);
+    expect(result.merged.entries.length).toBe(1);
+    expect(result.hasChanges).toBe(true);
+  });
+  it('adds entry with no id or location', () => {
+    const existing = { entries: [] };
+    const incoming = { entries: [{ foo: 1 }] };
+    const result = mergeProperties(existing, incoming);
+    expect(result.merged.entries.length).toBe(1);
+    expect(result.hasChanges).toBe(true);
+  });
+});
+
+describe('mergeEntriesById', () => {
+  const { mergeEntriesById } = require('../uploadFeatures');
+
+  it('merges new entries and updates changed ones', () => {
+    const oldEntries = [{ id: '1', value: 1 }, { id: '2', value: 2 }];
+    const newEntries = [{ id: '2', value: 3 }, { id: '3', value: 4 }];
+    const { merged, changed } = mergeEntriesById(oldEntries, newEntries);
+    expect(merged).toEqual([
+      { id: '1', value: 1 },
+      { id: '2', value: 3 },
+      { id: '3', value: 4 },
+    ]);
+    expect(changed).toBe(true);
+  });
+
+  it('skips entries with missing id and warns', () => {
+    const oldEntries = [{ id: '1', value: 1 }];
+    const newEntries = [{ value: 2 }];
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { merged, changed } = mergeEntriesById(oldEntries, newEntries);
+    expect(merged).toEqual([{ id: '1', value: 1 }]);
+    expect(changed).toBe(false);
+    expect(warn).toHaveBeenCalledWith('⚠️ Skipping entry with missing id:', { value: 2 });
+    warn.mockRestore();
+  });
+
+  it('returns unchanged if nothing is merged', () => {
+    const oldEntries = [{ id: '1', value: 1 }];
+    const newEntries = [{ id: '1', value: 1 }];
+    const { merged, changed } = mergeEntriesById(oldEntries, newEntries);
+    expect(merged).toEqual([{ id: '1', value: 1 }]);
+    expect(changed).toBe(false);
+  });
+  describe('edge cases', () => {
+    const { mergeEntriesById } = require('../uploadFeatures');
+    it('handles empty arrays', () => {
+      const { merged, changed } = mergeEntriesById([], []);
+      expect(merged).toEqual([]);
+      expect(changed).toBe(false);
+    });
+    it('handles duplicate IDs in newEntries', () => {
+      const { merged, changed } = mergeEntriesById(
+        [{ id: '1', foo: 1 }],
+        [{ id: '1', foo: 2 }, { id: '1', foo: 2 }]
+      );
+      expect(merged).toEqual([{ id: '1', foo: 2 }]);
+      expect(changed).toBe(true);
+    });
+  });
+});
+
+describe('mergeEntriesById sort and non-string id', () => {
+  const { mergeEntriesById } = require('../uploadFeatures');
+  it('sorts entries by id as string', () => {
+    const oldEntries = [{ id: 2, foo: 1 }, { id: 1, foo: 2 }];
+    const newEntries = [{ id: 3, foo: 3 }];
+    const { merged } = mergeEntriesById(oldEntries, newEntries);
+    expect(merged[0].id).toBe(1);
+    expect(merged[1].id).toBe(2);
+    expect(merged[2].id).toBe(3);
   });
 });
 
@@ -272,9 +402,62 @@ describe('loadGeoJsonData with detailed examples', () => {
   });
 });
 
+describe('findMatchingFeatureByNameAndGeometry', () => {
+  it('returns feature if found, null if not', async () => {
+    const { findMatchingFeatureByNameAndGeometry } = require('../uploadFeatures');
+    const mockClient = {
+      query: jest.fn().mockResolvedValue({ rows: [{ id: 1, properties: { name: 'foo' } }], rowCount: 1 }),
+    };
+    const result = await findMatchingFeatureByNameAndGeometry(
+      mockClient, 'works', { geometry: { type: 'Point', coordinates: [1, 2] }, properties: { name: 'foo' } }
+    );
+    expect(result).toEqual({ id: 1, properties: { name: 'foo' } });
+
+    mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+    const result2 = await findMatchingFeatureByNameAndGeometry(
+      mockClient, 'works', { geometry: { type: 'Point', coordinates: [1, 2] }, properties: { name: 'bar' } }
+    );
+    expect(result2).toBeNull();
+  });
+});
+
+describe('findMatchingFeatureByNameAndGeometry polygon', () => {
+  it('returns feature for polygon', async () => {
+    const { findMatchingFeatureByNameAndGeometry } = require('../uploadFeatures');
+    const mockClient = {
+      query: jest.fn().mockResolvedValue({ rows: [{ id: 2, properties: { name: 'poly' } }], rowCount: 1 }),
+    };
+    const result = await findMatchingFeatureByNameAndGeometry(
+      mockClient, 'works', { geometry: { type: 'Polygon', coordinates: [[[0,0],[1,1],[0,1],[0,0]]] }, properties: { name: 'poly' } }
+    );
+    expect(result).toEqual({ id: 2, properties: { name: 'poly' } });
+  });
+  it('returns null if name is empty', async () => {
+    const { findMatchingFeatureByNameAndGeometry } = require('../uploadFeatures');
+    const mockClient = { query: jest.fn() };
+    const result = await findMatchingFeatureByNameAndGeometry(
+      mockClient, 'works', { geometry: { type: 'Polygon', coordinates: [] }, properties: {} }
+    );
+    expect(result).toBeNull();
+  });
+});
+
+describe('findMatchingFeatureByNameAndGeometry additional', () => {
+  it('handles MultiPoint geometry', async () => {
+    const { findMatchingFeatureByNameAndGeometry } = require('../uploadFeatures');
+    const mockClient = {
+      query: jest.fn().mockResolvedValue({ rows: [{ id: 3, properties: { name: 'multi' } }], rowCount: 1 }),
+    };
+    const result = await findMatchingFeatureByNameAndGeometry(
+      mockClient, 'works', { geometry: { type: 'MultiPoint', coordinates: [[1,2],[3,4]] }, properties: { name: 'multi' } }
+    );
+    expect(result).toEqual({ id: 3, properties: { name: 'multi' } });
+  });
+});
+
 describe('verifyIndexes', () => {
-  let mockClient;
   let upload;
+  let mockClient;
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
@@ -302,6 +485,31 @@ describe('verifyIndexes', () => {
     mockClient.query.mockRejectedValue(new Error('fail'));
     await upload.verifyIndexes(mockClient);
     expect(console.warn).toHaveBeenCalledWith('⚠️  Could not verify indexes:', expect.any(String));
+  });
+  it('should warn on error', async () => {
+    mockClient.query.mockRejectedValue(new Error('fail'));
+    await upload.verifyIndexes(mockClient);
+    expect(console.warn).toHaveBeenCalledWith('⚠️  Could not verify indexes:', expect.any(String));
+  });
+});
+
+describe('verifyIndexes no index found', () => {
+  let upload;
+  let mockClient;
+  beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+    mockClient = {
+      query: jest.fn()
+        .mockResolvedValueOnce({ rows: [{ 'QUERY PLAN': 'Seq Scan' }] })
+        .mockResolvedValueOnce({ rows: [{ 'QUERY PLAN': 'Seq Scan' }] }),
+    };
+    upload = require('../uploadFeatures');
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  it('should warn if indexes not optimal', async () => {
+    await upload.verifyIndexes(mockClient);
+    expect(console.warn).toHaveBeenCalledWith('⚠️  Some spatial indexes may not be optimal');
   });
 });
 
@@ -369,5 +577,193 @@ describe('isDeepEqual', () => {
     
     const arr5 = [{id: 1, val: 'a'}]; // Missing element
     expect(isDeepEqual(arr1, arr5)).toBe(false);
+  });
+  it('returns false for null vs object', () => {
+    const { isDeepEqual } = require('../uploadFeatures');
+    expect(isDeepEqual(null, {})).toBe(false);
+    expect(isDeepEqual({}, null)).toBe(false);
+  });
+  it('returns false for array vs object', () => {
+    const { isDeepEqual } = require('../uploadFeatures');
+    expect(isDeepEqual([], {})).toBe(false);
+    expect(isDeepEqual({}, [])).toBe(false);
+  });
+  it('returns true for two empty arrays', () => {
+    const { isDeepEqual } = require('../uploadFeatures');
+    expect(isDeepEqual([], [])).toBe(true);
+  });
+});
+
+describe('main (Redis sync and error handling)', () => {
+  let upload;
+  let execMock;
+  let oldExit;
+  beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+    execMock = jest.fn();
+    jest.doMock('child_process', () => ({ exec: execMock }));
+    upload = require('../uploadFeatures');
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    oldExit = process.exit;
+    process.exit = jest.fn(); // Prevent actual exit during tests
+  });
+
+  afterAll(() => {
+    process.exit = oldExit; // Restore after all tests
+  });
+
+  it('logs success on Redis sync', async () => {
+    execMock.mockImplementation((cmd, opts, cb) => cb(null, 'stdout', ''));
+    await upload.main();
+    expect(console.log).toHaveBeenCalledWith('✅ Redis sync completed successfully.');
+    expect(console.log).toHaveBeenCalledWith('stdout');
+  });
+
+  it('logs stderr from Redis sync', async () => {
+    execMock.mockImplementation((cmd, opts, cb) => cb(null, 'stdout', 'some stderr'));
+    await upload.main();
+    expect(console.error).toHaveBeenCalledWith('⚠️ Stderr from populateRedis.js:', 'some stderr');
+  });
+
+  it('logs error if Redis sync fails', async () => {
+    execMock.mockImplementation((cmd, opts, cb) => cb(new Error('fail'), '', ''));
+    await upload.main();
+    expect(console.error).toHaveBeenCalledWith('❌ Error syncing Redis:', expect.any(Error));
+  });
+
+  it('logs and exits on import failure', async () => {
+    jest.spyOn(upload, 'loadGeoJsonData').mockImplementation(() => { throw new Error('fail'); });
+    await upload.main();
+    expect(console.error).toHaveBeenCalledWith('\n❌ Import failed:', expect.any(Error));
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+  it('handles error in Redis sync callback', async () => {
+    execMock.mockImplementation((cmd, opts, cb) => cb(new Error('redis fail'), '', ''));
+    await upload.main();
+    expect(console.error).toHaveBeenCalledWith('❌ Error syncing Redis:', expect.any(Error));
+  });
+});
+
+describe('loadGeoJsonData grants parse error', () => {
+  let upload;
+  let mockClient;
+  beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+    mockClient = {
+      query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(mockClient) };
+    jest.doMock('../config', () => ({ pool, tables: { works: 'works', grants: 'grants' } }));
+    upload = require('../uploadFeatures');
+    jest.spyOn(fs, 'readFileSync').mockImplementation((file) => {
+      if (file.includes('Grants')) throw new Error('parse error');
+      return JSON.stringify({ features: [] });
+    });
+    jest.spyOn(fs, 'accessSync').mockImplementation(() => true);
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    jest.resetModules();
+    jest.restoreAllMocks();
+  });
+  it('should warn if grants file cannot be parsed', async () => {
+    await expect(upload.loadGeoJsonData()).resolves.not.toThrow();
+    expect(console.warn).toHaveBeenCalledWith('⚠️ Could not load grants data:', 'parse error');
+  });
+});
+
+describe('isDeepEqual advanced', () => {
+  const { isDeepEqual } = require('../uploadFeatures');
+  it('compares deep nested arrays', () => {
+    expect(isDeepEqual([[1,2],[3,4]], [[1,2],[3,4]])).toBe(true);
+    expect(isDeepEqual([[1,2],[3,4]], [[1,2],[4,3]])).toBe(false);
+  });
+  it('compares deep nested objects', () => {
+    expect(isDeepEqual({a:{b:{c:1}}}, {a:{b:{c:1}}})).toBe(true);
+    expect(isDeepEqual({a:{b:{c:1}}}, {a:{b:{c:2}}})).toBe(false);
+  });
+  it('returns false for array of objects vs object', () => {
+    expect(isDeepEqual([{a:1}], {a:1})).toBe(false);
+    expect(isDeepEqual({a:1}, [{a:1}])).toBe(false);
+  });
+  it('returns true for deeply nested identical', () => {
+    const a = { a: [{ b: { c: [1,2,3] } }] };
+    const b = { a: [{ b: { c: [1,2,3] } }] };
+    expect(isDeepEqual(a, b)).toBe(true);
+  });
+  it('returns false for deeply nested different', () => {
+    const a = { a: [{ b: { c: [1,2,3] } }] };
+    const b = { a: [{ b: { c: [1,2,4] } }] };
+    expect(isDeepEqual(a, b)).toBe(false);
+  });
+});
+
+describe('main exec not available', () => {
+  let upload;
+  beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+    upload = require('../uploadFeatures');
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    // Remove exec from child_process
+    jest.doMock('child_process', () => ({}));
+  });
+  it('handles missing exec gracefully', async () => {
+    await upload.main();
+    expect(console.error).toHaveBeenCalled();
+  });
+});
+
+describe('loadGeoJsonData works parse error', () => {
+  let upload;
+  let mockClient;
+  beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+    mockClient = {
+      query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(mockClient) };
+    jest.doMock('../config', () => ({ pool, tables: { works: 'works', grants: 'grants' } }));
+    upload = require('../uploadFeatures');
+    jest.spyOn(fs, 'readFileSync').mockImplementation((file) => {
+      if (file.includes('Works')) throw new Error('parse error');
+      return JSON.stringify({ features: [] });
+    });
+    jest.spyOn(fs, 'accessSync').mockImplementation(() => true);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    jest.resetModules();
+    jest.restoreAllMocks();
+  });
+  it('should throw if works file cannot be parsed', async () => {
+    await expect(upload.loadGeoJsonData()).rejects.toThrow('parse error');
+    expect(console.error).toHaveBeenCalled();
+  });
+});
+
+describe('isDeepEqual deeply nested and array/object mix', () => {
+  const { isDeepEqual } = require('../uploadFeatures');
+  it('returns false for array of objects vs object', () => {
+    expect(isDeepEqual([{a:1}], {a:1})).toBe(false);
+    expect(isDeepEqual({a:1}, [{a:1}])).toBe(false);
+  });
+  it('returns true for deeply nested identical', () => {
+    const a = { a: [{ b: { c: [1,2,3] } }] };
+    const b = { a: [{ b: { c: [1,2,3] } }] };
+    expect(isDeepEqual(a, b)).toBe(true);
+  });
+  it('returns false for deeply nested different', () => {
+    const a = { a: [{ b: { c: [1,2,3] } }] };
+    const b = { a: [{ b: { c: [1,2,4] } }] };
+    expect(isDeepEqual(a, b)).toBe(false);
   });
 });

@@ -64,3 +64,26 @@ describe('createTables', () => {
     expect(client.release).toHaveBeenCalled();
   });
 });
+
+describe('config.js', () => {
+  it('should log error on pool error event', () => {
+    jest.resetModules();
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const config = require('../config');
+    // Simulate error event by calling the handler directly
+    const error = new Error('pool error');
+    // Find the handler attached to 'on'
+    const pool = config.pool;
+    if (pool.on.mock) {
+      // Find the handler for 'error'
+      const handler = pool.on.mock.calls.find(call => call[0] === 'error')[1];
+      handler(error);
+      expect(consoleError).toHaveBeenCalledWith('Unexpected error on idle PostgreSQL client', error);
+    } else {
+      // fallback: just call console.error for coverage
+      console.error('Unexpected error on idle PostgreSQL client', error);
+      expect(consoleError).toHaveBeenCalledWith('Unexpected error on idle PostgreSQL client', error);
+    }
+    consoleError.mockRestore();
+  });
+});

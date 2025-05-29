@@ -1,3 +1,14 @@
+/**
+ * @file fetchFeatures.test.js
+ * @description Tests for fetchFeatures.js including:
+ *   - Feature fetching and processing
+ *   - File and database error handling
+ *   - Coordinate structure description
+ *   - Save and process logic
+ *
+ * Includes edge cases and mocks for robust backend feature import.
+ */
+
 // --- Pool mock setup ---
 const mockPool = {
   query: jest.fn(),
