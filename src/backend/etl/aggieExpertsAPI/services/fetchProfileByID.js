@@ -68,7 +68,7 @@ async function getExpertData(expertId, worksLimit = 5, grantsLimit = 5) {
 
     // Debug: print returned data
     // Remove or comment out after debugging
-    console.log('getExpertData result:', JSON.stringify(result, null, 2));
+    // console.log('getExpertData result:', JSON.stringify(result, null, 2));
 
     return result;
 
