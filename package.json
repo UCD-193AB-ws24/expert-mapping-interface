@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@types/pg": "^8.11.11",
-    "axios": "^1.8.4",
+    "axios": "^0.27.2",
     "dotenv": "^16.5.0",
     "fastest-levenshtein": "^1.0.16",
     "fuse.js": "^7.1.0",
@@ -23,12 +23,12 @@
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
-  "proxy": "http://localhost:3001",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:backend": "jest src/backend"
   },
   "repository": {
     "type": "github",
