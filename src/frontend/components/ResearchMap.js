@@ -60,6 +60,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   const [locationMapsCache, setLocationMapsCache] = useState({}); // { [zoomLevel]: { ...maps } }
   const [currentLocationMaps, setCurrentLocationMaps] = useState(null);
 
+  
   // Fetch raw maps data from Redis on mount
   useEffect(() => {
     const fetchRawMaps = async () => {
@@ -81,6 +82,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     fetchRawMaps();
   }, []);
 
+
+    
   /**
    * useEffect: Attach a zoom event listener to the map.
    * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
@@ -105,25 +108,23 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     };
   }, [mapRef.current]);
 
-
-  // Fetch and process location maps based on zoom level and toggles
-  useEffect(() => {
-    // Helper to determine map type by zoom
     const getMapType = () => {
       if (zoomLevel >= 2 && zoomLevel <= 3) return "CountryLevelMaps";
-      if (zoomLevel == 4) return "StateLevelMaps";
-      if (zoomLevel == 5) return "CountyLevelMaps";
-      if (zoomLevel == 6) return "CityLevelMaps";
-      if (zoomLevel >= 7) return "ExactLevelMaps";
+      if (zoomLevel === 4) return "StateLevelMaps";
+      if (zoomLevel >= 5 && zoomLevel <= 7) return "CountyLevelMaps";
+      if (zoomLevel >= 8 && zoomLevel <= 10) return "CityLevelMaps";
+      if (zoomLevel >= 11) return "ExactLevelMaps";
       return null;
     };
-
+  
+  // Fetch and process location maps based on zoom level and toggles
+  useEffect(() => {
     const mapType = getMapType();
     if (!mapType) {
       console.warn("[DEBUG] No mapType determined for zoomLevel:", zoomLevel);
       return;
     }
-
+    
     // Decide which API endpoints to call for each layer type
     // - worksMap: always nonoverlap
     // - grantsMap: always nonoverlap
@@ -175,6 +176,8 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     fetchMaps();
   }, [zoomLevel, showWorks, showGrants]);
 
+  const mapType = getMapType();
+  const mapLevel = mapType ? mapType.replace("LevelMaps", "") : "";
   
   const workLayerLocations = currentLocationMaps?.workLayerMap || {};
   const grantLayerLocations = currentLocationMaps?.grantLayerMap || {};
@@ -288,10 +291,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   const finalFilteredWorkLayerLocations = { ...filteredWorkLayerLocations, ...movedToWorkLayer };
   const finalFilteredGrantLayerLocations = { ...filteredGrantLayerLocations, ...movedToGrantLayer };
 
-  console.log(Object.keys(finalFilteredWorkLayerLocations).length, "workLayerLocations after filtering");
-  console.log(Object.keys(finalFilteredGrantLayerLocations).length, "grantLayerLocations after filtering");
-  console.log(Object.keys(filteredCombinedLocations).length, "combinedLocations after filtering");
-
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
@@ -325,9 +324,29 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           Reset View
         </button>
 
-
-        <MapWrapper mapRef={mapRef}>
-          {/* Combined location layer */}
+        {/* Zoom Level Indicator */}
+          {mapLevel && (
+              <div className="zoom-level-indicator" 
+                style={{
+                  position: "absolute",
+                  top: "20px",
+                  left: "50px",
+                  zIndex: 1001,
+                  background: "rgba(255,255,255,0.80)", // slightly less opaque
+                  padding: "6px 16px",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  color: "#3879C7",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
+                }}
+              >
+                {mapLevel && `${mapLevel} Level`}
+              </div>
+            )}
+            
+          <MapWrapper mapRef={mapRef}>
+            {/* Combined location layer */}
           {(showWorks && showGrants) && (
             <CombinedLayer
               searchKeyword={searchKeyword}

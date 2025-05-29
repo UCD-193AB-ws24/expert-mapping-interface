@@ -321,6 +321,7 @@ const renderPoints = ({
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
+      expertCount: filteredExpertIDs.length,
     });
 
     let grantPointPopup = null;
