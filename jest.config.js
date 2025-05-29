@@ -15,6 +15,9 @@ module.exports = {
 
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-  }
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!axios).+\\.js$'
+  ],
 };
 // This configuration allows test files up to 3 levels deep in src/ and its subdirectories

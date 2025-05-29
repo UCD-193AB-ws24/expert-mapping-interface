@@ -15,7 +15,6 @@ require('dotenv').config();
 const axios = require('axios');
 
 // API token setup
-const API_TOKEN = 'Bearer ' + process.env.API_TOKEN;
 
 /**
  * Makes a GET request to the Aggie Experts API
@@ -56,6 +55,5 @@ async function postRequestApi(url, params, headers = {}) {
 
 module.exports = {
   fetchFromApi,
-  postRequestApi,
-  API_TOKEN
+  postRequestApi
 };

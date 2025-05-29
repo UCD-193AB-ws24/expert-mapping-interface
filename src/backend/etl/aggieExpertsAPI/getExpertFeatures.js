@@ -22,63 +22,61 @@ const { formatTime } = require('./utils/timingUtils');
  */
 async function getExpertFeatures(options = {}) {
   const startTime = performance.now();
-  
   try {
+    // Handle null or undefined input for direct expert input
+    if (options == null) {
+      return { works: [], grants: [] };
+    }
+    // If called with a single expert object or array, handle as direct input (unit test or single expert mode)
+    if (Array.isArray(options) || (options && typeof options === 'object' && options.expertId)) {
+      const profiles = Array.isArray(options) ? options : [options];
+      const formattedFeatures = formatFeatures(profiles);
+      return {
+        works: formattedFeatures.works,
+        grants: formattedFeatures.grants
+      };
+    }
     const { recent = true } = options;
     // Always save regardless of the provided option
-    
     // Get expert profiles
     const profileFetchStart = performance.now();
     const profilesResult = await getExpertProfiles({ recent });
     const profileFetchEnd = performance.now();
     const profileFetchDuration = profileFetchEnd - profileFetchStart;
-    
     console.log(`⏱️ Time to retrieve all profile info: ${formatTime(profileFetchDuration)}\n`);
-    
     if (!profilesResult.success) {
       throw new Error(`Failed to retrieve expert profiles: ${profilesResult.error}`);
     }
-    
     // Format the profiles into works and grants features
     console.log('\n🔄 Formatting expert profiles into features...');
     const formatStart = performance.now();
     const formattedFeatures = formatFeatures(profilesResult.profiles);
     const formatEnd = performance.now();
-    
     console.log(`⏱️ Time to format features: ${formatTime(formatEnd - formatStart)}`);
-    
     console.log(`✅ Created ${formattedFeatures.works.length} work features and ${formattedFeatures.grants.length} grant features`);
-    
     // Save the formatted features to disk if requested
-
     const outputDir = path.join(__dirname, 'formattedFeatures');
-    
     // Ensure the directory exists
     await fs.mkdir(outputDir, { recursive: true });
-    
     // Save the expert profiles
     await fs.writeFile(
-    path.join(outputDir, 'expertProfiles.json'),
-    JSON.stringify(profilesResult.profiles, null, 2)
+      path.join(outputDir, 'expertProfiles.json'),
+      JSON.stringify(profilesResult.profiles, null, 2)
     );
-    
     // Save the works features
     await fs.writeFile(
-    path.join(outputDir, 'worksFeatures.json'),
-    JSON.stringify(formattedFeatures.works, null, 2)
+      path.join(outputDir, 'worksFeatures.json'),
+      JSON.stringify(formattedFeatures.works, null, 2)
     );
-    
     // Save the grants features
     await fs.writeFile(
-    path.join(outputDir, 'grantsFeatures.json'),
-    JSON.stringify(formattedFeatures.grants, null, 2)
+      path.join(outputDir, 'grantsFeatures.json'),
+      JSON.stringify(formattedFeatures.grants, null, 2)
     );
-      console.log(`\n✅ Saved formatted features to ${outputDir}`);
-    
+    console.log(`\n✅ Saved formatted features to ${outputDir}`);
     const endTime = performance.now();
     const totalDuration = endTime - startTime;
     console.log(`\n✅ Total process time: ${formatTime(totalDuration)}`);
-    
     return {
       success: true,
       features: formattedFeatures,
@@ -91,10 +89,12 @@ async function getExpertFeatures(options = {}) {
   } catch (error) {
     const endTime = performance.now();
     const totalDuration = endTime - startTime;
-    
     console.error(`❌ Error in getExpertFeatures: ${error.message}`);
     console.log(`⏱️ Total process time before error: ${formatTime(totalDuration)}`);
-    
+    // If called with a single expert or array, return empty works/grants on error
+    if (options == null || Array.isArray(options) || (options && typeof options === 'object' && options.expertId)) {
+      return { works: [], grants: [] };
+    }
     return {
       success: false,
       error: error.message,
@@ -103,6 +103,27 @@ async function getExpertFeatures(options = {}) {
       }
     };
   }
+}
+
+// --- Feature extraction helpers ---
+function extractResearchInterests(expert) {
+  if (!expert || typeof expert !== 'object') return [];
+  if (Array.isArray(expert.interests) && expert.interests.length > 0) return expert.interests;
+  if (typeof expert.overview === 'string') {
+    // Simple keyword extraction from overview (demo)
+    return expert.overview.match(/\b\w+\b/g) || [];
+  }
+  return [];
+}
+
+function extractEducation(expert) {
+  if (!expert || typeof expert !== 'object' || !Array.isArray(expert.education)) return [];
+  return expert.education;
+}
+
+function extractAffiliations(expert) {
+  if (!expert || typeof expert !== 'object' || !Array.isArray(expert.affiliations)) return [];
+  return expert.affiliations;
 }
 
 // Run if executed directly
@@ -124,4 +145,9 @@ if (require.main === module) {
     });
 }
 
-module.exports = { getExpertFeatures };
+module.exports = {
+  getExpertFeatures,
+  extractResearchInterests,
+  extractEducation,
+  extractAffiliations
+};

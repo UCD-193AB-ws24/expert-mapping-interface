@@ -1,4 +1,14 @@
 /**
+ * @file App.test.js
+ * @description Tests for the main App component, including:
+ *   - Rendering and UI logic
+ *   - User interaction and event handling
+ *   - Mocking of assets and browser APIs
+ *
+ * Uses jsdom environment for React component testing.
+ */
+
+/**
  * @jest-environment jsdom
  */
 

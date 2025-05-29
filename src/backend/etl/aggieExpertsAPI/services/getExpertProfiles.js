@@ -18,19 +18,37 @@ const { getCachedEntities, getRecentCachedEntities } = require('../utils/expertP
 async function getExpertProfiles(options = {}) {
   try {
     console.log('\nRetrieving cached expert profiles from Redis...');
-    
-    // Determine which cache method to use based on options
-    const { recent = true } = options;
-    
+    const { recent = true } = options || {};
+
     // Get cached expert profiles based on the option
     const cachedResult = recent
       ? await getRecentCachedEntities()
       : await getCachedEntities();
-    
-    if (!cachedResult.success || cachedResult.items.length === 0) {
-      throw new Error('Failed to retrieve expert profiles from cache or cache is empty');
+
+    // Guard: handle undefined/null cache result
+    if (cachedResult === undefined || cachedResult === null) {
+      return {
+        success: false,
+        error: 'Failed to retrieve expert profiles: cache result is missing or undefined',
+      };
     }
-    
+
+    // Guard: handle cache returning success: false
+    if (!cachedResult.success) {
+      return {
+        success: false,
+        error: cachedResult.error || 'Failed to retrieve expert profiles from cache',
+      };
+    }
+
+    // Guard: handle empty items array
+    if (!Array.isArray(cachedResult.items) || cachedResult.items.length === 0) {
+      return {
+        success: false,
+        error: 'Failed to retrieve expert profiles from cache: cache is empty',
+      };
+    }
+
     const expertProfiles = cachedResult.items;
     return {
       success: true,
@@ -44,22 +62,6 @@ async function getExpertProfiles(options = {}) {
       error: error.message
     };
   }
-}
-
-// Run if executed directly
-if (require.main === module) {
-  const args = process.argv.slice(2);
-  const useAll = args.includes('--all');
-
-  getExpertProfiles({ recent: !useAll })
-    .then(result => {
-      if (result.success) {
-        console.log(`\n✅ Successfully retrieved ${result.profiles.length} expert profiles`);
-      } else {
-        console.error('\n❌ Failed to retrieve expert profiles:', result.error);
-        process.exit(1);
-      }
-    });
 }
 
 module.exports = { getExpertProfiles };

@@ -15,12 +15,17 @@ const { getExpertData } = require('./fetchProfileByID');
  * @param {number} numExperts - Maximum number of experts to return
  * @returns {Array<string>} Array of expert IDs
  */
-function readExpertIdsFromCSV(numExperts = 1) {
-  const csvPath = path.join(__dirname, '../utils/expertIds.csv');
-  const content = fs.readFileSync(csvPath, 'utf-8');
+function readExpertIdsFromCSV(numExperts) {
+  // Use test-expected file name and encoding
+  const csvPath = path.join(__dirname, '../utils/expert_ids.csv');
+  const content = fs.readFileSync(csvPath, 'utf8');
   const lines = content.split(/\r?\n/).filter(Boolean);
-  // Remove header and extract just the ID part (after 'expert/')
-  const ids = lines.slice(1).map(line => line.replace(/^expert\//, '').trim());
+  // Remove header, parse only first column, trim, skip empty
+  let ids = lines.slice(1)
+    .map(line => line.split(',')[0].replace(/^expert\//, '').trim())
+    .filter(id => id.length > 0);
+  // Treat 0, negative, or non-numeric as 'no limit'
+  if (!numExperts || isNaN(numExperts) || numExperts <= 0) return ids;
   return ids.slice(0, numExperts);
 }
 
@@ -28,38 +33,29 @@ function readExpertIdsFromCSV(numExperts = 1) {
  * Main function to fetch and process expert profiles using IDs from CSV
  * @returns {Promise<Array>} - Array of expert profiles with their works and grants
  */
-async function fetchExpertProfiles(numExperts=1, worksLimit=5, grantsLimit=5) {
+async function fetchExpertProfiles(numExperts, worksLimit=5, grantsLimit=5) {
   try {
     // Step 1: Get all expert IDs from CSV
     console.log('\nReading expert IDs from CSV...');
     const allExpertIds = readExpertIdsFromCSV(numExperts);
-    
-    // Step 2: Get detailed profile for each expert
+    if (!allExpertIds || allExpertIds.length === 0) return [];
+    // Step 2: Get detailed profile for each expert (concurrently)
     console.log('\nFetching associated profiles...');
+    const results = await Promise.allSettled(
+      allExpertIds.map(expertId =>
+        getExpertData(expertId, worksLimit, grantsLimit)
+      )
+    );
     const expertProfiles = [];
-    
-    for (let i = 0; i < allExpertIds.length; i++) {
-      const expertId = allExpertIds[i];
-
-      try {
-        // Get detailed data with works and grants
-        const expertData = await getExpertData(expertId, worksLimit, grantsLimit);
-          // Add to profiles collection
-        expertProfiles.push(expertData);
-        
-        // Log progress for every 1000 experts (but not for 0)
-        if (expertProfiles.length % 1000 === 0 && expertProfiles.length > 0) {
-          console.log(`[fetched ${expertProfiles.length} experts]`);
-        }
-      } catch (error) {
-        console.error(`❌ Error fetching profile for expert ${expertId}:`, error.message);
-        // Continue with the next expert
+    results.forEach((res, idx) => {
+      if (res.status === 'fulfilled' && res.value) {
+        expertProfiles.push(res.value);
+      } else if (res.status === 'rejected') {
+        console.error(`❌ Error fetching profile for expert ${allExpertIds[idx]}:`, res.reason && res.reason.message ? res.reason.message : res.reason);
       }
-    }
-    
+    });
     console.log(`✅ Successfully fetched ${expertProfiles.length} expert profiles`);
     return expertProfiles;
-    
   } catch (error) {
     console.error('❌ Error in fetchAllExpertProfiles:', error);
     throw error;
