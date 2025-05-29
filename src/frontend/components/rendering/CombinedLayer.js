@@ -155,6 +155,7 @@ const renderPolygons = ({
         '>${totalExpertCount || 0}</div>`,
         className: "polygon-center-marker",
         iconSize: [30, 30],
+        expertCount: totalExpertCount,
       }),
     }).addTo(map);
 
@@ -719,6 +720,7 @@ const CombinedLayer = ({
     // if(!searchKeyword){
     //   console.warn("CombinedLayer: No searchKeyword provided.");
     // }
+
     // Create a marker cluster group for combined markers
     const comboMarkerGroup = L.markerClusterGroup({
       showCoverageOnHover: false,

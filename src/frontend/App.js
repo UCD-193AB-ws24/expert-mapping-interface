@@ -251,8 +251,19 @@ function App() {
                 <div>
                   <h3 className="text-base font-bold text-[#022851] mb-2">Map Features</h3>
                   <ul className="list-disc list-inside space-y-1">
-                    <li><strong>Number markers</strong> show how many entries are linked to that place.</li>
+                    <li><strong>Number markers</strong> show how many experts have works/grants linked to that place.</li>
                     <li><strong>Confidence score</strong> shows how confident the system is in mapping the extracted geographic name to the corresponding location.</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#022851] mb-2">Zoom Filter</h3>
+                  <p>Filters the data based on the specificity of location.</p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Country Level: Shows all works/grants within the selected country.</li>
+                    <li>State/Province Level: Shows works/grants specific to the selected state or province.</li>
+                    <li>County Level: Shows works/grants specific to the selected county.</li>
+                    <li>City Level: Shows works/grants specific to the selected city.</li>
+                    <li>Exact Level: Shows works/grants at exact locations, such as specific buildings or institutions.</li>
                   </ul>
                 </div>
                 <div>
