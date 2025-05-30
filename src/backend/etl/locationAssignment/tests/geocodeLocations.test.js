@@ -28,7 +28,6 @@ jest.mock('dotenv', () => ({
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const rewire = require('rewire');
 
 jest.mock('fs');
 

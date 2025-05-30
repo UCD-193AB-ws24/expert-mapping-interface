@@ -27,7 +27,6 @@ jest.mock('dotenv', () => ({
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const rewire = require('rewire');
 
 jest.mock('axios', () => ({
   get: jest.fn(() => Promise.resolve({ data: [] })),
@@ -61,13 +60,6 @@ Groq.mockImplementation(() => mockGroq);
 const { validateAllWorks, validateAllGrants } = require('../processing/validateLocations');
 
 describe('validateLocations', () => {
-  let rewiredModule;
-
-  beforeAll(() => {
-    // Load the module with rewire after mocking the constructors
-    rewiredModule = rewire('../processing/validateLocations');
-  });
-
   beforeEach(() => {
     jest.clearAllMocks();
 

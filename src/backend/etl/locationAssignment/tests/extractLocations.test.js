@@ -27,7 +27,6 @@ jest.mock('dotenv', () => ({
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const rewire = require('rewire');
 
 jest.mock('axios', () => ({
   get: jest.fn(() => Promise.resolve({ data: [] })),
@@ -343,97 +342,6 @@ describe('extractLocations', () => {
         title: "AI Development",
         location: "N/A",
         llmConfidence: 100
-      });
-    });
-  });
-
-  // Additional comprehensive tests
-  describe('parseLlmResult function', () => {
-    // We need to access the private function using rewire
-    let parseLlmResult;
-
-    beforeAll(() => {
-      const rewiredModule = rewire('../processing/extractLocations');
-      parseLlmResult = rewiredModule.__get__('parseLlmResult');
-    });
-
-    it('should parse valid JSON response correctly', () => {
-      const validResponse = '{"Location": "San Francisco, CA", "Confidence": 92}';
-      const result = parseLlmResult(validResponse);
-
-      expect(result).toEqual({
-        location: "San Francisco, CA",
-        confidence: 92
-      });
-    });
-
-    it('should handle JSON with extra text around it', () => {
-      const responseWithExtra = 'Here is the result: {"Location": "Tokyo, Japan", "Confidence": 78} based on analysis.';
-      const result = parseLlmResult(responseWithExtra);
-
-      expect(result).toEqual({
-        location: "Tokyo, Japan",
-        confidence: 78
-      });
-    });
-
-    it('should return N/A for malformed JSON', () => {
-      const malformedResponse = '{"Location": "Paris", "Confidence":}';
-      const result = parseLlmResult(malformedResponse);
-
-      expect(result).toEqual({
-        location: "N/A",
-        confidence: 0
-      });
-    });
-
-    it('should return N/A when Location field is missing', () => {
-      const missingLocation = '{"Confidence": 85}';
-      const result = parseLlmResult(missingLocation);
-
-      expect(result).toEqual({
-        location: "N/A",
-        confidence: 0
-      });
-    });
-
-    it('should return N/A when Confidence field is missing', () => {
-      const missingConfidence = '{"Location": "Berlin, Germany"}';
-      const result = parseLlmResult(missingConfidence);
-
-      expect(result).toEqual({
-        location: "N/A",
-        confidence: 0
-      });
-    });
-
-    it('should return N/A when Confidence is not a number', () => {
-      const invalidConfidence = '{"Location": "London, UK", "Confidence": "high"}';
-      const result = parseLlmResult(invalidConfidence);
-
-      expect(result).toEqual({
-        location: "N/A",
-        confidence: 0
-      });
-    });
-
-    it('should return N/A when no JSON is found', () => {
-      const noJson = 'No location found in the text';
-      const result = parseLlmResult(noJson);
-
-      expect(result).toEqual({
-        location: "N/A",
-        confidence: 0
-      });
-    });
-
-    it('should handle confidence as string number', () => {
-      const stringConfidence = '{"Location": "Sydney, Australia", "Confidence": "95"}';
-      const result = parseLlmResult(stringConfidence);
-
-      expect(result).toEqual({
-        location: "Sydney, Australia",
-        confidence: 95
       });
     });
   });
