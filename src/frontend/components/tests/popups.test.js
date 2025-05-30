@@ -3,7 +3,6 @@ import {
     createMultiExpertContent,
     createMultiGrantPopup,
     createCombinedPopup,
-    createMatchedCombinedPolygonPopup,
   } from "../rendering/Popups";
   
   describe("Popups utility functions", () => {
@@ -39,7 +38,7 @@ import {
           relatedExperts: [{ name: "Test Expert", url: "http://example.com" }],
         },
       ]);
-      expect(result).toContain("Unknown"); // fallback for confidence
+      expect(result).toContain("Unknown"); 
     });
     
 
@@ -52,7 +51,7 @@ import {
       ];
       const result = createSingleExpertContent("Nowhere", entries);
       expect(result).toContain("Low");
-      expect(result).toContain("#c62828"); // red color for low confidence
+      expect(result).toContain("#c62828"); 
     });
     
     
@@ -83,79 +82,68 @@ import {
         expect(result).toContain("Location:</strong> Unknown");
       });
 
-      // it("shows singular version of expert/grant count in all popups", () => {
-      //   const singleMulti = createMultiExpertContent(1, "Test", 1);
-      //   const singleGrant = createMultiGrantPopup(1, 1, "Test");
-      //   const singleCombined = createCombinedPopup(1, 1, "Test");
-      //   const singlePolygon = createMatchedCombinedPolygonPopup(1, 1, "Test");
+      it("generates correct HTML for combined popup", () => {
+        const works2ExpertCount = { work1: 2, work2: 1 };
+        const grants2ExpertCount = { grant1: 1 };
+        const locationName = "Sample Location";
+        const totalWorks = 2;
+        const totalGrants = 1;
+        const combinedExpertCount = 3;
       
-      //   expect(singleMulti).toContain("1 Expert at this Location");
-      //   expect(singleGrant).toContain("1 Expert at this Location");
-      //   expect(singleCombined).toContain("1</strong> Expert with Works");
-      //   expect(singleCombined).toContain("1</strong> Expert with Grants");
-      //   expect(singlePolygon).toContain("1</strong> Expert with Works");
-      //   expect(singlePolygon).toContain("1</strong> Expert with Grants");
-      // });
+        const result = createCombinedPopup(
+          works2ExpertCount,
+          grants2ExpertCount,
+          locationName,
+          totalWorks,
+          totalGrants,
+          combinedExpertCount
+        );
+      
+        expect(result).toContain("Sample Location");
+        expect(result).toContain("3 Expert");
+        expect(result).toContain("Related Works:</strong> 2");
+        expect(result).toContain("Related Grant:</strong> 1");
+        expect(result).toContain("Open Panel");
+      });
+      
+      it("generates correct popup for a single expert", () => {
+        const result = createMultiExpertContent(1, "SoloCity", 1);
+        expect(result).toContain("1 Expert in SoloCity");
+        expect(result).toContain("Related Works:</strong> 1");
+        expect(result).toContain("View Expert"); 
 
-    // Test for createMultiExpertContent
-    // it("generates correct HTML for multiple experts", () => {
-    //   const expertCount = 3;
-    //   const locationName = "Test Location";
-    //   const totalWorks = 5;
-  
-    //   const result = createMultiExpertContent(expertCount, locationName, totalWorks);
-    //   expect(result).toContain("3 Experts at this Location");
-    //   expect(result).toContain("Test Location");
-    //   expect(result).toContain("5");
-    //   expect(result).toContain("View Experts");
-    // });
-  
-    // Test for createMultiGrantPopup
-    // it("generates correct HTML for multiple grants", () => {
-    //   const expertCount = 2;
-    //   const grantCount = 4;
-    //   const locationName = "Test Location";
-  
-    //   const result = createMultiGrantPopup(expertCount, grantCount, locationName);
-    //   expect(result).toContain("2 Experts at this Location");
-    //   expect(result).toContain("Test Location");
-    //   expect(result).toContain("4");
-    //   expect(result).toContain("View Experts");
-    // });
-  
-    // Test for createCombinedPopup
-    // it("generates correct HTML for combined popup", () => {
-    //     const works2ExpertCount = 2;
-    //     const grants2ExpertCount = 3;
-    //     const locationName = "Test Location";
-    //     const matchedFields = ["field1", "field2"];
+      });
       
-    //     const result = createCombinedPopup(works2ExpertCount, grants2ExpertCount, locationName, matchedFields);
-    //     expect(result).toMatch(/<strong>2<\/strong> Experts with Works/);
-    //     expect(result).toMatch(/<strong>3<\/strong> Experts with Grants/);
-    //     expect(result).toContain("Test Location");
-    //     expect(result).toContain("🔍 Match found");
-    //     expect(result).toContain("Open Panel");
-    //   });
-  
-      // it("handles 0 experts and undefined location in createMatchedCombinedPolygonPopup", () => {
-      //   const result = createMatchedCombinedPolygonPopup(0, 0, undefined);
-      //   expect(result).toContain("<strong>0</strong> Experts with Works");
-      //   expect(result).toContain("<strong>0</strong> Experts with Grants");
-      //   expect(result).toContain("Location:</strong> undefined");
-      // });
+      it("generates correct popup for multiple experts", () => {
+        const result = createMultiExpertContent(3, "MultiTown", 5);
+        expect(result).toContain("3 Experts in MultiTown");
+        expect(result).toContain("Related Works:</strong> 5");
+        expect(result).toContain("View Experts"); 
+      });
       
+      it("generates correct popup for a single grant expert", () => {
+        const result = createMultiGrantPopup(1, 1, "GrantVille");
+        expect(result).toContain("1 Expert in GrantVille");
+        expect(result).toContain("Related Grants:</strong> 1");
+        expect(result).toContain("View Expert"); 
+      });
       
-    // Test for createMatchedCombinedPolygonPopup
-    // it("generates correct HTML for matched combined polygon popup", () => {
-    //     const works2ExpertCount = 1;
-    //     const grants2ExpertCount = 2;
-    //     const locationName = "Test Location";
+      it("generates correct popup for multiple grant experts", () => {
+        const result = createMultiGrantPopup(2, 4, "Grantopolis");
+        expect(result).toContain("2 Experts in Grantopolis");
+        expect(result).toContain("Related Grants:</strong> 4");
+        expect(result).toContain("View Experts"); 
+      });
       
-    //     const result = createMatchedCombinedPolygonPopup(works2ExpertCount, grants2ExpertCount, locationName);
-    //     expect(result).toMatch(/<strong>1<\/strong> Expert with Works/);
-    //     expect(result).toMatch(/<strong>2<\/strong> Experts with Grants/);
-    //     expect(result).toContain("Test Location");
-    //     expect(result).toContain("Open Panel");
-    //   });
+      it("renders plural for multiple works and grants in combined popup", () => {
+        const html = createCombinedPopup({}, {}, "Testville", 2, 3, 5);
+        expect(html).toContain("Related Works:");
+        expect(html).toContain("Related Grants:");
+      });
+      
+      it("renders singular for single work and grant in combined popup", () => {
+        const html = createCombinedPopup({}, {}, "Testville", 1, 1, 1);
+        expect(html).toContain("Related Work:");
+        expect(html).toContain("Related Grant:");
+      });
   });
