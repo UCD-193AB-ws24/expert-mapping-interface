@@ -55,6 +55,7 @@ function App() {
   const resetFilters = () => {
     setShowGrants(true);
     setShowWorks(true);
+    setInputValue("");
     setSearchKeyword("");
     setSelectedDateRange([1990, 2025]);
   }

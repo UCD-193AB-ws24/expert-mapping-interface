@@ -231,7 +231,7 @@ describe("GrantsPanel", () => { //grants panel tests
     const mockWorks = [{ name: "Grant Expert", works: [], location: "Testland" }];
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
 
-    fireEvent.click(screen.getByText("Grants (1)"));  // Switch to grants tab
+    fireEvent.click(screen.getByText("Grants (2)"));  // Switch to grants tab
 
     const toggleBtn = screen.getByText("Show More Grants"); // Find the toggle button
     fireEvent.click(toggleBtn);
@@ -477,7 +477,7 @@ describe("CombinedPanel", () => { //combined panel tests
     expect(screen.getAllByText(/ecology/i).length).toBeGreaterThan(0);
 
     // Switch to grants and expand extra grants
-    fireEvent.click(screen.getByText(/Grants \(1\)/i));
+    fireEvent.click(screen.getByText(/Grants \(2\)/i));
     fireEvent.click(screen.getByText(/Show More Grants/i));
     expect(screen.getAllByText(/Matched on:/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Grant B/i).length).toBeGreaterThan(0);
@@ -582,7 +582,7 @@ describe("CombinedPanel", () => { //combined panel tests
     ];
 
     render(<CombinedPanel works={mockWorks} grants={mockGrants} onClose={() => { }} />);
-    fireEvent.click(screen.getByText("Grants (1)"));  // Switch to grants tab
+    fireEvent.click(screen.getByText("Grants (2)"));  // Switch to grants tab
     fireEvent.click(screen.getByText("Show More Grants"));  // Expand additional grants
 
     const matches = screen.getAllByText((_, el) =>
