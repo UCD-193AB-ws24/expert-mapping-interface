@@ -35,6 +35,28 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
     const nonOverlappingWorks = [];
     const nonOverlappingGrants = [];
 
+    function addCountrySubfeatures(groupMap, allFeatures) {
+        // Find all locations that are "overall" country locations
+        groupMap.forEach((features, locationName) => {
+            // Check if any feature in this group has location === country
+            const isCountryLocation = features.some(
+                f => f.properties.location && f.properties.country && f.properties.location === f.properties.country
+            );
+            if (!isCountryLocation) return;
+
+            // Find all features in allFeatures whose country matches this locationName and location != country
+            const subFeatures = allFeatures.filter(
+                f =>
+                    f.properties.country === locationName &&
+                    f.properties.location !== locationName // Only sub-locations
+            );
+            // Add these subFeatures to the group
+            subFeatures.forEach(f => {
+                if (!features.includes(f)) features.push(f);
+            });
+        });
+    }
+
     // Collect work polygons by location
     workGeoJSON.features.forEach(feature => {
         if (feature.geometry.type === "Polygon") {
@@ -105,6 +127,12 @@ export const splitFeaturesByLocation = (workGeoJSON, grantGeoJSON, showWorks, sh
             nonOverlappingGrants.push({ location, grantsFeatures });
         }
     });
+    
+    // After collecting all features, add sub-features to "overall" country locations
+    addCountrySubfeatures(workPolygons, workGeoJSON.features.filter(f => f.geometry.type === "Polygon"));
+    addCountrySubfeatures(grantPolygons, grantGeoJSON.features.filter(f => f.geometry.type === "Polygon"));
+    addCountrySubfeatures(workPoints, workGeoJSON.features.filter(f => f.geometry.type !== "Polygon"));
+    addCountrySubfeatures(grantPoints, grantGeoJSON.features.filter(f => f.geometry.type !== "Polygon"));
 
     // Return data dynamically based on flags
     return {

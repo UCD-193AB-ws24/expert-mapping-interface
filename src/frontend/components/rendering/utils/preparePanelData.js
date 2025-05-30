@@ -2,7 +2,7 @@
 export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap, locationID, locationName) => {
   // Process experts
   return expertIDs.map((expertID) => {
-    const expert = expertsMap[expertID];
+    const expert = expertsMap.get(expertID);
     if (!expert) {
       console.warn(`Expert with ID ${expertID} not found in expertsMap.`);
       return null;
@@ -16,7 +16,7 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
     // Find grants associated with this expert and the current location
     const associatedGrants = grantIDs
       .map((grantID) => {
-        const grant = grantsMap[grantID];
+        const grant = grantsMap.get(grantID);
         if (!grant) {
           // console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
           return null;
@@ -63,7 +63,7 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
 
 export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, locationID, locationName) => {
   return expertIDs.map((expertID) => {
-    const expert = expertsMap[expertID];
+    const expert = expertsMap.get(expertID);
     if (!expert) return null;
 
     // Defensive: check if expert.url exists and is a string
@@ -78,7 +78,7 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
 
     // Find works associated with this expert and the current location
     const associatedWorks = workIDs
-      .map((workID) => worksMap[workID])
+      .map((workID) => worksMap.get(workID))
       .filter(work => {
         if (!work) return false;
         if (!work.relatedExpertIDs) {

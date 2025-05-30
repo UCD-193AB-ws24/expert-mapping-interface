@@ -16,7 +16,7 @@
  * - renderPoints: Renders points on the map with clustering logic for locations with works.
  * - WorkLayer: Main component that integrates the rendering logic and manages map layers.
  *
- * Marina Mata, 2025
+ * Marina Mata, Alyssa Vallejo 2025
  */
 
 import { useEffect } from "react";
@@ -25,7 +25,7 @@ import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
 import { prepareWorkPanelData } from "./utils/preparePanelData";
-import { getMatchedFields } from "./filters/searchFilter";
+// import { getMatchedFields } from "./filters/searchFilter";
 
 /**
  * Renders polygons on the map for locations with works.
@@ -76,7 +76,7 @@ const renderPolygons = ({
 
     const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
     locationData.workIDs.some(workID => {
-      const work = worksMap[workID];
+      const work = worksMap.get(workID);
       return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
     })
   );
@@ -112,21 +112,21 @@ const renderPolygons = ({
     marker.on("mouseover", () => {
       if (workPolyCT) clearTimeout(workPolyCT);
 
-      const matchedFieldsSet = new Set();
-      // Collect matched fields from works and grants
-      locationData.workIDs.forEach((workID) => {
-        const work = worksMap[workID];
-        if (!work.matchedFields || work.matchedFields.length === 0) {
-          // Compute matchedFields if missing or empty
-          work.matchedFields = getMatchedFields(searchKeyword,work);
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-        if (work?.matchedFields) {
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
+      // const matchedFieldsSet = new Set();
+      // // Collect matched fields from works and grants
+      // locationData.workIDs.forEach((workID) => {
+      //   const work = worksMap[workID];
+      //   if (!work.matchedFields || work.matchedFields.length === 0) {
+      //     // Compute matchedFields if missing or empty
+      //     work.matchedFields = getMatchedFields(searchKeyword,work);
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      //   if (work?.matchedFields) {
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      // });
       
-      const matchedFields = Array.from(matchedFieldsSet);
+      // const matchedFields = Array.from(matchedFieldsSet);
       
       
       // Create content for the popup
@@ -134,8 +134,7 @@ const renderPolygons = ({
       const content = createMultiExpertContent(
         filteredExpertIDs.length,
         locationData.name,
-        locationData.workIDs.length,
-        matchedFields
+        locationData.workIDs.length
       );
 
       if (workPolyPopup) workPolyPopup.remove();
@@ -208,29 +207,28 @@ const renderPolygons = ({
     // Remove any existing popup
     if (workPolyPopup) workPolyPopup.remove();
 
-    const matchedFieldsSet = new Set();
-      // Collect matched fields from works and grants
-    locationData.workIDs.forEach((workID) => {
-      const work = worksMap[workID];
-      if (!work.matchedFields || work.matchedFields.length === 0) {
-        // Compute matchedFields if missing or empty
-        console.log("Computing matchedFields for work:", workID);
-        work.matchedFields = getMatchedFields(searchKeyword,work);
-        work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        console.log("Matched fields for work:", work.matchedFields);
-      }
-      if (work?.matchedFields) {
-        work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      }
-    });
+    // const matchedFieldsSet = new Set();
+    //   // Collect matched fields from works and grants
+    // locationData.workIDs.forEach((workID) => {
+    //   const work = worksMap[workID];
+    //   if (!work.matchedFields || work.matchedFields.length === 0) {
+    //     // Compute matchedFields if missing or empty
+    //     console.log("Computing matchedFields for work:", workID);
+    //     work.matchedFields = getMatchedFields(searchKeyword,work);
+    //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+    //     console.log("Matched fields for work:", work.matchedFields);
+    //   }
+    //   if (work?.matchedFields) {
+    //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+    //   }
+    // });
     
-    const matchedFields = Array.from(matchedFieldsSet);
+    // const matchedFields = Array.from(matchedFieldsSet);
 
     const content = createMultiExpertContent(
       filteredExpertIDs.length,
       locationData.name,
-      locationData.workIDs.length,
-      matchedFields
+      locationData.workIDs.length
     );
 
     workPolyPopup = L.popup({
@@ -315,7 +313,7 @@ const renderPoints = ({
     // Filter expertIDs to only those with at least one work in this location
     const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
       locationData.workIDs.some(workID => {
-        const work = worksMap[workID];
+        const work = worksMap.get(workID);
         return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
       })
     );
@@ -334,29 +332,28 @@ const renderPoints = ({
     marker.on("mouseover", () => {
       if (workPointCT) clearTimeout(workPointCT);
 
-      const matchedFieldsSet = new Set();
-      // Collect matched fields from works and grants
-      locationData.workIDs.forEach((workID) => {
-        const work = worksMap[workID];
-        if (!work.matchedFields || work.matchedFields.length === 0) {
-          // Compute matchedFields if missing or empty
-          console.log("Computing matchedFields for work:", workID);
-          work.matchedFields = getMatchedFields(searchKeyword,work);
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-          console.log("Matched fields for work:", work.matchedFields);
-        }
-        if (work?.matchedFields) {
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
+      // const matchedFieldsSet = new Set();
+      // // Collect matched fields from works and grants
+      // locationData.workIDs.forEach((workID) => {
+      //   const work = worksMap[workID];
+      //   if (!work.matchedFields || work.matchedFields.length === 0) {
+      //     // Compute matchedFields if missing or empty
+      //     console.log("Computing matchedFields for work:", workID);
+      //     work.matchedFields = getMatchedFields(searchKeyword,work);
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //     console.log("Matched fields for work:", work.matchedFields);
+      //   }
+      //   if (work?.matchedFields) {
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      // });
       
-      const matchedFields = Array.from(matchedFieldsSet);
+      // const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
         filteredExpertIDs.length,
         locationData.name,
-        locationData.workIDs.length,
-        matchedFields
+        locationData.workIDs.length
       );
 
       if (workPointPopup) workPointPopup.remove();
@@ -427,29 +424,28 @@ const renderPoints = ({
 
       if (workPointPopup) workPointPopup.remove();
 
-      const matchedFieldsSet = new Set();
-      // Collect matched fields from works and grants
-      locationData.workIDs.forEach((workID) => {
-        const work = worksMap[workID];
-        if (!work.matchedFields || work.matchedFields.length === 0) {
-          // Compute matchedFields if missing or empty
-          console.log("Computing matchedFields for work:", workID);
-          work.matchedFields = getMatchedFields(searchKeyword,work);
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-          console.log("Matched fields for work:", work.matchedFields);
-        }
-        if (work?.matchedFields) {
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
+      // const matchedFieldsSet = new Set();
+      // // Collect matched fields from works and grants
+      // locationData.workIDs.forEach((workID) => {
+      //   const work = worksMap[workID];
+      //   if (!work.matchedFields || work.matchedFields.length === 0) {
+      //     // Compute matchedFields if missing or empty
+      //     console.log("Computing matchedFields for work:", workID);
+      //     work.matchedFields = getMatchedFields(searchKeyword,work);
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //     console.log("Matched fields for work:", work.matchedFields);
+      //   }
+      //   if (work?.matchedFields) {
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      // });
       
-      const matchedFields = Array.from(matchedFieldsSet);
+      // const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
         filteredExpertIDs.length,
         locationData.name,
-        locationData.workIDs.length,
-        matchedFields
+        locationData.workIDs.length
       );
 
       workPointPopup = L.popup({

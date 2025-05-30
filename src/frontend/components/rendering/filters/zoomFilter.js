@@ -1,7 +1,9 @@
 const getPlaceRankRange = (zoomLevel) => {
-  if (zoomLevel >= 2 && zoomLevel <= 3) return [3, 4];
-  if (zoomLevel >= 4 && zoomLevel <= 6) return [5, 12];
-  if (zoomLevel >= 7) return [13, 30];
+  if (zoomLevel >= 2 && zoomLevel <= 4) return [1,6]; // Country level
+  if (zoomLevel >= 5 && zoomLevel <= 7) return [7,11]; // State level
+  if (zoomLevel >= 8 && zoomLevel <= 10) return [12,13]; // County level
+  if (zoomLevel >= 11 && zoomLevel <= 13) return [14,24]; // City level
+  if (zoomLevel >= 14) return [25,30]; // Exact level
   return [Infinity, Infinity];
 };
 

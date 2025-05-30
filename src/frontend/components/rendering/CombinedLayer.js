@@ -23,7 +23,6 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { createCombinedPopup } from "./Popups";
 import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePanelData";
-import { getMatchedFields } from "./filters/searchFilter";
 
 
 /**
@@ -48,7 +47,7 @@ const renderPolygons = ({
 }) => {
   
   // Sort polygons by area (largest to smallest)
-  const sortedPolygons = Object.entries(locationMap)
+  const sortedPolygons = Array.from(locationMap.entries())
     .filter(([, value]) =>
       value.geometryType === "Polygon" &&
       Array.isArray(value.workIDs) && value.workIDs.length > 0 &&
@@ -81,7 +80,7 @@ const renderPolygons = ({
 
     // Count experts from workIDs
     locationData.workIDs.forEach((workID) => {
-      const work = worksMap[workID];
+      const work = worksMap.get(workID);
       if (!work) {
         console.warn(`Work with ID ${workID} not found in worksMap.`);
         return;
@@ -96,7 +95,7 @@ const renderPolygons = ({
 
     // Count experts from grantIDs
     locationData.grantIDs.forEach((grantID) => {
-      const grant = grantsMap[grantID];
+      const grant = grantsMap.get(grantID);
       if (!grant) {
         console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
         return;
@@ -170,34 +169,34 @@ const renderPolygons = ({
       if (closeTimeout) clearTimeout(closeTimeout);
 
       // Collect matched fields from works and grants
-      locationData.workIDs.forEach((workID) => {
-        const work = worksMap[workID];
-        if (!work.matchedFields || work.matchedFields.length === 0) {
-          // Compute matchedFields if missing or empty
-          work.matchedFields = getMatchedFields(searchKeyword,work);
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-        if (work?.matchedFields) {
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
+      // locationData.workIDs.forEach((workID) => {
+      //   const work = worksMap.get(workID);
+      //   if (!work.matchedFields || work.matchedFields.length === 0) {
+      //     // Compute matchedFields if missing or empty
+      //     work.matchedFields = getMatchedFields(searchKeyword,work);
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      //   if (work?.matchedFields) {
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      // });
 
-      locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap[grantID];
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
-          // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
-          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-        if (grant?.matchedFields) {
-          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
+      // locationData.grantIDs.forEach((grantID) => {
+      //   const grant = grantsMap.get(grantID);
+      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
+      //     // Compute matchedFields if missing or empty
+      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
+      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      //   if (grant?.matchedFields) {
+      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      // });
 
       const totalWorks = locationData.workIDs?.filter(id => worksMap[id]).length || 0;
       const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
 
-      const matchedFields = Array.from(matchedFieldsSet);
+      // const matchedFields = Array.from(matchedFieldsSet);
 
       // Create popup content
       const content =
@@ -293,14 +292,14 @@ const renderPolygons = ({
 
       // Collect matched fields from works and grants
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap[workID];
+        const work = worksMap.get(workID);
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
 
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap[grantID];
+        const grant = grantsMap.get(grantID);
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -396,7 +395,7 @@ const renderPoints = ({
 }) => {
   
   // Normalize locationMap to an array of [id, data] pairs
-  const locationEntries = Object.entries(locationMap);
+  const locationEntries = Array.from(locationMap.entries())
 
   // Iterate through each location in the location map
   locationEntries.forEach(([locationID, locationData]) => {
@@ -425,7 +424,7 @@ const renderPoints = ({
     // Count experts from workIDs
     
     locationData.workIDs.forEach((workID) => {
-      const work = worksMap[workID];
+      const work = worksMap.get(workID);
       if (!work) {
         console.warn(`Work with ID ${workID} not found in worksMap.`);
         return;
@@ -439,7 +438,7 @@ const renderPoints = ({
     });
     // Count experts from grantIDs
     locationData.grantIDs.forEach((grantID) => {
-      const grant = grantsMap[grantID];
+      const grant = grantsMap.get(grantID);
       if (!grant) {
         console.warn(`Grant with ID ${grantID} not found in grantsMap.`);
         return;
@@ -481,34 +480,34 @@ const renderPoints = ({
 
 
       // Collect matched fields from works and grants
-      locationData.workIDs.forEach((workID) => {
-        const work = worksMap[workID];
-        if (!work.matchedFields || work.matchedFields.length === 0) {
-          // Compute matchedFields if missing or empty
-          work.matchedFields = getMatchedFields(searchKeyword,work);
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-        if (work?.matchedFields) {
-          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
+      // locationData.workIDs.forEach((workID) => {
+      //   const work = worksMap.get(workID);
+      //   if (!work.matchedFields || work.matchedFields.length === 0) {
+      //     // Compute matchedFields if missing or empty
+      //     work.matchedFields = getMatchedFields(searchKeyword,work);
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      //   if (work?.matchedFields) {
+      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      // });
 
-      locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap[grantID];
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
-          // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
-          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-        if (grant?.matchedFields) {
-          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
+      // locationData.grantIDs.forEach((grantID) => {
+      //   const grant = grantsMap.get(grantID);
+      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
+      //     // Compute matchedFields if missing or empty
+      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
+      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      //   if (grant?.matchedFields) {
+      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+      //   }
+      // });
 
       const totalWorks = locationData.workIDs?.filter(id => worksMap[id]).length || 0;
       const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
 
-      const matchedFields = Array.from(matchedFieldsSet);
+      // const matchedFields = Array.from(matchedFieldsSet);
 
       // Create popup content
       const content =
@@ -605,7 +604,7 @@ const renderPoints = ({
 
       // Collect matched fields from works
       locationData.workIDs.forEach((workID) => {
-        const work = worksMap[workID];
+        const work = worksMap.get(workID);
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
@@ -613,7 +612,7 @@ const renderPoints = ({
 
       // Collect matched fields from grants
       locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap[grantID];
+        const grant = grantsMap.get(grantID);
         if (grant?.matchedFields) {
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }

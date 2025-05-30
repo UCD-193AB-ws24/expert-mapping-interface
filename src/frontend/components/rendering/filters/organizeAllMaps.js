@@ -1,5 +1,14 @@
 import { getMatchedFields } from "./searchFilter";
 
+const getPlaceRankLevel = (placeRank) => {
+  if (placeRank >= 1 && placeRank <= 6) return "country";
+  if (placeRank >= 7 && placeRank <= 11) return "state";
+  if (placeRank >= 12 && placeRank <= 13) return "county";
+  if (placeRank >= 14 && placeRank <= 24) return "city";
+  if (placeRank >= 25 && placeRank <= 30) return "exact";
+  return "unknown";
+};
+
 export function organizeAllMaps({
   overlappingFeatures, // [{ location, worksFeatures, grantsFeatures }]
   workOnlyFeatures,    // [{ location, worksFeatures }]
@@ -14,6 +23,7 @@ export function organizeAllMaps({
 
     (features || []).forEach((locObj, locIdx) => {
       const location = locObj.location || "Unknown";
+      let overlap = false;
       // Use the first feature (work or grant) to get geometry/properties for the location
       const sampleFeature =
         (type === "work" && locObj.worksFeatures?.[0]) ||
@@ -25,20 +35,28 @@ export function organizeAllMaps({
         return;
       }
 
+      if (type === "both") {
+        overlap = true;
+      }
+
       const geometry = sampleFeature.geometry;
       const locationID = sampleFeature.id || `${location}_${locIdx}`;
 
       if (!locationMap.has(locationID)) {
         locationMap.set(locationID, {
-          name: location,
-          display_name: sampleFeature.properties.display_name,
-          country: sampleFeature.properties.country,
-          place_rank: sampleFeature.properties.place_rank,
-          geometryType: geometry?.type,
-          coordinates: geometry?.coordinates,
+          name: sampleFeature.name || "",
+          id: locationID || "Unknown ID",
+          location: sampleFeature.location || "",
+          display_name: sampleFeature.display_name || "",
+          country: sampleFeature.country || "",
+          place_rank: sampleFeature.place_rank || "",
+          geometryType: geometry.type || "",
+          coordinates: geometry.coordinates || null,
           workIDs: [],
           grantIDs: [],
           expertIDs: [],
+          specificity: getPlaceRankLevel(Number(sampleFeature.place_rank)) || "unknown",
+          overlapping: overlap,
         });
       }
 
@@ -54,14 +72,15 @@ export function organizeAllMaps({
             }
             const workID = `work_${entry.id}`;
             worksMap.set(workID, {
-              workID: entry.id || 'Unknown workID',
+              workID: entry.id,
               title: entry.title || "Untitled Work",
+              authors: authors,
               abstract: entry.abstract || "No Abstract",
               issued: entry.issued || "Unknown",
               confidence: entry.confidence || "Unknown",
-              locationID,
+              locationIDs: [],
               relatedExpertIDs: [],
-              matchedFields,
+              matchedFields: [], 
             });
             locationMap.get(locationID).workIDs.push(workID);
 
@@ -76,11 +95,11 @@ export function organizeAllMaps({
                 if (!expertID) {
                   expertID = `expert_${expert.expertId}`;
                   expertsMap.set(expertID, {
-                    id: expert.expertId || 'Unknown ID',
-                    name: expertName || "Unknown",
+                    expertID: expert.expertId || expertID,
+                    name: expertName || expert.name || "Unknown",
                     url: expert.url || "#",
-                    locationIDs: [],
-                    workIDs: [],
+                    locationIDs: [locationID],
+                    workIDs: [workID],
                     grantIDs: [],
                   });
                 }
@@ -127,8 +146,8 @@ export function organizeAllMaps({
               grantID: entry.id || 'Unknown grantID',
               title: entry.title || "Untitled Grant",
               funder: entry.funder || "Unknown",
-              startDate: entry.start_date || "Unknown",
-              endDate: entry.end_date || "Unknown",
+              startDate: entry.startDate || "Unknown",
+              endDate: entry.endDate || "Unknown",
               confidence: entry.confidence || "Unknown",
               locationID,
               relatedExpertIDs: [],
@@ -157,7 +176,7 @@ export function organizeAllMaps({
                 if (!expertID) {
                   expertID = `expert_${expert.expertId}`;
                   expertsMap.set(expertID, {
-                    id: expert.expertId || 'Unknown ID',
+                    expertID: expert.expertId || 'Unknown ID',
                     name: expertName || "Unknown",
                     url: expert.url || "#",
                     locationIDs: [],

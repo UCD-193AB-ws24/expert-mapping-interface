@@ -28,9 +28,11 @@ import GrantLayer from "./rendering/GrantLayer";
 import CombinedLayer from "./rendering/CombinedLayer";
 import { WorksPanel, GrantsPanel, CombinedPanel } from "./rendering/Panels";
 import { matchesKeyword } from "./rendering/filters/searchFilter";
+import { organizeAllMaps } from "./rendering/filters/organizeAllMaps";
+import { filterFeaturesByZoom, filterOverlappingLocationsByZoom } from "./rendering/filters/zoomFilter";
 import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
-import { filterLocationMap, filterGrantLayerLocationMap, filterWorkLayerLocationMap } from "./rendering/filters/filterLocationMaps";
-import { all } from "axios";
+import { splitFeaturesByLocation } from "./rendering/filters/splitFeaturesByLocation";
+import { isHighConfidence } from "./rendering/filters/confidenceFilter";
 /**
  * ResearchMap Component
  * @description Main map interface for visualizing research-related data.
@@ -41,6 +43,8 @@ import { all } from "axios";
  */
 const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, onResetFilters }) => {
 
+  const [rawGrantGeoJSON, setRawGrantGeoJSON] = useState(null);
+  const [rawWorkGeoJSON, setRawWorkGeoJSON] = useState(null);
   const [selectedWorks, setSelectedWorks] = useState([]);
   const [selectedGrants, setSelectedGrants] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -51,39 +55,72 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   const [locationName, setLocationName] = useState("Unknown");
   const [zoomLevel, setZoomLevel] = useState(2);
 
-  // State variables for raw maps
-  const [rawExpertsMap, setRawExpertsMap] = useState(null);
-  const [rawWorksMap, setRawWorksMap] = useState(null);
-  const [rawGrantsMap, setRawGrantsMap] = useState(null);
 
-  // Cached maps for different zoom levels
-  const [locationMapsCache, setLocationMapsCache] = useState({}); // { [zoomLevel]: { ...maps } }
-  const [currentLocationMaps, setCurrentLocationMaps] = useState(null);
-
-  
-  // Fetch raw maps data from Redis on mount
+  /**
+     * useEffect: Fetch GeoJSON data for works and grants.
+     * - Fetches data from two APIs concurrently.
+     * - Processes the data into GeoJSON format and updates state variables.
+     * - Handles errors and updates the loading state.
+     */
   useEffect(() => {
-    const fetchRawMaps = async () => {
+    setIsLoading(true);
+    const loadGeoData = async () => {
       try {
-        // console.log("[DEBUG] Fetching raw maps from /api/redis/getRawMaps");
-        const response = await fetch('/api/redis/getRawMaps');
-        if (!response.ok) throw new Error('Failed to fetch raw maps');
-        const data = await response.json();
-        setRawExpertsMap(data.expertsMap);
-        setRawWorksMap(data.worksMap);
-        setRawGrantsMap(data.grantsMap);
-        // console.log("[DEBUG] Raw maps loaded successfully");
-        setIsLoading(false);
+        // Fetch data from two different APIs concurrently
+        Promise.all([
+          fetch('/workFeatures.geojson').then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          }),
+          fetch('/grantFeatures.geojson').then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          }),
+        ])
+          .then(([worksData, grantsData]) => {
+            // Process works data into GeoJSON format.
+            const processedWorksData = {
+              type: "FeatureCollection",
+              features: worksData.features.map((feature) => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: feature.properties.entries || [],
+          },
+              })),
+            };
+            // Process grants data into GeoJSON format.
+            const processedGrantsData = {
+              type: "FeatureCollection",
+              features: grantsData.features.map((feature) => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: feature.properties.entries || [],
+          },
+              })),
+            };
+            setRawWorkGeoJSON(processedWorksData);
+            setRawGrantGeoJSON(processedGrantsData);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+            setIsLoading(false);
+          });
       } catch (err) {
-        console.error("[ERROR] Failed to load static map data in fetchRawMaps:", err);
-        setError('Failed to load static map data.');
+        console.error(" Error loading geojson:", err);
+        setError("Failed to load map data.");
+        setIsLoading(false);
       }
     };
-    fetchRawMaps();
+    loadGeoData();
   }, []);
 
-
-    
   /**
    * useEffect: Attach a zoom event listener to the map.
    * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
@@ -108,188 +145,93 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     };
   }, [mapRef.current]);
 
-    const getMapType = () => {
-      if (zoomLevel >= 2 && zoomLevel <= 4) return "CountryLevelMaps";
-      if (zoomLevel >= 5 && zoomLevel <= 7) return "StateLevelMaps";
-      if (zoomLevel >= 8 && zoomLevel <= 10) return "CountyLevelMaps";
-      if (zoomLevel >= 11 && zoomLevel <= 13) return "CityLevelMaps";
-      if (zoomLevel >= 14) return "ExactLevelMaps";
-      return null;
+
+  // 2. Apply filters in memory
+  const filteredWorkGeoJSON = useMemo(() => {
+    if (!rawWorkGeoJSON) return null;
+    // Apply date and keyword filters
+    return {
+      ...rawWorkGeoJSON,
+      features: rawWorkGeoJSON.features
+        .map(feature => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: (feature.properties.entries || [])
+              .filter(isHighConfidence)
+              .filter(entry => isWorkInDate(entry, selectedDateRange))
+              .filter(entry => matchesKeyword(searchKeyword, entry))
+          }
+        }))
+        .filter(f => f.properties.entries.length > 0)
     };
-  
-  // Fetch and process location maps based on zoom level and toggles
-  useEffect(() => {
-    const mapType = getMapType();
-    if (!mapType) {
-      console.warn("[DEBUG] No mapType determined for zoomLevel:", zoomLevel);
-      return;
-    }
-    
-    // Decide which API endpoints to call for each layer type
-    // - worksMap: always nonoverlap
-    // - grantsMap: always nonoverlap
-    // - combinedMap: only when both toggles are on, use overlap
-    // Cache by zoomLevel and toggle state for efficiency
+  }, [rawWorkGeoJSON, selectedDateRange, searchKeyword]);
+  console.log("Filtered Works Count:", filteredWorkGeoJSON?.features?.length);
 
-    const cacheKey = `${zoomLevel}_${showWorks}_${showGrants}`;
 
-    if (locationMapsCache[cacheKey]) {
-      // console.log(`[DEBUG] Using cached maps for cacheKey: ${cacheKey}`);
-      setCurrentLocationMaps(locationMapsCache[cacheKey]);
-      return;
-    }
+  const filteredGrantGeoJSON = useMemo(() => {
+    if (!rawGrantGeoJSON) return null;
+    // Apply date and keyword filters
+    return {
+      ...rawGrantGeoJSON,
+      features: rawGrantGeoJSON.features
+        .map(feature => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            entries: (feature.properties.entries || [])
+              .filter(isHighConfidence)
+              .filter(entry => isGrantInDate(entry, selectedDateRange))
+              .filter(entry => matchesKeyword(searchKeyword, entry))
 
-    const fetchMaps = async () => {
-      try {
-        let workLayerMap = null, grantLayerMap = null, combinedLayerMap = null;
-
-        if (showWorks && showGrants) {
-          // Fetch all three maps in one API call to match the new server endpoint
-          // console.log(`[DEBUG] Fetching ALL maps (works, grants, combined) for ${mapType}`);
-          const allMapsRes = await fetch(`/api/redis/nonoverlap/getAll${mapType}`);
-          if (!allMapsRes.ok) throw new Error("Failed to fetch all maps");
-          const allMaps = await allMapsRes.json();
-          workLayerMap = allMaps.worksMap;
-          grantLayerMap = allMaps.grantsMap;
-          combinedLayerMap = allMaps.combinedMap;
-        } else if (showWorks) {
-          // Overlap works map
-          const worksRes = await fetch(`/api/redis/overlap/get${mapType}?type=works`);
-          if (!worksRes.ok) throw new Error("Failed to fetch works map");
-          workLayerMap = await worksRes.json();
-        } else if (showGrants) {
-          // Overlap grants map
-          const grantsRes = await fetch(`/api/redis/overlap/get${mapType}?type=grants`);
-          if (!grantsRes.ok) throw new Error("Failed to fetch grants map");
-          grantLayerMap = await grantsRes.json();
-        }
-
-        const maps = { workLayerMap, grantLayerMap, combinedLayerMap };
-        setLocationMapsCache(prev => ({ ...prev, [cacheKey]: maps }));
-        setCurrentLocationMaps(maps);
-      } catch (err) {
-        console.error(`[ERROR] Failed to load location maps in fetchMaps for cacheKey: ${cacheKey}`, err);
-        setError("Failed to load location maps.");
-      }
+          }
+        }))
+        .filter(f => f.properties.entries.length > 0)
     };
+  }, [rawGrantGeoJSON, selectedDateRange, searchKeyword]);
+  console.log("Filtered Grants Count:", filteredGrantGeoJSON?.features?.length);
 
-    fetchMaps();
-  }, [zoomLevel, showWorks, showGrants]);
+  // 3. Filter data based on grants or works, or both
+  const {
+    overlappingLocations, // features with both works and grants
+    nonOverlappingWorks,  // features with only works
+    nonOverlappingGrants, // features with only grants
+    // ...any maps you need
+  } = useMemo(() => splitFeaturesByLocation(
+    filteredWorkGeoJSON,
+    filteredGrantGeoJSON,
+    showWorks,
+    showGrants
+  ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
 
-  const mapType = getMapType();
-  const mapLevel = mapType ? mapType.replace("LevelMaps", "") : "";
-  
-  const workLayerLocations = currentLocationMaps?.workLayerMap || {};
-  const grantLayerLocations = currentLocationMaps?.grantLayerMap || {};
-  const combinedLocations = currentLocationMaps?.combinedLayerMap || {};
 
-  // Filter worksMap, grantsMap, expertsMap, and locationMap based on searchKeyword
-  // First filter by date, then by keyword
-  // Filter works by date
-  const dateFilteredWorksMap = Object.fromEntries(
-    Object.entries(rawWorksMap || {}).filter(([, work]) => isWorkInDate(work, selectedDateRange))
+  // 4. Filter data based on zoom level
+  const zoomFilteredNonOverlappingGrants = useMemo(() =>
+    filterFeaturesByZoom(nonOverlappingGrants, zoomLevel),
+    [nonOverlappingGrants, zoomLevel]
   );
 
-  // Filter grants by date
-  const dateFilteredGrantsMap = Object.fromEntries(
-    Object.entries(rawGrantsMap || {}).filter(([, grant]) => isGrantInDate(grant, selectedDateRange))
-  );
-  const dateFilteredExpertsMap = Object.fromEntries(
-  Object.entries(rawExpertsMap || {}).filter(([, expert]) => {
-    // Only keep experts who have at least one work or grant in the filtered maps
-    const hasWork = (expert.workIDs || []).some(id => dateFilteredWorksMap[id]);
-    const hasGrant = (expert.grantIDs || []).some(id => dateFilteredGrantsMap[id]);
-    return hasWork || hasGrant;
-  })
-);
-
-  // Debounce searchKeyword to avoid filtering on every keystroke
-  const [debouncedSearchKeyword, setDebouncedSearchKeyword] = useState(searchKeyword);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearchKeyword(searchKeyword);
-    }, 400); // 400ms debounce delay
-
-    return () => clearTimeout(handler);
-  }, [searchKeyword]);
-
-  // Filter experts by debounced keyword
-  const filteredExpertsMap = Object.fromEntries(
-    Object.entries(dateFilteredExpertsMap).filter(([, expert]) => matchesKeyword(debouncedSearchKeyword, expert))
+  const zoomFilteredNonOverlappingWorks = useMemo(() =>
+    filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures"),
+    [nonOverlappingWorks, zoomLevel]
   );
 
-  const hasExpertMatches = Object.keys(filteredExpertsMap).length > 0;
-
-  let effectiveFilteredExpertsMap, filteredWorksMap, filteredGrantsMap;
-
-  if (hasExpertMatches) {
-    // If there are expert matches, show all works/grants associated with those experts
-    effectiveFilteredExpertsMap = filteredExpertsMap;
-    const filteredExpertIds = new Set(Object.keys(filteredExpertsMap));
-
-    filteredWorksMap = Object.fromEntries(
-      Object.entries(dateFilteredWorksMap).filter(([, work]) =>
-        (work.relatedExpertIDs || work.expertIDs || []).some(id => filteredExpertIds.has(id))
-      )
-    );
-    filteredGrantsMap = Object.fromEntries(
-      Object.entries(dateFilteredGrantsMap).filter(([, grant]) =>
-        (grant.relatedExpertIDs || grant.expertIDs || []).some(id => filteredExpertIds.has(id))
-      )
-    );
-  } else {
-    // If no expert matches, filter works and grants by keyword directly
-    effectiveFilteredExpertsMap = rawExpertsMap;
-    filteredWorksMap = Object.fromEntries(
-      Object.entries(dateFilteredWorksMap).filter(([, work]) => matchesKeyword(searchKeyword, work))
-    );
-    // console.log("Filtered Works Map:", Object.keys(filteredWorksMap).length, "entries");
-    filteredGrantsMap = Object.fromEntries(
-      Object.entries(dateFilteredGrantsMap).filter(([, grant]) => matchesKeyword(searchKeyword, grant))
-    );
-    // console.log(`Filtered Grants Map of length ${Object.keys(filteredGrantsMap).length}:`, Object.keys(filteredGrantsMap));
-  }
-  
-  console.log(Object.keys(combinedLocations).length, "combinedLocations before filtering");
-  // console.log(Object.entries(combinedLocations));
-  const filteredWorkLayerLocations = filterWorkLayerLocationMap(
-    workLayerLocations,
-    filteredWorksMap
+  const zoomFilteredOverlappingLocations = useMemo(() =>
+    filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel),
+    [overlappingLocations, zoomLevel]
   );
 
-  const filteredGrantLayerLocations = filterGrantLayerLocationMap(
-    grantLayerLocations,
-    filteredGrantsMap
-  );
-
-  const filteredCombinedLocations = filterLocationMap(
-    combinedLocations,
-    filteredWorksMap,
-    filteredGrantsMap
-  );
-
-  // 1. Create new objects to hold the "moved" locations
-  const movedToWorkLayer = {};
-  const movedToGrantLayer = {};
-
-  // 2. Iterate over filteredCombinedLocations and move as needed
-  Object.entries(filteredCombinedLocations).forEach(([locID, loc]) => {
-    const hasWorks = loc.workIDs && loc.workIDs.length > 0;
-    const hasGrants = loc.grantIDs && loc.grantIDs.length > 0;
-
-    if (hasWorks && !hasGrants) {
-      movedToWorkLayer[locID] = loc;
-      delete filteredCombinedLocations[locID];
-    } else if (!hasWorks && hasGrants) {
-      movedToGrantLayer[locID] = loc;
-      delete filteredCombinedLocations[locID];
-    }
+  // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
+  const {
+    combined, // { locationMap, worksMap, grantsMap, expertsMap }
+    works,    // { locationMap, worksMap, expertsMap }
+    grants,   // { locationMap, grantsMap, expertsMap }
+  } = organizeAllMaps({
+    overlappingFeatures: zoomFilteredOverlappingLocations || [],
+    workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
+    grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
+    searchKeyword,
   });
-
-  // 3. Merge these into your filteredWorkLayerLocations and filteredGrantLayerLocations
-  const finalFilteredWorkLayerLocations = { ...filteredWorkLayerLocations, ...movedToWorkLayer };
-  const finalFilteredGrantLayerLocations = { ...filteredGrantLayerLocations, ...movedToGrantLayer };
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
@@ -324,36 +266,15 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           Reset View
         </button>
 
-        {/* Zoom Level Indicator */}
-          {mapLevel && (
-              <div className="zoom-level-indicator" 
-                style={{
-                  position: "absolute",
-                  top: "20px",
-                  left: "50px",
-                  zIndex: 1001,
-                  background: "rgba(255,255,255,0.80)", // slightly less opaque
-                  padding: "6px 16px",
-                  borderRadius: "8px",
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  color: "#3879C7",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
-                }}
-              >
-                {mapLevel && `${mapLevel} Level`}
-              </div>
-            )}
-            
-          <MapWrapper mapRef={mapRef}>
-            {/* Combined location layer */}
+
+        <MapWrapper mapRef={mapRef}>
+          {/* Combined location layer */}
           {(showWorks && showGrants) && (
             <CombinedLayer
-              searchKeyword={searchKeyword}
-              locationMap={filteredCombinedLocations || {}}
-              worksMap={rawWorksMap || {}}
-              grantsMap={ rawGrantsMap || {}}
-              expertsMap={effectiveFilteredExpertsMap || {}}
+              locationMap={combined.locationMap}
+              worksMap={combined.worksMap}
+              grantsMap={combined.grantsMap}
+              expertsMap={combined.expertsMap}
               showWorks={showWorks}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -368,10 +289,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Works layer */}
           {(showWorks) && (
             <WorkLayer
-              searchKeyword={searchKeyword}
-              locationMap={finalFilteredWorkLayerLocations || filteredWorkLayerLocations || {}}
-              worksMap={rawWorksMap || {}}
-              expertsMap={effectiveFilteredExpertsMap || {}}
+              locationMap={works.locationMap}
+              worksMap={works.worksMap}
+              expertsMap={works.expertsMap}
               showWorks={showWorks || !showGrants}
               showGrants={showGrants}
               setSelectedWorks={setSelectedWorks}
@@ -383,10 +303,9 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           {/* Grants layer */}
           {(showGrants) && (
             <GrantLayer
-              searchKeyword={searchKeyword}
-              locationMap={finalFilteredGrantLayerLocations || filteredGrantLayerLocations || {}}
-              grantsMap={rawGrantsMap || {}}
-              expertsMap={effectiveFilteredExpertsMap || {}}
+              locationMap={grants.locationMap}
+              grantsMap={grants.grantsMap}
+              expertsMap={grants.expertsMap}
               showWorks={showWorks}
               showGrants={showGrants || !showWorks}
               setSelectedGrants={setSelectedGrants}
