@@ -503,7 +503,9 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
             fontWeight: "bold"
           }}
         >
-          Works ({works.length})
+          Works (
+            {works.reduce((total, expert) => total + (Array.isArray(expert.works) ? expert.works.length : 0), 0)}
+          )
         </button>
 
         {/* Grants Tab Button */}
@@ -521,7 +523,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
             fontWeight: "bold"
           }}
         >
-          Grants ({grants.length})
+          Grants ({grants.reduce((total, expert) => total + (Array.isArray(expert.grants) ? expert.grants.length : 0), 0)})
         </button>
       </div>
 

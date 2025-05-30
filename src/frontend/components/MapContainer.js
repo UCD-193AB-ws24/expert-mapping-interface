@@ -24,7 +24,7 @@ const MapWrapper = ({ children, mapRef }) => {
       center={[30, 0]} // Initial center of the map [latitude, longitude].
       zoom={2} // Initial zoom level.
       minZoom={2} // Minimum zoom level to prevent excessive zooming out.
-      maxZoom={13} // Maximum zoom level to prevent excessive zooming in.
+      maxZoom={18} // Maximum zoom level to prevent excessive zooming in.
       maxBounds={[
         [-80, -230], // Southwest corner of the map bounds
         [85, 230]    // Northeast corner of the map bounds

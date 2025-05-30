@@ -109,11 +109,11 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   }, [mapRef.current]);
 
     const getMapType = () => {
-      if (zoomLevel >= 2 && zoomLevel <= 3) return "CountryLevelMaps";
-      if (zoomLevel === 4) return "StateLevelMaps";
-      if (zoomLevel >= 5 && zoomLevel <= 7) return "CountyLevelMaps";
-      if (zoomLevel >= 8 && zoomLevel <= 10) return "CityLevelMaps";
-      if (zoomLevel >= 11) return "ExactLevelMaps";
+      if (zoomLevel >= 2 && zoomLevel <= 4) return "CountryLevelMaps";
+      if (zoomLevel >= 5 && zoomLevel <= 7) return "StateLevelMaps";
+      if (zoomLevel >= 8 && zoomLevel <= 10) return "CountyLevelMaps";
+      if (zoomLevel >= 11 && zoomLevel <= 13) return "CityLevelMaps";
+      if (zoomLevel >= 14) return "ExactLevelMaps";
       return null;
     };
   
