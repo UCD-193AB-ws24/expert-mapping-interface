@@ -374,6 +374,7 @@ app.get('/api/redis/getRawMaps', async (req, res) => {
       return res.status(404).json({ error: 'One or more maps not found in Redis' });
     }
 
+    res.set('Cache-Control', 'public, max-age=600');
     res.json({
       worksMap: JSON.parse(worksMap),
       grantsMap: JSON.parse(grantsMap),
@@ -409,6 +410,7 @@ app.get('/api/redis/nonoverlap/getAll:level', async (req, res) => {
       return res.status(404).json({ error: 'One or more maps not found in Redis' });
     }
 
+    res.set('Cache-Control', 'public, max-age=600');
     res.json({
       worksMap: JSON.parse(workData),
       grantsMap: JSON.parse(grantData),
@@ -441,6 +443,7 @@ app.get('/api/redis/overlap/get:level', async (req, res) => {
     if (!mapData) {
       return res.status(404).json({ error: 'Map not found in Redis' });
     }
+    res.set('Cache-Control', 'public, max-age=600');
     res.json(JSON.parse(mapData));
   } catch (error) {
     res.status(500).json({ error: 'Internal server error', details: error.message });
