@@ -47,7 +47,7 @@ const renderPolygons = ({
   const matchedFieldsSet = new Set();
   // Sort polygons by area (largest to smallest)
   const sortedPolygons = Array.from(locationMap.entries())
-    .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
+    .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0 && value.workIDs.length > 0)
     .sort(([, a], [, b]) => {
       const area = (geometry) => {
         const bounds = L.polygon(
@@ -66,7 +66,7 @@ const renderPolygons = ({
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
-
+    
     setLocationName(locationData.name);
     // Initialize sets to count unique experts
     const workExpertIDs = new Set();

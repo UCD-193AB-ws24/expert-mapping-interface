@@ -34,6 +34,7 @@ import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
 import { splitFeaturesByLocation } from "./rendering/filters/splitFeaturesByLocation";
 import { isHighConfidence } from "./rendering/filters/confidenceFilter";
 import { aggregateToCountryLevel } from "./rendering/filters/countryAggregate";
+import { filterLocationMapByZoom } from "./rendering/filters/filterLocationbyZoom";
 
 /**
  * ResearchMap Component
@@ -170,7 +171,6 @@ const mapLevel = useMemo(() => {
           properties: {
             ...feature.properties,
             entries: (feature.properties.entries || [])
-              .filter(isHighConfidence)
               .filter(entry => isWorkInDate(entry, selectedDateRange))
               .filter(entry => matchesKeyword(searchKeyword, entry))
           }
@@ -191,7 +191,6 @@ const mapLevel = useMemo(() => {
           properties: {
             ...feature.properties,
             entries: (feature.properties.entries || [])
-              .filter(isHighConfidence)
               .filter(entry => isGrantInDate(entry, selectedDateRange))
               .filter(entry => matchesKeyword(searchKeyword, entry))
 
@@ -201,24 +200,6 @@ const mapLevel = useMemo(() => {
     };
   }, [rawGrantGeoJSON, selectedDateRange, searchKeyword]);
 
-// console.log("Filtered Work GeoJSON:", filteredWorkGeoJSON, "Type:", filteredWorkGeoJSON?.type);
-// console.log("Filtered Grant GeoJSON:", filteredGrantGeoJSON, "Type:", filteredGrantGeoJSON?.type);
-
-  // 3. Aggregate data by country
-  const aggregatedWorkGeoJSON = useMemo(() =>
-  filteredWorkGeoJSON
-    ? aggregateToCountryLevel(filteredWorkGeoJSON, "worksFeatures")
-    : { type: "FeatureCollection", features: [] }
-, [filteredWorkGeoJSON]);
-
-const aggregatedGrantGeoJSON = useMemo(() =>
-  filteredGrantGeoJSON
-    ? aggregateToCountryLevel(filteredGrantGeoJSON, "grantsFeatures")
-    : { type: "FeatureCollection", features: [] }
-, [filteredGrantGeoJSON]);
-
-  console.log("Aggregated Work Features:", aggregatedWorkGeoJSON);
-  console.log("Aggregated Grant Features:", aggregatedGrantGeoJSON);
   
   // 4. Filter data based on grants or works, or both
   const {
@@ -227,68 +208,33 @@ const aggregatedGrantGeoJSON = useMemo(() =>
     nonOverlappingGrants, // features with only grants
     // ...any maps you need
   } = useMemo(() => splitFeaturesByLocation(
-    aggregatedWorkGeoJSON,
-    aggregatedGrantGeoJSON,
+    filteredWorkGeoJSON,
+    filteredGrantGeoJSON,
     showWorks,
     showGrants
-  ), [aggregatedWorkGeoJSON, aggregatedGrantGeoJSON, showWorks, showGrants]);
+  ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
 
-  console.log("Overlapping Locations:", overlappingLocations.length);
-  console.log("Overlapping Loctions Features:", overlappingLocations);
+// 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
 
-  // 5. Filter data based on zoom level
-  const zoomFilteredNonOverlappingGrants = useMemo(() =>
-    filterFeaturesByZoom(nonOverlappingGrants, zoomLevel),
-    [nonOverlappingGrants, zoomLevel]
-  );
-
-  const zoomFilteredNonOverlappingWorks = useMemo(() =>
-    filterFeaturesByZoom(nonOverlappingWorks, zoomLevel, "worksFeatures"),
-    [nonOverlappingWorks, zoomLevel]
-  );
-
-  const zoomFilteredOverlappingLocations = useMemo(() =>
-    filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel, "workFeatures"),
-    [overlappingLocations, zoomLevel]
-  );
-  console.log("Zoom Filtered Overlapping Locations:", zoomFilteredOverlappingLocations.length);
-  
-
-  // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
   const {
-    combined = {}
-    // works = {},
-    // grants = {},
+    combined = {},
+    works = {},
+    grants = {},
   } = organizeAllMaps({
-    overlappingFeatures: zoomFilteredOverlappingLocations || [],
-    // workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
-    // grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
+    overlappingFeatures: overlappingLocations || [],
+    workOnlyFeatures: nonOverlappingWorks || [],
+    grantOnlyFeatures: nonOverlappingGrants || [],
     searchKeyword,
   }) || {};
+  
 
-  // Calculate total unique workIDs and grantIDs in the locationMap
-  let totalWorkIDs = 0;
-  let totalGrantIDs = 0;
-  if (combined.locationMap) {
-    const workIDSet = new Set();
-    const grantIDSet = new Set();
-    Object.values(combined.locationMap).forEach(loc => {
-      if (Array.isArray(loc.workIDs)) {
-        loc.workIDs.forEach(id => workIDSet.add(id));
-      }
-      if (Array.isArray(loc.grantIDs)) {
-        loc.grantIDs.forEach(id => grantIDSet.add(id));
-      }
-    });
-    totalWorkIDs = workIDSet.size;
-    totalGrantIDs = grantIDSet.size;
-  }
-  console.log("Combined Location Map:", combined.locationMap);
-  console.log("Total unique workIDs in locationMap:", totalWorkIDs);
-  console.log("Total unique grantIDs in locationMap:", totalGrantIDs);
+  // 6. Filter features based on zoom level
+  const filteredLocationMap = filterLocationMapByZoom(combined.locationMap, zoomLevel);
+  const filteredWorksMap = filterLocationMapByZoom(works.locationMap, zoomLevel);
+  const filteredGrantsMap = filterLocationMapByZoom(grants.locationMap, zoomLevel);
 
   
-  
+
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
@@ -347,7 +293,7 @@ const aggregatedGrantGeoJSON = useMemo(() =>
           {/* Combined location layer */}
           {(showWorks && showGrants) && (
             <CombinedLayer
-              locationMap={combined.locationMap}
+              locationMap={filteredLocationMap}
               worksMap={combined.worksMap}
               grantsMap={combined.grantsMap}
               expertsMap={combined.expertsMap}
@@ -363,9 +309,9 @@ const aggregatedGrantGeoJSON = useMemo(() =>
 
 
           {/* Works layer */}
-          {/* {(showWorks) && (
+          {(showWorks) && (
             <WorkLayer
-              locationMap={works.locationMap}
+              locationMap={filteredWorksMap}
               worksMap={works.worksMap}
               expertsMap={works.expertsMap}
               showWorks={showWorks || !showGrants}
@@ -374,12 +320,12 @@ const aggregatedGrantGeoJSON = useMemo(() =>
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
             />
-          )} */}
+          )}
 
           {/* Grants layer */}
-          {/* {(showGrants) && (
+          {(showGrants) && (
             <GrantLayer
-              locationMap={grants.locationMap}
+              locationMap={filteredGrantsMap}
               grantsMap={grants.grantsMap}
               expertsMap={grants.expertsMap}
               showWorks={showWorks}
@@ -388,7 +334,8 @@ const aggregatedGrantGeoJSON = useMemo(() =>
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
             />
-          )} */}
+          )}
+
         </MapWrapper>
       </div>
       {/* Loading spinner */}

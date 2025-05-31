@@ -58,6 +58,9 @@ const renderPolygons = ({
     });
 
   sortedPolygons.forEach(([locationID, locationData]) => {
+    locationData.workIDs.forEach((workID) => {
+      if (!worksMap.has(workID)) return; 
+    });
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
@@ -270,7 +273,8 @@ const renderPoints = ({
       !Array.isArray(locationData.expertIDs) || locationData.expertIDs.length === 0 ||
       !Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2
     ) return;
-
+    locationData.workIDs.forEach((workID) => {
+      if (!worksMap.has(workID)) return; });
     // Swap [lng, lat] to [lat, lng]
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];

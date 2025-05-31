@@ -1,9 +1,54 @@
 import { getMatchedFields } from "./searchFilter";
 
+function aggregateCountryLocations(locationMap, worksMap, grantsMap, expertsMap) {
+  // 1. Find all country-level locations
+  const countryLocIDs = {};
+  for (const [locID, loc] of locationMap.entries()) {
+    if (loc.name && loc.country && loc.name === loc.country) {
+      countryLocIDs[loc.country] = locID;
+    }
+  }
+
+  // 2. For each non-country location, aggregate its IDs to the country location
+  for (const [locID, loc] of locationMap.entries()) {
+    if (!loc.country) continue;
+    const countryLocID = countryLocIDs[loc.country];
+    if (!countryLocID || countryLocID === locID) continue; // skip if no country or already country-level
+
+    const countryLoc = locationMap.get(countryLocID);
+
+    // Aggregate workIDs
+    for (const workID of loc.workIDs) {
+      if (!countryLoc.workIDs.includes(workID)) countryLoc.workIDs.push(workID);
+      // Also add the country locationID to the work's locationIDs
+      const work = worksMap.get(workID);
+      if (work && !work.locationIDs.includes(countryLocID)) {
+        work.locationIDs.push(countryLocID);
+      }
+    }
+    // Aggregate grantIDs
+    for (const grantID of loc.grantIDs) {
+      if (!countryLoc.grantIDs.includes(grantID)) countryLoc.grantIDs.push(grantID);
+      const grant = grantsMap.get(grantID);
+      if (grant && !grant.locationIDs.includes(countryLocID)) {
+        grant.locationIDs.push(countryLocID);
+      }
+    }
+    // Aggregate expertIDs
+    for (const expertID of loc.expertIDs) {
+      if (!countryLoc.expertIDs.includes(expertID)) countryLoc.expertIDs.push(expertID);
+      const expert = expertsMap.get(expertID);
+      if (expert && !expert.locationIDs.includes(countryLocID)) {
+        expert.locationIDs.push(countryLocID);
+      }
+    }
+  }
+}
+
 export function organizeAllMaps({
   overlappingFeatures, // [{ location, worksFeatures, grantsFeatures }]
-  // workOnlyFeatures,    // [{ location, worksFeatures }]
-  // grantOnlyFeatures,    // [{ location, grantsFeatures }]
+  workOnlyFeatures,    // [{ location, worksFeatures }]
+  grantOnlyFeatures,    // [{ location, grantsFeatures }]
   searchKeyword
 }) {
   function buildMaps(features, type, searchKeyword) {
@@ -50,6 +95,11 @@ export function organizeAllMaps({
             const matchedFields = getMatchedFields(searchKeyword, entry);
             if (searchKeyword && matchedFields.length === 0) {
               console.warn("Error with matched fields...");
+              return;
+            }
+            const confidence = typeof entry.confidence === "string" ? Number(entry.confidence) : entry.confidence;
+            if (confidence < 60) {
+              console.warn(`Skipping low confidence entry: ${entry.title} (${entry.confidence})`);
               return;
             }
             const workID = `work_${entry.id}`;
@@ -121,6 +171,11 @@ export function organizeAllMaps({
 
 
           filteredEntries.forEach((entry) => {
+            const confidence = typeof entry.confidence === "string" ? Number(entry.confidence) : entry.confidence;
+            if (confidence < 60) {
+              console.warn(`Skipping low confidence entry: ${entry.title} (${entry.confidence})`);
+              return;
+            }
             const matchedFields = entry._matchedFields || [];
             const grantID = `grant_${entry.id}`;
             grantsMap.set(grantID, {
@@ -185,7 +240,7 @@ export function organizeAllMaps({
         });
       }
     });
-
+    aggregateCountryLocations(locationMap, worksMap, grantsMap, expertsMap);
   return {
       locationMap, 
       worksMap,
@@ -195,8 +250,8 @@ export function organizeAllMaps({
   }
 
   return {
-    combined: buildMaps(overlappingFeatures, "both", searchKeyword)
-    // works: buildMaps(workOnlyFeatures, "work", searchKeyword),
-    // grants: buildMaps(grantOnlyFeatures, "grant", searchKeyword),
+    combined: buildMaps(overlappingFeatures, "both", searchKeyword),
+    works: buildMaps(workOnlyFeatures, "work", searchKeyword),
+    grants: buildMaps(grantOnlyFeatures, "grant", searchKeyword),
   };
 }

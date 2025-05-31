@@ -1,7 +1,6 @@
 # Developnment
 node_modules
 dump.rdb
-build
 .env
 
 # Jest coverage output

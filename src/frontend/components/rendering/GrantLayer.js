@@ -58,6 +58,15 @@ const renderPolygons = ({
 
   sortedPolygons.forEach(([locationID, locationData]) => {
     // Flip coordinates for Leaflet compatibility
+    const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        if (!grantsMap.has(grantID)) return; // Skip if grantID not in grantsMap
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
@@ -102,14 +111,7 @@ const renderPolygons = ({
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (closeTimeout) clearTimeout(closeTimeout);
-      const matchedFieldsSet = new Set();
-      locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
-        if (grant?.matchedFields) {
-          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
-      const matchedFields = Array.from(matchedFieldsSet);
+      
 
       const content = createMultiGrantPopup(
         locationData.expertIDs.length,
@@ -277,7 +279,15 @@ const renderPoints = ({
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
       !Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2
     ) return;
-
+    const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        if (!grantsMap.has(grantID)) return; // Skip if grantID not in grantsMap
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
 
@@ -296,14 +306,7 @@ const renderPoints = ({
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (grantPointCT) clearTimeout(grantPointCT);
-      const matchedFieldsSet = new Set();
-      locationData.grantIDs.forEach((grantID) => {
-        const grant = grantsMap.get(grantID);
-        if (grant?.matchedFields) {
-          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        }
-      });
-      const matchedFields = Array.from(matchedFieldsSet);
+      
 
       const content = createMultiGrantPopup(
         locationData.expertIDs.length,
