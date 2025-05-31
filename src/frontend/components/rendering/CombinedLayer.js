@@ -31,7 +31,6 @@ import { prepareWorkPanelData, prepareGrantPanelData } from "./utils/preparePane
  * Interactive popups display expert and grant information.
  **/
 const renderPolygons = ({
-  searchKeyword,
   locationMap,
   worksMap,
   grantsMap,
@@ -45,14 +44,10 @@ const renderPolygons = ({
   comboLayers,
   comboPolyMarkers
 }) => {
-  
+  const matchedFieldsSet = new Set();
   // Sort polygons by area (largest to smallest)
   const sortedPolygons = Array.from(locationMap.entries())
-    .filter(([, value]) =>
-      value.geometryType === "Polygon" &&
-      Array.isArray(value.workIDs) && value.workIDs.length > 0 &&
-      Array.isArray(value.grantIDs) && value.grantIDs.length > 0
-    )
+    .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
     .sort(([, a], [, b]) => {
       const area = (geometry) => {
         const bounds = L.polygon(
@@ -65,18 +60,17 @@ const renderPolygons = ({
       };
       return area(b) - area(a); // Sort largest to smallest
     });
-  
-  
+
   sortedPolygons.forEach(([locationID, locationData]) => {
     // Flip coordinates for Leaflet compatibility
-    const workExpertIDs = new Set();
-    const grantExpertIDs = new Set();
-    const matchedFieldsSet = new Set();
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
-    
+
     setLocationName(locationData.name);
+    // Initialize sets to count unique experts
+    const workExpertIDs = new Set();
+    const grantExpertIDs = new Set();
 
     // Count experts from workIDs
     locationData.workIDs.forEach((workID) => {
@@ -87,7 +81,7 @@ const renderPolygons = ({
       }
 
       (work.relatedExpertIDs || []).forEach((expertID) => {
-        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
+        if (expertsMap.has(expertID)) {
           workExpertIDs.add(expertID);
         }
       });
@@ -102,7 +96,7 @@ const renderPolygons = ({
       }
 
       (grant.relatedExpertIDs || []).forEach((expertID) => {
-        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
+        if (expertsMap.has(expertID)) {
           grantExpertIDs.add(expertID);
         }
       });
@@ -122,8 +116,10 @@ const renderPolygons = ({
       ...workExpertIDs,
       ...grantExpertIDs,
     ]);
-
     const totalExpertCount = combinedExpertIDs.size;
+    //console.log("🔍 Marker Expert Count:", totalExpertCount);
+
+
 
     // Create a polygon for the location
     const polygon = L.polygon(flippedCoordinates, {
@@ -151,10 +147,9 @@ const renderPolygons = ({
           align-items: center;
           justify-content: center;
           font-weight: bold;
-        '>${totalExpertCount || 0}</div>`,
+        '>${totalExpertCount}</div>`,
         className: "polygon-center-marker",
         iconSize: [30, 30],
-        expertCount: totalExpertCount,
       }),
     }).addTo(map);
 
@@ -169,45 +164,54 @@ const renderPolygons = ({
       if (closeTimeout) clearTimeout(closeTimeout);
 
       // Collect matched fields from works and grants
-      // locationData.workIDs.forEach((workID) => {
-      //   const work = worksMap.get(workID);
-      //   if (!work.matchedFields || work.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     work.matchedFields = getMatchedFields(searchKeyword,work);
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (work?.matchedFields) {
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
 
-      // locationData.grantIDs.forEach((grantID) => {
-      //   const grant = grantsMap.get(grantID);
-      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (grant?.matchedFields) {
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
 
-      const totalWorks = locationData.workIDs?.filter(id => worksMap[id]).length || 0;
-      const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
+      const totalWorks = locationData.workIDs?.filter(id => worksMap.has(id)).length || 0;
+      const totalGrants = locationData.grantIDs?.filter(id => grantsMap.has(id)).length || 0;
 
-      // const matchedFields = Array.from(matchedFieldsSet);
+      // Use relatedExpertIDs for consistency
+      const workExpertIDs = new Set();
+      const grantExpertIDs = new Set();
 
-      // Create popup content
-      const content =
-        createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          );
+      locationData.workIDs.forEach((id) => {
+        const work = worksMap.get(id);
+        if (work?.relatedExpertIDs) {
+          work.relatedExpertIDs.forEach(eid => workExpertIDs.add(eid));
+        }
+      });
+
+      locationData.grantIDs.forEach((id) => {
+        const grant = grantsMap.get(id);
+        if (grant?.relatedExpertIDs) {
+          grant.relatedExpertIDs.forEach(eid => grantExpertIDs.add(eid));
+        }
+      });
+
+      const work2expertCount = workExpertIDs.size;
+      const grant2expertCount = grantExpertIDs.size;
+      const combinedExpertIDs = new Set([...workExpertIDs, ...grantExpertIDs]);
+
+      // Create popup content 
+      const content = createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.name,
+        totalWorks,
+        totalGrants,
+        combinedExpertIDs.size
+      );
 
       if (activePopup) activePopup.remove();
 
@@ -248,7 +252,7 @@ const renderPolygons = ({
 
             const grantPanelData = prepareGrantPanelData(
               Array.from(grantExpertIDs),
-              Array.isArray(locationData.grantIDs) ? locationData.grantIDs : [],
+              locationData.grantIDs,
               grantsMap,
               expertsMap,
               locationID,
@@ -256,7 +260,7 @@ const renderPolygons = ({
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
-              Array.isArray(locationData.workIDs) ? locationData.workIDs : [],
+              locationData.workIDs,
               expertsMap,
               worksMap,
               locationID,
@@ -305,20 +309,40 @@ const renderPolygons = ({
         }
       });
 
-      const totalWorks = locationData.workIDs?.filter(id => worksMap[id]).length || 0;
-      const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
+      const totalWorks = locationData.workIDs?.filter(id => worksMap.has(id)).length || 0;
+      const totalGrants = locationData.grantIDs?.filter(id => grantsMap.has(id)).length || 0;
 
-      const matchedFields = Array.from(matchedFieldsSet);
-      
-      // Create popup content
-      const content =
-        createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants
-          );
+      // Use relatedExpertIDs for consistency
+      const workExpertIDs = new Set();
+      const grantExpertIDs = new Set();
+
+      locationData.workIDs.forEach((id) => {
+        const work = worksMap.get(id);
+        if (work?.relatedExpertIDs) {
+          work.relatedExpertIDs.forEach(eid => workExpertIDs.add(eid));
+        }
+      });
+
+      locationData.grantIDs.forEach((id) => {
+        const grant = grantsMap.get(id);
+        if (grant?.relatedExpertIDs) {
+          grant.relatedExpertIDs.forEach(eid => grantExpertIDs.add(eid));
+        }
+      });
+
+      const work2expertCount = workExpertIDs.size;
+      const grant2expertCount = grantExpertIDs.size;
+      const combinedExpertIDs = new Set([...workExpertIDs, ...grantExpertIDs]);
+
+      // Create popup content (only need one version now)
+      const content = createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.name,
+        totalWorks,
+        totalGrants,
+        combinedExpertIDs.size
+      );
 
       activePopup = L.popup({
         closeButton: true,
@@ -344,7 +368,7 @@ const renderPolygons = ({
 
             const grantPanelData = prepareGrantPanelData(
               Array.from(grantExpertIDs),
-              Array.isArray(locationData.grantIDs) ? locationData.grantIDs : [],
+              locationData.grantIDs,
               grantsMap,
               expertsMap,
               locationID,
@@ -352,7 +376,7 @@ const renderPolygons = ({
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
-              Array.isArray(locationData.workIDs) ? locationData.workIDs : [],
+              locationData.workIDs,
               expertsMap,
               worksMap,
               locationID,
@@ -380,7 +404,6 @@ const renderPolygons = ({
  * Interactive popups display expert and grant information.
  **/
 const renderPoints = ({
-  searchKeyword,
   locationMap,
   worksMap,
   grantsMap,
@@ -393,37 +416,28 @@ const renderPoints = ({
   setPanelOpen,
   setPanelType,
 }) => {
-  
-  // Normalize locationMap to an array of [id, data] pairs
-  const locationEntries = Array.from(locationMap.entries())
-
+  const matchedFieldsSet = new Set();
   // Iterate through each location in the location map
-  locationEntries.forEach(([locationID, locationData]) => {
+  locationMap.forEach((locationData, locationID) => {
     // Skip locations that are not points or have no works or grants
-    const workExpertIDs = new Set();
-    const grantExpertIDs = new Set();
-    const matchedFieldsSet = new Set();
     if (
       locationData.geometryType !== "Point" ||
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
-      !Array.isArray(locationData.workIDs) || locationData.workIDs.length === 0
-    ) {
-    // console.log(`Skipping locationID ${locationID}: not a point or no works/grants.`);
-    return;}
+      !Array.isArray(locationData.workIDs) || locationData.workIDs.length === 0 //changed this to worksIDs durig testing
+    ) return;
 
     // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
-    if(locationID === "location:10") {
-      console.log("Flipped Coordinates for location:10:", flippedCoordinates);
-      console.log("Location Data:", locationData.expertIDs.length, "experts found");
-    }
+
     setLocationName(locationData.name);
-    
+
+    const workExpertIDs = new Set();
+    const grantExpertIDs = new Set();
+
     // Get expert count for each work and grant per location
     // Count experts from workIDs
-    
-    locationData.workIDs.forEach((workID) => {
+    locationData.workIDs.forEach((workID) => { // changed this to workIDs during testing
       const work = worksMap.get(workID);
       if (!work) {
         console.warn(`Work with ID ${workID} not found in worksMap.`);
@@ -431,7 +445,7 @@ const renderPoints = ({
       }
 
       (work.relatedExpertIDs || []).forEach((expertID) => {
-        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
+        if (expertsMap.has(expertID)) {
           workExpertIDs.add(expertID);
         }
       });
@@ -445,7 +459,7 @@ const renderPoints = ({
       }
 
       (grant.relatedExpertIDs || []).forEach((expertID) => {
-        if (Object.prototype.hasOwnProperty.call(expertsMap, expertID)) {
+        if (expertsMap.has(expertID)) {
           grantExpertIDs.add(expertID);
         }
       });
@@ -460,10 +474,11 @@ const renderPoints = ({
       ...grantExpertIDs,
     ]);
     const totalExpertCount = combinedExpertIDs.size;
-    
+
 
     // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
+      expertCount: totalExpertCount,
       icon: L.divIcon({
         html: `<div style='background: #659c39; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${totalExpertCount}</div>`,
         className: "custom-marker-icon",
@@ -479,47 +494,57 @@ const renderPoints = ({
       if (closePointTimeout) clearTimeout(closePointTimeout);
 
 
-      // Collect matched fields from works and grants
-      // locationData.workIDs.forEach((workID) => {
-      //   const work = worksMap.get(workID);
-      //   if (!work.matchedFields || work.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     work.matchedFields = getMatchedFields(searchKeyword,work);
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (work?.matchedFields) {
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
+      // Collect matched fields from works
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
 
-      // locationData.grantIDs.forEach((grantID) => {
-      //   const grant = grantsMap.get(grantID);
-      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (grant?.matchedFields) {
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
+      // Collect matched fields from grants
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
 
-      const totalWorks = locationData.workIDs?.filter(id => worksMap[id]).length || 0;
-      const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
 
-      // const matchedFields = Array.from(matchedFieldsSet);
+      const totalWorks = locationData.workIDs?.filter(id => worksMap.has(id)).length || 0;
+      const totalGrants = locationData.grantIDs?.filter(id => grantsMap.has(id)).length || 0;
 
-      // Create popup content
-      const content =
-        createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          );
+      // Use relatedExpertIDs for consistency
+      const workExpertIDs = new Set();
+      const grantExpertIDs = new Set();
 
+      locationData.workIDs.forEach((id) => {
+        const work = worksMap.get(id);
+        if (work?.relatedExpertIDs) {
+          work.relatedExpertIDs.forEach(eid => workExpertIDs.add(eid));
+        }
+      });
+
+      locationData.grantIDs.forEach((id) => {
+        const grant = grantsMap.get(id);
+        if (grant?.relatedExpertIDs) {
+          grant.relatedExpertIDs.forEach(eid => grantExpertIDs.add(eid));
+        }
+      });
+
+      const work2expertCount = workExpertIDs.size;
+      const grant2expertCount = grantExpertIDs.size;
+      const combinedExpertIDs = new Set([...workExpertIDs, ...grantExpertIDs]);
+
+      // Create popup content 
+      const content = createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.name,
+        totalWorks,
+        totalGrants,
+        combinedExpertIDs.size
+      );
 
       // Remove existing popup if present
       if (activePointPopup) activePointPopup.remove();
@@ -560,7 +585,7 @@ const renderPoints = ({
 
             const grantPanelData = prepareGrantPanelData(
               Array.from(grantExpertIDs),
-              Array.isArray(locationData.grantIDs) ? locationData.grantIDs : [],
+              locationData.grantIDs,
               grantsMap,
               expertsMap,
               locationID,
@@ -568,7 +593,7 @@ const renderPoints = ({
             );
             const workPanelData = prepareWorkPanelData(
               Array.from(workExpertIDs),
-              Array.isArray(locationData.workIDs) ? locationData.workIDs : [],
+              locationData.workIDs,
               expertsMap,
               worksMap,
               locationID,
@@ -618,21 +643,40 @@ const renderPoints = ({
         }
       });
 
-      
-      const totalWorks = locationData.workIDs?.filter(id => worksMap[id]).length || 0;
-      const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
-      const matchedFields = Array.from(matchedFieldsSet);
+      const totalWorks = locationData.workIDs?.filter(id => worksMap.has(id)).length || 0;
+      const totalGrants = locationData.grantIDs?.filter(id => grantsMap.has(id)).length || 0;
+
+      // Use relatedExpertIDs for consistency
+      const workExpertIDs = new Set();
+      const grantExpertIDs = new Set();
+
+      locationData.workIDs.forEach((id) => {
+        const work = worksMap.get(id);
+        if (work?.relatedExpertIDs) {
+          work.relatedExpertIDs.forEach(eid => workExpertIDs.add(eid));
+        }
+      });
+
+      locationData.grantIDs.forEach((id) => {
+        const grant = grantsMap.get(id);
+        if (grant?.relatedExpertIDs) {
+          grant.relatedExpertIDs.forEach(eid => grantExpertIDs.add(eid));
+        }
+      });
+
+      const work2expertCount = workExpertIDs.size;
+      const grant2expertCount = grantExpertIDs.size;
+      const combinedExpertIDs = new Set([...workExpertIDs, ...grantExpertIDs]);
 
       // Create popup content
-      const content =
-        createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          );
+      const content = createCombinedPopup(
+        work2expertCount,
+        grant2expertCount,
+        locationData.name,
+        totalWorks,
+        totalGrants,
+        combinedExpertIDs.size
+      );
 
       // Create a new popup
       activePointPopup = L.popup({
@@ -656,7 +700,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const grantPanelData = prepareGrantPanelData(
-              grantExpertIDs,
+              locationData.grantExpertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -664,7 +708,7 @@ const renderPoints = ({
               locationData.name
             );
             const workPanelData = prepareWorkPanelData(
-              Array.from(workExpertIDs),
+              locationData.workExpertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
@@ -696,7 +740,6 @@ const renderPoints = ({
  * It integrates the rendering logic for polygons and points and manages map layers and markers.
  **/
 const CombinedLayer = ({
-  searchKeyword,
   locationMap,
   grantsMap,
   worksMap,
@@ -716,11 +759,6 @@ const CombinedLayer = ({
     // Exit early if map or overlappingLocations is not available
     if (!map || !locationMap || !expertsMap || !worksMap || !grantsMap) return;
 
-    // if(!searchKeyword){
-    //   console.warn("CombinedLayer: No searchKeyword provided.");
-    // }
-
-    // Create a marker cluster group for combined markers
     const comboMarkerGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 40,
@@ -728,7 +766,7 @@ const CombinedLayer = ({
       iconCreateFunction: (cluster) => {
         const totalExperts = cluster
           .getAllChildMarkers()
-          .reduce((sum, marker) => sum + marker.options.expertCount, 0);
+          .reduce((sum, marker) => sum + marker.options.expertCount, 0)
 
         return L.divIcon({
           html: `<div style="background: #659c39; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${totalExperts}</div>`,
@@ -741,11 +779,9 @@ const CombinedLayer = ({
     const comboLayers = [];
     const comboPolyMarkers = [];
 
-
     if (showWorks && showGrants) {
       // Render overlapping locations
       renderPolygons({
-        searchKeyword,
         locationMap,
         worksMap,
         grantsMap,
@@ -761,7 +797,6 @@ const CombinedLayer = ({
       });
 
       renderPoints({
-        searchKeyword,
         locationMap,
         worksMap,
         grantsMap,
@@ -781,12 +816,10 @@ const CombinedLayer = ({
       map.removeLayer(comboMarkerGroup);
       comboLayers.forEach((layer) => map.removeLayer(layer));
       comboPolyMarkers.forEach((marker) => map.removeLayer(marker));
-
       // map.off("zoomend", handleZoomEnd);
     };
   }, [
     map,
-    searchKeyword,
     locationMap,
     grantsMap,
     worksMap,

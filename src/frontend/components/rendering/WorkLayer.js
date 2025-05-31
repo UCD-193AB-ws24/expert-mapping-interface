@@ -16,7 +16,7 @@
  * - renderPoints: Renders points on the map with clustering logic for locations with works.
  * - WorkLayer: Main component that integrates the rendering logic and manages map layers.
  *
- * Marina Mata, Alyssa Vallejo 2025
+ * Marina Mata, 2025
  */
 
 import { useEffect } from "react";
@@ -25,7 +25,6 @@ import "leaflet.markercluster";
 import { useMap } from "react-leaflet";
 import { createMultiExpertContent } from "./Popups";
 import { prepareWorkPanelData } from "./utils/preparePanelData";
-// import { getMatchedFields } from "./filters/searchFilter";
 
 /**
  * Renders polygons on the map for locations with works.
@@ -33,7 +32,6 @@ import { prepareWorkPanelData } from "./utils/preparePanelData";
  * Interactive popups display expert and work information.
  */
 const renderPolygons = ({
-  searchKeyword,
   locationMap,
   map,
   setSelectedWorks,
@@ -44,8 +42,7 @@ const renderPolygons = ({
   expertsMap,
   worksMap,
 }) => {
-  
-  const sortedPolygons = Object.entries(locationMap)
+  const sortedPolygons = Array.from(locationMap.entries())
     .filter(([, value]) => value.geometryType === "Polygon" && value.expertIDs.length > 0) // Skip locations with 0 experts
     .sort(([, a], [, b]) => {
       const area = (geometry) => {
@@ -74,13 +71,6 @@ const renderPolygons = ({
 
     polygonLayers.push(polygon);
 
-    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-    locationData.workIDs.some(workID => {
-      const work = worksMap.get(workID);
-      return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
-    })
-  );
-  
     // Calculate the center of the polygon
     const polygonCenter = polygon.getCenter();
 
@@ -97,7 +87,7 @@ const renderPolygons = ({
           align-items: center;
           justify-content: center;
           font-weight: bold;
-        '>${filteredExpertIDs.length}</div>`,
+        '>${locationData.expertIDs.length}</div>`,
         className: "polygon-center-marker",
         iconSize: [30, 30],
       }),
@@ -112,29 +102,20 @@ const renderPolygons = ({
     marker.on("mouseover", () => {
       if (workPolyCT) clearTimeout(workPolyCT);
 
-      // const matchedFieldsSet = new Set();
-      // // Collect matched fields from works and grants
-      // locationData.workIDs.forEach((workID) => {
-      //   const work = worksMap[workID];
-      //   if (!work.matchedFields || work.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     work.matchedFields = getMatchedFields(searchKeyword,work);
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (work?.matchedFields) {
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
-      
-      // const matchedFields = Array.from(matchedFieldsSet);
-      
-      
-      // Create content for the popup
+      const matchedFieldsSet = new Set();
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
-        filteredExpertIDs.length,
+        locationData.expertIDs.length,
         locationData.name,
-        locationData.workIDs.length
+        locationData.workIDs.length,
+        matchedFields
       );
 
       if (workPolyPopup) workPolyPopup.remove();
@@ -174,7 +155,7 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const panelData = prepareWorkPanelData(
-              filteredExpertIDs,
+              locationData.expertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
@@ -204,76 +185,66 @@ const renderPolygons = ({
     });
 
     marker.on("click", () => {
-    // Remove any existing popup
-    if (workPolyPopup) workPolyPopup.remove();
+      // Remove any existing popup
+      if (workPolyPopup) workPolyPopup.remove();
 
-    // const matchedFieldsSet = new Set();
-    //   // Collect matched fields from works and grants
-    // locationData.workIDs.forEach((workID) => {
-    //   const work = worksMap[workID];
-    //   if (!work.matchedFields || work.matchedFields.length === 0) {
-    //     // Compute matchedFields if missing or empty
-    //     console.log("Computing matchedFields for work:", workID);
-    //     work.matchedFields = getMatchedFields(searchKeyword,work);
-    //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-    //     console.log("Matched fields for work:", work.matchedFields);
-    //   }
-    //   if (work?.matchedFields) {
-    //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-    //   }
-    // });
-    
-    // const matchedFields = Array.from(matchedFieldsSet);
+      const matchedFieldsSet = new Set();
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
-    const content = createMultiExpertContent(
-      filteredExpertIDs.length,
-      locationData.name,
-      locationData.workIDs.length
-    );
+      const content = createMultiExpertContent(
+        locationData.expertIDs.length,
+        locationData.name,
+        locationData.workIDs.length,
+        matchedFields
+      );
 
-    workPolyPopup = L.popup({
-      closeButton: true,      // Show close button for mobile/tablet
-      autoClose: true,        // Close when clicking elsewhere
-      maxWidth: 300,
-      className: "hoverable-popup",
-      autoPan: true,          // Pan to popup if needed
-    })
-      .setLatLng(polygon.getBounds().getCenter())
-      .setContent(content)
-      .openOn(map);
+      workPolyPopup = L.popup({
+        closeButton: true,      // Show close button for mobile/tablet
+        autoClose: true,        // Close when clicking elsewhere
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: true,          // Pan to popup if needed
+      })
+        .setLatLng(polygon.getBounds().getCenter())
+        .setContent(content)
+        .openOn(map);
 
-    const popupElement = workPolyPopup.getElement();
-    
-    if (popupElement) {
-      popupElement.style.pointerEvents = "auto";
+      const popupElement = workPolyPopup.getElement();
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
 
-      // Only add the button click handler
-      const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
-      if (viewWPolyExpertsBtn) {
-        viewWPolyExpertsBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
+        // Only add the button click handler
+        const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
+        if (viewWPolyExpertsBtn) {
+          viewWPolyExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-          
-          const panelData = prepareWorkPanelData(
-            filteredExpertIDs,
-            locationData.workIDs,
-            expertsMap,
-            worksMap,
-            locationID,
-            locationData.display_name
-          );
-          setSelectedWorks(panelData);
-          setPanelType("works");
-          setPanelOpen(true);
+            const panelData = prepareWorkPanelData(
+              locationData.expertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID,
+              locationData.name
+            );
+            setSelectedWorks(panelData);
+            setPanelType("works");
+            setPanelOpen(true);
 
-          if (workPolyPopup) {
-            workPolyPopup.close();
-            workPolyPopup = null;
-          }
-        });
+            if (workPolyPopup) {
+              workPolyPopup.close();
+              workPolyPopup = null;
+            }
+          });
+        }
       }
-    }
     });
   });
 };
@@ -284,7 +255,6 @@ const renderPolygons = ({
  * Interactive popups display expert and work information.
  */
 const renderPoints = ({
-  searchKeyword,
   locationMap,
   map,
   markerClusterGroup,
@@ -294,36 +264,24 @@ const renderPoints = ({
   expertsMap,
   worksMap,
 }) => {
-
-  
-  const locationEntries = Object.entries(locationMap);
-
-  // Iterate through each location in the location map
-  locationEntries.forEach(([locationID, locationData]) => {
+  locationMap.forEach((locationData, locationID) => {
     if (
       locationData.geometryType !== "Point" ||
-      !Array.isArray(locationData.workIDs) || locationData.workIDs.length === 0 ||
+      !Array.isArray(locationData.expertIDs) || locationData.expertIDs.length === 0 ||
       !Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2
     ) return;
 
     // Swap [lng, lat] to [lat, lng]
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
-    
-    // Filter expertIDs to only those with at least one work in this location
-    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-      locationData.workIDs.some(workID => {
-        const work = worksMap.get(workID);
-        return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
-      })
-    );
+
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #3879C7; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${filteredExpertIDs.length}</div>`,
+        html: `<div style='background: #3879C7; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.expertIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
-      expertCount: filteredExpertIDs.length, // Add expertCount to marker options
+      expertCount: locationData.expertIDs.length, // Add expertCount to marker options
     });
 
     let workPointPopup = null;
@@ -332,28 +290,20 @@ const renderPoints = ({
     marker.on("mouseover", () => {
       if (workPointCT) clearTimeout(workPointCT);
 
-      // const matchedFieldsSet = new Set();
-      // // Collect matched fields from works and grants
-      // locationData.workIDs.forEach((workID) => {
-      //   const work = worksMap[workID];
-      //   if (!work.matchedFields || work.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     console.log("Computing matchedFields for work:", workID);
-      //     work.matchedFields = getMatchedFields(searchKeyword,work);
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //     console.log("Matched fields for work:", work.matchedFields);
-      //   }
-      //   if (work?.matchedFields) {
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
-      
-      // const matchedFields = Array.from(matchedFieldsSet);
+      const matchedFieldsSet = new Set();
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
-        filteredExpertIDs.length,
+        locationData.expertIDs.length,
         locationData.name,
-        locationData.workIDs.length
+        locationData.workIDs.length,
+        matchedFields
       );
 
       if (workPointPopup) workPointPopup.remove();
@@ -391,12 +341,12 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareWorkPanelData(
-              filteredExpertIDs,
+              locationData.expertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
               locationID, // Pass the current locationID
-              locationData.display_name
+              locationData.name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -424,28 +374,20 @@ const renderPoints = ({
 
       if (workPointPopup) workPointPopup.remove();
 
-      // const matchedFieldsSet = new Set();
-      // // Collect matched fields from works and grants
-      // locationData.workIDs.forEach((workID) => {
-      //   const work = worksMap[workID];
-      //   if (!work.matchedFields || work.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     console.log("Computing matchedFields for work:", workID);
-      //     work.matchedFields = getMatchedFields(searchKeyword,work);
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //     console.log("Matched fields for work:", work.matchedFields);
-      //   }
-      //   if (work?.matchedFields) {
-      //     work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
-      
-      // const matchedFields = Array.from(matchedFieldsSet);
+      const matchedFieldsSet = new Set();
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap.get(workID);
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
-        filteredExpertIDs.length,
+        locationData.expertIDs.length,
         locationData.name,
-        locationData.workIDs.length
+        locationData.workIDs.length,
+        matchedFields
       );
 
       workPointPopup = L.popup({
@@ -470,12 +412,12 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareWorkPanelData(
-              filteredExpertIDs,
+              locationData.expertIDs,
               locationData.workIDs,
               expertsMap,
               worksMap,
               locationID, // Pass the current locationID
-              locationData.display_name
+              locationData.name
             );
             setSelectedWorks(panelData); // Pass the prepared data to the panel
             setPanelType("works");
@@ -489,7 +431,7 @@ const renderPoints = ({
         }
       }
     });
-    
+
     markerClusterGroup.addLayer(marker);
   });
 
@@ -501,7 +443,6 @@ const renderPoints = ({
  * It integrates the rendering logic for polygons and points and manages map layers and markers.
  */
 const WorkLayer = ({
-  searchKeyword,
   locationMap,
   worksMap,
   expertsMap,
@@ -519,7 +460,6 @@ const WorkLayer = ({
     }
     const polygonLayers = [];
     const polygonMarkers = [];
-
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 100,
@@ -538,7 +478,6 @@ const WorkLayer = ({
     });
     // Render polygons
     renderPolygons({
-      searchKeyword,
       locationMap,
       map,
       setSelectedWorks,
@@ -552,7 +491,6 @@ const WorkLayer = ({
 
     // Render points
     renderPoints({
-      searchKeyword,
       locationMap,
       map,
       markerClusterGroup,
@@ -571,7 +509,6 @@ const WorkLayer = ({
     };
   }, [
     map,
-    searchKeyword,
     locationMap,
     worksMap,
     expertsMap,

@@ -33,6 +33,8 @@ import { filterFeaturesByZoom, filterOverlappingLocationsByZoom } from "./render
 import { isGrantInDate, isWorkInDate } from "./rendering/filters/dateFilter";
 import { splitFeaturesByLocation } from "./rendering/filters/splitFeaturesByLocation";
 import { isHighConfidence } from "./rendering/filters/confidenceFilter";
+import { aggregateToCountryLevel } from "./rendering/filters/countryAggregate";
+
 /**
  * ResearchMap Component
  * @description Main map interface for visualizing research-related data.
@@ -86,22 +88,22 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
             const processedWorksData = {
               type: "FeatureCollection",
               features: worksData.features.map((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            entries: feature.properties.entries || [],
-          },
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: feature.properties.entries || [],
+                },
               })),
             };
             // Process grants data into GeoJSON format.
             const processedGrantsData = {
               type: "FeatureCollection",
               features: grantsData.features.map((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            entries: feature.properties.entries || [],
-          },
+                ...feature,
+                properties: {
+                  ...feature.properties,
+                  entries: feature.properties.entries || [],
+                },
               })),
             };
             setRawWorkGeoJSON(processedWorksData);
@@ -111,6 +113,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           .catch((error) => {
             console.error("Error fetching data:", error);
             setIsLoading(false);
+            setError("Failed to load map data. Please ensure the API server is running on port 3001.");
           });
       } catch (err) {
         console.error(" Error loading geojson:", err);
@@ -145,6 +148,15 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     };
   }, [mapRef.current]);
 
+// Get map level based on zoom level
+const mapLevel = useMemo(() => {
+  if (zoomLevel <= 4) return "Country";
+  if (zoomLevel <= 7) return "State";
+  if (zoomLevel <= 10) return "County";
+  if (zoomLevel <= 13) return "City";
+  if (zoomLevel >= 14) return "Exact";
+  return "Country"; // Default to country level if zoom level is not set because the map is not loaded yet
+}, [zoomLevel]);
 
   // 2. Apply filters in memory
   const filteredWorkGeoJSON = useMemo(() => {
@@ -166,7 +178,6 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
         .filter(f => f.properties.entries.length > 0)
     };
   }, [rawWorkGeoJSON, selectedDateRange, searchKeyword]);
-  console.log("Filtered Works Count:", filteredWorkGeoJSON?.features?.length);
 
 
   const filteredGrantGeoJSON = useMemo(() => {
@@ -189,23 +200,43 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
         .filter(f => f.properties.entries.length > 0)
     };
   }, [rawGrantGeoJSON, selectedDateRange, searchKeyword]);
-  console.log("Filtered Grants Count:", filteredGrantGeoJSON?.features?.length);
 
-  // 3. Filter data based on grants or works, or both
+// console.log("Filtered Work GeoJSON:", filteredWorkGeoJSON, "Type:", filteredWorkGeoJSON?.type);
+// console.log("Filtered Grant GeoJSON:", filteredGrantGeoJSON, "Type:", filteredGrantGeoJSON?.type);
+
+  // 3. Aggregate data by country
+  const aggregatedWorkGeoJSON = useMemo(() =>
+  filteredWorkGeoJSON
+    ? aggregateToCountryLevel(filteredWorkGeoJSON, "worksFeatures")
+    : { type: "FeatureCollection", features: [] }
+, [filteredWorkGeoJSON]);
+
+const aggregatedGrantGeoJSON = useMemo(() =>
+  filteredGrantGeoJSON
+    ? aggregateToCountryLevel(filteredGrantGeoJSON, "grantsFeatures")
+    : { type: "FeatureCollection", features: [] }
+, [filteredGrantGeoJSON]);
+
+  console.log("Aggregated Work Features:", aggregatedWorkGeoJSON);
+  console.log("Aggregated Grant Features:", aggregatedGrantGeoJSON);
+  
+  // 4. Filter data based on grants or works, or both
   const {
     overlappingLocations, // features with both works and grants
     nonOverlappingWorks,  // features with only works
     nonOverlappingGrants, // features with only grants
     // ...any maps you need
   } = useMemo(() => splitFeaturesByLocation(
-    filteredWorkGeoJSON,
-    filteredGrantGeoJSON,
+    aggregatedWorkGeoJSON,
+    aggregatedGrantGeoJSON,
     showWorks,
     showGrants
-  ), [filteredWorkGeoJSON, filteredGrantGeoJSON, showWorks, showGrants]);
+  ), [aggregatedWorkGeoJSON, aggregatedGrantGeoJSON, showWorks, showGrants]);
 
+  console.log("Overlapping Locations:", overlappingLocations.length);
+  console.log("Overlapping Loctions Features:", overlappingLocations);
 
-  // 4. Filter data based on zoom level
+  // 5. Filter data based on zoom level
   const zoomFilteredNonOverlappingGrants = useMemo(() =>
     filterFeaturesByZoom(nonOverlappingGrants, zoomLevel),
     [nonOverlappingGrants, zoomLevel]
@@ -217,22 +248,47 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   );
 
   const zoomFilteredOverlappingLocations = useMemo(() =>
-    filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel),
+    filterOverlappingLocationsByZoom(overlappingLocations, zoomLevel, "workFeatures"),
     [overlappingLocations, zoomLevel]
   );
+  console.log("Zoom Filtered Overlapping Locations:", zoomFilteredOverlappingLocations.length);
+  
 
   // 5. Organize Data into locationMap, grantsMap, worksMap, and expertsMap
   const {
-    combined, // { locationMap, worksMap, grantsMap, expertsMap }
-    works,    // { locationMap, worksMap, expertsMap }
-    grants,   // { locationMap, grantsMap, expertsMap }
+    combined = {}
+    // works = {},
+    // grants = {},
   } = organizeAllMaps({
     overlappingFeatures: zoomFilteredOverlappingLocations || [],
-    workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
-    grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
+    // workOnlyFeatures: zoomFilteredNonOverlappingWorks || [],
+    // grantOnlyFeatures: zoomFilteredNonOverlappingGrants || [],
     searchKeyword,
-  });
+  }) || {};
 
+  // Calculate total unique workIDs and grantIDs in the locationMap
+  let totalWorkIDs = 0;
+  let totalGrantIDs = 0;
+  if (combined.locationMap) {
+    const workIDSet = new Set();
+    const grantIDSet = new Set();
+    Object.values(combined.locationMap).forEach(loc => {
+      if (Array.isArray(loc.workIDs)) {
+        loc.workIDs.forEach(id => workIDSet.add(id));
+      }
+      if (Array.isArray(loc.grantIDs)) {
+        loc.grantIDs.forEach(id => grantIDSet.add(id));
+      }
+    });
+    totalWorkIDs = workIDSet.size;
+    totalGrantIDs = grantIDSet.size;
+  }
+  console.log("Combined Location Map:", combined.locationMap);
+  console.log("Total unique workIDs in locationMap:", totalWorkIDs);
+  console.log("Total unique grantIDs in locationMap:", totalGrantIDs);
+
+  
+  
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
       <div id="map" style={{ flex: 1, height: "100%" }}>
@@ -266,7 +322,27 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           Reset View
         </button>
 
-
+        {/* Zoom Level Indicator */}
+          {mapLevel && (
+              <div className="zoom-level-indicator" 
+                style={{
+                  position: "absolute",
+                  top: "20px",
+                  left: "50px",
+                  zIndex: 1001,
+                  background: "rgba(255,255,255,0.80)",
+                  padding: "6px 16px",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  color: "#3879C7",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
+                }}
+              >
+                {mapLevel && `${mapLevel} Level`}
+              </div>
+            )}
+          
         <MapWrapper mapRef={mapRef}>
           {/* Combined location layer */}
           {(showWorks && showGrants) && (
@@ -287,7 +363,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
 
 
           {/* Works layer */}
-          {(showWorks) && (
+          {/* {(showWorks) && (
             <WorkLayer
               locationMap={works.locationMap}
               worksMap={works.worksMap}
@@ -298,10 +374,10 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
             />
-          )}
+          )} */}
 
           {/* Grants layer */}
-          {(showGrants) && (
+          {/* {(showGrants) && (
             <GrantLayer
               locationMap={grants.locationMap}
               grantsMap={grants.grantsMap}
@@ -312,7 +388,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
               setPanelOpen={setPanelOpen}
               setPanelType={setPanelType}
             />
-          )}
+          )} */}
         </MapWrapper>
       </div>
       {/* Loading spinner */}

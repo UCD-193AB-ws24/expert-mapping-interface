@@ -1,18 +1,9 @@
 import { getMatchedFields } from "./searchFilter";
 
-const getPlaceRankLevel = (placeRank) => {
-  if (placeRank >= 1 && placeRank <= 6) return "country";
-  if (placeRank >= 7 && placeRank <= 11) return "state";
-  if (placeRank >= 12 && placeRank <= 13) return "county";
-  if (placeRank >= 14 && placeRank <= 24) return "city";
-  if (placeRank >= 25 && placeRank <= 30) return "exact";
-  return "unknown";
-};
-
 export function organizeAllMaps({
   overlappingFeatures, // [{ location, worksFeatures, grantsFeatures }]
-  workOnlyFeatures,    // [{ location, worksFeatures }]
-  grantOnlyFeatures,    // [{ location, grantsFeatures }]
+  // workOnlyFeatures,    // [{ location, worksFeatures }]
+  // grantOnlyFeatures,    // [{ location, grantsFeatures }]
   searchKeyword
 }) {
   function buildMaps(features, type, searchKeyword) {
@@ -23,7 +14,6 @@ export function organizeAllMaps({
 
     (features || []).forEach((locObj, locIdx) => {
       const location = locObj.location || "Unknown";
-      let overlap = false;
       // Use the first feature (work or grant) to get geometry/properties for the location
       const sampleFeature =
         (type === "work" && locObj.worksFeatures?.[0]) ||
@@ -35,28 +25,20 @@ export function organizeAllMaps({
         return;
       }
 
-      if (type === "both") {
-        overlap = true;
-      }
-
       const geometry = sampleFeature.geometry;
       const locationID = sampleFeature.id || `${location}_${locIdx}`;
 
       if (!locationMap.has(locationID)) {
         locationMap.set(locationID, {
-          name: sampleFeature.name || "",
-          id: locationID || "Unknown ID",
-          location: sampleFeature.location || "",
-          display_name: sampleFeature.display_name || "",
-          country: sampleFeature.country || "",
-          place_rank: sampleFeature.place_rank || "",
-          geometryType: geometry.type || "",
-          coordinates: geometry.coordinates || null,
+          name: location,
+          display_name: sampleFeature.properties.display_name,
+          country: sampleFeature.properties.country,
+          place_rank: sampleFeature.properties.place_rank,
+          geometryType: geometry?.type,
+          coordinates: geometry?.coordinates,
           workIDs: [],
           grantIDs: [],
           expertIDs: [],
-          specificity: getPlaceRankLevel(Number(sampleFeature.place_rank)) || "unknown",
-          overlapping: overlap,
         });
       }
 
@@ -72,18 +54,17 @@ export function organizeAllMaps({
             }
             const workID = `work_${entry.id}`;
             worksMap.set(workID, {
-              workID: entry.id,
+              workID: entry.id || 'Unknown workID',
               title: entry.title || "Untitled Work",
-              authors: authors,
               abstract: entry.abstract || "No Abstract",
               issued: entry.issued || "Unknown",
               confidence: entry.confidence || "Unknown",
-              locationIDs: [],
+              locationIDs: [locationID],
               relatedExpertIDs: [],
-              matchedFields: [], 
+              matchedFields,
             });
             locationMap.get(locationID).workIDs.push(workID);
-
+            // console.log(`✅ Matched work: ${entry.title} at locationID ${locationID}`);
             // Handle experts (same as before)
             if (entry.relatedExperts) {
               entry.relatedExperts.forEach((expert) => {
@@ -95,11 +76,11 @@ export function organizeAllMaps({
                 if (!expertID) {
                   expertID = `expert_${expert.expertId}`;
                   expertsMap.set(expertID, {
-                    expertID: expert.expertId || expertID,
-                    name: expertName || expert.name || "Unknown",
+                    id: expert.expertId || 'Unknown ID',
+                    name: expertName || "Unknown",
                     url: expert.url || "#",
-                    locationIDs: [locationID],
-                    workIDs: [workID],
+                    locationIDs: [],
+                    workIDs: [],
                     grantIDs: [],
                   });
                 }
@@ -136,7 +117,7 @@ export function organizeAllMaps({
           });
 
           if (filteredEntries.length === 0) return;
-          console.log(`✅ ${filteredEntries.length} matched entries for grant feature at locationID ${locationID}`);
+          // console.log(`✅ ${filteredEntries.length} matched entries for grant feature at locationID ${locationID}`);
 
 
           filteredEntries.forEach((entry) => {
@@ -149,12 +130,12 @@ export function organizeAllMaps({
               startDate: entry.startDate || "Unknown",
               endDate: entry.endDate || "Unknown",
               confidence: entry.confidence || "Unknown",
-              locationID,
+              locationIDs: [locationID],
               relatedExpertIDs: [],
               matchedFields,
             });
-            console.log(`✅ Matched grant: ${entry.title} at locationID ${locationID}`);
-            console.log("📌 Updated location entry:", locationMap.get(locationID));
+            // console.log(`✅ Matched grant: ${entry.title} at locationID ${locationID}`);
+            // console.log("📌 Updated location entry:", locationMap.get(locationID));
 
 
             // locationMap.get(locationID).grantIDs.push(grantID);
@@ -176,7 +157,7 @@ export function organizeAllMaps({
                 if (!expertID) {
                   expertID = `expert_${expert.expertId}`;
                   expertsMap.set(expertID, {
-                    expertID: expert.expertId || 'Unknown ID',
+                    id: expert.expertId || 'Unknown ID',
                     name: expertName || "Unknown",
                     url: expert.url || "#",
                     locationIDs: [],
@@ -205,12 +186,17 @@ export function organizeAllMaps({
       }
     });
 
-    return { locationMap, worksMap, grantsMap, expertsMap };
+  return {
+      locationMap, 
+      worksMap,
+      grantsMap,
+      expertsMap
+    };
   }
 
   return {
-    combined: buildMaps(overlappingFeatures, "both", searchKeyword),
-    works: buildMaps(workOnlyFeatures, "work", searchKeyword),
-    grants: buildMaps(grantOnlyFeatures, "grant", searchKeyword),
+    combined: buildMaps(overlappingFeatures, "both", searchKeyword)
+    // works: buildMaps(workOnlyFeatures, "work", searchKeyword),
+    // grants: buildMaps(grantOnlyFeatures, "grant", searchKeyword),
   };
 }

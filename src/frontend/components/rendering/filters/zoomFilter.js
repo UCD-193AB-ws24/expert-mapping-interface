@@ -7,6 +7,7 @@ const getPlaceRankRange = (zoomLevel) => {
   return [Infinity, Infinity];
 };
 
+
 const filterFeaturesByZoom = (features = [], zoomLevel, featureType = "grantsFeatures") => {
   const placeRankRange = getPlaceRankRange(zoomLevel);
   // console.log(`Filtering features for zoom level ${zoomLevel}, place rank range: ${placeRankRange}`);
@@ -60,6 +61,21 @@ const filterOverlappingLocationsByZoom = (overlappingLocations = [], zoomLevel) 
     .map((location) => {
       const worksMatch = filteredWorks.find((work) => work.location === location.location);
       const grantsMatch = filteredGrants.find((grant) => grant.location === location.location);
+
+      // Debug: Log which worksFeatures and grantsFeatures are being filtered out for this location
+      const originalWorks = location.worksFeatures || [];
+      const originalGrants = location.grantsFeatures || [];
+      const filteredWorksIds = worksMatch ? worksMatch.worksFeatures.map(f => f.id || f.properties?.id) : [];
+      const filteredGrantsIds = grantsMatch ? grantsMatch.grantsFeatures.map(f => f.id || f.properties?.id) : [];
+      const removedWorks = originalWorks.filter(f => !(filteredWorksIds.includes(f.id || f.properties?.id)));
+      const removedGrants = originalGrants.filter(f => !(filteredGrantsIds.includes(f.id || f.properties?.id)));
+
+      if (removedWorks.length > 0) {
+        console.log(`Location ${location.location}: filtered out worksFeatures with ids:`, removedWorks.map(f => f.id || f.properties?.id));
+      }
+      if (removedGrants.length > 0) {
+        console.log(`Location ${location.location}: filtered out grantsFeatures with ids:`, removedGrants.map(f => f.id || f.properties?.id));
+      }
 
       if (!worksMatch && !grantsMatch) return null;
 

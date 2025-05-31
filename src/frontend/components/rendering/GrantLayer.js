@@ -23,7 +23,6 @@ import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { createMultiGrantPopup } from "./Popups";
 import { prepareGrantPanelData } from "./utils/preparePanelData";
-// import { getMatchedFields } from "./filters/searchFilter";
 
 /**
  * Renders grant-related polygons on the map.
@@ -31,7 +30,6 @@ import { prepareGrantPanelData } from "./utils/preparePanelData";
  * Interactive popups display grant and expert information.
  */
 const renderPolygons = ({
-  searchKeyword,
   locationMap,
   map,
   setSelectedGrants,
@@ -42,9 +40,8 @@ const renderPolygons = ({
   grantsMap,
   expertsMap,
 }) => {
-
   // Sort polygons by area (largest to smallest)
-  const sortedPolygons = Object.entries(locationMap)
+  const sortedPolygons = Array.from(locationMap.entries())
     .filter(([, value]) => value.geometryType === "Polygon" && value.grantIDs.length > 0)
     .sort(([, a], [, b]) => {
       const area = (geometry) => {
@@ -73,13 +70,6 @@ const renderPolygons = ({
       weight: 2,
     }).addTo(map);
 
-    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-    locationData.grantIDs.some(grantID => {
-      const grant = grantsMap.get(grantID);
-      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
-    })
-  );
-
     polygonLayers.push(polygon);
 
     // Calculate the center of the polygon
@@ -98,7 +88,7 @@ const renderPolygons = ({
               align-items: center;
               justify-content: center;
               font-weight: bold;
-            '>${filteredExpertIDs.length}</div>`,
+            '>${locationData.expertIDs.length}</div>`,
         className: "polygon-center-marker",
         iconSize: [30, 30],
       }),
@@ -112,25 +102,20 @@ const renderPolygons = ({
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (closeTimeout) clearTimeout(closeTimeout);
-      // const matchedFieldsSet = new Set();
-      // locationData.grantIDs.forEach((grantID) => {
-      //   const grant = grantsMap[grantID];
-      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (grant?.matchedFields) {
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
-
-      // const matchedFields = Array.from(matchedFieldsSet);
+      const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        filteredExpertIDs.length,
+        locationData.expertIDs.length,
         locationData.grantIDs.length,
-        locationData.name
+        locationData.name,
+        matchedFields
       );
 
       // Remove existing popup if it exists
@@ -173,7 +158,7 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              filteredExpertIDs,
+              locationData.expertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -208,25 +193,20 @@ const renderPolygons = ({
       // Remove any existing popup
       if (activePopup) activePopup.remove();
 
-      // const matchedFieldsSet = new Set();
-      // locationData.grantIDs.forEach((grantID) => {
-      //   const grant = grantsMap[grantID];
-      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (grant?.matchedFields) {
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
-
-      // const matchedFields = Array.from(matchedFieldsSet);
+      const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        filteredExpertIDs.length,
+        locationData.expertIDs.length,
         locationData.grantIDs.length,
-        locationData.name
+        locationData.name,
+        matchedFields
       );
 
       activePopup = L.popup({
@@ -252,7 +232,7 @@ const renderPolygons = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              filteredExpertIDs,
+              locationData.expertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -281,7 +261,6 @@ const renderPolygons = ({
  * Interactive popups display grant and expert information.
  */
 const renderPoints = ({
-  searchKeyword,
   locationMap,
   map,
   grantMarkerGroup,
@@ -291,12 +270,8 @@ const renderPoints = ({
   grantsMap,
   expertsMap,
 }) => {
-
   
-  const locationEntries = Object.entries(locationMap);
-
-  // Iterate through each location in the location map
-  locationEntries.forEach(([locationID, locationData]) => {
+  locationMap.forEach((locationData, locationID) => {
     if (
       locationData.geometryType !== "Point" ||
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
@@ -306,50 +281,35 @@ const renderPoints = ({
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
 
-    const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-    locationData.grantIDs.some(grantID => {
-      const grant = grantsMap.get(grantID);
-      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
-    })
-  );
     // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
-        html: `<div style='background: #eda012; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${filteredExpertIDs.length}</div>`,
+        html: `<div style='background: #eda012; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;'>${locationData.grantIDs.length}</div>`,
         className: "custom-marker-icon",
         iconSize: [30, 30],
       }),
-      expertCount: filteredExpertIDs.length,
     });
 
     let grantPointPopup = null;
     let grantPointCT = null; // CT = closetimeout
 
-    
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (grantPointCT) clearTimeout(grantPointCT);
-
-      // const matchedFieldsSet = new Set();
-      // locationData.grantIDs.forEach((grantID) => {
-      //   const grant = grantsMap[grantID];
-      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //     console.log("Grant ID:", grantID, "Grant MatchedFields:", grant.matchedFields);
-      //   }
-      //   if (grant?.matchedFields) {
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
-
-      // const matchedFields = Array.from(matchedFieldsSet);
+      const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        filteredExpertIDs.length,
+        locationData.expertIDs.length,
         locationData.grantIDs.length,
-        locationData.name
+        locationData.name,
+        matchedFields
       );
 
       // Remove existing popup if it exists
@@ -391,7 +351,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              filteredExpertIDs,
+              locationData.expertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -425,26 +385,20 @@ const renderPoints = ({
     marker.on("click", () => {
       if (grantPointPopup) grantPointPopup.remove();
 
-      // const matchedFieldsSet = new Set();
-      // locationData.grantIDs.forEach((grantID) => {
-      //   const grant = grantsMap[grantID];
-      //   console.log("Grant ID:", grantID, "Grant MatchedFields:", grant.matchedFields);
-      //   if( !grant.matchedFields || grant.matchedFields.length === 0) {
-      //     // Compute matchedFields if missing or empty
-      //     grant.matchedFields = getMatchedFields(searchKeyword,grant);
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      //   if (grant?.matchedFields) {
-      //     grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      //   }
-      // });
-
-      // const matchedFields = Array.from(matchedFieldsSet);
+      const matchedFieldsSet = new Set();
+      locationData.grantIDs.forEach((grantID) => {
+        const grant = grantsMap.get(grantID);
+        if (grant?.matchedFields) {
+          grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+      const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiGrantPopup(
-        filteredExpertIDs.length,
+        locationData.expertIDs.length,
         locationData.grantIDs.length,
-        locationData.name
+        locationData.name,
+        matchedFields
       );
 
       // Create a new popup
@@ -471,7 +425,7 @@ const renderPoints = ({
             e.stopPropagation();
 
             const panelData = prepareGrantPanelData(
-              filteredExpertIDs,
+              locationData.expertIDs,
               locationData.grantIDs,
               grantsMap,
               expertsMap,
@@ -501,7 +455,6 @@ const renderPoints = ({
  * It integrates the rendering logic for polygons and points and manages map layers and markers.
  */
 const GrantLayer = ({
-  searchKeyword,
   locationMap,
   grantsMap,
   expertsMap,
@@ -540,7 +493,6 @@ const GrantLayer = ({
 
     // Render polygons
     renderPolygons({
-      searchKeyword,
       locationMap,
       map,
       setSelectedGrants,
@@ -554,7 +506,6 @@ const GrantLayer = ({
 
     // Render points
     renderPoints({
-      searchKeyword,
       locationMap,
       map,
       grantMarkerGroup,
@@ -571,7 +522,7 @@ const GrantLayer = ({
       polygonLayers.forEach((p) => map.removeLayer(p));
       polygonMarkers.forEach((m) => map.removeLayer(m));
     };
-  }, [map, searchKeyword, locationMap, grantsMap, expertsMap, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
+  }, [map, locationMap, grantsMap, expertsMap, showGrants, setSelectedGrants, setPanelOpen, setPanelType]);
 
   return null;
 };

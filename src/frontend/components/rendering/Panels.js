@@ -17,9 +17,44 @@ import React, { useState } from "react";
 
 //Helper function to style confidence levels.
 export const getConfidenceStyle = (confidenceValue) => {
-  if (!confidenceValue) return { label: '', style: {} };
+  if (confidenceValue === undefined || confidenceValue === null || confidenceValue === "") {
+    return { label: '', style: {} };
+  }
 
-  if (confidenceValue.toLowerCase() === 'high') {
+  // Try to parse as a number
+  const num = Number(confidenceValue);
+
+  if (!isNaN(num)) {
+    if (num >= 80) {
+      return {
+        label: `${num}%`,
+        style: {
+          backgroundColor: '#e8f5e9',
+          color: '#2e7d32',
+          fontWeight: 'bold',
+          padding: '2px 5px',
+          borderRadius: '3px',
+          display: 'inline-block'
+        }
+      };
+    } else {
+      return {
+        label: `${num}%`,
+        style: {
+          backgroundColor: '#ffebee',
+          color: '#c62828',
+          fontWeight: 'bold',
+          padding: '2px 5px',
+          borderRadius: '3px',
+          display: 'inline-block'
+        }
+      };
+    }
+  }
+
+  // Fallback for string values like "high" or "low"
+  const valueStr = String(confidenceValue).toLowerCase();
+  if (valueStr === 'high') {
     return {
       label: 'High',
       style: {
@@ -31,7 +66,7 @@ export const getConfidenceStyle = (confidenceValue) => {
         display: 'inline-block'
       }
     };
-  } else if (confidenceValue.toLowerCase() === 'low') {
+  } else if (valueStr === 'low') {
     return {
       label: 'Low',
       style: {
@@ -350,7 +385,7 @@ export const GrantsPanel = ({ grants = [], onClose }) => {
                 style={{
                   marginTop: "10px",
                   padding: "5px 10px",
-                  background: "#eda012",
+                  background: "#3879C7",
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -503,9 +538,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
             fontWeight: "bold"
           }}
         >
-          Works (
-            {works.reduce((total, expert) => total + (Array.isArray(expert.works) ? expert.works.length : 0), 0)}
-          )
+          Works ({works.length})
         </button>
 
         {/* Grants Tab Button */}
@@ -523,7 +556,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
             fontWeight: "bold"
           }}
         >
-          Grants ({grants.reduce((total, expert) => total + (Array.isArray(expert.grants) ? expert.grants.length : 0), 0)})
+          Grants ({grants.length})
         </button>
       </div>
 
@@ -712,7 +745,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
                   style={{
                     marginTop: "10px",
                     padding: "5px 10px",
-                    background: "#eda012",
+                    background: "#3879C7",
                     color: "white",
                     border: "none",
                     borderRadius: "5px",

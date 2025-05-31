@@ -72,11 +72,10 @@ const matchesKeyword = (keyword, entry) => {
     entry.abstract,
     entry.funder,
     ...(entry.relatedExperts || []).map(e => e && (e.fullName || e.name)),
-    entry.name,
   ].filter(Boolean); // Remove null/undefined fields
 
   for (const field of fields) {
-    const lowerField = field.toLowerCase();
+    const lowerField = String(field).toLowerCase();
 
     // Exact match (substring)
     if (lowerField.includes(normalizedKeyword)) return true;
@@ -102,7 +101,6 @@ const matchesKeyword = (keyword, entry) => {
  * @param {Object} entry - The entry to search within.
  * @returns {Array} An array of matched fields, each containing the field name and matched value.
  */
-
 const getMatchedFields = (keyword, entry) => {
   if (!keyword?.trim() || !entry) return [];
 
@@ -126,7 +124,7 @@ const getMatchedFields = (keyword, entry) => {
   for (const [field, value] of Object.entries(fieldData)) {
     if (!value) continue;
 
-    const lowerValue = value.toLowerCase();
+    const lowerValue = String(value).toLowerCase();
 
     // Exact match (substring)
     if (lowerValue.includes(normalizedKeyword)) {
