@@ -12,7 +12,8 @@ const getPlaceRankLevel = (placeRank) => {
  */
 async function getWorkKeys(redisClient) {
   let workKeys = await redisClient.keys('work:*');
-  workKeys = workKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));
+  if (!Array.isArray(workKeys)) workKeys = [];
+  workKeys = workKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));     
   return workKeys;
 }
 
@@ -21,7 +22,8 @@ async function getWorkKeys(redisClient) {
  */
 async function getGrantKeys(redisClient) {
   let grantKeys = await redisClient.keys('grant:*');
-  grantKeys = grantKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));
+  if (!Array.isArray(grantKeys)) grantKeys = [];
+  grantKeys = grantKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));     
   return grantKeys;
 }
 
@@ -116,6 +118,7 @@ async function buildRedisMaps(redisClient) {
       let authors = entry.authors;
       if( !authors || authors === "[]" || authors === "null" || authors === "undefined") {
         console.log(`[organizeRedisMaps] No authors found for entry ${entry.id}, using default.`);
+        authors = [];
       }
       if (typeof authors === "string") {
         try {
@@ -133,7 +136,6 @@ async function buildRedisMaps(redisClient) {
       }
 
       const workID = `work:${entry.id}` || workKey;
-      console.log(`[organizeRedisMaps] Processing workID: ${workID}`);
       // Add to worksMap
       worksMap.set(workID, {
         workID: entry.id,
