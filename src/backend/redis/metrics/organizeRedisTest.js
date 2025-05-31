@@ -1,5 +1,5 @@
-const { createRedisClient } = require('../etl/aggieExpertsAPI/utils/redisUtils.js');
-const { organizeRedis } = require('./utils/organizeRedis.js');
+const { createRedisClient } = require('../../etl/aggieExpertsAPI/utils/redisUtils.js');
+const { organizeRedis } = require('../utils/organizeRedis.js');
 
 
 const redisClient = createRedisClient();

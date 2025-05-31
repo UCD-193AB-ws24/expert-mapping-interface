@@ -54,7 +54,9 @@ async function buildRedisMaps(redisClient) {
   // --- WORKS ---
   for (const workKey of workKeys) {
     const data = await redisClient.hGetAll(workKey);
-    if (!data || !data.id) continue;
+    if (!data || !data.id) {
+      console.log("[organizeRedisMaps] Skipping work with missing id:", workKey);
+    continue;}
 
     // Extract the number from workKey (format: work:n)
     const match = workKey.match(/^work:(\d+)$/); // failsafe regex to match work keys
@@ -71,7 +73,7 @@ async function buildRedisMaps(redisClient) {
         geometryType = geometryObj?.type || "";
         coordinates = geometryObj?.coordinates || null;
       } catch (e) {
-        console.error(`Error parsing geometry for ${workKey}:`, e);
+        console.log(`Error parsing geometry for ${workKey}:`, e);
       }
     }
 
@@ -92,32 +94,46 @@ async function buildRedisMaps(redisClient) {
         specificity: getPlaceRankLevel(Number(data.place_rank)) || "unknown",
         overlapping: "false",
       });
+      console.log(`[organizeRedisMaps] Initialized locationMap entry for ${locationID}`);
+      console.log(locationMap.get(locationID));
     }
+    
       // Get all entry keys for this location
     const entryKeys = await getWorkEntryKeys(redisClient, workKey);
 
     for (const entryKey of entryKeys) {
+      console.log(`Processing entry key: ${entryKey}`);
       const entry = await redisClient.hGetAll(entryKey);
-      if (!entry || !entry.id) continue;
+      if (!entry || !entry.id) {
+        console.log(`[organizeRedisMaps] Skipping entry with missing id: ${entryKey}`);
+        continue
+      };
 
       const confidenceNum = Number(entry.confidence);
       if (isNaN(confidenceNum) || confidenceNum <= 60) continue;
 
       // Correctly parsing authors 
       let authors = entry.authors;
+      if( !authors || authors === "[]" || authors === "null" || authors === "undefined") {
+        console.log(`[organizeRedisMaps] No authors found for entry ${entry.id}, using default.`);
+      }
       if (typeof authors === "string") {
         try {
           authors = JSON.parse(authors);
+          console.log(`[organizeRedisMaps] Parsed authors for entry ${entry.id}:`, authors);
         } catch {
           // If not a valid JSON string, treat as single author string
           authors = [authors];
+          console.log(`[organizeRedisMaps] Using single author string for entry ${entry.id}:`, authors);
         }
       }
       if (!Array.isArray(authors)) {
         authors = ["Unknown Authors"];
+        console.log(`[organizeRedisMaps] Authors for entry ${entry.id} is not an array, using default.`);
       }
 
       const workID = `work:${entry.id}` || workKey;
+      console.log(`[organizeRedisMaps] Processing workID: ${workID}`);
       // Add to worksMap
       worksMap.set(workID, {
         workID: entry.id,
@@ -130,11 +146,12 @@ async function buildRedisMaps(redisClient) {
         relatedExpertIDs: [],
         matchedFields: [], 
       });
-
+      console.log(`[organizeRedisMaps] Adding work ${workID} to worksMap with locationID ${locationID}`);
       // Add workID to locationMap
       const locEntry = locationMap.get(locationID);
       if (locEntry && !locEntry.workIDs.includes(workID)) {
         locEntry.workIDs.push(workID);
+        console.log(`[organizeRedisMaps] Added workID ${workID} to location ${locationID}`);
       }
 
       // Handle related experts
@@ -214,7 +231,7 @@ async function buildRedisMaps(redisClient) {
     for (const [locID, locEntry] of locationMap.entries()) {
       if (locEntry.location === data.location) {
       existingLocationID = locID;
-      // console.log(`Found existing location for ${data.location}: ${locID}`);
+      console.log(`Found existing location for ${data.location}: ${locID}`);
       break;
       }
     }

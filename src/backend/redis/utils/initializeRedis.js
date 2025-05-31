@@ -37,43 +37,55 @@ async function initializeRedis(redisClient, pgClient) {
       // Exclude the `entries` field from the base key
       const { entries, ...baseProperties } = properties;
 
+      const createdAt = row.created_at ? row.created_at.toISOString() : "";
+      const updatedAt = row.updated_at ? row.updated_at.toISOString() : "";
+
       const redisData = {
-        id: row.id,
+        id: String(row.id),
         name: row.name || '',
         geometry,
-        created_at: row.created_at.toISOString(),
-        updated_at: row.updated_at ? row.updated_at.toISOString() : '',
+        created_at: createdAt,
+        updated_at: updatedAt,
         ...baseProperties, // Only include non-entry properties
       };
-
-      const sanitizedRedisData = sanitizeRedisData(redisData);
+    
+      let sanitizedRedisData;
+      try {
+        sanitizedRedisData = module.exports.sanitizeRedisData(redisData);
+      } catch (err) {
+        console.error("Error sanitizing data", err);
+        continue; // skip this row, continue with the next
+      }
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
       // Store entries as separate hashes
       if (entries && Array.isArray(entries)) {
         for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i];
-          if (!entry || typeof entry !== 'object') {
-            console.warn(`⚠️ Skipping invalid entry at index ${i}:`, entry);
-            continue;
-          }
-
-          const entryKey = `${redisKey}:entry:${i + 1}`;
-          const entryData = {
-            id: entry.id || '',
-            title: entry.title || '',
-            issued: Array.isArray(entry.issued)
-              ? JSON.stringify(entry.issued || [])
-              : String(entry.issued || ''),
-            authors: JSON.stringify(entry.authors || []),
-            abstract: entry.abstract || '',
-            confidence: entry.confidence || '',
-            relatedExperts: JSON.stringify(entry.relatedExperts || []),
-          };
-
-          const sanitizedEntryData = sanitizeRedisData(entryData);
-          await redisClient.hSet(entryKey, sanitizedEntryData);
+        const entry = entries[i];
+        if (!entry || typeof entry !== 'object') {
+          console.warn(`⚠️ Skipping invalid entry at index ${i}:`, entry);
+          continue;
         }
+        const entryKey = `${redisKey}:entry:${i + 1}`;
+        const entryData = { 
+          id: entry.id || '',
+          title: entry.title || '',
+          issued: Array.isArray(entry.issued)
+            ? JSON.stringify(entry.issued || [])
+            : String(entry.issued || ''),
+          authors: JSON.stringify(entry.authors || []),
+          abstract: entry.abstract || '',
+          confidence: entry.confidence || '',
+          relatedExperts: JSON.stringify(entry.relatedExperts || []),
+         };
+        const sanitizedEntryData = sanitizeRedisData(entryData);
+        try {
+          await redisClient.hSet(entryKey, sanitizedEntryData);
+        } catch (err) {
+          console.error("Error writing entry to Redis", err);
+          // continue to next entry
+        }
+}
       }
     }
 
@@ -97,16 +109,25 @@ async function initializeRedis(redisClient, pgClient) {
       // Exclude the `entries` field from the base key
       const { entries, ...baseProperties } = properties;
 
+      const createdAt = row.created_at ? row.created_at.toISOString() : "";
+      const updatedAt = row.updated_at ? row.updated_at.toISOString() : "";
+
       const redisData = {
-        id: row.id,
+        id: String(row.id),
         name: row.name || '',
         geometry,
-        created_at: row.created_at.toISOString(),
-        updated_at: row.updated_at ? row.updated_at.toISOString() : '',
-        ...baseProperties, // Only include non-entry properties
+        created_at: createdAt,
+        updated_at: updatedAt,
+        ...baseProperties,
       };
 
-      const sanitizedRedisData = sanitizeRedisData(redisData);
+      let sanitizedRedisData;
+      try {
+        sanitizedRedisData = module.exports.sanitizeRedisData(redisData);
+      } catch (err) {
+        console.error("Error sanitizing data", err);
+        continue; // skip this row, continue with the next
+      }
       await redisClient.hSet(redisKey, sanitizedRedisData);
       // Store entries as separate hashes
       if (entries && Array.isArray(entries)) {
@@ -116,9 +137,8 @@ async function initializeRedis(redisClient, pgClient) {
             console.warn(`⚠️ Skipping invalid entry at index ${i}:`, entry);
             continue;
           }
-
           const entryKey = `${redisKey}:entry:${i + 1}`;
-          const entryData = {
+          const entryData = { 
             id: entry.id || '',
             url: entry.url || '',
             title: entry.title || '',
@@ -128,9 +148,13 @@ async function initializeRedis(redisClient, pgClient) {
             confidence: entry.confidence || '',
             relatedExperts: JSON.stringify(entry.relatedExperts || []),
           };
-
           const sanitizedEntryData = sanitizeRedisData(entryData);
-          await redisClient.hSet(entryKey, sanitizedEntryData);
+          try {
+            await redisClient.hSet(entryKey, sanitizedEntryData);
+          } catch (err) {
+            console.error("Error writing entry to Redis", err);
+            // continue to next entry
+          }
         }
       }
     }
@@ -142,4 +166,6 @@ async function initializeRedis(redisClient, pgClient) {
   }
 }
 
-module.exports = { initializeRedis };
+module.exports = { initializeRedis,
+  sanitizeRedisData,
+ };

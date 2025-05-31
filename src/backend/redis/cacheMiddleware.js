@@ -1,14 +1,22 @@
-const redisClient = require('./redisClient'); // Your Redis client setup
-const pgClient = require('./pgClient'); // Your Postgres client setup
-
 /**
  * Write-through cache for INSERT or UPDATE operations
  * @param {string} redisKey - The Redis key to update
  * @param {Object} data - The data to write to Redis
  * @param {string} query - The SQL query to execute in Postgres
  * @param {Array} params - The parameters for the SQL query
+ * 
+ * This function writes data to both Redis and Postgres in a transaction.
+ * If either operation fails, it rolls back the transaction to maintain consistency.
+ * It uses Redis hash to store the data, allowing for efficient updates.
+ * This is useful for scenarios where you want to keep Redis in sync with Postgres
+ * while ensuring data integrity.
+ * 
+ * These functions will come in handy for implementing a way for experts to add their own works/grants
+ * to the database, which will then be cached in Redis for quick access.
+ * 
+ * Alyssa Vallejo, 2025
  */
-async function writeThroughCache(redisKey, data, query, params) {
+async function writeThroughCache(redisClient, pgClient, redisKey, data, query, params) {
   try {
 
     // Start a Postgres transaction
@@ -38,7 +46,7 @@ async function writeThroughCache(redisKey, data, query, params) {
  * @param {string} query - The SQL query to execute in Postgres
  * @param {Array} params - The parameters for the SQL query
  */
-async function deleteThroughCache(redisKey, query, params) {
+async function deleteThroughCache(redisClient, pgClient, redisKey, query, params) {
   try {
     // Start a Postgres transaction
     await pgClient.query('BEGIN');

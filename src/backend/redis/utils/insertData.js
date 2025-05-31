@@ -7,7 +7,9 @@ const { writeThroughCache } = require('../cacheMiddleware');
  * @param {string} name - Name of the work
  * @param {Object} validatedGeometry - Validated GeoJSON geometry
  * @param {Object} properties - Additional properties for the work
+ * 
  */
+
 async function insertWork(client, redisClient, name, validatedGeometry, properties) {
   const redisKey = `work:${properties.id || name}`; // Use `id` or `name` as the Redis key
   const redisData = {
