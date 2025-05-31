@@ -10,7 +10,7 @@
  * - GrantsPanel: Displays a list of grants associated with a location.
  * - CombinedPanel: Displays a side panel with two tabs: "Works" and "Grants".
  *
- * Marina Mata, 2025
+ * Marina Mata, Alyssa Vallejo 2025
  */
 
 import React, { useState } from "react";

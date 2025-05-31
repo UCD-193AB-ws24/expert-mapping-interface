@@ -15,7 +15,7 @@
  * - renderPoints: Renders grant-related points on the map.
  * - GrantLayer: Main component that integrates the rendering logic and manages map layers.
  *
- * Marina Mata, 2025
+ * Marina Mata, Alyssa Vallejo 2025
  */
 
 import { useEffect } from "react";

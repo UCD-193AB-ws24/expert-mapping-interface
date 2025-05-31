@@ -19,14 +19,18 @@ The `rendering/` directory powers all the map visualization and interaction feat
 
 ### filters/
 - `searchFilter.js` – Filters map data based on keyword matches (title, abstract, funder, etc.)
-- `zoomFilter.js` – Filters features shown depending on current zoom level
+
+- `dateFilter.js` - Filters map data based on issued date for works or that are in the range for start and end dates of grants.
+
+- `filterLocationMaps.js` - Filters out different locationMaps that do not have any in works or grants that are not present worksMaps or grantsMaps. This is applied after filtering worksMaps and grantsMaps.
 
 ### utils/
 - `preparePanelData.js` – Organizes expert data to be passed to side panels for display
 
+
 ---
 
-##Components
+## Components
 
 ### Layer Components
 - `GrantLayer.js` – Draws grant polygons/markers with popups and filtering
@@ -39,9 +43,6 @@ The `rendering/` directory powers all the map visualization and interaction feat
 
 ### Popup Logic
 - `Popups.js` – Creates popup content for grants/works with keyword match highlighting
-
-### Data Preprocessing
-- `ProcessGeoJSON.js` – Normalizes and processes incoming GeoJSON to consistent structure
 
 ---
 

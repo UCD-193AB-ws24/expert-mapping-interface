@@ -15,7 +15,7 @@
  * - renderPoints: Renders overlapping points for works and grants, including interactive popups.
  * - CombinedLayer: Main component that integrates the rendering logic and manages map layers.
  *
- * Marina Mata, 2025
+ * Marina Mata, Alyssa Vallejo 2025
  */
 
 import { useEffect, useState } from "react";
