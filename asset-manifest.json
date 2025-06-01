@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/expert-mapping-interface/static/css/main.a20d4f7d.css",
-    "main.js": "/expert-mapping-interface/static/js/main.f1e4b605.js",
-    "static/media/aggie-experts-logo-primary.png": "/expert-mapping-interface/static/media/aggie-experts-logo-primary.f1ecbfcd0b7cb785b1d1.png",
-    "index.html": "/expert-mapping-interface/index.html",
-    "main.a20d4f7d.css.map": "/expert-mapping-interface/static/css/main.a20d4f7d.css.map",
-    "main.f1e4b605.js.map": "/expert-mapping-interface/static/js/main.f1e4b605.js.map"
+    "main.css": "/static/css/main.a20d4f7d.css",
+    "main.js": "/static/js/main.20b23ee7.js",
+    "static/media/aggie-experts-logo-primary.png": "/static/media/aggie-experts-logo-primary.f1ecbfcd0b7cb785b1d1.png",
+    "index.html": "/index.html",
+    "main.a20d4f7d.css.map": "/static/css/main.a20d4f7d.css.map",
+    "main.20b23ee7.js.map": "/static/js/main.20b23ee7.js.map"
   },
   "entrypoints": [
     "static/css/main.a20d4f7d.css",
-    "static/js/main.f1e4b605.js"
+    "static/js/main.20b23ee7.js"
   ]
 }
