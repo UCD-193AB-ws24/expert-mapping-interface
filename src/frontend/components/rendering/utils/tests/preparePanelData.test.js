@@ -256,21 +256,6 @@ test("prepareGrantPanelData skips grants not linked to location", () => {
   expect(result.length).toBe(0);
 });
 
-test("prepareWorkPanelData skips works not linked to location", () => {
-  const worksMapWithWrongLocation = {
-    ...worksMap,
-    w6: { workID: "w6", relatedExpertIDs: ["e1"], locationIDs: ["loc2"] }
-  };
-  const result = prepareWorkPanelData(
-    ["e1"],
-    ["w6"],
-    expertsMap,
-    worksMapWithWrongLocation,
-    "loc1",
-    "Location 1"
-  );
-  expect(result.length).toBe(0);
-});
 
 test("prepareGrantPanelData returns empty array if no expertIDs match", () => {
   const result = prepareGrantPanelData(

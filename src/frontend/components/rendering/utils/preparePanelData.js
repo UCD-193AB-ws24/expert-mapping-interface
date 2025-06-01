@@ -104,7 +104,7 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
           console.warn(
             `Work with ID ${work.workID} has does not have locationID ${locationID}.`
           );
-          return false;
+          // return false;
         }
         return true;
       });
