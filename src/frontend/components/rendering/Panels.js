@@ -511,7 +511,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
 
       {/* Tab Navigation */}
       <div style={{ display: "flex", marginBottom: "15px", borderBottom: "1px solid #eaeaea" }}>
-        /* Works Tab Button */
+        {/* /* Works Tab Button */ }
         <button
           onClick={() => setActiveTab("works")}
           style={{

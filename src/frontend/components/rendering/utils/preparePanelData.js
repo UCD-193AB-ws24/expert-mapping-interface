@@ -41,14 +41,17 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
           return false;
         }
         if (!grant.locationIDs.includes(locationID)) {
-          // console.warn(
-          //   `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
-          // );
+          console.warn(
+            `Grant with ID ${grant.grantID} has does not have locationID ${locationID}.`
+          );
           return false;
         }
         return true;
       });
-
+    if(associatedGrants.length === 0) {
+        console.warn(`No works found for expertID ${expertID} at location ${locationID}.`);
+        return null;
+      }
     return {
       location: locationName,
       name: expert.name || "Unknown",
@@ -98,14 +101,17 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
           return false;
         }
         if (!work.locationIDs.includes(locationID)) {
-          // console.warn(
-          //   `Work with ID ${work.workID} has locationID ${work.locationID}, which does not match locationID ${locationID}.`
-          // );
+          console.warn(
+            `Work with ID ${work.workID} has does not have locationID ${locationID}.`
+          );
           return false;
         }
         return true;
       });
-
+      if(associatedWorks.length === 0) {
+        console.warn(`No works found for expertID ${expertID} at location ${locationID}.`);
+        return null;
+      }
     return {
       location: locationName, 
       name: expert.name || "Unknown",

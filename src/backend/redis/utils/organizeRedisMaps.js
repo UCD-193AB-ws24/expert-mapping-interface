@@ -144,10 +144,15 @@ async function buildRedisMaps(redisClient) {
         abstract: entry.abstract || "No Abstract",
         issued: entry.issued || "Unknown",
         confidence: entry.confidence || "Unknown",
-        locationIDs: [],
+        locationIDs: [locationID],
         relatedExpertIDs: [],
         matchedFields: [], 
       });
+      const workEntry = worksMap.get(workID);
+      if (workEntry && !workEntry.locationIDs.includes(locationID)) {
+        console.log(`[organizeRedisMaps] Adding locationID ${locationID} to work ${workID}`);
+        workEntry.locationIDs = [locationID];
+      }
       console.log(`[organizeRedisMaps] Adding work ${workID} to worksMap with locationID ${locationID}`);
       // Add workID to locationMap
       const locEntry = locationMap.get(locationID);

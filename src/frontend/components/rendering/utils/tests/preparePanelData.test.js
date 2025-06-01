@@ -161,18 +161,6 @@ describe("preparePanelData utility functions", () => {
     expect(result[0].works[0].title).toBe("Work 1");
   });
 
-  test("prepareWorkPanelData handles expert with empty or missing url", () => {
-    const result = prepareWorkPanelData(
-      ["e3"],
-      ["w1"],
-      expertsMap,
-      worksMap,
-      "loc1",
-      "Location 1"
-    );
-    expect(result[0].url).toBe(""); // e3 has empty url
-  });
-
   test("prepareGrantPanelData handles grant with missing relatedExpertIDs", () => {
     const result = prepareGrantPanelData(
       ["e1"],
@@ -182,7 +170,7 @@ describe("preparePanelData utility functions", () => {
       "loc1",
       "Location 1"
     );
-    expect(result[0].grants.length).toBe(0); // g3 has no relatedExpertIDs
+    expect(result.length).toBe(0); // g3 has no relatedExpertIDs
   });
 
   test("prepareWorkPanelData handles work with missing relatedExpertIDs", () => {
@@ -194,7 +182,7 @@ describe("preparePanelData utility functions", () => {
       "loc1",
       "Location 1"
     );
-    expect(result[0].works.length).toBe(0); // w3 has no relatedExpertIDs
+    expect(result.length).toBe(0);
   });
 
   test("prepareWorkPanelData handles expert with missing url property", () => {
@@ -214,7 +202,8 @@ describe("preparePanelData utility functions", () => {
     "loc1",
     "Location 1"
   );
-  expect(result[0].url).toBe("");
+  expect(result.length).toBe(1); // Ensure the expert is included
+  expect(result[0].url).toBe(""); // e3 has empty url
   expect(result[0].works[0].title).toBe("Work 4");
 });
 test("prepareGrantPanelData handles grant with missing fields", () => {
@@ -264,7 +253,7 @@ test("prepareGrantPanelData skips grants not linked to location", () => {
     "loc1",
     "Location 1"
   );
-  expect(result[0].grants.length).toBe(0);
+  expect(result.length).toBe(0);
 });
 
 test("prepareWorkPanelData skips works not linked to location", () => {
@@ -280,7 +269,7 @@ test("prepareWorkPanelData skips works not linked to location", () => {
     "loc1",
     "Location 1"
   );
-  expect(result[0].works.length).toBe(0);
+  expect(result.length).toBe(0);
 });
 
 test("prepareGrantPanelData returns empty array if no expertIDs match", () => {
