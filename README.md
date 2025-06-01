@@ -342,4 +342,61 @@ For a more detailed system architecture, developers can refer to src/backend/etl
 
 ---
 
+## **Deploying the Frontend to GitHub Pages**
+
+You can deploy the static React frontend to GitHub Pages so it is accessible at a public URL. This will only deploy the frontend (no backend or ETL features).
+
+### 1. Build the React App
+
+```powershell
+npm run build
+```
+This creates a `build/` directory with your static site.
+
+### 2. Install gh-pages (if not already)
+
+```powershell
+npm install --save-dev gh-pages
+```
+
+### 3. Add the homepage and deploy scripts to `package.json`
+
+Add this to your `package.json` (replace with your actual GitHub username and repo name):
+
+```json
+"homepage": "https://<your-github-username>.github.io/<your-repo-name>",
+"scripts": {
+  // ...existing scripts...
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -b gh-pages -d build"
+}
+```
+
+### 4. Deploy to the `gh-pages` branch
+
+```powershell
+npm run deploy
+```
+This will push the contents of `build/` to the `gh-pages` branch.
+
+### 5. Configure GitHub Pages in the UI
+
+- Go to your repository on GitHub.
+- Go to **Settings** → **Pages**.
+- Under **Source**, select the `gh-pages` branch and `/ (root)` folder.
+- Save.
+
+### 6. Access Your Site
+
+After a few minutes, your site will be live at:
+```
+https://<your-github-username>.github.io/<your-repo-name>
+```
+
+**Note:**
+- Only the frontend will be deployed. Backend/API features will not work unless you point the frontend to a live backend server.
+- If you want to deploy from a different branch or folder, adjust the `-b` and `-d` flags in the deploy script accordingly.
+
+---
+
 *Zoey Vo, Alyssa Vallejo, Marina Mata, Loc Nguyen, 2025*
