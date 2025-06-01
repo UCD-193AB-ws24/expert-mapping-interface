@@ -1,14 +1,39 @@
-const { writeThroughCache } = require('../cacheMiddleware');
-
 /**
- * Insert a work into Postgres and Redis
+ * insertData.js
+ *
+ * Utility functions to insert or update works and grants in both PostgreSQL and Redis.
+ * This module ensures that any new or updated work/grant is written through to both databases,
+ * keeping them in sync and using a consistent schema for easy retrieval.
+ *
+ * Features:
+ *   - Provides insertWork and insertGrant functions for upserting data.
+ *   - Uses write-through caching: writes to Redis and Postgres in a single operation.
+ *   - Automatically stringifies geometry for storage.
+ *   - Accepts additional properties for flexible schema extension.
+ *   - Handles errors gracefully and logs success/failure.
+ *
+ * Usage:
+ *   const { insertWork, insertGrant } = require('./insertData');
+ *   await insertWork(pgClient, redisClient, name, geometry, properties);
+ *   await insertGrant(pgClient, redisClient, name, geometry, properties);
+ *
+ * Parameters:
  * @param {Object} client - Postgres client
  * @param {Object} redisClient - Redis client
  * @param {string} name - Name of the work
  * @param {Object} validatedGeometry - Validated GeoJSON geometry
  * @param {Object} properties - Additional properties for the work
- * 
+ *
+ * Exports:
+ *   - insertWork(client, redisClient, name, validatedGeometry, properties)
+ *   - insertGrant(client, redisClient, name, validatedGeometry, properties)
+ *
+ * Alyssa Vallejo, 2025
  */
+
+
+
+const { writeThroughCache } = require('../cacheMiddleware');
 
 async function insertWork(client, redisClient, name, validatedGeometry, properties) {
   const redisKey = `work:${properties.id || name}`; // Use `id` or `name` as the Redis key
@@ -36,14 +61,6 @@ async function insertWork(client, redisClient, name, validatedGeometry, properti
   }
 }
 
-/**
- * Insert a grant into Postgres and Redis
- * @param {Object} client - Postgres client
- * @param {Object} redisClient - Redis client
- * @param {string} name - Name of the grant
- * @param {Object} validatedGeometry - Validated GeoJSON geometry
- * @param {Object} properties - Additional properties for the grant
- */
 async function insertGrant(client, redisClient, name, validatedGeometry, properties) {
   const redisKey = `grant:${properties.id || name}`; // Use `id` or `name` as the Redis key
   const redisData = {

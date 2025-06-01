@@ -34,6 +34,9 @@ and locations.
 
 - `tests/` – Unit and integration tests for Redis sync and organization logic.
 
+### Metrics
+
+- `metrics/` – Scripts for purposes of comparing data fetch strategies and primarily compares the speed of fetch from Postgis and Redis.
 ---
 
 ## Key Concepts

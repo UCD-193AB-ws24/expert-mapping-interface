@@ -1,10 +1,35 @@
-
 /**
- * Initialize Redis with data from PostgreSQL
- * @param {Object} redisClient - The Redis client instance
- * @param {Object} pgClient - The PostgreSQL client instance
+ * initializeRedis.js
+ *
+ * This module provides a utility to initialize Redis with data from PostgreSQL.
+ * It fetches works and grants from the database, sanitizes and structures the data,
+ * and stores it in Redis using a consistent schema.
+ *
+ * Key Features:
+ *   - Fetches all works and grants from PostgreSQL (locations_works and locations_grants tables).
+ *   - Sanitizes all data before writing to Redis (removes undefined/null, stringifies objects).
+ *   - Stores main work/grant data in a Redis hash (e.g., work:123).
+ *   - Stores each entry in the 'entries' array as a separate Redis hash (e.g., work:123:entry:1).
+ *   - Excludes the 'entries' field from the main hash to avoid redundancy.
+ *   - Handles errors gracefully, skipping problematic rows/entries and logging warnings.
+ *
+ * Usage:
+ *   const { initializeRedis } = require('./initializeRedis');
+ *   await initializeRedis(redisClient, pgClient);
+ *
+ * Exports:
+ *   - initializeRedis(redisClient, pgClient): Main function to load data into Redis.
+ *   - sanitizeRedisData(data): Utility to sanitize and stringify data for Redis.
+ *
+ * Alyssa Vallejo, 2025
  */
 
+
+/**
+ * Prepares data for Redis by sanitizing it.
+ * @param {Object} data - Data to sanitize and prepare for Redis
+ * @return {Object} - Sanitized data ready for Redis storage
+ */
 function sanitizeRedisData(data) {
   const sanitizedData = {};
   for (const [key, value] of Object.entries(data)) {
@@ -15,6 +40,11 @@ function sanitizeRedisData(data) {
   return sanitizedData;
 }
 
+/**
+ * Initialize Redis with data from PostgreSQL
+ * @param {Object} redisClient - The Redis client instance
+ * @param {Object} pgClient - The PostgreSQL client instance
+ */
 async function initializeRedis(redisClient, pgClient) {
   try {
     console.log('⏳ Fetching works data from PostgreSQL...');

@@ -1,3 +1,38 @@
+/**
+ * syncRedis.js
+ *
+ * This module provides the main logic for synchronizing Redis with the latest works and grants data from PostgreSQL.
+ * It ensures that Redis reflects all updates, additions, and new entries from the database, and organizes the data
+ * for efficient querying by the frontend.
+ *
+ * Key Features:
+ *   - Fetches all works and grants from PostgreSQL (locations_works and locations_grants tables).
+ *   - Compares Redis and Postgres data to detect new or updated entries.
+ *   - Adds new works/grants and their entries to Redis, or updates existing ones if changed.
+ *   - Sanitizes all data before writing to Redis (removes undefined/null, stringifies objects).
+ *   - Maintains metadata for works and grants (total count, last updated).
+ *   - Calls organizeRedis to rebuild lookup and layer maps after any changes.
+ *   - Handles errors gracefully, skipping problematic rows/entries and logging warnings.
+ * Parameters:
+ *  @param {Object} pgClient - The PostgreSQL client instance used for database operations.
+ *  @param {Object} redisClient - The Redis client instance used for caching.
+ * 
+ * Functions:
+ *   - syncRedisWithPostgres(pgClient, redisClient): Main function to synchronize Redis with PostgreSQL.
+ *   - updateMetadata(redisClient, type): Updates metadata for works or grants in Redis.
+ *   - sanitizeRedisData(data): Utility to sanitize and stringify data for Redis.
+ *
+ * Usage:
+ *   const { syncRedisWithPostgres } = require('./syncRedis');
+ *   await syncRedisWithPostgres(pgClient, redisClient);
+ *
+ * Notes:
+ *   - Assumes both pgClient and redisClient are already connected.
+ *   - Designed to be idempotent and safe for repeated runs.
+ *   - Organizes Redis data after sync for fast frontend queries.
+ *
+ * Alyssa Vallejo, 2025
+ */
 
 const { organizeRedis } = require('./organizeRedis');
 
