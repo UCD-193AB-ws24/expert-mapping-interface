@@ -90,7 +90,11 @@ async function updateMetadata(redisClient, type) {
     console.error('❌ Error during Redis synchronization:', error);
   } finally {
     
+    try {
     await redisClient.disconnect();
+  } catch (e) {
+    console.error('Error disconnecting Redis:', e);
+  }
     await pool.end();
     console.log('✅ PostgreSQL and Redis connections closed.');
     if (!isTest) {

@@ -15,6 +15,28 @@
 
 import React, { useState } from "react";
 
+function countUniqueWorks(works) {
+  const allWorks = works.flatMap(expert => expert.works || []);
+  return Array.from(
+    new Map(
+      allWorks.map(work =>
+        [work.workID || `${work.title}|${work.issued}`, work]
+      )
+    ).values()
+  ).length;
+}
+
+function countUniqueGrants(grants) {
+  const allGrants = grants.flatMap(expert => expert.grants || []);
+  return Array.from(
+    new Map(
+      allGrants.map(grant =>
+        [grant.grantID || `${grant.title}|${grant.funder}|${grant.startDate}`, grant]
+      )
+    ).values()
+  ).length;
+}
+
 //Helper function to style confidence levels.
 export const getConfidenceStyle = (confidenceValue) => {
   if (!confidenceValue) return { label: '', style: {} };
@@ -57,6 +79,7 @@ export const getConfidenceStyle = (confidenceValue) => {
     };
   }
 };
+
 
 // Displays a side panel with a list of works associated with a specific location.
 // Includes keyword filtering and expandable lists for works.
@@ -504,7 +527,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
           }}
         >
           Works (
-            {works.reduce((total, expert) => total + (Array.isArray(expert.works) ? expert.works.length : 0), 0)}
+            {countUniqueWorks(works)}
           )
         </button>
 
@@ -523,7 +546,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
             fontWeight: "bold"
           }}
         >
-          Grants ({grants.reduce((total, expert) => total + (Array.isArray(expert.grants) ? expert.grants.length : 0), 0)})
+          Grants ({countUniqueGrants(grants)})
         </button>
       </div>
 

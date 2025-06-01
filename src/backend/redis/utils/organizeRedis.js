@@ -69,4 +69,5 @@ async function organizeRedis(redisClient) {
 module.exports = {
   organizeRedis,
   saveLayerSpecificityMapsToRedis,
+  flushSelectedRedisKeys,
 };

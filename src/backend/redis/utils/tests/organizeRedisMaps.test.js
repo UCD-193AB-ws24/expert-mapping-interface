@@ -472,4 +472,84 @@ it("handles grant entry with relatedExperts undefined", async () => {
   expect(result.grantsMap.get("grant:2").relatedExpertIDs.length).toBe(0);
 });
 
+// Grant entry with relatedExperts as an empty array (covers 326, 354)
+it("handles grant entry with relatedExperts as empty array", async () => {
+  redisClient.keys
+    .mockResolvedValueOnce([]) // work keys
+    .mockResolvedValueOnce(["grant:1"]);
+  redisClient.hGetAll
+    .mockResolvedValueOnce({ id: "1", geometry: JSON.stringify({ type: "Point", coordinates: [0, 0] }) }) // grant:1
+    .mockResolvedValueOnce({
+      id: "2",
+      confidence: "61",
+      relatedExperts: []
+    });
+
+  redisClient.keys
+    .mockResolvedValueOnce(["grant:1:entry:1"]);
+
+  const result = await buildRedisMaps(redisClient);
+  expect(result.grantsMap.get("grant:2").relatedExpertIDs.length).toBe(0);
+});
+
+// Grant entry with relatedExperts as a number (covers 399-403)
+it("handles grant entry with relatedExperts as a number", async () => {
+  redisClient.keys
+    .mockResolvedValueOnce([]) // work keys
+    .mockResolvedValueOnce(["grant:1"]);
+  redisClient.hGetAll
+    .mockResolvedValueOnce({ id: "1", geometry: JSON.stringify({ type: "Point", coordinates: [0, 0] }) }) // grant:1
+    .mockResolvedValueOnce({
+      id: "2",
+      confidence: "61",
+      relatedExperts: 12345
+    });
+
+  redisClient.keys
+    .mockResolvedValueOnce(["grant:1:entry:1"]);
+
+  const result = await buildRedisMaps(redisClient);
+  expect(result.grantsMap.get("grant:2").relatedExpertIDs.length).toBe(0);
+});
+
+// Grant entry with relatedExperts as undefined (covers 409, 411, 417, 419)
+it("handles grant entry with relatedExperts undefined", async () => {
+  redisClient.keys
+    .mockResolvedValueOnce([]) // work keys
+    .mockResolvedValueOnce(["grant:1"]);
+  redisClient.hGetAll
+    .mockResolvedValueOnce({ id: "1", geometry: JSON.stringify({ type: "Point", coordinates: [0, 0] }) }) // grant:1
+    .mockResolvedValueOnce({
+      id: "2",
+      confidence: "61"
+      // relatedExperts: undefined
+    });
+
+  redisClient.keys
+    .mockResolvedValueOnce(["grant:1:entry:1"]);
+
+  const result = await buildRedisMaps(redisClient);
+  expect(result.grantsMap.get("grant:2").relatedExpertIDs.length).toBe(0);
+});
+
+// Grant entry with relatedExperts as array with missing fields (covers 385-386)
+it("handles grant entry with relatedExperts array missing fields", async () => {
+  redisClient.keys
+    .mockResolvedValueOnce([]) // work keys
+    .mockResolvedValueOnce(["grant:1"]);
+  redisClient.hGetAll
+    .mockResolvedValueOnce({ id: "1", geometry: JSON.stringify({ type: "Point", coordinates: [0, 0] }) }) // grant:1
+    .mockResolvedValueOnce({
+      id: "2",
+      confidence: "61",
+      relatedExperts: [{ foo: "bar" }]
+    });
+
+  redisClient.keys
+    .mockResolvedValueOnce(["grant:1:entry:1"]);
+
+  const result = await buildRedisMaps(redisClient);
+  expect(result.grantsMap.get("grant:2").relatedExpertIDs.length).toBe(1); // Should still add with fallback
+});
+
 });
