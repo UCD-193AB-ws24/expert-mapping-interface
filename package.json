@@ -29,7 +29,9 @@
     "build": "react-scripts build",
     "test": "jest",
     "eject": "react-scripts eject",
-    "test:backend": "jest src/backend"
+    "test:backend": "jest src/backend",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -b static-deployment -d build"
   },
   "repository": {
     "type": "github",
@@ -41,7 +43,7 @@
   "bugs": {
     "url": "https://github.com/UCD-193AB-ws24/expert-mapping-interface/issues"
   },
-  "homepage": ".",
+  "homepage": "https://UCD-193AB-ws24.github.io/expert-mapping-interface",
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
