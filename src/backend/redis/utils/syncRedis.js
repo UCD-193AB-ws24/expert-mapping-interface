@@ -1,3 +1,38 @@
+/**
+ * syncRedis.js
+ *
+ * This module provides the main logic for synchronizing Redis with the latest works and grants data from PostgreSQL.
+ * It ensures that Redis reflects all updates, additions, and new entries from the database, and organizes the data
+ * for efficient querying by the frontend.
+ *
+ * Key Features:
+ *   - Fetches all works and grants from PostgreSQL (locations_works and locations_grants tables).
+ *   - Compares Redis and Postgres data to detect new or updated entries.
+ *   - Adds new works/grants and their entries to Redis, or updates existing ones if changed.
+ *   - Sanitizes all data before writing to Redis (removes undefined/null, stringifies objects).
+ *   - Maintains metadata for works and grants (total count, last updated).
+ *   - Calls organizeRedis to rebuild lookup and layer maps after any changes.
+ *   - Handles errors gracefully, skipping problematic rows/entries and logging warnings.
+ * Parameters:
+ *  @param {Object} pgClient - The PostgreSQL client instance used for database operations.
+ *  @param {Object} redisClient - The Redis client instance used for caching.
+ * 
+ * Functions:
+ *   - syncRedisWithPostgres(pgClient, redisClient): Main function to synchronize Redis with PostgreSQL.
+ *   - updateMetadata(redisClient, type): Updates metadata for works or grants in Redis.
+ *   - sanitizeRedisData(data): Utility to sanitize and stringify data for Redis.
+ *
+ * Usage:
+ *   const { syncRedisWithPostgres } = require('./syncRedis');
+ *   await syncRedisWithPostgres(pgClient, redisClient);
+ *
+ * Notes:
+ *   - Assumes both pgClient and redisClient are already connected.
+ *   - Designed to be idempotent and safe for repeated runs.
+ *   - Organizes Redis data after sync for fast frontend queries.
+ *
+ * Alyssa Vallejo, 2025
+ */
 
 const { organizeRedis } = require('./organizeRedis');
 
@@ -6,7 +41,7 @@ async function updateMetadata(redisClient, type) {
   const metadataKey = `${type}:metadata`;
 
   // Fetch all keys for the given type
-  const allKeys = await redisClient.keys(`${prefix}*`);
+  const allKeys = await redisClient.keys(`${prefix}*`) || [];
 
   // Filter out entry keys and the metadata key itself
   const relevantKeys = allKeys.filter(
@@ -67,7 +102,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
   console.log('🔍 Fetching work data from Redis...');
   const redisWorkKeys = await redisClient.keys('work:*');
   const redisWorkData = {};
-  for (const key of redisWorkKeys) {
+  for (const key of (redisWorkKeys ||[])) {
     redisWorkData[key] = await redisClient.hGetAll(key);
   }
 
@@ -94,7 +129,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
       // Handle entries in properties for new work
-      if (row.properties.entries && Array.isArray(row.properties.entries)) {
+      if (row.properties && row.properties.entries && Array.isArray(row.properties.entries)) {
         for (let i = 0; i < row.properties.entries.length; i++) {
           const entry = row.properties.entries[i];
           if (!entry || typeof entry !== 'object') {
@@ -128,7 +163,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
       // Handle entries in properties for updated work
-      if (row.properties.entries && Array.isArray(row.properties.entries)) {
+      if (row.properties && row.properties.entries && Array.isArray(row.properties.entries)) {
         // Check existing entries in Redis
         let existingEntriesCount = 0;
         for (let i = 1; i <= row.properties.entries.length; i++) {
@@ -177,7 +212,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
   console.log('🔍 Fetching grant data from Redis...');
   const redisGrantKeys = await redisClient.keys('grant:*');
   const redisGrantData = {};
-  for (const key of redisGrantKeys) {
+  for (const key of (redisGrantKeys || [])) {
     redisGrantData[key] = await redisClient.hGetAll(key);
   }
   console.log('🔄 Syncing grants...');
@@ -203,7 +238,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
       // Handle entries in properties for new grant
-      if (row.properties.entries && Array.isArray(row.properties.entries)) {
+      if (row.properties && row.properties.entries && Array.isArray(row.properties.entries)) {
         for (let i = 0; i < row.properties.entries.length; i++) {
           const entry = row.properties.entries[i];
           if (!entry || typeof entry !== 'object') {
@@ -236,7 +271,7 @@ async function syncRedisWithPostgres(pgClient, redisClient) {
       await redisClient.hSet(redisKey, sanitizedRedisData);
 
       // Handle entries in properties for updated grant
-      if (row.properties.entries && Array.isArray(row.properties.entries)) {
+      if (row.properties && row.properties.entries && Array.isArray(row.properties.entries)) {
         let existingEntriesCount = 0;
         for (let i = 1; i <= row.properties.entries.length; i++) {
           const entryKey = `${redisKey}:entry:${i}`;

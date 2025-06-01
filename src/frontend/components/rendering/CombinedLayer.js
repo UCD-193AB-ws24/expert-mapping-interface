@@ -15,7 +15,7 @@
  * - renderPoints: Renders overlapping points for works and grants, including interactive popups.
  * - CombinedLayer: Main component that integrates the rendering logic and manages map layers.
  *
- * Marina Mata, 2025
+ * Marina Mata, Alyssa Vallejo 2025
  */
 
 import { useEffect, useState } from "react";
@@ -411,7 +411,9 @@ const renderPoints = ({
     ) {
     // console.log(`Skipping locationID ${locationID}: not a point or no works/grants.`);
     return;}
-
+    if(locationID === "location:10") {
+      console.log("Processing location:10 with data:", locationData);
+    }
     // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];

@@ -1,3 +1,53 @@
+/**
+ * organizeRedisMaps.js
+ *
+ * This module provides utilities for building and organizing Redis data structures
+ * for the AggieExperts mapping interface. It is responsible for:
+ *   - Fetching and filtering all works and grants from Redis, excluding metadata and entry keys.
+ *   - Building main lookup maps (locationMap, worksMap, grantsMap, expertsMap) from Redis hashes.
+ *   - Parsing and cleaning geometry, authors, and related experts for each entry.
+ *   - Aggregating and linking works, grants, and experts to their respective locations.
+ *   - Handling overlapping locations and aggregating country-level data.
+ *   - Building layer-specific maps for frontend rendering (workLayer, grantLayer, combinedLayer, overlap layers).
+ *   - Building specificity maps (country, state, county, city, exact) for each layer.
+ *
+ * Key Functions:
+ *   - getWorkKeys(redisClient): Fetches all work keys from Redis, excluding metadata and entry keys.
+ *   - getGrantKeys(redisClient): Fetches all grant keys from Redis, excluding metadata and entry keys.
+ *   - getWorkEntryKeys(redisClient, workKey): Fetches all entry keys for a given work.
+ *   - getGrantEntryKeys(redisClient, grantKey): Fetches all entry keys for a given grant.
+ *   - buildRedisMaps(redisClient): Main function to build all lookup and layer maps from Redis data.
+ *
+ * Parameters:
+ * @param {Object} redisClient - The Redis client instance used for database operations.
+ * @param {String} workKey - The location keys for works in Redis.
+ * @param {String} grantKey - The location keys for grants in Redis.
+ * @param {Number} placeRank - The place rank of the location (1-30). Used to determine specificity. 
+ * 
+ * Data Structures Returned by buildRedisMaps:
+ *   - locationMap: Map of locationID to location metadata and associated work/grant/expert IDs.
+ *   - worksMap: Map of workID to work metadata.
+ *   - grantsMap: Map of grantID to grant metadata.
+ *   - expertsMap: Map of expertID to expert metadata.
+ *   - workLayerMap, grantLayerMap, combinedLayerMap: Maps for non-overlap layers.
+ *   - overlapWorkLayerMap, overlapGrantLayerMap: Maps for overlap layers.
+ *   - workLayerSpecificityMaps, grantLayerSpecificityMaps, combinedLayerSpecificityMaps, overlapWorkLayerSpecificityMaps, overlapGrantLayerSpecificityMaps: 
+ *     Objects containing specificity maps (country, state, county, city, exact) for each layer.
+ *
+ * Notes:
+ *   - Only entries with confidence > 60 (works) or > 59 (grants) are included.
+ *   - Handles missing or malformed data gracefully, logging warnings as needed.
+ *   - Aggregates country-level data for locations with specificity "country".
+ *   - Designed for efficient frontend queries and map rendering.
+ *
+ * Usage:
+ *   const { buildRedisMaps } = require('./organizeRedisMaps');
+ *   const maps = await buildRedisMaps(redisClient);
+ *
+ * Alyssa Vallejo, 2025
+ */
+
+
 const getPlaceRankLevel = (placeRank) => {
   if (placeRank >= 1 && placeRank <= 6) return "country";
   if (placeRank >= 7 && placeRank <= 11) return "state";
@@ -12,7 +62,8 @@ const getPlaceRankLevel = (placeRank) => {
  */
 async function getWorkKeys(redisClient) {
   let workKeys = await redisClient.keys('work:*');
-  workKeys = workKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));
+  if (!Array.isArray(workKeys)) workKeys = [];
+  workKeys = workKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));     
   return workKeys;
 }
 
@@ -21,7 +72,8 @@ async function getWorkKeys(redisClient) {
  */
 async function getGrantKeys(redisClient) {
   let grantKeys = await redisClient.keys('grant:*');
-  grantKeys = grantKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));
+  if (!Array.isArray(grantKeys)) grantKeys = [];
+  grantKeys = grantKeys.filter(key => !key.includes(':metadata') && !key.includes(':entry:'));     
   return grantKeys;
 }
 
@@ -54,7 +106,9 @@ async function buildRedisMaps(redisClient) {
   // --- WORKS ---
   for (const workKey of workKeys) {
     const data = await redisClient.hGetAll(workKey);
-    if (!data || !data.id) continue;
+    if (!data || !data.id) {
+      console.log("[organizeRedisMaps] Skipping work with missing id:", workKey);
+    continue;}
 
     // Extract the number from workKey (format: work:n)
     const match = workKey.match(/^work:(\d+)$/); // failsafe regex to match work keys
@@ -71,7 +125,7 @@ async function buildRedisMaps(redisClient) {
         geometryType = geometryObj?.type || "";
         coordinates = geometryObj?.coordinates || null;
       } catch (e) {
-        console.error(`Error parsing geometry for ${workKey}:`, e);
+        console.log(`Error parsing geometry for ${workKey}:`, e);
       }
     }
 
@@ -92,29 +146,43 @@ async function buildRedisMaps(redisClient) {
         specificity: getPlaceRankLevel(Number(data.place_rank)) || "unknown",
         overlapping: "false",
       });
+      console.log(`[organizeRedisMaps] Initialized locationMap entry for ${locationID}`);
+      console.log(locationMap.get(locationID));
     }
+    
       // Get all entry keys for this location
     const entryKeys = await getWorkEntryKeys(redisClient, workKey);
 
     for (const entryKey of entryKeys) {
+      console.log(`Processing entry key: ${entryKey}`);
       const entry = await redisClient.hGetAll(entryKey);
-      if (!entry || !entry.id) continue;
+      if (!entry || !entry.id) {
+        console.log(`[organizeRedisMaps] Skipping entry with missing id: ${entryKey}`);
+        continue
+      };
 
       const confidenceNum = Number(entry.confidence);
       if (isNaN(confidenceNum) || confidenceNum <= 60) continue;
 
       // Correctly parsing authors 
       let authors = entry.authors;
+      if( !authors || authors === "[]" || authors === "null" || authors === "undefined") {
+        console.log(`[organizeRedisMaps] No authors found for entry ${entry.id}, using default.`);
+        authors = [];
+      }
       if (typeof authors === "string") {
         try {
           authors = JSON.parse(authors);
+          console.log(`[organizeRedisMaps] Parsed authors for entry ${entry.id}:`, authors);
         } catch {
           // If not a valid JSON string, treat as single author string
           authors = [authors];
+          console.log(`[organizeRedisMaps] Using single author string for entry ${entry.id}:`, authors);
         }
       }
       if (!Array.isArray(authors)) {
         authors = ["Unknown Authors"];
+        console.log(`[organizeRedisMaps] Authors for entry ${entry.id} is not an array, using default.`);
       }
 
       const workID = `work:${entry.id}` || workKey;
@@ -126,15 +194,21 @@ async function buildRedisMaps(redisClient) {
         abstract: entry.abstract || "No Abstract",
         issued: entry.issued || "Unknown",
         confidence: entry.confidence || "Unknown",
-        locationIDs: [],
+        locationIDs: [locationID],
         relatedExpertIDs: [],
         matchedFields: [], 
       });
-
+      const workEntry = worksMap.get(workID);
+      if (workEntry && !workEntry.locationIDs.includes(locationID)) {
+        console.log(`[organizeRedisMaps] Adding locationID ${locationID} to work ${workID}`);
+        workEntry.locationIDs = [locationID];
+      }
+      console.log(`[organizeRedisMaps] Adding work ${workID} to worksMap with locationID ${locationID}`);
       // Add workID to locationMap
       const locEntry = locationMap.get(locationID);
       if (locEntry && !locEntry.workIDs.includes(workID)) {
         locEntry.workIDs.push(workID);
+        console.log(`[organizeRedisMaps] Added workID ${workID} to location ${locationID}`);
       }
 
       // Handle related experts
@@ -214,7 +288,7 @@ async function buildRedisMaps(redisClient) {
     for (const [locID, locEntry] of locationMap.entries()) {
       if (locEntry.location === data.location) {
       existingLocationID = locID;
-      // console.log(`Found existing location for ${data.location}: ${locID}`);
+      console.log(`Found existing location for ${data.location}: ${locID}`);
       break;
       }
     }

@@ -9,9 +9,14 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
     }
     
     // Ensure the URL is a full URL
-    const fullUrl = expert.url.startsWith("http")
-      ? expert.url
-      : `https://experts.ucdavis.edu/${expert.url}`;
+    let fullUrl = "";
+    if (typeof expert.url === "string" && expert.url.startsWith("http")) {
+      fullUrl = expert.url;
+    } else if (typeof expert.url === "string" && expert.url.trim() !== "") {
+      fullUrl = `https://experts.ucdavis.edu/${expert.url}`;
+    } else {
+      fullUrl = "";
+    }
 
     // Find grants associated with this expert and the current location
     const associatedGrants = grantIDs
@@ -35,14 +40,18 @@ export const prepareGrantPanelData = (expertIDs, grantIDs, grantsMap, expertsMap
           // );
           return false;
         }
-        // if (!grant.locationID.includes(locationID)) {
-        //   console.warn(
-        //     `Grant with ID ${grant.grantID} has locationID ${grant.locationID}, which does not match locationID ${locationID}.`
-        //   );
-        // }
+        if (!grant.locationIDs.includes(locationID)) {
+          console.warn(
+            `Grant with ID ${grant.grantID} has does not have locationID ${locationID}.`
+          );
+          return false;
+        }
         return true;
       });
-
+    if(associatedGrants.length === 0) {
+        console.warn(`No works found for expertID ${expertID} at location ${locationID}.`);
+        return null;
+      }
     return {
       location: locationName,
       name: expert.name || "Unknown",
@@ -70,10 +79,10 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
       let fullUrl = "";
       if (typeof expert.url === "string" && expert.url.startsWith("http")) {
         fullUrl = expert.url;
-      } else if (typeof expert.url === "string") {
+      } else if (typeof expert.url === "string" && expert.url.trim() !== "") {
         fullUrl = `https://experts.ucdavis.edu/${expert.url}`;
       } else {
-        fullUrl = ""; // or some fallback URL
+        fullUrl = "";
       }
 
     // Find works associated with this expert and the current location
@@ -91,14 +100,18 @@ export const prepareWorkPanelData = (expertIDs, workIDs, expertsMap, worksMap, l
           // );
           return false;
         }
-        // if (!work.locationID.includes(locationID)) {
-        //   console.warn(
-        //     `Work with ID ${work.workID} has locationID ${work.locationID}, which does not match locationID ${locationID}.`
-        //   );
-        // }
+        if (!work.locationIDs.includes(locationID)) {
+          console.warn(
+            `Work with ID ${work.workID} has does not have locationID ${locationID}.`
+          );
+          return false;
+        }
         return true;
       });
-
+      if(associatedWorks.length === 0) {
+        console.warn(`No works found for expertID ${expertID} at location ${locationID}.`);
+        return null;
+      }
     return {
       location: locationName, 
       name: expert.name || "Unknown",
