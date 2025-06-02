@@ -135,34 +135,6 @@ describe("WorksPanel", () => {  //works panel tests
     expect(screen.queryByText(/Title:/)).not.toBeInTheDocument(); // Ensure no works are displayed
   });
 
-  // it("renders correct expert count in header (singular and plural)", () => {
-  //   const singleExpert = [
-  //     {
-  //       name: "Solo Expert",
-  //       works: [{ title: "Work A", issued: "2024", confidence: "High" }],
-  //     },
-  //   ];
-
-  //   const multipleExperts = [
-  //     {
-  //       name: "Expert One",
-  //       works: [{ title: "Work 1", issued: "2024", confidence: "High" }],
-  //     },
-  //     {
-  //       name: "Expert Two",
-  //       works: [{ title: "Work 2", issued: "2023", confidence: "Low" }],
-  //     },
-  //   ];
-
-  //   // Test singular
-  //   render(<WorksPanel works={singleExpert} onClose={() => { }} />);
-  //   expect(screen.getByText("1 Expert at this Location")).toBeInTheDocument();
-
-  //   // Rerender for plural case
-  //   render(<WorksPanel works={multipleExperts} onClose={() => { }} />);
-  //   expect(screen.getByText("2 Experts at this Location")).toBeInTheDocument();
-  // });
-
   it("toggles visibility of additional works", () => {
     render(<WorksPanel works={mockWorks} onClose={mockOnClose} />);
     fireEvent.click(screen.getByText("Show More Works")); // Click to show more works
@@ -294,31 +266,6 @@ describe("GrantsPanel", () => { //grants panel tests
     expect(screen.getByText("Fallback Grant Expert")).toBeInTheDocument();
     expect(screen.getByText((content) => content.includes("Untitled Grant"))).toBeInTheDocument();
   });
-
-  // it("renders plural expert label and 'Unknown Expert' fallback in GrantsPanel", () => {
-  //   const mockGrants = [
-  //     {
-  //       name: undefined, // triggers fallback to "Unknown Expert"
-  //       grants: [
-  //         { title: "Grant A", confidence: "Low" }
-  //       ]
-  //     },
-  //     {
-  //       name: "Expert B",
-  //       grants: [
-  //         { title: "Grant B", confidence: "High" }
-  //       ]
-  //     },
-  //   ];
-
-  //   render(<GrantsPanel grants={mockGrants} onClose={() => { }} />);
-
-  //   // Confirm plural header is shown
-  //   expect(screen.getByText("2 Experts at this Location")).toBeInTheDocument();
-
-  //   // Confirm fallback name
-  //   expect(screen.getByText("Unknown Expert")).toBeInTheDocument();
-  // });
 
   it("displays matched fields if present in grants", () => {
     const mockGrants = [

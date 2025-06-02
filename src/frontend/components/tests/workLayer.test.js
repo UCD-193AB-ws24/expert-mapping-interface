@@ -117,18 +117,18 @@ describe("WorkLayer component", () => {
   it("renders polygons and points when showWorks is true", () => {
     const locationMap = { // Mock locationMap with polygons and points
       loc1: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Polygon A",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Polygon A",
       },
       loc2: {
-      geometryType: "Point",
-      coordinates: [0, 0],
-      workIDs: [3],
-      expertIDs: [4],
-      name: "Point B",
+        geometryType: "Point",
+        coordinates: [0, 0],
+        workIDs: [3],
+        expertIDs: [4],
+        name: "Point B",
       },
     };
 
@@ -189,12 +189,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       polygonClick: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      workIDs: [1],
-      expertIDs: [5],
-      name: "Clickable Polygon",
-      display_name: "Clickable Display",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        workIDs: [1],
+        expertIDs: [5],
+        name: "Clickable Polygon",
+        display_name: "Clickable Display",
       },
     };
 
@@ -249,12 +249,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       hoverPoint: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [101],
-      expertIDs: [42],
-      name: "Hover Point Location",
-      display_name: "Hover Display",
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [101],
+        expertIDs: [42],
+        name: "Hover Point Location",
+        display_name: "Hover Display",
       },
     };
 
@@ -310,12 +310,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = { // Mock locationMap with a clickable point
       clickPoint: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [201],
-      expertIDs: [301],
-      name: "Clickable Point",
-      display_name: "Clickable Point Display",
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [201],
+        expertIDs: [301],
+        name: "Clickable Point",
+        display_name: "Clickable Point Display",
       },
     };
 
@@ -338,7 +338,7 @@ describe("WorkLayer component", () => {
         setPanelType={mockSetPanelType}
       />
     );
-     // Simulate a click event on the marker
+    // Simulate a click event on the marker
     const marker = L.marker.mock.results[0]?.value;
     const clickHandler = marker.on.mock.calls.find(([event]) => event === "click")?.[1];
     expect(clickHandler).toBeDefined();
@@ -364,11 +364,11 @@ describe("WorkLayer component", () => {
   it("calls iconCreateFunction and returns custom cluster icon with expert count", () => {
     const locationMap = { // Mock locationMap with a point
       pointA: {
-      geometryType: "Point",
-      coordinates: [0, 0],
-      workIDs: [1],
-      expertIDs: [1],
-      name: "Point A",
+        geometryType: "Point",
+        coordinates: [0, 0],
+        workIDs: [1],
+        expertIDs: [1],
+        name: "Point A",
       },
     };
 
@@ -391,7 +391,7 @@ describe("WorkLayer component", () => {
         setPanelType={jest.fn()}
       />
     );
-    
+
     // Retrieve cluster options and the icon creation function
     const clusterOptions = L.markerClusterGroup.mock.calls[0][0];
     const iconCreateFn = clusterOptions.iconCreateFunction;
@@ -421,12 +421,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       polygonPopup: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      workIDs: [1],
-      expertIDs: [1],
-      name: "Popup Polygon",
-      display_name: "Polygon Popup Display",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        workIDs: [1],
+        expertIDs: [1],
+        name: "Popup Polygon",
+        display_name: "Polygon Popup Display",
       },
     };
 
@@ -483,12 +483,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       "polygon-popup": {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Popup Polygon",
-      display_name: "Popup Location",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Popup Polygon",
+        display_name: "Popup Location",
       },
     };
 
@@ -543,11 +543,11 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       testPoint: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [1, 2, 3],
-      expertIDs: [1],
-      name: "Test Point",
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [1, 2, 3],
+        expertIDs: [1],
+        name: "Test Point",
       },
     };
 
@@ -600,11 +600,11 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       testPoint: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [1],
-      expertIDs: [1],
-      name: "Test Point",
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [1],
+        expertIDs: [1],
+        name: "Test Point",
       },
     };
 
@@ -653,11 +653,11 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       testPoint: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [1],
-      expertIDs: [1],
-      name: "Test Point",
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [1],
+        expertIDs: [1],
+        name: "Test Point",
       },
     };
 
@@ -678,7 +678,7 @@ describe("WorkLayer component", () => {
     // Simulate mouseover to open the popup
     const marker = L.marker.mock.results[0]?.value;
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];
-    
+
     expect(() => mouseoverHandler()).not.toThrow();
   });
 
@@ -689,11 +689,11 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       hoverCancel: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Hover Cancel Test",
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Hover Cancel Test",
       },
     };
 
@@ -735,12 +735,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       testPoint: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Test Point",
-      display_name: "Test Display"
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Test Point",
+        display_name: "Test Display"
       },
     };
 
@@ -776,12 +776,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       testPoint: {
-      geometryType: "Point",
-      coordinates: [10, 20],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Test Point",
-      display_name: "Test Display"
+        geometryType: "Point",
+        coordinates: [10, 20],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Test Point",
+        display_name: "Test Display"
       },
     };
 
@@ -820,20 +820,20 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       polygon_test: {
-      geometryType: "Polygon",
-      coordinates: [
-        [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [0, 1],
-        [0, 0],
+        geometryType: "Polygon",
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [0, 0],
+          ],
         ],
-      ],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Test Polygon",
-      display_name: "Test Polygon Display",
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Test Polygon",
+        display_name: "Test Polygon Display",
       },
     };
 
@@ -916,20 +916,20 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       polygon_test: {
-      geometryType: "Polygon",
-      coordinates: [
-        [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [0, 1],
-        [0, 0],
+        geometryType: "Polygon",
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [0, 0],
+          ],
         ],
-      ],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Test Polygon",
-      display_name: "Test Polygon Display",
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Test Polygon",
+        display_name: "Test Polygon Display",
       },
     };
 
@@ -1008,12 +1008,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       "no-matched-fields": {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "No Fields Polygon",
-      display_name: "Polygon",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "No Fields Polygon",
+        display_name: "Polygon",
       },
     };
 
@@ -1037,7 +1037,7 @@ describe("WorkLayer component", () => {
       />
     );
 
-    const marker = L.marker.mock.results[0]?.value; 
+    const marker = L.marker.mock.results[0]?.value;
     expect(marker).toBeDefined();
 
     const mouseoverHandler = marker.on.mock.calls.find(([event]) => event === "mouseover")?.[1];  // Get the mouseover handler
@@ -1055,12 +1055,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       "double-hover": {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "Popup Remover",
-      display_name: "Popup Overwrite",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "Popup Remover",
+        display_name: "Popup Overwrite",
       },
     };
 
@@ -1124,20 +1124,20 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       polygon1: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [1, 0]]],
-      workIDs: [1],
-      expertIDs: [2],
-      name: "First Polygon",
-      display_name: "First Polygon",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [1, 0]]],
+        workIDs: [1],
+        expertIDs: [2],
+        name: "First Polygon",
+        display_name: "First Polygon",
       },
       polygon2: {
-      geometryType: "Polygon",
-      coordinates: [[[2, 2], [3, 3], [3, 2]]],
-      workIDs: [3],
-      expertIDs: [4],
-      name: "Second Polygon",
-      display_name: "Second Polygon",
+        geometryType: "Polygon",
+        coordinates: [[[2, 2], [3, 3], [3, 2]]],
+        workIDs: [3],
+        expertIDs: [4],
+        name: "Second Polygon",
+        display_name: "Second Polygon",
       },
     };
 
@@ -1198,80 +1198,6 @@ describe("WorkLayer component", () => {
     expect(popupMock.remove).toHaveBeenCalled();  // Verify that the existing popup was removed
   });
 
-  // it("handles view-w-experts-btn click in point popup and updates panel state", () => {
-  //   const mockSetSelectedWorks = jest.fn();
-  //   const mockSetPanelOpen = jest.fn();
-  //   const mockSetPanelType = jest.fn();
-
-  //   const locationMap = new Map([
-  //     [
-  //       "point-popup-btn",
-  //       {
-  //         geometryType: "Point",
-  //         coordinates: [5, 10],
-  //         workIDs: [101],
-  //         expertIDs: [202],
-  //         name: "Work Point",
-  //         display_name: "Point Display",
-  //       },
-  //     ],
-  //   ]);
-
-  //   const worksMap = new Map([
-  //     [101, { matchedFields: ["ai", "robotics"] }],
-  //   ]);
-
-  //   const expertsMap = new Map([
-  //     [202, { name: "Dr. Robotics" }],
-  //   ]);
-
-  //   const prepareWorkPanelData = require("../rendering/utils/preparePanelData").prepareWorkPanelData; // Import the prepareWorkPanelData function
-  //   prepareWorkPanelData.mockClear(); // Clear any previous calls to the mock
-
-  //   render(
-  //     <WorkLayer
-  //       locationMap={locationMap}
-  //       worksMap={worksMap}
-  //       expertsMap={expertsMap}
-  //       showWorks={true}
-  //       setSelectedWorks={mockSetSelectedWorks}
-  //       setPanelOpen={mockSetPanelOpen}
-  //       setPanelType={mockSetPanelType}
-  //     />
-  //   );
-
-  //   const marker = L.marker.mock.results[0]?.value;
-  //   const mouseover = marker.on.mock.calls.find(([e]) => e === "mouseover")?.[1];
-  //   expect(mouseover).toBeDefined();
-  //   mouseover();
-
-  //   const popup = L.popup.mock.results[0]?.value;
-  //   const popupElement = popup.getElement();
-  //   const button = popupElement.querySelector(".view-w-experts-btn"); // Get the button from the popup
-  //   expect(button).toBeDefined(); 
-
-  //   const clickHandler = button.addEventListener.mock.calls.find(([e]) => e === "click")?.[1];  // Get the click handler for the button
-  //   expect(clickHandler).toBeDefined();
-
-  //   const preventDefault = jest.fn(); // Mock preventDefault function
-  //   const stopPropagation = jest.fn();  // Mock stopPropagation function
-
-  //   clickHandler({ preventDefault, stopPropagation });  // Simulate the click event
-
-  //   expect(preventDefault).toHaveBeenCalled();
-  //   expect(stopPropagation).toHaveBeenCalled();
-
-  //   expect(prepareWorkPanelData).toHaveBeenCalledWith(
-  //     [202], [101], expertsMap, worksMap, "point-popup-btn", "Point Display"
-  //   );
-
-    // Verify that the appropriate handlers were called
-  //   expect(mockSetSelectedWorks).toHaveBeenCalled();
-  //   expect(mockSetPanelType).toHaveBeenCalledWith("works");
-  //   expect(mockSetPanelOpen).toHaveBeenCalledWith(true);
-  //   expect(popup.close).toHaveBeenCalled();
-  // });
-
   it("removes existing workPointPopup before creating a new one", () => {
     // Mock the necessary functions and objects
     const mockSetSelectedWorks = jest.fn();
@@ -1280,12 +1206,12 @@ describe("WorkLayer component", () => {
 
     const locationMap = {
       "popup-click": {
-      geometryType: "Point",
-      coordinates: [0, 0],
-      workIDs: [101],
-      expertIDs: [202],
-      name: "Work Popup",
-      display_name: "Click Test",
+        geometryType: "Point",
+        coordinates: [0, 0],
+        workIDs: [101],
+        expertIDs: [202],
+        name: "Work Popup",
+        display_name: "Click Test",
       },
     };
 

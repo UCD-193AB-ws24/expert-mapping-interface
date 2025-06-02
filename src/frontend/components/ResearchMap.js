@@ -60,7 +60,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   const [locationMapsCache, setLocationMapsCache] = useState({}); // { [zoomLevel]: { ...maps } }
   const [currentLocationMaps, setCurrentLocationMaps] = useState(null);
 
-  
+
   // Fetch raw maps data from Redis on mount
   useEffect(() => {
     const fetchRawMaps = async () => {
@@ -83,7 +83,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   }, []);
 
 
-    
+
   /**
    * useEffect: Attach a zoom event listener to the map.
    * - Updates the zoom level state whenever the map's zoom level changes. Needed for reset Map button.
@@ -108,15 +108,15 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     };
   }, [mapRef.current]);
 
-    const getMapType = () => {
-      if (zoomLevel >= 2 && zoomLevel <= 4) return "CountryLevelMaps";
-      if (zoomLevel >= 5 && zoomLevel <= 7) return "StateLevelMaps";
-      if (zoomLevel >= 8 && zoomLevel <= 10) return "CountyLevelMaps";
-      if (zoomLevel >= 11 && zoomLevel <= 13) return "CityLevelMaps";
-      if (zoomLevel >= 14) return "ExactLevelMaps";
-      return null;
-    };
-  
+  const getMapType = () => {
+    if (zoomLevel >= 2 && zoomLevel <= 4) return "CountryLevelMaps";
+    if (zoomLevel >= 5 && zoomLevel <= 7) return "StateLevelMaps";
+    if (zoomLevel >= 8 && zoomLevel <= 10) return "CountyLevelMaps";
+    if (zoomLevel >= 11 && zoomLevel <= 13) return "CityLevelMaps";
+    if (zoomLevel >= 14) return "ExactLevelMaps";
+    return null;
+  };
+
   // Fetch and process location maps based on zoom level and toggles
   useEffect(() => {
     const mapType = getMapType();
@@ -124,7 +124,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
       console.warn("[DEBUG] No mapType determined for zoomLevel:", zoomLevel);
       return;
     }
-    
+
     // Decide which API endpoints to call for each layer type
     // - worksMap: always nonoverlap
     // - grantsMap: always nonoverlap
@@ -178,7 +178,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
 
   const mapType = getMapType();
   const mapLevel = mapType ? mapType.replace("LevelMaps", "") : "";
-  
+
   const workLayerLocations = currentLocationMaps?.workLayerMap || {};
   const grantLayerLocations = currentLocationMaps?.grantLayerMap || {};
   const combinedLocations = currentLocationMaps?.combinedLayerMap || {};
@@ -195,13 +195,13 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     Object.entries(rawGrantsMap || {}).filter(([, grant]) => isGrantInDate(grant, selectedDateRange))
   );
   const dateFilteredExpertsMap = Object.fromEntries(
-  Object.entries(rawExpertsMap || {}).filter(([, expert]) => {
-    // Only keep experts who have at least one work or grant in the filtered maps
-    const hasWork = (expert.workIDs || []).some(id => dateFilteredWorksMap[id]);
-    const hasGrant = (expert.grantIDs || []).some(id => dateFilteredGrantsMap[id]);
-    return hasWork || hasGrant;
-  })
-);
+    Object.entries(rawExpertsMap || {}).filter(([, expert]) => {
+      // Only keep experts who have at least one work or grant in the filtered maps
+      const hasWork = (expert.workIDs || []).some(id => dateFilteredWorksMap[id]);
+      const hasGrant = (expert.grantIDs || []).some(id => dateFilteredGrantsMap[id]);
+      return hasWork || hasGrant;
+    })
+  );
 
   // Debounce searchKeyword to avoid filtering on every keystroke
   const [debouncedSearchKeyword, setDebouncedSearchKeyword] = useState(searchKeyword);
@@ -250,7 +250,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
     );
     // console.log(`Filtered Grants Map of length ${Object.keys(filteredGrantsMap).length}:`, Object.keys(filteredGrantsMap));
   }
-  
+
   console.log(Object.keys(combinedLocations).length, "combinedLocations before filtering");
   // console.log(Object.entries(combinedLocations));
   const filteredWorkLayerLocations = filterWorkLayerLocationMap(
@@ -298,7 +298,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
           onClick={() => {
             const map = mapRef.current;
             if (map) {
-              map.setView([30, 0], 2); 
+              map.setView([30, 0], 2);
               setZoomLevel(2);
             }
           }}
@@ -308,7 +308,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
             right: "15px",
             zIndex: 1002,
             padding: "8px 14px",
-            backgroundColor: "#2f6bb3", 
+            backgroundColor: "#2f6bb3",
             color: "white",
             border: "none",
             borderRadius: "8px",
@@ -325,34 +325,34 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
         </button>
 
         {/* Zoom Level Indicator */}
-          {mapLevel && (
-              <div className="zoom-level-indicator" 
-                style={{
-                  position: "absolute",
-                  top: "20px",
-                  left: "50px",
-                  zIndex: 1001,
-                  background: "rgba(255,255,255,0.80)", // slightly less opaque
-                  padding: "6px 16px",
-                  borderRadius: "8px",
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  color: "#3879C7",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
-                }}
-              >
-                {mapLevel && `${mapLevel} Level`}
-              </div>
-            )}
-            
-          <MapWrapper mapRef={mapRef}>
-            {/* Combined location layer */}
+        {mapLevel && (
+          <div className="zoom-level-indicator"
+            style={{
+              position: "absolute",
+              top: "20px",
+              left: "50px",
+              zIndex: 1001,
+              background: "rgba(255,255,255,0.80)", // slightly less opaque
+              padding: "6px 16px",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              fontSize: "16px",
+              color: "#3879C7",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
+            }}
+          >
+            {mapLevel && `${mapLevel} Level`}
+          </div>
+        )}
+
+        <MapWrapper mapRef={mapRef}>
+          {/* Combined location layer */}
           {(showWorks && showGrants) && (
             <CombinedLayer
               searchKeyword={searchKeyword}
               locationMap={filteredCombinedLocations || {}}
               worksMap={rawWorksMap || {}}
-              grantsMap={ rawGrantsMap || {}}
+              grantsMap={rawGrantsMap || {}}
               expertsMap={effectiveFilteredExpertsMap || {}}
               showWorks={showWorks}
               showGrants={showGrants}

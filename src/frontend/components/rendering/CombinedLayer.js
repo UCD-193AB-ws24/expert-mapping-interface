@@ -46,7 +46,7 @@ const renderPolygons = ({
   comboLayers,
   comboPolyMarkers
 }) => {
-  
+
   // Sort polygons by area (largest to smallest)
   const sortedPolygons = Object.entries(locationMap)
     .filter(([, value]) =>
@@ -66,8 +66,8 @@ const renderPolygons = ({
       };
       return area(b) - area(a); // Sort largest to smallest
     });
-  
-  
+
+
   sortedPolygons.forEach(([locationID, locationData]) => {
     // Flip coordinates for Leaflet compatibility
     const workExpertIDs = new Set();
@@ -76,7 +76,7 @@ const renderPolygons = ({
     const flippedCoordinates = locationData.coordinates.map((ring) =>
       ring.map(([lng, lat]) => [lat, lng])
     );
-    
+
     setLocationName(locationData.name);
 
     // Count experts from workIDs
@@ -174,7 +174,7 @@ const renderPolygons = ({
         const work = worksMap[workID];
         if (!work.matchedFields || work.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields = getMatchedFields(searchKeyword, work);
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (work?.matchedFields) {
@@ -184,9 +184,9 @@ const renderPolygons = ({
 
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+        if (!grant.matchedFields || grant.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields = getMatchedFields(searchKeyword, grant);
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (grant?.matchedFields) {
@@ -202,13 +202,13 @@ const renderPolygons = ({
       // Create popup content
       const content =
         createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          );
+          work2expertCount,
+          grant2expertCount,
+          locationData.name,
+          totalWorks,
+          totalGrants,
+          totalExpertCount
+        );
 
       if (activePopup) activePopup.remove();
 
@@ -310,16 +310,16 @@ const renderPolygons = ({
       const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
 
       const matchedFields = Array.from(matchedFieldsSet);
-      
+
       // Create popup content
       const content =
         createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants
-          );
+          work2expertCount,
+          grant2expertCount,
+          locationData.name,
+          totalWorks,
+          totalGrants
+        );
 
       activePopup = L.popup({
         closeButton: true,
@@ -394,7 +394,7 @@ const renderPoints = ({
   setPanelOpen,
   setPanelType,
 }) => {
-  
+
   // Normalize locationMap to an array of [id, data] pairs
   const locationEntries = Object.entries(locationMap);
 
@@ -409,23 +409,24 @@ const renderPoints = ({
       !Array.isArray(locationData.grantIDs) || locationData.grantIDs.length === 0 ||
       !Array.isArray(locationData.workIDs) || locationData.workIDs.length === 0
     ) {
-    // console.log(`Skipping locationID ${locationID}: not a point or no works/grants.`);
-    return;}
-    if(locationID === "location:10") {
+      // console.log(`Skipping locationID ${locationID}: not a point or no works/grants.`);
+      return;
+    }
+    if (locationID === "location:10") {
       console.log("Processing location:10 with data:", locationData);
     }
     // Flip coordinates for Leaflet compatibility
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
-    if(locationID === "location:10") {
+    if (locationID === "location:10") {
       console.log("Flipped Coordinates for location:10:", flippedCoordinates);
       console.log("Location Data:", locationData.expertIDs.length, "experts found");
     }
     setLocationName(locationData.name);
-    
+
     // Get expert count for each work and grant per location
     // Count experts from workIDs
-    
+
     locationData.workIDs.forEach((workID) => {
       const work = worksMap[workID];
       if (!work) {
@@ -463,7 +464,7 @@ const renderPoints = ({
       ...grantExpertIDs,
     ]);
     const totalExpertCount = combinedExpertIDs.size;
-    
+
 
     // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
@@ -487,7 +488,7 @@ const renderPoints = ({
         const work = worksMap[workID];
         if (!work.matchedFields || work.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields = getMatchedFields(searchKeyword, work);
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (work?.matchedFields) {
@@ -497,9 +498,9 @@ const renderPoints = ({
 
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+        if (!grant.matchedFields || grant.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields = getMatchedFields(searchKeyword, grant);
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (grant?.matchedFields) {
@@ -515,13 +516,13 @@ const renderPoints = ({
       // Create popup content
       const content =
         createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          );
+          work2expertCount,
+          grant2expertCount,
+          locationData.name,
+          totalWorks,
+          totalGrants,
+          totalExpertCount
+        );
 
 
       // Remove existing popup if present
@@ -621,7 +622,7 @@ const renderPoints = ({
         }
       });
 
-      
+
       const totalWorks = locationData.workIDs?.filter(id => worksMap[id]).length || 0;
       const totalGrants = locationData.grantIDs?.filter(id => grantsMap[id]).length || 0;
       const matchedFields = Array.from(matchedFieldsSet);
@@ -629,13 +630,13 @@ const renderPoints = ({
       // Create popup content
       const content =
         createCombinedPopup(
-            work2expertCount,
-            grant2expertCount,
-            locationData.name,
-            totalWorks,
-            totalGrants,
-            totalExpertCount
-          );
+          work2expertCount,
+          grant2expertCount,
+          locationData.name,
+          totalWorks,
+          totalGrants,
+          totalExpertCount
+        );
 
       // Create a new popup
       activePointPopup = L.popup({

@@ -127,7 +127,7 @@ describe("CombinedLayer component", () => {
   });
 
   it("opens combined panel from marker click (mobile/tablet) and shows matched popup", () => {
-   // Mock the necessary functions
+    // Mock the necessary functions
     const mockSetSelectedGrants = jest.fn();
     const mockSetSelectedWorks = jest.fn();
     const mockSetPanelOpen = jest.fn();
@@ -136,13 +136,13 @@ describe("CombinedLayer component", () => {
 
     const locationMap = {
       mobileClickTest: {
-      geometryType: "Point",
-      coordinates: [0, 0],
-      workIDs: [301],
-      grantIDs: [401],
-      expertIDs: [1, 2],
-      name: "Mobile Point",
-      display_name: "Mobile Click Location",
+        geometryType: "Point",
+        coordinates: [0, 0],
+        workIDs: [301],
+        grantIDs: [401],
+        expertIDs: [1, 2],
+        name: "Mobile Point",
+        display_name: "Mobile Click Location",
       },
     };
 
@@ -180,7 +180,7 @@ describe("CombinedLayer component", () => {
     // Find the click handler for the marker
     const clickHandler = marker.on.mock.calls.find(([event]) => event === "click")?.[1];
     expect(clickHandler).toBeDefined();
-    clickHandler(); 
+    clickHandler();
 
     const popup = L.popup.mock.results[L.popup.mock.calls.length - 1]?.value;
     const popupElement = popup.getElement();
@@ -212,13 +212,13 @@ describe("CombinedLayer component", () => {
 
     const locationMap = {
       mouseenterTest: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [1, 0]]],
-      workIDs: [5],
-      grantIDs: [6],
-      expertIDs: [1, 2],
-      name: "Mouseenter Polygon",
-      display_name: "Mouseenter Test",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [1, 0]]],
+        workIDs: [5],
+        grantIDs: [6],
+        expertIDs: [1, 2],
+        name: "Mouseenter Polygon",
+        display_name: "Mouseenter Test",
       },
     };
 
@@ -279,13 +279,13 @@ describe("CombinedLayer component", () => {
 
     const locationMap = {
       mouseleaveOnlyTest: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [1, 0]]],
-      workIDs: [10],
-      grantIDs: [20],
-      expertIDs: [1, 2],
-      name: "Mouseleave Only",
-      display_name: "Mouseleave Only",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [1, 0]]],
+        workIDs: [10],
+        grantIDs: [20],
+        expertIDs: [1, 2],
+        name: "Mouseleave Only",
+        display_name: "Mouseleave Only",
       },
     };
 
@@ -345,13 +345,13 @@ describe("CombinedLayer component", () => {
 
     const locationMap = {
       mouseoutOnlyTest: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [1, 0]]],
-      workIDs: [10],
-      grantIDs: [20],
-      expertIDs: [1, 2],
-      name: "Mouseout Only",
-      display_name: "Mouseout Only",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [1, 0]]],
+        workIDs: [10],
+        grantIDs: [20],
+        expertIDs: [1, 2],
+        name: "Mouseout Only",
+        display_name: "Mouseout Only",
       },
     };
     // Mock data for works and grants
@@ -403,13 +403,13 @@ describe("CombinedLayer component", () => {
 
     const locationMap = {
       polygonClickTest: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
-      grantIDs: [101],
-      workIDs: [202],
-      expertIDs: [10, 20],
-      name: "Test Polygon",
-      display_name: "Test Polygon Display",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        grantIDs: [101],
+        workIDs: [202],
+        expertIDs: [10, 20],
+        name: "Test Polygon",
+        display_name: "Test Polygon Display",
       },
     };
 
@@ -474,13 +474,13 @@ describe("CombinedLayer component", () => {
 
     const locationMap = {
       "combined-popup": {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      grantIDs: [1],
-      workIDs: [2],
-      expertIDs: [3],
-      name: "Combined Polygon",
-      display_name: "Combined Location",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        grantIDs: [1],
+        workIDs: [2],
+        expertIDs: [3],
+        name: "Combined Polygon",
+        display_name: "Combined Location",
       },
     };
 
@@ -546,12 +546,12 @@ describe("CombinedLayer component", () => {
 
     const locationMap = {
       "missing-data-location": {
-      geometryType: "Point",
-      coordinates: [0, 0],
-      workIDs: [999],
-      grantIDs: [888],
-      name: "Missing Data Location",
-      display_name: "Missing Data",
+        geometryType: "Point",
+        coordinates: [0, 0],
+        workIDs: [999],
+        grantIDs: [888],
+        name: "Missing Data Location",
+        display_name: "Missing Data",
       },
     };
 
@@ -582,11 +582,11 @@ describe("CombinedLayer component", () => {
   it("renders polygons and points when showWorks and showGrants are true", () => {
     const locationMap = {
       combined1: {
-      geometryType: "Polygon",
-      coordinates: [[[0, 0], [1, 1], [2, 2]]],
-      grantIDs: [1],
-      workIDs: [2],
-      name: "Combined Location",
+        geometryType: "Polygon",
+        coordinates: [[[0, 0], [1, 1], [2, 2]]],
+        grantIDs: [1],
+        workIDs: [2],
+        name: "Combined Location",
       },
     };
 
@@ -832,11 +832,11 @@ it("calls iconCreateFunction and returns custom cluster icon with expert count i
       { options: { expertCount: 4 } },
     ],
   };
-// Mock the L.divIcon to check if it was called with the correct parameters
+  // Mock the L.divIcon to check if it was called with the correct parameters
   iconCreateFn(mockCluster);
   expect(L.divIcon).toHaveBeenCalledWith(
     expect.objectContaining({
-      html: expect.stringContaining("7"), 
+      html: expect.stringContaining("7"),
       className: "custom-cluster-icon",
     })
   );
@@ -898,7 +898,7 @@ it("handles polygon popup mouseenter and mouseleave correctly in CombinedLayer",
   const popupElement = popup.getElement();
   expect(popupElement).toBeDefined();
 
-  const mouseenterHandler = popupElement.addEventListener.mock.calls.find(  
+  const mouseenterHandler = popupElement.addEventListener.mock.calls.find(
     ([event]) => event === "mouseenter"
   )?.[1]; // Get the mouseenter handler from the popup element
   const mouseleaveHandler = popupElement.addEventListener.mock.calls.find(
@@ -992,7 +992,7 @@ it("removes popup when clicking a second polygon in CombinedLayer", () => {
       setLocationName={mockSetLocationName}
     />
   );
-  
+
   const marker1 = L.marker.mock.results[0]?.value;
   const marker2 = L.marker.mock.results[1]?.value;
   // Ensure both markers are defined

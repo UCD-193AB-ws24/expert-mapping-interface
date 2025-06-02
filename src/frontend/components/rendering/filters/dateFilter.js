@@ -1,4 +1,17 @@
 /**
+ * This module provides helper functions to filter works and grants by date ranges.
+ * 
+ * Functions:
+ * - isWorkInDate: Filters works based on their issued year and a selected date range.
+ * - isGrantInDate: Filters grants based on their start or end date and a selected date range.
+ * 
+ * Usage:
+ * Import the functions and pass the relevant entry object and date range to filter works or grants.
+ * 
+ * Marina Mata, 2025
+ */
+
+/**
     * Helper function to filter works by issued year.
     * @param {object} entry - A work entry object.
     * @returns {boolean} True if the work matches the selected date range, otherwise false.

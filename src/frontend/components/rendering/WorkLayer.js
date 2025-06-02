@@ -44,7 +44,7 @@ const renderPolygons = ({
   expertsMap,
   worksMap,
 }) => {
-  
+
   const sortedPolygons = Object.entries(locationMap)
     .filter(([, value]) => value.geometryType === "Polygon" && value.expertIDs.length > 0) // Skip locations with 0 experts
     .sort(([, a], [, b]) => {
@@ -75,12 +75,12 @@ const renderPolygons = ({
     polygonLayers.push(polygon);
 
     const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-    locationData.workIDs.some(workID => {
-      const work = worksMap[workID];
-      return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
-    })
-  );
-  
+      locationData.workIDs.some(workID => {
+        const work = worksMap[workID];
+        return work && work.relatedExpertIDs && work.relatedExpertIDs.includes(expertID);
+      })
+    );
+
     // Calculate the center of the polygon
     const polygonCenter = polygon.getCenter();
 
@@ -118,17 +118,17 @@ const renderPolygons = ({
         const work = worksMap[workID];
         if (!work.matchedFields || work.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields = getMatchedFields(searchKeyword, work);
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (work?.matchedFields) {
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
-      
+
       const matchedFields = Array.from(matchedFieldsSet);
-      
-      
+
+
       // Create content for the popup
 
       const content = createMultiExpertContent(
@@ -205,77 +205,77 @@ const renderPolygons = ({
     });
 
     marker.on("click", () => {
-    // Remove any existing popup
-    if (workPolyPopup) workPolyPopup.remove();
+      // Remove any existing popup
+      if (workPolyPopup) workPolyPopup.remove();
 
-    const matchedFieldsSet = new Set();
+      const matchedFieldsSet = new Set();
       // Collect matched fields from works and grants
-    locationData.workIDs.forEach((workID) => {
-      const work = worksMap[workID];
-      if (!work.matchedFields || work.matchedFields.length === 0) {
-        // Compute matchedFields if missing or empty
-        console.log("Computing matchedFields for work:", workID);
-        work.matchedFields = getMatchedFields(searchKeyword,work);
-        work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-        console.log("Matched fields for work:", work.matchedFields);
+      locationData.workIDs.forEach((workID) => {
+        const work = worksMap[workID];
+        if (!work.matchedFields || work.matchedFields.length === 0) {
+          // Compute matchedFields if missing or empty
+          console.log("Computing matchedFields for work:", workID);
+          work.matchedFields = getMatchedFields(searchKeyword, work);
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+          console.log("Matched fields for work:", work.matchedFields);
+        }
+        if (work?.matchedFields) {
+          work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
+        }
+      });
+
+      const matchedFields = Array.from(matchedFieldsSet);
+
+      const content = createMultiExpertContent(
+        filteredExpertIDs.length,
+        locationData.name,
+        locationData.workIDs.length,
+        matchedFields
+      );
+
+      workPolyPopup = L.popup({
+        closeButton: true,      // Show close button for mobile/tablet
+        autoClose: true,        // Close when clicking elsewhere
+        maxWidth: 300,
+        className: "hoverable-popup",
+        autoPan: true,          // Pan to popup if needed
+      })
+        .setLatLng(polygon.getBounds().getCenter())
+        .setContent(content)
+        .openOn(map);
+
+      const popupElement = workPolyPopup.getElement();
+
+      if (popupElement) {
+        popupElement.style.pointerEvents = "auto";
+
+        // Only add the button click handler
+        const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
+        if (viewWPolyExpertsBtn) {
+          viewWPolyExpertsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+
+            const panelData = prepareWorkPanelData(
+              filteredExpertIDs,
+              locationData.workIDs,
+              expertsMap,
+              worksMap,
+              locationID,
+              locationData.display_name
+            );
+            setSelectedWorks(panelData);
+            setPanelType("works");
+            setPanelOpen(true);
+
+            if (workPolyPopup) {
+              workPolyPopup.close();
+              workPolyPopup = null;
+            }
+          });
+        }
       }
-      if (work?.matchedFields) {
-        work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
-      }
-    });
-    
-    const matchedFields = Array.from(matchedFieldsSet);
-
-    const content = createMultiExpertContent(
-      filteredExpertIDs.length,
-      locationData.name,
-      locationData.workIDs.length,
-      matchedFields
-    );
-
-    workPolyPopup = L.popup({
-      closeButton: true,      // Show close button for mobile/tablet
-      autoClose: true,        // Close when clicking elsewhere
-      maxWidth: 300,
-      className: "hoverable-popup",
-      autoPan: true,          // Pan to popup if needed
-    })
-      .setLatLng(polygon.getBounds().getCenter())
-      .setContent(content)
-      .openOn(map);
-
-    const popupElement = workPolyPopup.getElement();
-    
-    if (popupElement) {
-      popupElement.style.pointerEvents = "auto";
-
-      // Only add the button click handler
-      const viewWPolyExpertsBtn = popupElement.querySelector(".view-w-experts-btn");
-      if (viewWPolyExpertsBtn) {
-        viewWPolyExpertsBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-
-          
-          const panelData = prepareWorkPanelData(
-            filteredExpertIDs,
-            locationData.workIDs,
-            expertsMap,
-            worksMap,
-            locationID,
-            locationData.display_name
-          );
-          setSelectedWorks(panelData);
-          setPanelType("works");
-          setPanelOpen(true);
-
-          if (workPolyPopup) {
-            workPolyPopup.close();
-            workPolyPopup = null;
-          }
-        });
-      }
-    }
     });
   });
 };
@@ -297,7 +297,7 @@ const renderPoints = ({
   worksMap,
 }) => {
 
-  
+
   const locationEntries = Object.entries(locationMap);
 
   // Iterate through each location in the location map
@@ -311,7 +311,7 @@ const renderPoints = ({
     // Swap [lng, lat] to [lat, lng]
     const [lng, lat] = locationData.coordinates;
     const flippedCoordinates = [lat, lng];
-    
+
     // Filter expertIDs to only those with at least one work in this location
     const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
       locationData.workIDs.some(workID => {
@@ -341,7 +341,7 @@ const renderPoints = ({
         if (!work.matchedFields || work.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
           console.log("Computing matchedFields for work:", workID);
-          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields = getMatchedFields(searchKeyword, work);
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
           console.log("Matched fields for work:", work.matchedFields);
         }
@@ -349,7 +349,7 @@ const renderPoints = ({
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
-      
+
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
@@ -434,7 +434,7 @@ const renderPoints = ({
         if (!work.matchedFields || work.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
           console.log("Computing matchedFields for work:", workID);
-          work.matchedFields = getMatchedFields(searchKeyword,work);
+          work.matchedFields = getMatchedFields(searchKeyword, work);
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
           console.log("Matched fields for work:", work.matchedFields);
         }
@@ -442,7 +442,7 @@ const renderPoints = ({
           work.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
       });
-      
+
       const matchedFields = Array.from(matchedFieldsSet);
 
       const content = createMultiExpertContent(
@@ -493,7 +493,7 @@ const renderPoints = ({
         }
       }
     });
-    
+
     markerClusterGroup.addLayer(marker);
   });
 

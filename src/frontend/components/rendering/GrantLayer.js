@@ -74,11 +74,11 @@ const renderPolygons = ({
     }).addTo(map);
 
     const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-    locationData.grantIDs.some(grantID => {
-      const grant = grantsMap[grantID];
-      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
-    })
-  );
+      locationData.grantIDs.some(grantID => {
+        const grant = grantsMap[grantID];
+        return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
+      })
+    );
 
     polygonLayers.push(polygon);
 
@@ -115,9 +115,9 @@ const renderPolygons = ({
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+        if (!grant.matchedFields || grant.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields = getMatchedFields(searchKeyword, grant);
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (grant?.matchedFields) {
@@ -212,9 +212,9 @@ const renderPolygons = ({
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+        if (!grant.matchedFields || grant.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields = getMatchedFields(searchKeyword, grant);
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (grant?.matchedFields) {
@@ -294,7 +294,7 @@ const renderPoints = ({
   expertsMap,
 }) => {
 
-  
+
   const locationEntries = Object.entries(locationMap);
 
   // Iterate through each location in the location map
@@ -309,11 +309,11 @@ const renderPoints = ({
     const flippedCoordinates = [lat, lng];
 
     const filteredExpertIDs = locationData.expertIDs.filter(expertID =>
-    locationData.grantIDs.some(grantID => {
-      const grant = grantsMap[grantID];
-      return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
-    })
-  );
+      locationData.grantIDs.some(grantID => {
+        const grant = grantsMap[grantID];
+        return grant && grant.relatedExpertIDs && grant.relatedExpertIDs.includes(expertID);
+      })
+    );
     // Create a marker for the location
     const marker = L.marker(flippedCoordinates, {
       icon: L.divIcon({
@@ -327,7 +327,7 @@ const renderPoints = ({
     let grantPointPopup = null;
     let grantPointCT = null; // CT = closetimeout
 
-    
+
     // Handle mouseover event for the marker
     marker.on("mouseover", () => {
       if (grantPointCT) clearTimeout(grantPointCT);
@@ -335,9 +335,9 @@ const renderPoints = ({
       const matchedFieldsSet = new Set();
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+        if (!grant.matchedFields || grant.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields = getMatchedFields(searchKeyword, grant);
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
           console.log("Grant ID:", grantID, "Grant MatchedFields:", grant.matchedFields);
         }
@@ -432,9 +432,9 @@ const renderPoints = ({
       locationData.grantIDs.forEach((grantID) => {
         const grant = grantsMap[grantID];
         console.log("Grant ID:", grantID, "Grant MatchedFields:", grant.matchedFields);
-        if( !grant.matchedFields || grant.matchedFields.length === 0) {
+        if (!grant.matchedFields || grant.matchedFields.length === 0) {
           // Compute matchedFields if missing or empty
-          grant.matchedFields = getMatchedFields(searchKeyword,grant);
+          grant.matchedFields = getMatchedFields(searchKeyword, grant);
           grant.matchedFields.forEach((f) => matchedFieldsSet.add(f));
         }
         if (grant?.matchedFields) {

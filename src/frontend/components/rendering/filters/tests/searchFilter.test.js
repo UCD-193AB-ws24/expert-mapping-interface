@@ -28,8 +28,8 @@ describe('searchFilter.js', () => {
       const entry = { title: 'Research on AI', abstract: 'AI is the future', funder: 'Tech Fund' };
       expect(matchesKeyword('AI', entry)).toBe(true);
     });
-     
-    
+
+
 
     // Fuzzy match with typo
     it('should return true for fuzzy matches within the allowed Levenshtein distance', () => {
@@ -61,15 +61,15 @@ describe('searchFilter.js', () => {
     });
 
     // Test case for filtering out null/undefined fields
-it('should handle entries with null or undefined fields', () => {
-  const entry = {
-    title: 'AI Research',
-    abstract: null, // Null field
-    funder: undefined, // Undefined field
-    relatedExperts: [{ fullName: 'Dr. Smith' }, null], // Mixed array with null
-  };
-  expect(matchesKeyword('AI', entry)).toBe(true); // Should still match the title
-});
+    it('should handle entries with null or undefined fields', () => {
+      const entry = {
+        title: 'AI Research',
+        abstract: null, // Null field
+        funder: undefined, // Undefined field
+        relatedExperts: [{ fullName: 'Dr. Smith' }, null], // Mixed array with null
+      };
+      expect(matchesKeyword('AI', entry)).toBe(true); // Should still match the title
+    });
 
     // Fuzzy match with typo
     it('should return matched fields for fuzzy matches', () => {
@@ -118,7 +118,7 @@ it('should handle entries with null or undefined fields', () => {
       expect(normalizeTerm("studies")).toBe("study");
     });
 
-    
+
     it("handles words ending in 'es'", () => {
       expect(normalizeTerm("houses")).toBe("house");
     });

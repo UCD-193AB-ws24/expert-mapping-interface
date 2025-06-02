@@ -494,7 +494,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
       >
         ×
       </button>
-    {/* Expert count at Location */}
+      {/* Expert count at Location */}
       <h2 style={{ marginTop: "0", marginBottom: "10px", color: "#659c39" }}>
         {(() => {
           const expertIDs = new Set([
@@ -511,7 +511,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
 
       {/* Tab Navigation */}
       <div style={{ display: "flex", marginBottom: "15px", borderBottom: "1px solid #eaeaea" }}>
-        {/* /* Works Tab Button */ }
+        {/* /* Works Tab Button */}
         <button
           onClick={() => setActiveTab("works")}
           style={{
@@ -527,7 +527,7 @@ export const CombinedPanel = ({ works, grants, onClose }) => {
           }}
         >
           Works (
-            {countUniqueWorks(works)}
+          {countUniqueWorks(works)}
           )
         </button>
 
