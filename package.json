@@ -27,11 +27,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest",
-    "eject": "react-scripts eject",
+    "test": "jest",    "eject": "react-scripts eject",
     "test:backend": "jest src/backend",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -b static-deployment -d build"
+    "deploy": "gh-pages -b static-deployment -d build --force"
   },
   "repository": {
     "type": "github",

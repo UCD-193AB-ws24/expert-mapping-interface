@@ -68,16 +68,15 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
   useEffect(() => {
     setIsLoading(true);
     const loadGeoData = async () => {
-      try {
-        // Fetch data from two different APIs concurrently
+      try {        // Fetch data from two different APIs concurrently
         Promise.all([
-          fetch('/workFeatures.geojson').then((response) => {
+          fetch('./workFeatures.geojson').then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
           }),
-          fetch('/grantFeatures.geojson').then((response) => {
+          fetch('./grantFeatures.geojson').then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
