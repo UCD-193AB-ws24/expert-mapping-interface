@@ -293,7 +293,7 @@ const ResearchMap = ({ showGrants, showWorks, searchKeyword, selectedDateRange, 
 
   return (
     <div style={{ display: "flex", position: "relative", height: "100%" }}>
-      <div id="map" style={{ flex: 1, height: "100%" }}>
+      <div id="map" style={{ flex: 1, minHeight: "calc(100vh - 140px)", position: "relative" }}>
         <button
           onClick={() => {
             const map = mapRef.current;
