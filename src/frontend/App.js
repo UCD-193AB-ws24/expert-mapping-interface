@@ -230,18 +230,12 @@ function App() {
             </div>
 
             {/* Map Guide Section */}
-            <details open className="group mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
-              <summary className="flex items-center justify-between font-bold cursor-pointer text-[#022851] group-hover:text-blue-700 transition-colors">
-                <span className="block text-lg font-bold text-[#022851] mb-2">
-                  Map Guide
-                </span>
-                <span className="text-sm text-gray-400">
-                  <span className="group-open:hidden">(click to open)</span>
-                  <span className="hidden group-open:inline">(click to close)</span>
-                </span>
-              </summary>
-              <div className="mt-3 text-gray-800 font-medium space-y-6">
-                <div>
+            <div className="mt-6 text-sm bg-white p-4 rounded border border-gray-300 shadow">
+  <div className="flex items-center justify-between font-bold text-[#022851]">
+    <span className="block text-lg font-bold text-[#022851] mb-2">Map Guide</span>
+  </div>
+  <div className="mt-3 text-gray-800 font-medium space-y-6">
+
                   <h3 className="text-base font-bold text-[#022851] mb-2">Location Colors</h3>
                   <ul className="list-disc list-inside space-y-1">
                     <li><span style={{ color: "#eda012", fontWeight: 600 }}>Yellow</span> – Experts with Grants.</li>
@@ -286,7 +280,6 @@ function App() {
                   <p>Only shows research works published and grants funded within the selected year range.</p>
                 </div>
               </div>
-            </details>
           </aside>
 
           {/* Filter Modal */}
